@@ -1,0 +1,918 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="tomcat,集群,Apache,SpringMvc," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="基础知识在深入了解前，有必要先把了解下一些基础的知识，这样才能更好的理解。  Web客户访问Tomcat服务器上JSP组件的两种方式如下图所示。    在图中，  Web客户1直接访问Tomcat服务器上的JSP组件，他访问的URL为http://localhost:8080 /index.jsp。  Web客户2通过HTTP服务器访问Tomcat服务器上的JSP组件。假定HTTP服务器使用的HT">
+<meta name="keywords" content="tomcat,集群,Apache,SpringMvc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程">
+<meta property="og:url" content="http://yoursite.com/2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="基础知识在深入了解前，有必要先把了解下一些基础的知识，这样才能更好的理解。  Web客户访问Tomcat服务器上JSP组件的两种方式如下图所示。    在图中，  Web客户1直接访问Tomcat服务器上的JSP组件，他访问的URL为http://localhost:8080 /index.jsp。  Web客户2通过HTTP服务器访问Tomcat服务器上的JSP组件。假定HTTP服务器使用的HT">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20150828161212922">
+<meta property="og:image" content="http://img.blog.csdn.net/20150828172905843">
+<meta property="og:image" content="http://img.blog.csdn.net/20150829115428074">
+<meta property="og:image" content="http://img.blog.csdn.net/20150829150723161">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.702Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程">
+<meta name="twitter:description" content="基础知识在深入了解前，有必要先把了解下一些基础的知识，这样才能更好的理解。  Web客户访问Tomcat服务器上JSP组件的两种方式如下图所示。    在图中，  Web客户1直接访问Tomcat服务器上的JSP组件，他访问的URL为http://localhost:8080 /index.jsp。  Web客户2通过HTTP服务器访问Tomcat服务器上的JSP组件。假定HTTP服务器使用的HT">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20150828161212922">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-08-29T15:16:19+08:00" content="2015-08-29">
+            2015-08-29
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>在深入了解前，有必要先把了解下一些基础的知识，这样才能更好的理解。</p>
+<p> Web客户访问Tomcat服务器上JSP组件的两种方式如下图所示。</p>
+<p><img src="http://img.blog.csdn.net/20150828161212922" alt="Web客户访问Tomcat服务器上的JSP组件的两种方式"></p>
+<p>  在图中，<br>  Web客户1直接访问Tomcat服务器上的JSP组件，他访问的URL为<a href="http://localhost:8080" target="_blank" rel="noopener">http://localhost:8080</a> /index.jsp。<br>  Web客户2通过HTTP服务器访问Tomcat服务器上的JSP组件。假定HTTP服务器使用的HTTP端口为默认的80端口，那么Web客户2访问的URL为<a href="http://localhost:80/index.jsp" target="_blank" rel="noopener">http://localhost:80/index.jsp</a> 或者 <a href="http://localhost/index.jsp。" target="_blank" rel="noopener">http://localhost/index.jsp。</a></p>
+<p>　　下面，介绍Tomcat与HTTP服务器之间是如何通信的。</p>
+<a id="more"></a>
+<p>　　<code>Tomcat</code>服务器通过<code>Connector</code>连接器组件与客户程序建立连接，<br>　　Connector组件负责接收客户的请求，以及把Tomcat服务器的响应结果发送给客户。<br>     默认情况下，Tomcat在server.xml中配置了两种连接器：</p>
+<pre><code>&lt;!-- Define a non-SSL Coyote HTTP/1.1
+　　Connector on port 8080 --&gt;
+　　&lt;Connector port=&quot;8080&quot;
+　　maxThreads=&quot;150&quot;
+　　minSpareThreads=&quot;25&quot;
+　　maxSpareThreads=&quot;75&quot;
+　　enableLookups=&quot;false&quot;
+　　redirectPort=&quot;8443&quot;
+　　acceptCount=&quot;100&quot;
+　　debug=&quot;0&quot;
+　　connectionTimeout=&quot;20000&quot;
+　　disableUploadTimeout=&quot;true&quot; /&gt;
+
+　&lt;!-- Define a Coyote/JK2 AJP 1.3
+　　Connector on port 8009 --&gt;
+　　&lt;Connector port=&quot;8009&quot;
+　　enableLookups=&quot;false&quot;
+　　redirectPort=&quot;8443&quot; debug=&quot;0&quot;
+　　protocol=&quot;AJP/1.3&quot; /&gt;
+</code></pre><p><strong>解释：</strong></p>
+<ol>
+<li>第一个连接器监听8080端口，负责建立HTTP连接。</li>
+</ol>
+<p>　　在通过浏览器访问Tomcat服务器的Web应用时，使用的就是这个连接器。</p>
+<ol start="2">
+<li>第二个连接器监听8009端口，负责和其他的HTTP服务器建立连接。</li>
+</ol>
+<p>　　在把Tomcat与其他HTTP服务器集成时，就需要用到这个连接器。</p>
+<p>　　 </p>
+<h2 id="JK插件"><a href="#JK插件" class="headerlink" title="JK插件"></a>JK插件</h2><p>　　Tomcat提供了专门的JK插件来负责<code>Tomcat</code>和<code>HTTP</code>服务器的通信。应该把JK插件安置在对方的HTTP服务器上。当HTTP服务器接收到客户请求时，它会通过JK插件来过滤URL，JK插件根据预先配置好的URL映射信息，决定是否要把客户请求转发给Tomcat服务器处理。</p>
+<p>　　假定在预先配置好的URL映射信息中，所有”/*.jsp”形式的URL都由Tomcat服务器来处理，那么在图22-1的例子中，JK插件将把客户请求转发给Tomcat服务器，Tomcat服务器于是运行index.jsp，然后把响应结果传给HTTP服务器，HTTP服务器再把响应结果传给Web 客户2。</p>
+<p>　　对于不同的HTTP服务器，Tomcat提供了不同的JK插件的实现模块。本章将用到以下JK插件：<br>　　与Windows下的Apache HTTP服务器集成：mod_jk_2.0.46.dll<br>　　与Linux（RedHet）下的Apache HTTP服务器集成：mod_jk.so-ap2.0.46-rh72..46-rh72<br>　　与IIS服务器集成：isapi_redirect.dll
+　　</p>
+<h2 id="AJP协议"><a href="#AJP协议" class="headerlink" title="AJP协议"></a>AJP协议</h2><p>　　AJP是为Tomcat与HTTP服务器之间通信而定制的协议，能提供较高的通信速度和效率。<br>　　在配置Tomcat与HTTP服务器集成中，读者可以不必关心AJP协议的细节。关于AJP的知识也可以参考网址：<br>　　<a href="http://jakarta.apache.org/builds/jakarta-tomcat-connectors/jk2/doc/common/AJPv13.html" target="_blank" rel="noopener">http://jakarta.apache.org/builds/jakarta-tomcat-connectors/jk2/doc/common/AJPv13.html</a></p>
+<h1 id="在Windows下Tomcat与Apache服务器集成"><a href="#在Windows下Tomcat与Apache服务器集成" class="headerlink" title="在Windows下Tomcat与Apache服务器集成"></a>在Windows下Tomcat与Apache服务器集成</h1><p>有了上面的基础知识后，我们就可以开始工作了,先下载需要的东西</p>
+<ol>
+<li><p>Apache Server<br><a href="http://pan.baidu.com/s/1eQ98aVC" target="_blank" rel="noopener">http://pan.baidu.com/s/1eQ98aVC</a></p>
+</li>
+<li><p>mod_jk.so ( 主要作用是建立 Apache Server 与 Tomcat 之间的连接 )<br><a href="http://pan.baidu.com/s/1dDuHaST" target="_blank" rel="noopener">http://pan.baidu.com/s/1dDuHaST</a></p>
+</li>
+<li><p>Tomcat<br><a href="http://tomcat.apache.org/download-70.cgi" target="_blank" rel="noopener">http://tomcat.apache.org/download-70.cgi</a></p>
+</li>
+<li><p>Jdk1.7<br>下载地址： <a href="http://java.sun.com" target="_blank" rel="noopener">http://java.sun.com</a></p>
+</li>
+</ol>
+<hr>
+<p>我们在本地的集群配置效果图；</p>
+<p><img src="http://img.blog.csdn.net/20150828172905843" alt="配置效果"></p>
+<h2 id="下载安装，配置文件"><a href="#下载安装，配置文件" class="headerlink" title="下载安装，配置文件"></a>下载安装，配置文件</h2><p>新建一个文件夹，叫devel，然后把 Jdk 、 tomcat 、 apache 等都安装在这个目录下,<br>然后把tomcat<strong>复制多一份</strong>，命名做<code>tomcat1</code>和<code>tomcat2</code><br>（因为我们需要连接两个不同的tomcat，每个tomcat上跑我们的项目，正如图片上显示的）</p>
+<ol>
+<li>把下载的 mod_jk- 1.2.31 -httpd-2.2.3.so 文件拷贝到你的<code>apache\modules</code> 下。</li>
+<li>在<code>apache\conf</code>目录下新建 <code>mod_jk.conf</code> 和 <code>workers.properties</code> 文件。</li>
+</ol>
+<h3 id="修改mod-jk-conf，配置Apache-Server和Jk两者的连接"><a href="#修改mod-jk-conf，配置Apache-Server和Jk两者的连接" class="headerlink" title="修改mod_jk.conf，配置Apache-Server和Jk两者的连接"></a>修改mod_jk.conf，配置Apache-Server和Jk两者的连接</h3><pre><code># Load mod_jk2 module
+LoadModule jk_module modules/mod_jk-1.2.31-httpd-2.2.3.so
+#注意，这句 modules/mod_jk-1.2.31-httpd-2.2.3.so就是我们刚才放到modules目录下的
+#mod_jk-1.2.31-httpd-2.2.3.so文件，请保证两者名字一样。
+
+# Where to find workers.properties( 引用 workers 配置文件 )
+# 通过这个配置文件来告诉jk有哪些服务器可以连接的。
+# 以后如果加入新的服务器,就在workers.properties中加入新的服务器地址就可以了。
+JkWorkersFile conf/workers.properties
+
+# Where to put jk logs(log 文件路径 )
+JkLogFile logs/mod_jk2.log
+
+# Set the jk log level [debug/error/info](log 级别 )
+JkLogLevel info
+
+# Select the log format(log 格式 )
+JkLogStampFormat &quot;[%a %b %d %H:%M:%S %Y] &quot;
+# JkOptions indicate to send SSL KEY SIZE,
+JkOptions +ForwardKeySize +ForwardURICompat -ForwardDirectories
+
+# JkRequestLogFormat set the request format
+JkRequestLogFormat &quot;%w %V %T&quot;
+
+# Send JSPs for context / to worker named loadBalancer(URL 转发配置，匹配的 URL 才转发到 tomcat 进行处理 )
+JkMount /*.jsp controller
+# JkMount /*.* loadBalancer
+</code></pre><h3 id="修改workers-properties文件，告诉Server有哪些服务器可连接的"><a href="#修改workers-properties文件，告诉Server有哪些服务器可连接的" class="headerlink" title="修改workers.properties文件，告诉Server有哪些服务器可连接的"></a>修改<code>workers.properties</code>文件，告诉Server有哪些服务器可连接的</h3><pre><code>#server  列表
+worker.list =  controller
+
+# tomcat1(ajp13  端口号，在tomcat下server.xml配置,默认8009)
+worker.tomcat1.port=8009
+#tomcat 的主机地址，如不为本机，请填写ip地址
+worker.tomcat1.host=localhost
+worker.tomcat1.type=ajp13
+#server 的加权比重，值越高，分得的请求越多，如果你的其中一台配置高，就把这个数值按性能调大些.
+worker.tomcat1.lbfactor = 1
+
+# tomcat2
+worker.tomcat2.port=9009
+worker.tomcat2.host=localhost
+worker.tomcat2.type=ajp13
+worker.tomcat2.lbfactor = 1
+
+# controller( 负载均衡控制器)
+worker.controller.type=lb
+#  指定分担请求的tomcat
+worker.controller.balanced_workers=tomcat1,tomcat2
+#worker.controller.sticky_session=true
+</code></pre><p>通过这个配置文件，我们告诉Apache-Server,去哪里连接我们的2 个 tomcat 服务器，然后进行负载均衡处理，把请求分配到两个服务器上。</p>
+<h3 id="在-httpd-conf-里面的最后加上："><a href="#在-httpd-conf-里面的最后加上：" class="headerlink" title="在 httpd.conf 里面的最后加上："></a>在 httpd.conf 里面的最后加上：</h3><pre><code># JK module settings
+Include conf/mod_jk.conf   
+</code></pre><p>说明：以上表示将 mod_jk.conf 配置文件包含进来。这个文件也在当前的<code>apache/modules</code>里面.</p>
+<h2 id="修改Tomcat的端口"><a href="#修改Tomcat的端口" class="headerlink" title="修改Tomcat的端口"></a>修改Tomcat的端口</h2><p>上面配置完后，我们基本配置好了，不过还需要改下我们的tomcat配置，因为我们在<code>workers.properties</code>告诉Apache-Server了。两个服务器的地址分别是在<code>localhost:8009</code>和<code>localhost:9009</code>,所以我们需要修改了tomcat的端口配置。</p>
+<h3 id="修改Tomcat1"><a href="#修改Tomcat1" class="headerlink" title="修改Tomcat1"></a>修改Tomcat1</h3><p>打开<code>Tomcat1/conf/server.xml</code>,在里面找到</p>
+<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
+&lt;Connector port=&quot;8009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;8443&quot; /&gt;
+</code></pre><p>这个就是我们在 workers.properties中申明的tomcat1的接口,应为我们用的是默认配置，所以prot属性就不用改了，不过下面的tomcat2就要了。<br><strong>把他改成下面这长串</strong></p>
+<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
+&lt;Connector port=&quot;8009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;8443&quot; 
+  URIEncoding=&quot;UTF-8&quot;  minSpareThreads=&quot;25&quot; maxSpareThreads=&quot;75&quot; 
+   enableLookups=&quot;false&quot; disableUploadTimeout=&quot;true&quot; connectionTimeout=&quot;20000&quot;
+    acceptCount=&quot;300&quot;  maxThreads=&quot;300&quot; maxProcessors=&quot;1000&quot; minProcessors=&quot;5&quot;
+    useURIValidationHack=&quot;false&quot;
+    compression=&quot;on&quot; compressionMinSize=&quot;2048&quot;
+    compressableMimeType=&quot;text/html,text/xml,text/javascript,text/css,text/plain&quot; 
+    /&gt;
+</code></pre><p>这里面有些小的点需要强调的，<code>URIEncoding=&quot;UTF-8&quot;</code>这个显示的申明，我们用的是UTF-8,这可以避免我们以后数据出现乱码问题。其余的一些配置，你可以根据实际的需要修改.</p>
+<p><strong>接着</strong>找到<br><code>&lt;Engine name=&quot;Catalina&quot; defaultHost=&quot;localhost&quot;&gt;</code>,<br>改成这样<br><code>&lt;Engine name=&quot;Catalina&quot; defaultHost=&quot;localhost&quot; jvmRoute=&quot;tomcat1&quot;&gt;</code></p>
+<p>就是在屁股加多<code>jvmRoute=&quot;tomcat1&quot;。</code></p>
+<p><strong>然后</strong>，我们在这句话的下面，插入多这么长串的内容：</p>
+<pre><code>&lt;Cluster className=&quot;org.apache.catalina.ha.tcp.SimpleTcpCluster&quot; 
+                  channelSendOptions=&quot;6&quot;&gt; 
+              &lt;Manager className=&quot;org.apache.catalina.ha.session.BackupManager&quot; 
+                    expireSessionsOnShutdown=&quot;false&quot; 
+                    notifyListenersOnReplication=&quot;true&quot; 
+                    mapSendOptions=&quot;6&quot;/&gt; 
+           &lt;Channel className=&quot;org.apache.catalina.tribes.group.GroupChannel&quot;&gt; 
+             &lt;Membership className=&quot;org.apache.catalina.tribes.membership.McastService&quot; 
+                         bind=&quot;127.0.0.1&quot; 
+                         address=&quot;228.0.0.4&quot; 
+                         port=&quot;45564&quot; 
+                         frequency=&quot;500&quot; 
+                         dropTime=&quot;3000&quot;/&gt; 
+             &lt;Receiver className=&quot;org.apache.catalina.tribes.transport.nio.NioReceiver&quot;  
+                       address=&quot;auto&quot;  
+                       port=&quot;4001&quot;  
+                       selectorTimeout=&quot;100&quot; 
+                       maxThreads=&quot;6&quot;/&gt; 
+             &lt;Sender className=&quot;org.apache.catalina.tribes.transport.ReplicationTransmitter&quot;&gt; 
+               &lt;Transport className=&quot;org.apache.catalina.tribes.transport.nio.PooledParallelSender&quot; timeout=&quot;60000&quot;/&gt;  
+             &lt;/Sender&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.TcpFailureDetector&quot;/&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.MessageDispatch15Interceptor&quot;/&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.ThroughputInterceptor&quot;/&gt; 
+           &lt;/Channel&gt; 
+              &lt;Valve className=&quot;org.apache.catalina.ha.tcp.ReplicationValve&quot; 
+                  filter=&quot;.*\.gif;.*\.js;.*\.jpg;.*\.png;.*\.htm;.*\.html;.*\.css;.*\.txt;&quot;/&gt; 
+              &lt;ClusterListener className=&quot;org.apache.catalina.ha.session.ClusterSessionListener&quot;/&gt; 
+         &lt;/Cluster&gt;
+</code></pre><p>具体的含义你可以慢慢看，就不解释了。</p>
+<h3 id="修改Tomcat2"><a href="#修改Tomcat2" class="headerlink" title="修改Tomcat2"></a>修改Tomcat2</h3><p>接着我们来改下tomcat2吧<br>打开<code>Tomcat2/conf/server.xml</code>,在里面找到</p>
+<p><code>&lt;Server port=&quot;8005&quot; shutdown=&quot;SHUTDOWN&quot;&gt;</code><br>改成<br><code>&lt;Server port=&quot;9005&quot; shutdown=&quot;SHUTDOWN&quot;&gt;</code><br>因为我们是单机啊！这个端口已经被我们的Tomcat1霸占了啊，所以我们需要修改下啊！</p>
+<p><strong>接着</strong></p>
+<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
+&lt;Connector port=&quot;8009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;8443&quot; /&gt;
+</code></pre><p><strong>把他改成下面这长串</strong></p>
+<pre><code>&lt;!-- Define an AJP 1.3 Connector on port 8009 --&gt;
+&lt;Connector port=&quot;9009&quot; protocol=&quot;AJP/1.3&quot; redirectPort=&quot;9443&quot; 
+  URIEncoding=&quot;UTF-8&quot;  minSpareThreads=&quot;25&quot; maxSpareThreads=&quot;75&quot; 
+   enableLookups=&quot;false&quot; disableUploadTimeout=&quot;true&quot; connectionTimeout=&quot;20000&quot;
+    acceptCount=&quot;300&quot;  maxThreads=&quot;300&quot; maxProcessors=&quot;1000&quot; minProcessors=&quot;5&quot;
+    useURIValidationHack=&quot;false&quot;
+    compression=&quot;on&quot; compressionMinSize=&quot;2048&quot;
+    compressableMimeType=&quot;text/html,text/xml,text/javascript,text/css,text/plain&quot; 
+    /&gt;
+</code></pre><p>注意，我们的<code>port=&quot;9009&quot;</code>，<code>redirectPort=&quot;9443&quot;</code>这个是修改后的</p>
+<p>接着找到<code>&lt;Engine name=&quot;Catalina&quot; defaultHost=&quot;localhost&quot;&gt;</code>,改成这样<br><code>&lt;Engine name=&quot;Catalina&quot; defaultHost=&quot;localhost&quot; jvmRoute=&quot;tomcat2&quot;&gt;</code><br>在屁股加多<code>jvmRoute=&quot;tomcat2&quot;</code>。<br>然后，我们在这句话的下面，插入多这么长串的内容：</p>
+<pre><code>&lt;Cluster className=&quot;org.apache.catalina.ha.tcp.SimpleTcpCluster&quot; 
+                  channelSendOptions=&quot;6&quot;&gt; 
+              &lt;Manager className=&quot;org.apache.catalina.ha.session.BackupManager&quot; 
+                    expireSessionsOnShutdown=&quot;false&quot; 
+                    notifyListenersOnReplication=&quot;true&quot; 
+                    mapSendOptions=&quot;6&quot;/&gt; 
+           &lt;Channel className=&quot;org.apache.catalina.tribes.group.GroupChannel&quot;&gt; 
+             &lt;Membership className=&quot;org.apache.catalina.tribes.membership.McastService&quot; 
+                         bind=&quot;127.0.0.1&quot; 
+                         address=&quot;228.0.0.4&quot; 
+                         port=&quot;45564&quot; 
+                         frequency=&quot;500&quot; 
+                         dropTime=&quot;3000&quot;/&gt; 
+             &lt;Receiver className=&quot;org.apache.catalina.tribes.transport.nio.NioReceiver&quot;  
+                       address=&quot;auto&quot;  
+                       port=&quot;4002&quot;  
+                       selectorTimeout=&quot;100&quot; 
+                       maxThreads=&quot;6&quot;/&gt; 
+             &lt;Sender className=&quot;org.apache.catalina.tribes.transport.ReplicationTransmitter&quot;&gt; 
+               &lt;Transport className=&quot;org.apache.catalina.tribes.transport.nio.PooledParallelSender&quot; timeout=&quot;60000&quot;/&gt;  
+             &lt;/Sender&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.TcpFailureDetector&quot;/&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.MessageDispatch15Interceptor&quot;/&gt; 
+             &lt;Interceptor className=&quot;org.apache.catalina.tribes.group.interceptors.ThroughputInterceptor&quot;/&gt; 
+           &lt;/Channel&gt; 
+              &lt;Valve className=&quot;org.apache.catalina.ha.tcp.ReplicationValve&quot; 
+                  filter=&quot;.*\.gif;.*\.js;.*\.jpg;.*\.png;.*\.htm;.*\.html;.*\.css;.*\.txt;&quot;/&gt; 
+              &lt;ClusterListener className=&quot;org.apache.catalina.ha.session.ClusterSessionListener&quot;/&gt; 
+         &lt;/Cluster&gt;
+</code></pre><p> 此处有一个Receiver port=”xxxx”，两个tomcat中此处的端口号必须唯一，即tomcat中我们使用的是port=4001，那么我们在tomcat2中将使用port=4002</p>
+<hr>
+<p>这样我们基本配置完毕了，现在开启我们的intellij（用过的人都说好，请抛弃Eclipse，太破了），新建两个模板的springMvc项目！</p>
+<pre><code>@Controller
+@RequestMapping(&quot;/&quot;)
+public class HelloController {
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String printWelcome(ModelMap model) {
+        model.addAttribute(&quot;message&quot;, &quot;Hello world!--from tomcat1&quot;);
+        return &quot;hello&quot;;
+    }
+}
+</code></pre><p><strong>然后</strong><br>布署工程前先确保你把工程中的WEB-INF\we b.xml文件做了如下的修改，<br>在web.xml文件的最未尾即“”这一行前加入如下的一行：</p>
+<pre><code>&lt;distributable/&gt;
+</code></pre><p>使该工程中的session可以被tomcat的集群节点进行轮循复制。</p>
+<p> 这样我们基本就做完了所有，是时候来试下我们的效果了！运行下我们的项目，<br>分别访问<a href="http://localhost:8080/与http://localhost:9090/" target="_blank" rel="noopener">http://localhost:8080/与http://localhost:9090/</a><br>看下返回的是否为我们的标准语句<code>Hello world!--from tomcatX</code><br>然后启动Apache_server<br> <img src="http://img.blog.csdn.net/20150829115428074" alt=" 启动apache"></p>
+<p>然后访问直接用<a href="http://localhost/" target="_blank" rel="noopener">http://localhost/</a><br>不加端口的形式访问,如果返回了我们需要的信息，恭喜你，成功了，搭建好一个简单的集群了！！！！如果不成功，请看下面的总结</p>
+<hr>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>启动apache，错误代码1；<br>这个的错误原因可能是我们的apache使用的80端口被我们的另外程序被霸占了，需要修改下，打开<code>apche/conf/httpd.conf</code>文件，然后找到listen字段，修改它后面的80端口为一个新的端口。<br>另外一种可能是我们的配置文件写错了，请打开看下是否和我写的一样，还是说出现了乱码，导致了bug。</li>
+<li><p>为何每次都返回来自同一个服务器的信息？<br>这个我也苦闷了很久，为何每次刷新，返回的都是from tomcat1!!,后来想可能是因为我们刷新的速度太慢，达不到并发的程度，所以就试着关闭tomcat1.结果真的就返回了 from tomca2!!。<br>另外一个原因可能端口没配置对，你自检查下。<br>如果你看到另外一个intellij的后台打印了一堆的红色的字，说没找到对<code>/favicon</code>的请求，那么显然，你明白你的是成功的了。<br><img src="http://img.blog.csdn.net/20150829150723161" alt="这里写图片描述"><br>还有就是需要等待下同步，这样apache_Server才反应得过来啊，因为他会隔一段时间，检测这两个服务器是否在运行，没有就不会转发请求过来，所以我们需要注意这个问题啦。</p>
+</li>
+<li><p>环境配置问题<br>把系统环境变更中的CATALINA_HOME与TOMCAT_HOME这两个变量去除掉</p>
+</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/tomcat/" rel="tag">#tomcat</a>
+          
+            <a href="/tags/集群/" rel="tag">#集群</a>
+          
+            <a href="/tags/Apache/" rel="tag">#Apache</a>
+          
+            <a href="/tags/SpringMvc/" rel="tag">#SpringMvc</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/01/基于Codis的Redis集群方案/" rel="prev">基于Codis的Redis集群方案</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/26/开发和生产环境的动态配置问题/" rel="next">开发和生产环境的动态配置问题</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/"
+     data-title="基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程"
+     data-content=""
+     data-url="http://yoursite.com/2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/"
+                   data-title="基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程" data-url="http://yoursite.com/2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JK插件"><span class="nav-number">1.1.</span> <span class="nav-text">JK插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AJP协议"><span class="nav-number">1.2.</span> <span class="nav-text">AJP协议</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在Windows下Tomcat与Apache服务器集成"><span class="nav-number">2.</span> <span class="nav-text">在Windows下Tomcat与Apache服务器集成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载安装，配置文件"><span class="nav-number">2.1.</span> <span class="nav-text">下载安装，配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改mod-jk-conf，配置Apache-Server和Jk两者的连接"><span class="nav-number">2.1.1.</span> <span class="nav-text">修改mod_jk.conf，配置Apache-Server和Jk两者的连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改workers-properties文件，告诉Server有哪些服务器可连接的"><span class="nav-number">2.1.2.</span> <span class="nav-text">修改workers.properties文件，告诉Server有哪些服务器可连接的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在-httpd-conf-里面的最后加上："><span class="nav-number">2.1.3.</span> <span class="nav-text">在 httpd.conf 里面的最后加上：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改Tomcat的端口"><span class="nav-number">2.2.</span> <span class="nav-text">修改Tomcat的端口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改Tomcat1"><span class="nav-number">2.2.1.</span> <span class="nav-text">修改Tomcat1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改Tomcat2"><span class="nav-number">2.2.2.</span> <span class="nav-text">修改Tomcat2</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

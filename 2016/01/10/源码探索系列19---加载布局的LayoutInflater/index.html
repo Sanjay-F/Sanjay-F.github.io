@@ -1,0 +1,1065 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。 @Override public View getView(int i, View view, ViewGroup viewGroup) {     SimpleViewHolder viewHolder;     if (view == null) {         view = L">
+<meta name="keywords" content="android,源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列19---加载布局的LayoutInflater">
+<meta property="og:url" content="http://yoursite.com/2016/01/10/源码探索系列19---加载布局的LayoutInflater/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。 @Override public View getView(int i, View view, ViewGroup viewGroup) {     SimpleViewHolder viewHolder;     if (view == null) {         view = L">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/01300000361240123790910502016.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.712Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列19---加载布局的LayoutInflater">
+<meta name="twitter:description" content="对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。 @Override public View getView(int i, View view, ViewGroup viewGroup) {     SimpleViewHolder viewHolder;     if (view == null) {         view = L">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/01300000361240123790910502016.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列19---加载布局的LayoutInflater | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列19---加载布局的LayoutInflater
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-10T00:31:46+08:00" content="2016-01-10">
+            2016-01-10
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。</p>
+<pre><code>@Override
+public View getView(int i, View view, ViewGroup viewGroup) {
+    SimpleViewHolder viewHolder;
+    if (view == null) {
+        view = LayoutInflater.from(mContext).inflate(R.layout.listitem_demo, null);
+        viewHolder = new SimpleViewHolder();
+        viewHolder.bindView(view);
+        view.setTag(viewHolder);
+    } else {
+        viewHolder = (SimpleViewHolder) view.getTag();
+    }
+</code></pre><p>那么问题来了，这个家伙是怎么加载到他的呢？<br>我们今天去看下。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23</p>
+<p>不过这个LayoutInflater是一个抽象类啊，所以第一个问题来了，我们得去找到背后实际干活的人！</p>
+<pre><code>public abstract class LayoutInflater 
+</code></pre><p>既然这样，我们就顺藤摸瓜当前去看下</p>
+<pre><code>public static LayoutInflater from(Context context) {
+    LayoutInflater LayoutInflater =
+            (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    if (LayoutInflater == null) {
+        throw new AssertionError(&quot;LayoutInflater not found.&quot;);
+    }
+    return LayoutInflater;
+}
+</code></pre><p>好啦，他是去调用了<code>context.getSystemService()</code>函数，这个context我们已经很熟悉了，他的具体实现是<code>ContextImpl</code>，当然他的getService我们也挺熟悉他的内容了。不过还是继续看下吧</p>
+<pre><code>@Override
+public Object getSystemService(String name) {
+    return SystemServiceRegistry.getSystemService(this, name);
+}
+</code></pre><p>我们到<code>SystemServiceRegistry</code>里面看下</p>
+<pre><code>public static Object getSystemService(ContextImpl ctx, String name) {
+    ServiceFetcher&lt;?&gt; fetcher = SYSTEM_SERVICE_FETCHERS.get(name);
+    return fetcher != null ? fetcher.getService(ctx) : null;
+}
+</code></pre><p>这个是用保存在<code>HashMap</code>结构的<code>SYSTEM_SERVICE_FETCHERS</code>里面的数据。他的初始化是在开头的静态代码里面。</p>
+<pre><code>final class SystemServiceRegistry {
+
+    private final static String TAG = &quot;SystemServiceRegistry&quot;;
+
+     private static final HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt; SYSTEM_SERVICE_FETCHERS 
+             = new HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt;();
+
+    static { 
+     ...
+     registerService(Context.LAYOUT_INFLATER_SERVICE, LayoutInflater.class,
+            new CachedServiceFetcher&lt;LayoutInflater&gt;() {
+        @Override
+        public LayoutInflater createService(ContextImpl ctx) {
+            return new PhoneLayoutInflater(ctx.getOuterContext());
+        }});
+
+     ...
+    }
+
+    private static &lt;T&gt; void registerService(String serviceName, Class&lt;T&gt; serviceClass,
+            ServiceFetcher&lt;T&gt; serviceFetcher) {
+        SYSTEM_SERVICE_NAMES.put(serviceClass, serviceName);
+        SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);
+    }
+</code></pre><p>不过在这个静态代码块里面还有很多别的service的注册，下次需要知道那个服务的具体实现就直接看这里吧。好了，我们看到背后实际干活的是<code>PhoneLayoutInflater</code>这个类，不够暂时不打算继续深入的看这个类，因为他内容不多，我们继续看原来<code>LayoutInflater.from(mContext).inflate()</code>后半句的<code>inflate</code>函数的内容，后面再补充介绍这个<code>PhoneLayoutInflater</code></p>
+<pre><code>public View inflate(@LayoutRes int resource, @Nullable ViewGroup root) {
+    return inflate(resource, root, root != null);
+}
+
+public View inflate(@LayoutRes int resource, @Nullable ViewGroup root, boolean attachToRoot) {
+    final Resources res = getContext().getResources();
+     final XmlResourceParser parser = res.getLayout(resource);
+    try {
+        return inflate(parser, root, attachToRoot);
+    } finally {
+        parser.close();
+    }
+}
+</code></pre><p>我们看到，他会去拿<code>Resource</code>，然后靠他去根据这个LayoutRes的Id去获取布局，最后再调用<code>inflate(parser, root, attachToRoot)</code>去生成我们的View。<br>这里额外的提下关于<code>@LayoutRes</code> 这类注解，以前<a href="http://blog.csdn.net/sanjay_f/article/details/50325145" target="_blank" rel="noopener">写过篇文章简单介绍过他</a>，他在我们实际项目开发中还是有很多作用的！起到对传入参数的检测。关于这个Resource，我们在前一篇文章已经做过简单介绍了，现在我们也看下他的getLayhout函数去看下吧。</p>
+<pre><code>public XmlResourceParser getLayout(@LayoutRes int id) throws NotFoundException {
+    return loadXmlResourceParser(id, &quot;layout&quot;);
+}
+
+XmlResourceParser loadXmlResourceParser(int id, String type)
+        throws NotFoundException {
+    synchronized (mAccessLock) {
+        TypedValue value = mTmpValue;
+        if (value == null) {
+            mTmpValue = value = new TypedValue();
+        }
+        getValue(id, value, true);
+        if (value.type == TypedValue.TYPE_STRING) {
+            return loadXmlResourceParser(value.string.toString(), id,
+                    value.assetCookie, type);
+        }
+        throw new NotFoundException(
+                &quot;Resource ID #0x&quot; + Integer.toHexString(id) + &quot; type #0x&quot;
+                + Integer.toHexString(value.type) + &quot; is not valid&quot;);
+    }
+}
+</code></pre><p>很有意思，这里显示的只有一个返回路径，所以基本可以确实下面的函数会被执行。</p>
+<pre><code>public void getValue(@AnyRes int id, TypedValue outValue, boolean resolveRefs)
+        throws NotFoundException {
+    boolean found = mAssets.getResourceValue(id, 0, outValue, resolveRefs);
+    if (found) {
+        return;
+    }
+    throw new NotFoundException(&quot;Resource ID #0x&quot;
+                                + Integer.toHexString(id));
+}
+</code></pre><p>继续前进</p>
+<pre><code>/*package*/ final boolean getResourceValue(int ident,
+                                           int density,
+                                           TypedValue outValue,
+                                           boolean resolveRefs)
+{
+    int block = loadResourceValue(ident, (short) density, outValue, resolveRefs);
+    if (block &gt;= 0) {
+        if (outValue.type != TypedValue.TYPE_STRING) {
+            return true;
+        }
+        outValue.string = mStringBlocks[block].get(outValue.data);
+        return true;
+    }
+    return false;
+}
+</code></pre><p>在我们的AssetManager里面，会根据传过来的参数去加载对应的布局，不过这个方法是native，就不深入看了</p>
+<pre><code>private native final int loadResourceValue(int ident, short density, 
+                    TypedValue outValue,boolean resolve);
+</code></pre><p>继续回到上面那里，我们看下执行后的下一句的内容，即<code>loadXmlResourceParser</code>函数里面的</p>
+<pre><code>getValue(id, value, true);
+
+if (value.type == TypedValue.TYPE_STRING) {
+    return loadXmlResourceParser(value.string.toString(), id,
+            value.assetCookie, type);
+}    
+
+/*package*/ XmlResourceParser loadXmlResourceParser(String file, int id,
+        int assetCookie, String type) throws NotFoundException {
+
+    if (id != 0) {
+        try {
+            // These may be compiled...
+            synchronized (mCachedXmlBlockIds) { 
+                final int num = mCachedXmlBlockIds.length;
+                for (int i=0; i&lt;num; i++) {
+                    if (mCachedXmlBlockIds[i] == id) {
+                         return mCachedXmlBlocks[i].newParser();
+                    }
+                }
+
+                // Not in the cache, create a new block and put it at
+                // the next slot in the cache.
+                XmlBlock block = mAssets.openXmlBlockAsset(
+                        assetCookie, file);
+                if (block != null) {
+                    int pos = mLastCachedXmlBlockIndex+1;
+                    if (pos &gt;= num) pos = 0;
+                    mLastCachedXmlBlockIndex = pos;
+                    XmlBlock oldBlock = mCachedXmlBlocks[pos];
+                    if (oldBlock != null) {
+                        oldBlock.close();
+                    }
+                    mCachedXmlBlockIds[pos] = id;
+                    mCachedXmlBlocks[pos] = block;
+                    //System.out.println(&quot;**** CACHING NEW XML BLOCK!  id=&quot;
+                    //                   + id + &quot;, index=&quot; + pos);
+                    return block.newParser();
+                }
+            }
+        } catch (Exception e) {
+        ...
+         }
+    } 
+}
+</code></pre><p>我们看到他会先查下缓存，没有再去新建，不过有意思的是，他是对XmlResourceParser做缓存，返回的是调用newParser()函数的新new的一个。</p>
+<p>这样我们继续回主线，到我们的<code>LayoutInflater</code>类的<code>inflate</code>函数里面去，</p>
+<pre><code>public View inflate(@LayoutRes int resource, @Nullable ViewGroup root, boolean attachToRoot) {
+    final Resources res = getContext().getResources(); 
+    final XmlResourceParser parser = res.getLayout(resource);
+    try {
+        return inflate(parser, root, attachToRoot);
+    } finally {
+        parser.close();
+    }
+}
+</code></pre><p>看完了加回XmlResourceParser ，我们看怎么生成View的部分</p>
+<pre><code>public View inflate(XmlPullParser parser, @Nullable ViewGroup root, boolean attachToRoot) {
+    synchronized (mConstructorArgs) {
+
+        final Context inflaterContext = mContext;
+        final AttributeSet attrs = Xml.asAttributeSet(parser);
+        Context lastContext = (Context) mConstructorArgs[0];
+        mConstructorArgs[0] = inflaterContext;
+        View result = root;
+
+        try {                 
+           ...
+
+            final String name = parser.getName();
+
+             // Temp is the root view that was found in the xml
+            final View temp = createViewFromTag(root, name, inflaterContext, attrs);
+            ViewGroup.LayoutParams params = null;
+
+             ...
+
+            // Inflate all children under temp against its context.
+            //解析Temp视图下的子View
+            rInflateChildren(parser, temp, attrs, true);
+
+             ...
+
+            // Decide whether to return the root that was passed in or the
+            // top view found in xml.
+            if (root == null || !attachToRoot) {
+                result = temp;
+            }
+         }
+
+        } catch (Exception e) {
+            ...
+        } finally {
+            // Don&apos;t retain static reference on context.
+            mConstructorArgs[0] = lastContext;
+            mConstructorArgs[1] = null;
+        }
+        ...
+
+        return result;
+    }
+}
+</code></pre><p>我们看到他主要是通过<code>createViewFromTag(）</code>函数来生成具体的view的，而且我们的root是null，所以就返回的就是他了，不同加到root去。</p>
+<pre><code>private View createViewFromTag(View parent, String name, Context context, AttributeSet attrs) {
+        return createViewFromTag(parent, name, context, attrs, false);
+    }
+
+View createViewFromTag(View parent, String name, Context context, AttributeSet attrs,boolean ignoreThemeAttr) {
+
+    ...
+
+    //这算彩蛋嘛？ 这个TAG_1995值是 &quot;blink&quot;;
+    if (name.equals(TAG_1995)) {
+        // Let&apos;s party like it&apos;s 1995!
+        return new BlinkLayout(context, attrs);
+    }
+
+    try {
+        View view;
+        ...
+        if (view == null) {
+            final Object lastContext = mConstructorArgs[0];
+            mConstructorArgs[0] = context;
+            try {
+                if (-1 == name.indexOf(&apos;.&apos;)) {//显然这句写得不是很好
+                    //是否包含内置View控件的解析用是否含“.”来做判断也太魔术了。
+                    view = onCreateView(parent, name, attrs);
+                } else {
+                    view = createView(name, null, attrs);
+                }
+            } finally {
+                mConstructorArgs[0] = lastContext;
+            }
+        }
+
+        return view;
+    }  
+    ...
+}
+</code></pre><p>我们看到他对自定义控件View的解析和内置的View解析是调用不同的方法，难道这两者解析过程是不一样的？ 我们看下这个onCreateView做了什么。</p>
+<pre><code>protected View onCreateView(View parent, String name, AttributeSet attrs)
+        throws ClassNotFoundException {
+    return onCreateView(name, attrs);
+}
+
+//加多了一个安卓的前缀。。
+protected View onCreateView(String name, AttributeSet attrs)
+        throws ClassNotFoundException {
+    return createView(name, &quot;android.view.&quot;, attrs);
+}
+
+public final View createView(String name, String prefix, AttributeSet attrs)
+        throws ClassNotFoundException, InflateException {
+    Constructor&lt;? extends View&gt; constructor = sConstructorMap.get(name);
+    Class&lt;? extends View&gt; clazz = null;
+
+    try { 
+
+        //试下先从缓存获取构造函数。
+        //那后面的逻辑估计就是生成一个，然后保存到缓存去咯？
+        if (constructor == null) {
+            // Class not found in the cache, see if it&apos;s real, and try to add it
+            //用ClassLoader加载该类
+            clazz = mContext.getClassLoader().loadClass(
+                    prefix != null ? (prefix + name) : name).asSubclass(View.class);
+
+            if (mFilter != null &amp;&amp; clazz != null) {
+                boolean allowed = mFilter.onLoadClass(clazz);
+                if (!allowed) {
+                    failNotAllowed(name, prefix, attrs);
+                }
+            }
+            //缓存 构造函数
+            constructor = clazz.getConstructor(mConstructorSignature);
+            constructor.setAccessible(true);
+            sConstructorMap.put(name, constructor);
+        } else {
+           ...
+        }
+
+        Object[] args = mConstructorArgs;
+        args[1] = attrs;
+        //反射构造View
+        final View view = constructor.newInstance(args);
+        if (view instanceof ViewStub) {
+            // Use the same context when inflating ViewStub later.
+            final ViewStub viewStub = (ViewStub) view;
+            viewStub.setLayoutInflater(cloneInContext((Context) args[0]));
+        }
+        return view;
+
+    } 
+    ...
+}
+</code></pre><p> 好了，看到这里，我们就知道了他的View的创建过程了，另外这个判断最终也没做到什么！最后调用的函数都是同一个！只是谷歌方便我们写界面的时候，方便我们使用内置的View，自动补个<code>android.view</code>而且！基本我们想要的View就得到啦！</p>
+<p>我们回主线，继续看下一句<code>rInflateChildren(parser, temp, attrs, true);</code>的内容。</p>
+<pre><code>final void rInflateChildren(XmlPullParser parser, View parent, AttributeSet attrs,
+        boolean finishInflate) throws XmlPullParserException, IOException {
+    rInflate(parser, parent, parent.getContext(), attrs, finishInflate);
+}
+
+void rInflate(XmlPullParser parser, View parent, Context context,
+        AttributeSet attrs, boolean finishInflate) throws XmlPullParserException, IOException {
+
+    final int depth = parser.getDepth();
+    int type;
+
+    while (((type = parser.next()) != XmlPullParser.END_TAG ||
+            parser.getDepth() &gt; depth) &amp;&amp; type != XmlPullParser.END_DOCUMENT) {
+
+        if (type != XmlPullParser.START_TAG) {
+            continue;
+        }
+
+        final String name = parser.getName();
+
+        if (TAG_REQUEST_FOCUS.equals(name)) {
+            parseRequestFocus(parser, parent);
+        } else if (TAG_TAG.equals(name)) {
+            parseViewTag(parser, parent, attrs);
+        } else if (TAG_INCLUDE.equals(name)) {
+            if (parser.getDepth() == 0) {
+                throw new InflateException(&quot;&lt;include /&gt; cannot be the root element&quot;);
+            }
+            parseInclude(parser, context, parent, attrs);
+        } else if (TAG_MERGE.equals(name)) {
+            throw new InflateException(&quot;&lt;merge /&gt; must be the root element&quot;);
+        } else {
+            final View view = createViewFromTag(parent, name, context, attrs);
+            final ViewGroup viewGroup = (ViewGroup) parent;
+            final ViewGroup.LayoutParams params = viewGroup.generateLayoutParams(attrs);
+            rInflateChildren(parser, view, attrs, true);
+            viewGroup.addView(view, params);
+        }
+    }
+
+    if (finishInflate) {
+        parent.onFinishInflate();
+    }
+}
+</code></pre><p>我们看到的是通过DFS算法来构造视图树，每解析一个View就递归调用<code>rInflate</code>。然后再回溯将每个View元素添加到他们的<code>parent</code>中。</p>
+<p><strong>注意：</strong><br>这里需要提出俩的是，不建议在布局文件中做过多View嵌套的一个原因，因为构造过程是递归的。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>今天去中山搞团建，挺好玩的，团队拿了第一，作为队长的我，成功运用<code>群华</code>的想法还是很功不可没的。<br>嗯，装逼下！哈哈</p>
+<p>今天把图片补在后面，哈哈。</p>
+<p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/01300000361240123790910502016.jpg" alt="enter image description here"></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/" rel="prev">源码探索系列20---安装APK的PackageManagerService</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" rel="next">源码探索系列18---关于资源的加载与匹配的资源机制</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/"
+     data-title="源码探索系列19---加载布局的LayoutInflater"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/10/源码探索系列19---加载布局的LayoutInflater/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/"
+                   data-title="源码探索系列19---加载布局的LayoutInflater" data-url="http://yoursite.com/2016/01/10/源码探索系列19---加载布局的LayoutInflater/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

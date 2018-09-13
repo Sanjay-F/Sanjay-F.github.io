@@ -1,0 +1,1345 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,BatteryStatsHelper," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="关于APP的优化，有一点就是关于电量的内容。关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流">
+<meta name="keywords" content="android,BatteryStatsHelper">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列39---关于电量统计BatteryStatsHelper">
+<meta property="og:url" content="http://yoursite.com/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="关于APP的优化，有一点就是关于电量的内容。关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://www.41443.com/uploads/allimg/151012/1FA2TZ_0.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.727Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列39---关于电量统计BatteryStatsHelper">
+<meta name="twitter:description" content="关于APP的优化，有一点就是关于电量的内容。关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流">
+<meta name="twitter:image" content="http://www.41443.com/uploads/allimg/151012/1FA2TZ_0.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列39---关于电量统计BatteryStatsHelper | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列39---关于电量统计BatteryStatsHelper
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-14T12:55:46+08:00" content="2016-06-14">
+            2016-06-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>关于APP的优化，有一点就是关于电量的内容。<br>关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！<br>不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流量，相应的手机电量估计也不弱。</p>
+<p>说了那么多，我们先来看下到底系统是怎么多电量的统计的，知道他是怎么算的，我们才能更好的对症下药。</p>
+<a id="more"></a>
+<p>为了研究，我们需要找到一个切入口，在我们的设置里面，有一个关于电量的选项，里面一般会分“软件消耗”和“硬件消耗”两栏。<br>是的，这里就是我们的突破口，既然他能够得到这部分数据，理论我们可以跟踪关于计算的信息，于是我们就去了对应的代码看下</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23</p>
+<p>在<code>/packages/apps/Settings/src/com/android/settings/fuelgauge</code>目录下，经过一轮查找，在<code>PowerUsageSummary</code>的<code>refreshStats()</code>函数，我们看到它调用了父类的<code>refreshStats()</code>，在这个函数内容如下：</p>
+<pre><code>protected void refreshStats() {
+       mStatsHelper.refreshStats(BatteryStats.STATS_SINCE_CHARGED, 
+                                 mUm.getUserProfiles());
+}
+</code></pre><p>这里的<code>mStatsHelper</code>变量是<code>BatteryStatsHelper.class</code>，这样我们知道了我们比较关心的内容。</p>
+<h2 id="BatteryStatsHelper-refreshStats"><a href="#BatteryStatsHelper-refreshStats" class="headerlink" title="BatteryStatsHelper.refreshStats()"></a>BatteryStatsHelper.refreshStats()</h2><pre><code>public void refreshStats(int statsType, int asUser) {
+    SparseArray&lt;UserHandle&gt; users = new SparseArray&lt;&gt;(1);
+    users.put(asUser, new UserHandle(asUser));
+    refreshStats(statsType, users);
+}
+
+public void refreshStats(int statsType, SparseArray&lt;UserHandle&gt; asUsers) {
+    refreshStats(statsType, asUsers, SystemClock.elapsedRealtime() * 1000,
+            SystemClock.uptimeMillis() * 1000);
+}
+
+ public void refreshStats(int statsType, SparseArray&lt;UserHandle&gt; asUsers, 
+                         long rawRealtimeUs,long rawUptimeUs) {
+
+    ...//省略一堆内容
+
+     if (mCpuPowerCalculator == null) {
+        mCpuPowerCalculator = new CpuPowerCalculator(mPowerProfile);
+    }
+    mCpuPowerCalculator.reset();
+
+    ...//各种XXXCalculator初始化
+
+    if (mFlashlightPowerCalculator == null) {
+        mFlashlightPowerCalculator = new FlashlightPowerCalculator(mPowerProfile);
+    }
+    mFlashlightPowerCalculator.reset();
+
+   mTypeBatteryRealtime = mStats.computeBatteryRealtime(rawRealtimeUs, mStatsType);
+    mRawUptime = rawUptimeUs;
+    mRawRealtime = rawRealtimeUs;
+
+    mMinDrainedPower = (mStats.getLowDischargeAmountSinceCharge()
+            * mPowerProfile.getBatteryCapacity()) / 100;
+    mMaxDrainedPower = (mStats.getHighDischargeAmountSinceCharge()
+            * mPowerProfile.getBatteryCapacity()) / 100;
+
+       //1. 我们关心的一个函数，这个是app的耗电的
+    processAppUsage(asUsers);
+
+    //我也是挺好奇，为何不把排序挪到别的地方去
+    // Before aggregating apps in to users, collect all apps to sort by their ms per packet.
+    for (int i=0; i&lt;mUsageList.size(); i++) {
+        BatterySipper bs = mUsageList.get(i);
+        bs.computeMobilemspp();
+        if (bs.mobilemspp != 0) {
+            mMobilemsppList.add(bs);
+        }
+    }
+
+    for (int i=0; i&lt;mUserSippers.size(); i++) {
+        List&lt;BatterySipper&gt; user = mUserSippers.valueAt(i);
+        for (int j=0; j&lt;user.size(); j++) {
+            BatterySipper bs = user.get(j);
+            bs.computeMobilemspp();
+            if (bs.mobilemspp != 0) {
+                mMobilemsppList.add(bs);
+            }
+        }
+    }
+
+    Collections.sort(mMobilemsppList, new Comparator&lt;BatterySipper&gt;() {
+        @Override
+        public int compare(BatterySipper lhs, BatterySipper rhs) {
+            return Double.compare(rhs.mobilemspp, lhs.mobilemspp);
+        }
+    });
+
+   //又一个我们关心点的函数，就是硬件耗电的统计函数
+    processMiscUsage();
+
+    Collections.sort(mUsageList);
+
+    // At this point, we&apos;ve sorted the list so we are guaranteed the max values are at the top.
+    // We have only added real powers so far.
+    if (!mUsageList.isEmpty()) {
+        mMaxRealPower = mMaxPower = mUsageList.get(0).totalPowerMah;
+        final int usageListCount = mUsageList.size();
+        for (int i = 0; i &lt; usageListCount; i++) {
+            mComputedPower += mUsageList.get(i).totalPowerMah;
+        }
+    }
+
+    ...
+}
+</code></pre><p>在初始化各类的calculaotr的时候，传入的参数是<code>mPowerProfile</code>，他是存储部件电流数值的。因为在计算电量的时候，是需要结合具体的设备型号的耗电量情况来做计算的，因此在<code>frameworks/base/core/res/res/xml</code>有个<code>power_profile.xml</code>文件，给各类OEM做配置，因为具体硬件配置和对应的耗电情况，只有生成设备的OEM自己清楚。</p>
+<p>另外，这个类有两个我们比较关注的入口，分别是负责统计软件<code>processAppUsage()</code>和负责统计硬件耗电的<code>processMiscUsage()</code>。我们先去看我们比较关心的processAppUsage()</p>
+<h3 id="processAppUsage"><a href="#processAppUsage" class="headerlink" title="processAppUsage()"></a>processAppUsage()</h3><pre><code>private void processAppUsage(SparseArray&lt;UserHandle&gt; asUsers) {
+
+     final boolean forAllUsers = (asUsers.get(UserHandle.USER_ALL) != null);
+     mStatsPeriod = mTypeBatteryRealtime;
+
+     BatterySipper osSipper = null;
+     final SparseArray&lt;? extends Uid&gt; uidStats = mStats.getUidStats();
+     final int NU = uidStats.size();
+     for (int iu = 0; iu &lt; NU; iu++) {
+         final Uid u = uidStats.valueAt(iu);
+         final BatterySipper app = new BatterySipper(BatterySipper.DrainType.APP, u, 0);
+
+         mCpuPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mWakelockPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mMobileRadioPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mWifiPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mBluetoothPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mSensorPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mCameraPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+         mFlashlightPowerCalculator.calculateApp(app, u, mRawRealtime, mRawUptime, mStatsType);
+
+         final double totalPower = app.sumPower();
+         if (DEBUG &amp;&amp; totalPower != 0) {
+             Log.d(TAG, String.format(&quot;UID %d: total power=%s&quot;, u.getUid(),
+                     makemAh(totalPower)));
+         }
+
+         // Add the app to the list if it is consuming power.
+         if (totalPower != 0 || u.getUid() == 0) {
+             //
+             // Add the app to the app list, WiFi, Bluetooth, etc, or into &quot;Other Users&quot; list.
+             //
+             final int uid = app.getUid();
+             final int userId = UserHandle.getUserId(uid);
+             if (uid == Process.WIFI_UID) {
+                 mWifiSippers.add(app);
+             } else if (uid == Process.BLUETOOTH_UID) {
+                 mBluetoothSippers.add(app);
+             } else if (!forAllUsers &amp;&amp; asUsers.get(userId) == null
+                     &amp;&amp; UserHandle.getAppId(uid) &gt;= Process.FIRST_APPLICATION_UID) {
+                 // We are told to just report this user&apos;s apps as one large entry.
+                 List&lt;BatterySipper&gt; list = mUserSippers.get(userId);
+                 if (list == null) {
+                     list = new ArrayList&lt;&gt;();
+                     mUserSippers.put(userId, list);
+                 }
+                 list.add(app);
+             } else {
+                 mUsageList.add(app);
+             }
+
+             if (uid == 0) {
+                 osSipper = app;
+             }
+         }
+     }
+
+     if (osSipper != null) {
+         // The device has probably been awake for longer than the screen on
+         // time and application wake lock time would account for.  Assign
+         // this remainder to the OS, if possible.
+         mWakelockPowerCalculator.calculateRemaining(osSipper, mStats, mRawRealtime,
+                                                     mRawUptime, mStatsType);
+         osSipper.sumPower();
+     }
+}
+</code></pre><p>对于电量统计，我们看到他是以UID来做一句的，一般情况是一个APP对应一个UID咯。不过如果是相同的签名，共同的ShareUserId的话，就会有相同的UID。但这还是挺少出现的，就算某些公司的全家桶，也不会是相同签名。</p>
+<p>主要是靠各种XXXCalculator去计算，目前有8个，这8个耗电计算器都继承自PowerCalculator抽象类。</p>
+<pre><code>PowerCalculator mCpuPowerCalculator;
+PowerCalculator mWakelockPowerCalculator;
+MobileRadioPowerCalculator mMobileRadioPowerCalculator;
+PowerCalculator mWifiPowerCalculator;
+PowerCalculator mBluetoothPowerCalculator;
+PowerCalculator mSensorPowerCalculator;
+PowerCalculator mCameraPowerCalculator;
+PowerCalculator mFlashlightPowerCalculator;
+</code></pre><p>这样我们优化算是有了一个大方向，明白要优化那些了，就是上面八巨头！<br>计算的结果保存到app变量里面，然后我们调用<code>app.sumPower()</code>获得总耗电量结果。</p>
+<pre><code>/**
+ * Sum all the powers and store the value into `value`.
+ * @return the sum of all the power in this BatterySipper.
+ */
+public double sumPower() {
+    return totalPowerMah = usagePowerMah + wifiPowerMah + gpsPowerMah + cpuPowerMah 
+    + sensorPowerMah + mobileRadioPowerMah + wakeLockPowerMah + cameraPowerMah 
+    + flashlightPowerMah;
+}
+</code></pre><p>最后，关于计算值添加到的列表上，分了UID为WIFI，蓝牙，ROOT用户和APP四大类。</p>
+<p>知道这样的大概流程后，我们分各个计算器，看下里面具体怎么处理的。<br>这对于指导我们写出<strong>绿色环保</strong>的代码  还是有一定的知道意义的！对吧？</p>
+<h3 id="CpuPowerCalculator"><a href="#CpuPowerCalculator" class="headerlink" title="CpuPowerCalculator"></a>CpuPowerCalculator</h3><pre><code> public CpuPowerCalculator(PowerProfile profile) {
+    final int speedSteps = profile.getNumSpeedSteps();
+    //Returns the number of speeds that the CPU can be run at.
+
+    mPowerCpuNormal = new double[speedSteps];
+    //后面用来记录不同频率下的功耗
+
+    mSpeedStepTimes = new long[speedSteps];
+    for (int p = 0; p &lt; speedSteps; p++) {
+        mPowerCpuNormal[p] = profile.getAveragePower(PowerProfile.POWER_CPU_ACTIVE, p);
+    }
+}
+</code></pre><p>这里的<code>getNumSpeedSteps()</code>返回的是cpu支持的主频数目。为了控制耗电，很多手机在设置有提供运行的模式，什么高性能，平衡，节能的选项。<br>还有些手机厂商用的CPU什么8频12模的，4个核能运行在1.5GHz的，节能时候可以跑另外4个运行在1.0GHz的。例如三星的猎户座5420。</p>
+<p>我们先来看下关于CPU的计算部分 </p>
+<pre><code>@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+    final int speedSteps = mSpeedStepTimes.length;
+
+    long totalTimeAtSpeeds = 0;
+
+    //1. 计算不同频率下的运行时间
+    for (int step = 0; step &lt; speedSteps; step++) {
+        mSpeedStepTimes[step] = u.getTimeAtCpuSpeed(step, statsType);
+        totalTimeAtSpeeds += mSpeedStepTimes[step];
+    }
+    //getTimeAtCpuSpeed(）返回的数据是毫秒级别的，
+    //居然和1做比较，也是怪怪的感觉，虽然CPU可以是纳秒的时间单位
+    totalTimeAtSpeeds = Math.max(totalTimeAtSpeeds, 1);
+
+    app.cpuTimeMs = (u.getUserCpuTimeUs(statsType) + u.getSystemCpuTimeUs(statsType)) / 1000;
+
+    //2.统计CPU的耗电量
+    //根据这个公司，我们的一句废话结论是，不用CPU是节能的最高境界
+    double cpuPowerMaMs = 0;
+    for (int step = 0; step &lt; speedSteps; step++) {
+        final double ratio = (double) mSpeedStepTimes[step] / totalTimeAtSpeeds;
+        final double cpuSpeedStepPower = ratio * app.cpuTimeMs * mPowerCpuNormal[step];             
+        cpuPowerMaMs += cpuSpeedStepPower; 
+    }
+
+    // Keep track of the package with highest drain.
+    double highestDrain = 0;
+
+    app.cpuFgTimeMs = 0;
+    final ArrayMap&lt;String, ? extends BatteryStats.Uid.Proc&gt; processStats = u.getProcessStats();
+    final int processStatsCount = processStats.size();
+
+     //3. 计算同一个uid的不同进程耗电情况
+    for (int i = 0; i &lt; processStatsCount; i++) {
+        final BatteryStats.Uid.Proc ps = processStats.valueAt(i);
+        final String processName = processStats.keyAt(i);
+        app.cpuFgTimeMs += ps.getForegroundTime(statsType);
+
+        final long costValue = ps.getUserTime(statsType) + ps.getSystemTime(statsType)
+                + ps.getForegroundTime(statsType);
+
+        // Each App can have multiple packages and with multiple running processes.
+        // Keep track of the package who&apos;s process has the highest drain.
+        if (app.packageWithHighestDrain == null ||
+                app.packageWithHighestDrain.startsWith(&quot;*&quot;)) {
+            highestDrain = costValue;
+            app.packageWithHighestDrain = processName;
+        } else if (highestDrain &lt; costValue &amp;&amp; !processName.startsWith(&quot;*&quot;)) {
+            highestDrain = costValue;
+            app.packageWithHighestDrain = processName;
+        }
+    }
+
+    // Ensure that the CPU times make sense.
+    if (app.cpuFgTimeMs &gt; app.cpuTimeMs) {           
+        // Statistics may not have been gathered yet.
+        app.cpuTimeMs = app.cpuFgTimeMs;
+    }
+
+    // Convert the CPU power to mAh
+    app.cpuPowerMah = cpuPowerMaMs / (60 * 60 * 1000);
+}
+</code></pre><p>看完上面一长串，我们可能比较在意的一条公式是：       </p>
+<blockquote>
+<p>final double cpuSpeedStepPower = ratio <em> app.cpuTimeMs </em> mPowerCpuNormal[step];</p>
+</blockquote>
+<h3 id="WakelockPowerCalculator"><a href="#WakelockPowerCalculator" class="headerlink" title="WakelockPowerCalculator"></a>WakelockPowerCalculator</h3><pre><code> public WakelockPowerCalculator(PowerProfile profile) {
+    mPowerWakelock = profile.getAveragePower(PowerProfile.POWER_CPU_AWAKE);
+}
+
+@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    long wakeLockTimeUs = 0;
+    final ArrayMap&lt;String, ? extends BatteryStats.Uid.Wakelock&gt; wakelockStats =
+            u.getWakelockStats();
+    final int wakelockStatsCount = wakelockStats.size();
+
+    for (int i = 0; i &lt; wakelockStatsCount; i++) {
+        final BatteryStats.Uid.Wakelock wakelock = wakelockStats.valueAt(i);
+
+        // Only care about partial wake locks since full wake locks
+        // are canceled when the user turns the screen off.
+        BatteryStats.Timer timer = wakelock.getWakeTime(
+                                   BatteryStats.WAKE_TYPE_PARTIAL);
+        if (timer != null) {
+            wakeLockTimeUs += timer.getTotalTimeLocked(rawRealtimeUs, statsType);
+        }
+    }
+
+    app.wakeLockTimeMs = wakeLockTimeUs / 1000; // convert to millis
+    mTotalAppWakelockTimeMs += app.wakeLockTimeMs;
+    // Add cost of holding a wake lock.
+    app.wakeLockPowerMah = (app.wakeLockTimeMs * mPowerWakelock) / (1000*60*60);        
+　　
+}
+</code></pre><p>我们看这个<code>wakeLock</code>的计算还是相对简单的，没什么好说的，就是统计下时间，然后乘以功耗。<br>关于这个wakeLock，其实用的还是挺少的，除了在OTA和以前的语音聊天时候用过之后，好像也没用过了。</p>
+<h3 id="MobileRadioPowerCalculator"><a href="#MobileRadioPowerCalculator" class="headerlink" title="MobileRadioPowerCalculator"></a>MobileRadioPowerCalculator</h3><p>手机的无线耗电就是通过这个来计算的。现在的手机应该它算是耗电大户了，开个4G网络耗电超快，比WIFI还耗电</p>
+<pre><code> public MobileRadioPowerCalculator(PowerProfile profile, BatteryStats stats) {
+    mPowerRadioOn = profile.getAveragePower(PowerProfile.POWER_RADIO_ACTIVE);
+    for (int i = 0; i &lt; mPowerBins.length; i++) {
+        mPowerBins[i] = profile.getAveragePower(PowerProfile.POWER_RADIO_ON, i);
+    }
+    mPowerScan = profile.getAveragePower(PowerProfile.POWER_RADIO_SCANNING);
+    mStats = stats;
+}
+
+@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    // Add cost of mobile traffic.
+    app.mobileRxPackets = u.getNetworkActivityPackets(
+                BatteryStats.NETWORK_MOBILE_RX_DATA,statsType);            
+    app.mobileTxPackets = u.getNetworkActivityPackets(
+                BatteryStats.NETWORK_MOBILE_TX_DATA,statsType);
+
+    app.mobileActive = u.getMobileRadioActiveTime(statsType) / 1000;
+    app.mobileActiveCount = u.getMobileRadioActiveCount(statsType);
+    app.mobileRxBytes = u.getNetworkActivityBytes(
+                BatteryStats.NETWORK_MOBILE_RX_DATA,statsType);
+    app.mobileTxBytes = u.getNetworkActivityBytes(
+                BatteryStats.NETWORK_MOBILE_TX_DATA,statsType);
+
+    if (app.mobileActive &gt; 0) {
+        // We are tracking when the radio is up, so can use the active time to
+        // determine power use.
+        mTotalAppMobileActiveMs += app.mobileActive;
+        app.mobileRadioPowerMah = (app.mobileActive * mPowerRadioOn) / (1000*60*60);
+
+    } else {
+        // We are not tracking when the radio is up, so must approximate power use
+        // based on the number of packets.
+
+        app.mobileRadioPowerMah = (app.mobileRxPackets + app.mobileTxPackets)            
+                                                                        * getMobilePowerPerPacket(rawRealtimeUs, statsType);
+    }
+ }
+
+/**
+ * Return estimated power (in mAs) of sending or receiving a packet with the mobile radio.
+ */
+private double getMobilePowerPerPacket(long rawRealtimeUs, int statsType) {
+    final long MOBILE_BPS = 200000; // TODO: Extract average bit rates from system
+    final double MOBILE_POWER = mPowerRadioOn / 3600;
+
+    final long mobileRx = mStats.getNetworkActivityPackets(BatteryStats.NETWORK_MOBILE_RX_DATA,
+            statsType);
+    final long mobileTx = mStats.getNetworkActivityPackets(BatteryStats.NETWORK_MOBILE_TX_DATA,
+            statsType);
+    final long mobileData = mobileRx + mobileTx;
+
+    final long radioDataUptimeMs =
+            mStats.getMobileRadioActiveTime(rawRealtimeUs, statsType) / 1000;
+    final double mobilePps = (mobileData != 0 &amp;&amp; radioDataUptimeMs != 0)
+            ? (mobileData / (double)radioDataUptimeMs)
+            : (((double)MOBILE_BPS) / 8 / 2048);
+    return (MOBILE_POWER / mobilePps) / (60*60);
+}
+</code></pre><p>我们看到，他最后在计算<code>app.mobileRadioPowerMah</code> 的时候，是分两种情况的，一种是我们跟踪网络开的时候，用的是<code>mobileActive时间</code> <em> <code>功耗</code>。看来开网络的是否，每秒的功耗是相对固定的。另外一种，对于没有跟踪信号开关的，我们就根据收发包来做估算，拿(Rx+Tx)</em>getMobilePowerPerPacket()每个包的耗电，这样得到总和，看来我们收发都是一样的。不过也挺有趣的，都知道收发包的多少，难道不知道时间？</p>
+<h3 id="WifiPowerCalculator"><a href="#WifiPowerCalculator" class="headerlink" title="WifiPowerCalculator"></a>WifiPowerCalculator</h3><p>关于wifi的统计，目前是分两种的，当有Wifi电源报告的时候，采用WifiPowerCalculator，这个是在BatteryStats支持能源报告的时候。<br>没有的话采用WifiPowerEstimator，这个是基于Timer来做处理的。</p>
+<pre><code>final boolean hasWifiPowerReporting = checkHasWifiPowerReporting(mStats, mPowerProfile);
+    if (mWifiPowerCalculator == null || hasWifiPowerReporting != mHasWifiPowerReporting) {
+        mWifiPowerCalculator = hasWifiPowerReporting ?
+                new WifiPowerCalculator(mPowerProfile) :
+                new WifiPowerEstimator(mPowerProfile);
+        mHasWifiPowerReporting = hasWifiPowerReporting;
+    }
+</code></pre><p>我们先来看下前者</p>
+<h4 id="WifiPowerCalculator-1"><a href="#WifiPowerCalculator-1" class="headerlink" title="WifiPowerCalculator"></a>WifiPowerCalculator</h4><pre><code>public WifiPowerCalculator(PowerProfile profile) {
+    mIdleCurrentMa = profile.getAveragePower(PowerProfile.POWER_WIFI_CONTROLLER_IDLE);
+    mTxCurrentMa = profile.getAveragePower(PowerProfile.POWER_WIFI_CONTROLLER_TX);
+    mRxCurrentMa = profile.getAveragePower(PowerProfile.POWER_WIFI_CONTROLLER_RX);
+}
+</code></pre><p>分了三类，接收，发送和空闲时候的电流情况。单位看起来就是mA毫安。</p>
+<pre><code> public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    final long idleTime = u.getWifiControllerActivity(
+                    BatteryStats.CONTROLLER_IDLE_TIME,statsType);
+    final long txTime = u.getWifiControllerActivity(
+                    BatteryStats.CONTROLLER_TX_TIME, statsType);
+    final long rxTime = u.getWifiControllerActivity(
+                    BatteryStats.CONTROLLER_RX_TIME, statsType);
+
+    app.wifiRunningTimeMs = idleTime + rxTime + txTime;
+
+    app.wifiPowerMah =((idleTime * mIdleCurrentMa) + (txTime * mTxCurrentMa) +
+                         (rxTime * mRxCurrentMa))  / (1000*60*60);
+
+    mTotalAppPowerDrain += app.wifiPowerMah;
+
+    app.wifiRxPackets = u.getNetworkActivityPackets(
+                        BatteryStats.NETWORK_WIFI_RX_DATA,statsType);
+    app.wifiTxPackets = u.getNetworkActivityPackets(
+                        BatteryStats.NETWORK_WIFI_TX_DATA,statsType);
+    app.wifiRxBytes = u.getNetworkActivityBytes(
+                        BatteryStats.NETWORK_WIFI_RX_DATA,statsType);
+    app.wifiTxBytes = u.getNetworkActivityBytes(
+                        BatteryStats.NETWORK_WIFI_TX_DATA,statsType);         
+}
+</code></pre><p>计算公式还是挺简洁的</p>
+<pre><code>app.wifiPowerMah =((idleTime * mIdleCurrentMa) + (txTime * mTxCurrentMa) +
+                         (rxTime * mRxCurrentMa))  / (1000*60*60);
+</code></pre><p>分别计算空间idle,Tx,Rx的时间乘以对应的消耗mA，就得到总的值。</p>
+<h4 id="WifiPowerEstimator"><a href="#WifiPowerEstimator" class="headerlink" title="WifiPowerEstimator"></a>WifiPowerEstimator</h4><p>接着我们来看下另外一种方式的计算</p>
+<pre><code>public WifiPowerEstimator(PowerProfile profile) {
+    mWifiPowerPerPacket = getWifiPowerPerPacket(profile);
+    mWifiPowerOn = profile.getAveragePower(PowerProfile.POWER_WIFI_ON);
+    mWifiPowerScan = profile.getAveragePower(PowerProfile.POWER_WIFI_SCAN);
+    mWifiPowerBatchScan = profile.getAveragePower(PowerProfile.POWER_WIFI_BATCHED_SCAN);
+}
+</code></pre><p>通过这个构造函数和前面的经验，我们大搞知道了一个套路，在计算功耗的时候，可能是根据wifi的不同状态来区分的，根据打开了wifi，在扫描scan和BatchScan来划分计算的。</p>
+<pre><code>@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    app.wifiRxPackets = u.getNetworkActivityPackets(BatteryStats.NETWORK_WIFI_RX_DATA,
+            statsType);
+    app.wifiTxPackets = u.getNetworkActivityPackets(BatteryStats.NETWORK_WIFI_TX_DATA,
+            statsType);
+    app.wifiRxBytes = u.getNetworkActivityBytes(BatteryStats.NETWORK_WIFI_RX_DATA,
+            statsType);
+    app.wifiTxBytes = u.getNetworkActivityBytes(BatteryStats.NETWORK_WIFI_TX_DATA,
+            statsType);
+
+    final double wifiPacketPower = (app.wifiRxPackets + app.wifiTxPackets)
+            * mWifiPowerPerPacket;
+
+    app.wifiRunningTimeMs = u.getWifiRunningTime(rawRealtimeUs, statsType) / 1000;
+    mTotalAppWifiRunningTimeMs += app.wifiRunningTimeMs;        
+    final double wifiLockPower = (app.wifiRunningTimeMs * mWifiPowerOn) / (1000*60*60);
+
+    final long wifiScanTimeMs = u.getWifiScanTime(rawRealtimeUs, statsType) / 1000;
+    final double wifiScanPower = (wifiScanTimeMs * mWifiPowerScan) / (1000*60*60);
+
+    double wifiBatchScanPower = 0;
+    for (int bin = 0; bin &lt; BatteryStats.Uid.NUM_WIFI_BATCHED_SCAN_BINS; bin++) {
+        final long batchScanTimeMs =
+                u.getWifiBatchedScanTime(bin, rawRealtimeUs, statsType) / 1000;
+        final double batchScanPower = (batchScanTimeMs * mWifiPowerBatchScan) / (1000*60*60);
+
+        wifiBatchScanPower += batchScanPower;
+    }
+
+    app.wifiPowerMah = wifiPacketPower + wifiLockPower +
+                                    wifiScanPower + wifiBatchScanPower; 
+}
+
+/**
+ * Return estimated power (in mAs) of sending a byte with the Wi-Fi radio.
+ */
+private static double getWifiPowerPerPacket(PowerProfile profile) {
+    final long WIFI_BPS = 1000000; // TODO: Extract average bit rates from system
+    final double WIFI_POWER = profile.getAveragePower(PowerProfile.POWER_WIFI_ACTIVE)
+            / 3600;
+    return (WIFI_POWER / (((double)WIFI_BPS) / 8 / 2048)) / (60*60);
+}
+</code></pre><p>看完代码，我们验证了一开始的猜想，看来关于这部分，都是类似的套路，只需要先看下构造函数，就可以知道怎么计算功耗的</p>
+<pre><code>app.wifiPowerMah = wifiPacketPower + wifiLockPower + 
+                    wifiScanPower + wifiBatchScanPower;
+</code></pre><p>不过有点奇怪的是，为何有多一个wifiLockPower，根据计算公式，他是wifiRunning时候的消耗值，我们在看MobileRadio的时候，他是分开来处理计算的，这里就合并起来了。</p>
+<h3 id="BluetoothPowerCalculator"><a href="#BluetoothPowerCalculator" class="headerlink" title="BluetoothPowerCalculator"></a>BluetoothPowerCalculator</h3><pre><code> public BluetoothPowerCalculator(PowerProfile profile) {
+    mIdleMa = profile.getAveragePower(PowerProfile.POWER_BLUETOOTH_CONTROLLER_IDLE);
+    mRxMa = profile.getAveragePower(PowerProfile.POWER_BLUETOOTH_CONTROLLER_RX);
+    mTxMa = profile.getAveragePower(PowerProfile.POWER_BLUETOOTH_CONTROLLER_TX);
+}
+
+@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+    // No per-app distribution yet.
+}
+</code></pre><p>这也是逗我？居然是空的？我看了下还真的就是没有…还没写。<br>搜索了下，这个类是从API23加进来的，也就是说，在Android6以前，是没有统计蓝牙的，虽然现在加了也和没加一样…我以为还是分idle，tx，rx三个来算的。。</p>
+<h3 id="mSensorPowerCalculator"><a href="#mSensorPowerCalculator" class="headerlink" title="mSensorPowerCalculator"></a>mSensorPowerCalculator</h3><pre><code>public SensorPowerCalculator(PowerProfile profile, SensorManager sensorManager) {
+    mSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+    mGpsPowerOn = profile.getAveragePower(PowerProfile.POWER_GPS_ON);
+}
+</code></pre><p>构造函数很简单，只有gps的，别的传感器不理了？</p>
+<pre><code>@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+    // Process Sensor usage
+    final SparseArray&lt;? extends BatteryStats.Uid.Sensor&gt; sensorStats = u.getSensorStats();
+    final int NSE = sensorStats.size();
+    for (int ise = 0; ise &lt; NSE; ise++) {
+        final BatteryStats.Uid.Sensor sensor = sensorStats.valueAt(ise);
+        final int sensorHandle = sensorStats.keyAt(ise);
+        final BatteryStats.Timer timer = sensor.getSensorTime();
+        final long sensorTime = timer.getTotalTimeLocked(rawRealtimeUs, statsType) / 1000;
+        switch (sensorHandle) {
+            case BatteryStats.Uid.Sensor.GPS:
+                app.gpsTimeMs = sensorTime;
+                app.gpsPowerMah = (app.gpsTimeMs * mGpsPowerOn) / (1000*60*60);
+                break;
+            default:
+                final int sensorsCount = mSensors.size();
+                for (int i = 0; i &lt; sensorsCount; i++) {
+                    final Sensor s = mSensors.get(i);
+                    if (s.getHandle() == sensorHandle) {
+                        app.sensorPowerMah += (sensorTime * s.getPower()) / (1000*60*60);
+                        break;
+                    }
+                }
+                break;
+        }
+    }
+}
+</code></pre><p>看这个统计部分内容，是针对了GPS做单独处理，确实，目前手机耗电的比较厉害的传感器就是GPS了，开地图导航都挺费电的。其余的先对耗电还是挺小的。<br>这样我们看到的计算公式有两个：</p>
+<pre><code>app.gpsPowerMah = (app.gpsTimeMs * mGpsPowerOn) / (1000*60*60);
+</code></pre><p>和除GPS外的各个路人甲级别的传感器之和：</p>
+<pre><code>app.sensorPowerMah += (sensorTime * s.getPower()) / (1000*60*60);
+</code></pre><h3 id="mCameraPowerCalculator"><a href="#mCameraPowerCalculator" class="headerlink" title="mCameraPowerCalculator"></a>mCameraPowerCalculator</h3><pre><code>public CameraPowerCalculator(PowerProfile profile) {
+    mCameraPowerOnAvg = profile.getAveragePower(PowerProfile.POWER_CAMERA);
+}
+</code></pre><p>我们看这个拍照的构造函数，知道它在计算上，估计是不区分你拍照时候是用什么像素，多大的ISO等等信息的，一视同仁哈！</p>
+<pre><code>@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    // Calculate camera power usage.  Right now, 
+    // this is a (very) rough estimate based on the
+    // average power usage for a typical camera application.
+
+    final BatteryStats.Timer timer = u.getCameraTurnedOnTimer();
+    if (timer != null) {
+      final long totalTime =timer.getTotalTimeLocked(rawRealtimeUs,statsType)/ 1000;
+      app.cameraTimeMs = totalTime;
+      app.cameraPowerMah = (totalTime * mCameraPowerOnAvg) / (1000*60*60);
+    } else {
+        app.cameraTimeMs = 0;
+        app.cameraPowerMah = 0;
+    }
+}
+</code></pre><p>真的是这样，没什么好说的，很简单</p>
+<pre><code>app.cameraPowerMah = (totalTime * mCameraPowerOnAvg) / (1000*60*60);
+</code></pre><p>想吐槽的是，从头到尾好多MagicNumber，就不能把后面的1000<em>60</em>60弄好一个Hour的常量放到他们的父类<br><code>PowerCalculator</code>里面去嘛？</p>
+<h3 id="FlashlightPowerCalculator"><a href="#FlashlightPowerCalculator" class="headerlink" title="FlashlightPowerCalculator"></a>FlashlightPowerCalculator</h3><p>最后就是这个开闪光灯的，以前各类的手电筒应用泛滥啊，哈哈…自己看过一些处理方案，就是跑去调用摄像头的API，然后影藏画面，只开他的闪光灯为Torch的模式。</p>
+<pre><code>public FlashlightPowerCalculator(PowerProfile profile) {
+    mFlashlightPowerOnAvg = profile.getAveragePower(PowerProfile.POWER_FLASHLIGHT);
+}
+
+@Override
+public void calculateApp(BatterySipper app, BatteryStats.Uid u, long rawRealtimeUs,
+                         long rawUptimeUs, int statsType) {
+
+    final BatteryStats.Timer timer = u.getFlashlightTurnedOnTimer();
+    if (timer != null) {
+     final long totalTime=timer.getTotalTimeLocked(rawRealtimeUs,statsType)/1000;
+        app.flashlightTimeMs = totalTime;
+        app.flashlightPowerMah = (totalTime * mFlashlightPowerOnAvg) / (1000*60*60);
+    } else {
+        app.flashlightTimeMs = 0;
+        app.flashlightPowerMah = 0;
+    }
+}
+</code></pre><p>也很简单，没什么好说的，时间*电量的公式</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>看完这么长的关于电量统计部分的内容，那么怎么知道我们去做电量优化工作呢，写出绿色环保的代码？</p>
+<p>写代码的最高境界就是不写啊，这样什么鬼消耗也没有。</p>
+<p>开玩笑   ：)</p>
+<p>在做优化，当然要知道自己都耗电在那个地方啊！是吧？要不然怎么知道优化的方向？</p>
+<p>好在5.0后，安卓提供了查电量的指令，我们可以去获取我们的程序耗电信息，利用下面这条指令</p>
+<pre><code>adb shell dumpsys batterystats   yourPackage.name
+</code></pre><p>然后你获得下面这么一大堆的信息</p>
+<pre><code> Daily stats:
+  Current start time: 2016-06-13-23-23-16
+  Next min deadline: 2016-06-14-01-00-00
+  Next max deadline: 2016-06-14-03-00-00
+  Current daily steps:
+
+//由于是一个demo，什么也没写，所以下面一大堆是0。
+Statistics since last charge:
+  System starts: 33, currently on battery: false
+  Time on battery: 0ms (0.0%) realtime, 0ms (0.0%) uptime
+  Time on battery screen off: 0ms (0.0%) realtime, 0ms (0.0%) uptime
+  Total run time: 1m 57s 828ms realtime, 1m 57s 827ms uptime
+  Start clock time: 2016-06-13-23-22-41
+  Screen on: 0ms (--%) 1x, Interactive: 0ms (--%)
+  Screen brightnesses: (no activity)
+  Connectivity changes: 1
+  Mobile total received: 0B, sent: 0B (packets received 0, sent 0)
+  Phone signal levels: (no activity)
+  Signal scanning time: 0ms
+  Radio types: (no activity)
+  Mobile radio active time: 0ms (--%) 0x
+  Wi-Fi total received: 0B, sent: 0B (packets received 0, sent 0)
+  Wifi on: 0ms (--%), Wifi running: 0ms (--%)
+  Wifi states: (no activity)
+  Wifi supplicant states: (no activity)
+  Wifi signal levels: (no activity)
+  WiFi Idle time: 0ms (--%)
+  WiFi Rx time:   0ms (--%)
+  WiFi Tx time:   0ms (--%)
+  WiFi Power drain: 0mAh
+  Bluetooth Idle time: 0ms (--%)
+  Bluetooth Rx time:   0ms (--%)
+  Bluetooth Tx time:   0ms (--%)
+  Bluetooth Power drain: 0mAh
+
+  Device battery use since last full charge
+    Amount discharged (lower bound): 0
+    Amount discharged (upper bound): 0
+    Amount discharged while screen on: 0
+    Amount discharged while screen off: 0
+
+  1000:
+    Wake lock ActivityManager-Sleep realtime
+    Wake lock WifiSuspend realtime
+    Wake lock WiredAccessoryManager realtime
+    Wake lock *alarm* realtime
+    Wake lock PhoneWindowManager.mPowerKeyWakeLock realtime
+    Wake lock AudioMix realtime
+    Wake lock NetworkStats realtime
+    Wake lock GpsLocationProvider realtime
+    Wake lock SyncLoopWakeLock realtime
+    Wake lock SCREEN_FROZEN realtime
+    Sensor 1: (not used)
+    Apk com.android.location.fused:
+      Service com.android.location.fused.FusedLocationService:
+        Created for: 0ms uptime
+        Starts: 0, launches: 1
+    Apk com.android.keychain:
+      (nothing executed)
+    Apk com.android.server.telecom:
+      Service com.android.server.telecom.components.TelecomService:
+        Created for: 0ms uptime
+        Starts: 0, launches: 1
+    Apk android:
+      Service android.hardware.location.GeofenceHardwareService:
+        Created for: 0ms uptime
+        Starts: 0, launches: 1
+      Service com.android.internal.backup.LocalTransportService:
+        Created for: 0ms uptime
+        Starts: 0, launches: 1
+  u0a60:
+    Wake lock *launch* realtime
+</code></pre><p>查看一些项目的信息，我们可以对应的去做特定的优化。</p>
+<p>实际上，我们也是知道个大概的情况，不是能很细致的告诉我，那几行代码的调用得比较多，耗费了较多的电量。这时候结合<code>MethodTracking</code>会比较好的帮助我们去看。</p>
+<p>当然了，上面数据看起来还是挺枯燥无味的，为此谷歌在5.0引入了一个<a href="https://developer.android.com/about/versions/android-5.0.html#Power" target="_blank" rel="noopener"><code>Battery Historian</code></a>来帮助我们视觉化的看堆内容</p>
+<p>　<br> adb shell dumpsys batterystats &gt; com.package.name &gt; xxx.txt<br> //得到我们指定的app电量消耗信息到某个文件</p>
+<p>通过上面这条指令，在我们的项目文件目录下，就生成了一份新的文件。<br>然后我们可以用谷歌写的一个Python脚本，把这个换成可以看的html页面。<br>对于需要安装python环境的，<a href="http://jingyan.baidu.com/article/7908e85c78c743af491ad261.html" target="_blank" rel="noopener">看这个教程</a></p>
+<p>项目地址如下：<br><a href="https://github.com/google/battery-historian" target="_blank" rel="noopener">https://github.com/google/battery-historian</a></p>
+<p> (谷歌在16年的I/O把这个升级到了2.0，,配置比较麻烦，<a href="http://ph0b.com/battery-historian-2-0-windows/?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">看这个教程</a> ，很逗逼的是没有旧版本的Tag，没有Release的。只有在日志看到一条更新信息，这样做一点都不友好！！我只是想静静的看下结果就好了)</p>
+<p>接着我们允许下面的指令</p>
+<pre><code>python historian.py xxx.txt &gt; xxx.html
+</code></pre><p>用游览器打开这个文件，我们收获一张类似下面的图片！</p>
+<p><img src="http://www.41443.com/uploads/allimg/151012/1FA2TZ_0.png" alt="enter image description here"></p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>对电量优化，做了一个初步了解，平时针对电量的优化操作很少去留意的，因为这个的优先级还不是很高哈。</p>
+<p>原本应该继续写点关于dalvik的内存方面的，不过目前我知道还是理论上的比较多。<br>要从源码角度看还是得缓下，这几天继续看下先看有什么灵感，或者搜刮下有什么参考资料再写吧</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/BatteryStatsHelper/" rel="tag">#BatteryStatsHelper</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" rel="prev">源码探索系列40---关于Dalvik的内存分配过程</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/" rel="next">源码探索系列38---关于dalvik虚拟机</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/"
+     data-title="源码探索系列39---关于电量统计BatteryStatsHelper"
+     data-content=""
+     data-url="http://yoursite.com/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/"
+                   data-title="源码探索系列39---关于电量统计BatteryStatsHelper" data-url="http://yoursite.com/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BatteryStatsHelper-refreshStats"><span class="nav-number">1.1.</span> <span class="nav-text">BatteryStatsHelper.refreshStats()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#processAppUsage"><span class="nav-number">1.1.1.</span> <span class="nav-text">processAppUsage()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CpuPowerCalculator"><span class="nav-number">1.1.2.</span> <span class="nav-text">CpuPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WakelockPowerCalculator"><span class="nav-number">1.1.3.</span> <span class="nav-text">WakelockPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MobileRadioPowerCalculator"><span class="nav-number">1.1.4.</span> <span class="nav-text">MobileRadioPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WifiPowerCalculator"><span class="nav-number">1.1.5.</span> <span class="nav-text">WifiPowerCalculator</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WifiPowerCalculator-1"><span class="nav-number">1.1.5.1.</span> <span class="nav-text">WifiPowerCalculator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WifiPowerEstimator"><span class="nav-number">1.1.5.2.</span> <span class="nav-text">WifiPowerEstimator</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BluetoothPowerCalculator"><span class="nav-number">1.1.6.</span> <span class="nav-text">BluetoothPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mSensorPowerCalculator"><span class="nav-number">1.1.7.</span> <span class="nav-text">mSensorPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mCameraPowerCalculator"><span class="nav-number">1.1.8.</span> <span class="nav-text">mCameraPowerCalculator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FlashlightPowerCalculator"><span class="nav-number">1.1.9.</span> <span class="nav-text">FlashlightPowerCalculator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化"><span class="nav-number">1.2.</span> <span class="nav-text">优化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

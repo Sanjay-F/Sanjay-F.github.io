@@ -1,0 +1,882 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,测试," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="前面一篇介绍了如何用mockito来测试我们的一些异步任务，例如网络请求时候的异步回调。现在做进一步的介绍，一个模拟我们的服务器的东东–moco">
+<meta name="keywords" content="android,测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android测试教程13--模拟服务器MockServer之Moco详细介绍">
+<meta property="og:url" content="http://yoursite.com/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="前面一篇介绍了如何用mockito来测试我们的一些异步任务，例如网络请求时候的异步回调。现在做进一步的介绍，一个模拟我们的服务器的东东–moco">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151207134614445">
+<meta property="og:image" content="http://img.blog.csdn.net/20151207135247014">
+<meta property="og:image" content="http://img.blog.csdn.net/20151207143746997">
+<meta property="og:image" content="http://img.blog.csdn.net/20151207145001447">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.694Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android测试教程13--模拟服务器MockServer之Moco详细介绍">
+<meta name="twitter:description" content="前面一篇介绍了如何用mockito来测试我们的一些异步任务，例如网络请求时候的异步回调。现在做进一步的介绍，一个模拟我们的服务器的东东–moco">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151207134614445">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Android测试教程13--模拟服务器MockServer之Moco详细介绍 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Android测试教程13--模拟服务器MockServer之Moco详细介绍
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-07T15:33:00+08:00" content="2015-12-07">
+            2015-12-07
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p> 前面一篇介绍了如何用mockito来测试我们的一些异步任务，例如网络请求时候的异步回调。<br>现在做进一步的介绍，一个模拟我们的服务器的东东–<a href="https://github.com/dreamhead/moc" target="_blank" rel="noopener">moco</a></p>
+<a id="more"></a>
+<h1 id="先运行起来"><a href="#先运行起来" class="headerlink" title="先运行起来"></a>先运行起来</h1><p>请先<a href="http://download.csdn.net/detail/f112122/9333217" target="_blank" rel="noopener">下载这个文件moco.jar</a>，接着，在我们的桌面新建一个文件data.json，用记事本打开，粘贴下面的东东 ，具体意思后面介绍</p>
+<pre><code>[{ &quot;request&quot; : { &quot;uri&quot; : &quot;/hello&quot; }, &quot;response&quot; : { &quot;text&quot; : &quot;Hello  World !!!&quot; } } ]
+</code></pre><p>保存好，然后打开我们的终端或者CMD。<br>输入下面的命令</p>
+<pre><code>java -jar moco-runner-0.10.2-standalone.jar start -p 5638 -c data.json
+</code></pre><p>我比较简单粗暴，直接把桌面文件拉过去，CMD自动填好地址，所以看到都是Desktop上的。<br>回车，确认后，会有下面的信息 </p>
+<pre><code>INFO Server is started at 5638
+INFO Shutdown port is 52384
+</code></pre><p><img src="http://img.blog.csdn.net/20151207134614445" alt="这里写图片描述"></p>
+<p> 所以现在，我们打开我们的游览器， 输入</p>
+<pre><code>http://localhost:5638/hello
+</code></pre><p>理论上没有出错，那么返回的就是<code>hello world!!!</code><br><strong>如下：</strong><br><img src="http://img.blog.csdn.net/20151207135247014" alt="这里写图片描述"></p>
+<h2 id="解释："><a href="#解释：" class="headerlink" title="解释："></a>解释：</h2><pre><code>java -jar moco-runner-0.10.2-standalone.jar start -p 5638 -c data.json
+</code></pre><p>这个命令的意思是要mock监听本地的5638端口，对应的请求返回的数据在我们的data.json里面。<br>当有网络请求到来的时候，我们的mock就会去查<code>data.json</code>，把<code>request</code>为<code>hello</code>对应的数据返回，<br>我们写的是 <code>Hello  World !!!</code>，所以游览器返回这个。</p>
+<p>如果没有这个请求，就返回空。</p>
+<p>如果要<strong>添加新的请求</strong>的，可以这样写</p>
+<pre><code>[{&quot;request&quot;:{ &quot;uri&quot;: &quot;/hello&quot;}, &quot;response&quot; : { &quot;text&quot;: &quot;Hello World&quot; }}  ,
+ {&quot;request&quot;:{ &quot;uri&quot;: &quot;/go&quot;}, &quot;response&quot;: { &quot;text&quot; : &quot;go away !!!&quot; }}  ]
+</code></pre><p>加个逗号<code>，</code>接着复制多一份，改下请求的uri。ok，就这样，是不是很简单的感觉？？<br>那么更复杂的请求怎么办呢？例如有post数据的情况。</p>
+<h1 id="复杂的请求"><a href="#复杂的请求" class="headerlink" title="复杂的请求"></a>复杂的请求</h1><p>显然我们的请求确实可能这么简单，最少都是带参数的，例如要获取<code>jack</code>用户信息，请求像下面这样</p>
+<pre><code>http://localhost:5638/user/getUser?name=jack
+</code></pre><p>那么我们的数据该怎么写呢？</p>
+<pre><code>{ 
+ &quot;request&quot; : { 
+    &quot;uri&quot; : &quot;/user/getUser&quot;,
+     &quot;queries&quot;: { &quot;name&quot;:&quot;jack&quot; } 
+  },
+  &quot;response&quot; : {
+       &quot;text&quot; : &quot;Hey. I&apos;m jack&quot; 
+     }  
+}
+</code></pre><h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><p>对于rest风格的url，Moco支持正则匹配。</p>
+<pre><code>{ 
+  &quot;request&quot;: { 
+       &quot;uri&quot;: { 
+       &quot;match&quot;: &quot;/getUser/\\w+&quot; } 
+    },
+  &quot;response&quot;: {
+       &quot;text&quot;: &quot;Find a boy.&quot;
+   } 
+}
+</code></pre><h2 id="POST-GET-PUT-DELETE-等方法"><a href="#POST-GET-PUT-DELETE-等方法" class="headerlink" title="POST , GET , PUT , DELETE 等方法"></a>POST , GET , PUT , DELETE 等方法</h2><p>除了Get外，Post，Put，Delete等请求模式自然是支持的，格式如下，加多<code>method</code>和<code>Forms</code>参数</p>
+<pre><code>{
+  &quot;request&quot; :{
+      &quot;method&quot; : &quot;post&quot;,
+       &quot;uri&quot;: &quot;/getUser&quot;,
+      &quot;forms&quot; :{
+          &quot;name&quot; : &quot;jack&quot;
+       }
+    },
+  &quot;response&quot; : {
+      &quot;text&quot; : &quot;Hi. you get jack data&quot;
+    }
+} 
+</code></pre><p>我们用postman来做模拟，返回数据正确！</p>
+<p><img src="http://img.blog.csdn.net/20151207143746997" alt="这里写图片描述"></p>
+<h2 id="Headers-Cookies-StatusCode"><a href="#Headers-Cookies-StatusCode" class="headerlink" title="Headers ,  Cookies  , StatusCode"></a>Headers ,  Cookies  , StatusCode</h2><p>这个是支持特定的头的和cookies是支持的，我们需要加的就是<code>headers</code>，<code>cookies</code> 和<code>status</code>属性，参考如下</p>
+<pre><code>{
+  &quot;request&quot; :{
+      &quot;method&quot; : &quot;post&quot;,
+      &quot;headers&quot; : {
+        &quot;content-type&quot; : &quot;application/json&quot;
+      }
+    },
+  &quot;response&quot; :{
+      &quot;status&quot; : 200,
+      &quot;text&quot; : &quot;bar&quot;,
+       &quot;cookies&quot; :{
+          &quot;login&quot; : &quot;true&quot;
+      },
+       &quot;headers&quot; :{
+          &quot;content-type&quot; : &quot;application/json&quot;
+       }
+    }
+}
+</code></pre><h2 id="Json"><a href="#Json" class="headerlink" title="Json"></a>Json</h2><p>我们对返回的数据，可以定义为Json的，格式如下</p>
+<pre><code>{
+      &quot;request&quot; :{
+              &quot;uri&quot;: &quot;/getJson&quot;,
+              &quot;method&quot; : &quot;post&quot;,                  
+       },
+      &quot;response&quot; :{
+          &quot;status&quot; : 200,
+           &quot;headers&quot; :{
+              &quot;content-type&quot; : &quot;application/json&quot;
+           },
+          &quot;json&quot;: {
+                &quot;foo&quot;: &quot;bar&quot;
+               }               
+      }
+}
+</code></pre><h2 id="重定向"><a href="#重定向" class="headerlink" title="重定向"></a>重定向</h2><p>介绍一个redirect</p>
+<pre><code>{ 
+  &quot;request&quot; : { &quot;uri&quot; : &quot;/redirect&quot; }, 
+  &quot;redirectTo&quot; : &quot;http://www.XXX.com&quot; 
+  }
+</code></pre><h2 id="延迟"><a href="#延迟" class="headerlink" title="延迟"></a>延迟</h2><p>我觉得这个还是个重要的属性，因为移动手机的网络环境很复杂，高RTT不是盖的，网络延迟个几十秒的那也是正常的，所以我们需要一个<code>latency</code></p>
+<pre><code>{
+  &quot;request&quot; :{
+      &quot;text&quot; : &quot;foo&quot;
+    },
+  &quot;response&quot; :{
+      &quot;latency&quot;: {
+          &quot;duration&quot;: 1,
+          &quot;unit&quot;: &quot;second&quot;
+        }
+    }
+}
+</code></pre><p>##template<br>上面的请求参数的值和返回值都是固定的，这自然太过死板。<br>好在从0.8版本开始，Moco提供了<code>template</code>功能，可以动态的返回一些参数值，虽然是beta版本。</p>
+<p>例如：</p>
+<pre><code> {
+   &quot;request&quot;: {
+       &quot;uri&quot;: &quot;/getUser2&quot;
+       },
+   &quot;response&quot;: {
+         &quot;text&quot;: {
+            &quot;template&quot;: &quot;${req.queries[&apos;name&apos;]}&quot;
+                }
+       }
+}
+</code></pre><p>这样，但当我们的请求是<code>localhost:5638/getUser2?name=nameIsJack</code>,那么返回的数据是<code>nameIsJack</code></p>
+<p><img src="http://img.blog.csdn.net/20151207145001447" alt="这里写图片描述"></p>
+<p>。。。。这个CSDN真是，写一半就又崩溃了。传图片又不可以，高可用的服务器啊。</p>
+<p>除了上面的，还有</p>
+<pre><code>&quot;template&quot;: &quot;${req.version}&quot;
+&quot;template&quot;: &quot;${req.method}&quot;
+&quot;template&quot;: &quot;${req.content}&quot;
+&quot;template&quot;: &quot;${req.headers[&apos;foo&apos;]}&quot;
+&quot;template&quot;: &quot;${req.queries[&apos;foo&apos;]}&quot;
+&quot;template&quot;: &quot;${req.forms[&apos;foo&apos;]}&quot;
+&quot;template&quot;: &quot;${req.cookies[&apos;foo&apos;]}&quot;
+</code></pre><p>这些方法上面都用过了，就不一  一解释了。</p>
+<p>##Event事件<br>从0.9版本开始，mock提供了event方法，什么意思呢<br>有时候，我们请求一些特定接口的时候，我们可能需要去请求别的地址，从而才能完成请求。<br>例如OAuth等，牵涉到第三方的情况。这时候，Event就派上大用场了</p>
+<pre><code> {
+    &quot;request&quot;: {
+        &quot;uri&quot; : &quot;/event&quot;
+    },
+    &quot;response&quot;: {
+        &quot;text&quot;: &quot;event&quot;
+    },
+    &quot;on&quot;: {
+        &quot;complete&quot;: {
+            &quot;get&quot; : {
+                &quot;url&quot; : &quot;http://another_site/OAuth?xxx=xxxx&quot;
+            }
+        }
+    }
+}
+</code></pre><p>这样我们就可以等去验证完权限部分，才返回结果。</p>
+<h2 id="异步请求-Asynchronous"><a href="#异步请求-Asynchronous" class="headerlink" title="异步请求 Asynchronous"></a>异步请求 Asynchronous</h2><p>前面的请求默认都是同步的，这意味着只有等到服务器处理完，结果才会返回给客户端<br>如果你的实际情况不是这样，需要来点异步的，那么从0.9版本开始，有这个功能了，另外你还可以延迟个5秒，像这样</p>
+<pre><code>{
+        &quot;request&quot;: {
+            &quot;uri&quot; : &quot;/event&quot;
+        },
+        &quot;response&quot;: {
+            &quot;text&quot;: &quot;event&quot;
+        },
+        &quot;on&quot;: {
+            &quot;complete&quot;: {
+            &quot;async&quot; : &quot;true&quot;,
+            &quot;latency&quot; : 5000,
+                &quot;post&quot; : {
+                    &quot;url&quot; : &quot;http://www.baidu.com&quot;,
+                    &quot;content&quot;: &quot;content&quot;
+                }
+            }
+        }
+    }
+</code></pre><hr>
+<h1 id="分模块"><a href="#分模块" class="headerlink" title="分模块"></a>分模块</h1><p>我们的请求很显然是有很多的，例如有u<br>ser模块的userApi业务，聊天模块的chatApi业务等等，<br>如果把这些不同的模块的业务都写在一个文件里面，那就太难看了，为此，需要一些明智点的解决方案<br>下面以一个<code>TodoList</code>的作为介绍</p>
+<pre><code>[ { &quot;context&quot;: &quot;/user&quot;, &quot;include&quot;: &quot;user.json&quot; }, { &quot;context&quot;: &quot;/todo&quot;, &quot;include&quot;: &quot;todo.json&quot; } ]
+</code></pre><p>这样，当我们访问<br> <code>http://localhost:12306/user/create</code> 和 <code>http://localhost:12306/todo/getAll</code>时候，<br> 会跳到后面对应的json再处理一遍</p>
+<pre><code>//user
+[ { &quot;request&quot; : { &quot;uri&quot; : &quot;/create&quot; }, &quot;response&quot; : { &quot;text&quot; : &quot;这是创建用户请求&quot; } } ]
+//todo
+[ { &quot;request&quot; : { &quot;uri&quot; : &quot;/getAll&quot; }, &quot;response&quot; : { &quot;text&quot; : &quot;这是获取用户所有Todo的请求&quot; } } ]
+</code></pre><p> Moco支持在全局的配置文件中引入其他配置文件，这样就可以分服务定义配置文件，便于管理。<br> 配置好文件，在全局文件中引入即可：<br> 全局配置如下：</p>
+<pre><code>java -jar moco-runner-standalone.jar start -p 5638 -g data.json
+</code></pre><p><strong>注意，此时需要通过参数  <code>-g</code>  在加载全局配置文件。</strong>,使用的不是<code>-c</code>了</p>
+<p>否则配置文件解析会报错。</p>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>再github上star了这个项目，发发现还是大神郑晔写的，CSDN也曾做过采访<br><a href="http://www.csdn.net/article/2013-08-23/2816684-Moco-Java-framework" target="_blank" rel="noopener">【开源专访】郑晔谈Moco框架的前世今生以及Java编程之道</a></p>
+<hr>
+<p>来源：</p>
+<p><a href="http://www.coderli.com/mock-server-moco-guide/" target="_blank" rel="noopener">Mock Server- Moco 使用指南</a><br><a href="https://github.com/dreamhead/moco/blob/master/moco-doc/apis.md" target="_blank" rel="noopener">更详细的介绍，看官方文档吧</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/测试/" rel="tag">#测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" rel="prev">源码探索系列1---Handler与HandlerLeak的那些事</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/05/Android测试教程12--模拟读取的文件数据库/" rel="next">Android测试教程12--模拟读取的文件/数据库</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/"
+     data-title="Android测试教程13--模拟服务器MockServer之Moco详细介绍"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/"
+                   data-title="Android测试教程13--模拟服务器MockServer之Moco详细介绍" data-url="http://yoursite.com/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#先运行起来"><span class="nav-number">1.</span> <span class="nav-text">先运行起来</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#解释："><span class="nav-number">1.1.</span> <span class="nav-text">解释：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#复杂的请求"><span class="nav-number">2.</span> <span class="nav-text">复杂的请求</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式"><span class="nav-number">2.1.</span> <span class="nav-text">正则表达式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POST-GET-PUT-DELETE-等方法"><span class="nav-number">2.2.</span> <span class="nav-text">POST , GET , PUT , DELETE 等方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Headers-Cookies-StatusCode"><span class="nav-number">2.3.</span> <span class="nav-text">Headers ,  Cookies  , StatusCode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Json"><span class="nav-number">2.4.</span> <span class="nav-text">Json</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重定向"><span class="nav-number">2.5.</span> <span class="nav-text">重定向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#延迟"><span class="nav-number">2.6.</span> <span class="nav-text">延迟</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步请求-Asynchronous"><span class="nav-number">2.7.</span> <span class="nav-text">异步请求 Asynchronous</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分模块"><span class="nav-number">3.</span> <span class="nav-text">分模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

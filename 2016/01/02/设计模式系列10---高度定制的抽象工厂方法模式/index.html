@@ -1,0 +1,849 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,设计模式,pattern,抽象工厂," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="上一篇我们介绍了关于使用公模做手机的事情，但有个问题就是不能高度定制，现在我们来介绍下我的抽象工厂方法，他可以做到的定制就很高啦，既可以造飞机，汽车，又可以做苹果手机等等。 一般能处理这类问题的，都是些大厂家，这类大厂家就很规范，分工明确的，而且也有很多流水线，代工不少产品，为了降低风险同时提营业额嘛，好懂。 假设有一家叫 NiuBi 的公司，他很厉害，有多条流水线，一条生产火箭，一条生产苹果机，">
+<meta name="keywords" content="android,设计模式,pattern,抽象工厂">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式系列10---高度定制的抽象工厂方法模式">
+<meta property="og:url" content="http://yoursite.com/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="上一篇我们介绍了关于使用公模做手机的事情，但有个问题就是不能高度定制，现在我们来介绍下我的抽象工厂方法，他可以做到的定制就很高啦，既可以造飞机，汽车，又可以做苹果手机等等。 一般能处理这类问题的，都是些大厂家，这类大厂家就很规范，分工明确的，而且也有很多流水线，代工不少产品，为了降低风险同时提营业额嘛，好懂。 假设有一家叫 NiuBi 的公司，他很厉害，有多条流水线，一条生产火箭，一条生产苹果机，">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2017.41.40.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.735Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式系列10---高度定制的抽象工厂方法模式">
+<meta name="twitter:description" content="上一篇我们介绍了关于使用公模做手机的事情，但有个问题就是不能高度定制，现在我们来介绍下我的抽象工厂方法，他可以做到的定制就很高啦，既可以造飞机，汽车，又可以做苹果手机等等。 一般能处理这类问题的，都是些大厂家，这类大厂家就很规范，分工明确的，而且也有很多流水线，代工不少产品，为了降低风险同时提营业额嘛，好懂。 假设有一家叫 NiuBi 的公司，他很厉害，有多条流水线，一条生产火箭，一条生产苹果机，">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2017.41.40.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 设计模式系列10---高度定制的抽象工厂方法模式 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              设计模式系列10---高度定制的抽象工厂方法模式
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-02T18:04:00+08:00" content="2016-01-02">
+            2016-01-02
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>上一篇我们介绍了关于使用公模做手机的事情，但有个问题就是不能高度定制，现在我们来介绍下我的抽象工厂方法，他可以做到的定制就很高啦，既可以造飞机，汽车，又可以做苹果手机等等。</p>
+<p>一般能处理这类问题的，都是些大厂家，这类大厂家就很规范，分工明确的，而且也有很多流水线，代工不少产品，为了降低风险同时提营业额嘛，好懂。</p>
+<p>假设有一家叫 <code>NiuBi</code> 的公司，他很厉害，有多条流水线，一条生产火箭，一条生产苹果机，一条生产汽车的。能加工这么广的是厉害。</p>
+<p>面对一个这么厉害的厂，我们需要更高的抽象，现在来展示下怎么写这个厂。</p>
+<a id="more"></a>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>我们先写一个基本的设备抽象工厂，这个工厂是所有流水线的基础，</p>
+<pre><code>public abstract class AbstractFactory implements FactoryMethond {
+
+    public BaseDevice createDevice(String name) {
+        BaseDevice phone = null;
+        try {
+            phone = (BaseDevice) Class.forName(name).newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return phone;
+    }
+}
+
+public interface FactoryMethond {
+  public   BaseDevice createDevice(String name);
+}
+</code></pre><p>我们的抽象工厂很简单，就是根据提供的名字去生产这个设备。<br>我们对所有能生产的东西都抽象成一个最基本的设备类<code>BaseDevice</code>。</p>
+<pre><code>public interface BaseDevice {
+
+    void charge();
+    void showBrand();
+    void startUp();
+    void shutDown();
+}
+</code></pre><p>为了方便说明，这里就在原有基础上加多一个充电的接口<code>charge（）</code>，这个就是我们高度定制的其中一个点啦，例如有的设备是充电，有的充油，还有一些充气的等等。</p>
+<p>有了这样的基础，我们就可以来大展身手，定义我们的几条流水线了。<br>我们先来一条手机的流水线</p>
+<pre><code>public class PhoneFactory  extends AbstractFactory{
+
+    public Apple4sDevice create4s(){
+        return (Apple4sDevice) super.createDevice(Apple4sDevice.class.getName());
+    }
+
+    public Apple7sDevice create7s(){
+
+        return (Apple7sDevice) super.createDevice(Apple7sDevice.class.getName());
+    }
+｝
+</code></pre><p>我们的手机流水线目前提供制造4s和7s型号。<br>接着我们来多一个火箭的生产线</p>
+<pre><code>public class RocketFactory  extends AbstractFactory{
+
+     public RocketADevice createRocketA(){
+         return (RocketADevice) super.createDevice(RocketADevice.class.getName());
+     }
+
+    public RocketBDevice createRocketB(){
+        return (RocketBDevice) super.createDevice(RocketBDevice.class.getName());
+    }
+}    
+</code></pre><p>这样我们的两条实例流水线就搭建好了，是时候来试着生产点内容啦，好了，我们来始终运行下。</p>
+<pre><code>public class Client {
+
+    public static void main(String[] args) {
+
+        RocketFactory rocketFactory = new RocketFactory();
+        BaseDevice baseDevice = rocketFactory.createRocketA();
+        baseDevice.showBrand();
+
+        PhoneFactory phoneFactory = new PhoneFactory();
+        Apple4sDevice apple4s = phoneFactory.create4s();
+        apple4s.showBrand();
+
+    }
+}
+</code></pre><p>我们的示例如上，成功的为我们生产了设备，打印了下面的内容</p>
+<pre><code>tesla rocket
+Apple Phone
+</code></pre><p>好了，我们的抽象工厂的介绍就到这里啦。<br>不要觉得短暂，很快就看完了这个抽象工厂的核心内容！</p>
+<p>下面贴下别的几个类</p>
+<p>这个是我们的所有火箭的基础</p>
+<pre><code>public abstract   class RocketDevice implements BaseDevice {
+
+    @Override
+    public void showBrand() {
+           System.out.println(&quot;tesla rocket&quot;);
+    }
+
+    @Override
+    public void startUp() {
+
+        System.out.println(&quot;engine on&quot;);
+    }
+
+    @Override
+    public void shutDown() {
+        System.out.println(&quot;rocket is sleeping&quot;);
+    }
+}
+</code></pre><p>有了他，我们改造就很简单啦，两个火箭A和B</p>
+<pre><code>public class RocketADevice extends RocketDevice {
+
+    @Override
+    public void charge() {
+
+        System.out.println(&quot;using electric&quot;);
+    }
+}
+public   class RocketBDevice extends  RocketDevice{
+
+    @Override
+    public void charge() {
+
+        System.out.println(&quot; using oil&quot;);
+    }
+
+}
+</code></pre><p>然后我们的苹果机也类似的：</p>
+<pre><code>public abstract class AppleDevice implements BaseDevice {
+
+    @Override
+    public void showBrand() {
+           System.out.println(&quot;Apple Phone&quot;);
+    }
+
+    @Override
+    public void startUp() {
+        System.out.println(&quot;power on&quot;);
+    }
+
+    @Override
+    public void shutDown() {
+        System.out.println(&quot;power off&quot;);
+    }
+}
+</code></pre><p>我们的4s手机和7s手机</p>
+<pre><code>public class Apple4sDevice extends  AppleDevice {
+
+    @Override
+    public void charge() {
+        System.out.println(&quot;electric&quot;);
+    }
+}
+
+public class Apple7sDevice extends  AppleDevice {
+
+    @Override
+    public void charge() {
+        System.out.println(&quot;usb 4&quot;);
+    }
+}
+</code></pre><p>好了，这样我们的就全部贴出来了</p>
+<h1 id="类图"><a href="#类图" class="headerlink" title="类图"></a>类图</h1><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2017.41.40.png" alt="enter image description here"></p>
+<p>这个就是我们的类图啦<br>我们的Client去调用我们的工厂去生产我们想要的产品。<br>不过这个图和我们的有一点不一样啊。我们的两个抽象产品都是同源的，实现了<code>BaseDevice</code>，这里没体现出来。</p>
+<p>另外我们的抽象产品有个名字叫产品等级，我们有两个，一个手机，一个火箭的。</p>
+<p>我们的具体的产品也又个名字叫产品族，在我们的例子有4s,7s和火箭A/B。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>有了抽象工厂这大杀器，以后我们需要修改的就是基础我们的基础设备，再开一条流水线来生产就好了。高内聚，低耦合和ocp原则得到了很好的体现。<br>前面话这么说，当然是有问题的，那是在不添加产品族的情况。<br>如果要添加新的产品族的话，我们要改动的不少内容，如果我们选择不去在原有类的基础上添加新的方法，我们只能去继承，当有多个产品以此添加，我们就得到了很多的继承关系，这就不得了了。<br>但相对的添加产品等级就容易一些了，因为开一条新的相对不影响旧的内容的。</p>
+<p>不过不得不说的是，在我的实际开发的安卓项目中，这个模式用的还是挺少的，目前我都记不起来曾经在哪里用过了。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/设计模式/" rel="tag">#设计模式</a>
+          
+            <a href="/tags/pattern/" rel="tag">#pattern</a>
+          
+            <a href="/tags/抽象工厂/" rel="tag">#抽象工厂</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/" rel="prev">设计模式系列11---快速拷贝的原型模型</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/02/设计模式系列9---和而不同的工厂方法模式/" rel="next">设计模式系列9---和而不同的工厂模式</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/"
+     data-title="设计模式系列10---高度定制的抽象工厂方法模式"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/"
+                   data-title="设计模式系列10---高度定制的抽象工厂方法模式" data-url="http://yoursite.com/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">1.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类图"><span class="nav-number">2.</span> <span class="nav-text">类图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

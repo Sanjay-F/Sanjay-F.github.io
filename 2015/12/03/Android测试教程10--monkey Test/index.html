@@ -1,0 +1,745 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,测试," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="#1，Monkey Test简介 什么是monkey test？如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。是的，他的一大特色就是可以乱点一通！！！！！！！就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！所以简单说就是 “压力测试” 官方介绍文档地址，点这里 那要准备点什么吗？">
+<meta name="keywords" content="android,测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android测试教程10--monkey Test">
+<meta property="og:url" content="http://yoursite.com/2015/12/03/Android测试教程10--monkey Test/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="#1，Monkey Test简介 什么是monkey test？如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。是的，他的一大特色就是可以乱点一通！！！！！！！就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！所以简单说就是 “压力测试” 官方介绍文档地址，点这里 那要准备点什么吗？">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://www.testwo.com/attachment/201211/15/10203_1352975858ZMmb.jpg">
+<meta property="og:image" content="http://www.testwo.com/attachment/201211/15/10203_13529765616p8w.jpg">
+<meta property="og:image" content="http://www.testwo.com/attachment/201211/15/10203_1352981102ks1g.jpg">
+<meta property="og:image" content="http://www.testwo.com/attachment/201211/15/10203_1352983461eSu4.jpg">
+<meta property="og:image" content="http://www.testwo.com/attachment/201211/15/10203_1352984702F1Zz.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.693Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android测试教程10--monkey Test">
+<meta name="twitter:description" content="#1，Monkey Test简介 什么是monkey test？如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。是的，他的一大特色就是可以乱点一通！！！！！！！就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！所以简单说就是 “压力测试” 官方介绍文档地址，点这里 那要准备点什么吗？">
+<meta name="twitter:image" content="http://www.testwo.com/attachment/201211/15/10203_1352975858ZMmb.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Android测试教程10--monkey Test | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Android测试教程10--monkey Test
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-03T23:48:00+08:00" content="2015-12-03">
+            2015-12-03
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/03/Android测试教程10--monkey Test/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/03/Android测试教程10--monkey Test/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>#1，Monkey Test简介</p>
+<p>什么是monkey test？<br>如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。<br>是的，他的一大特色就是可以乱点一通！！！！！！！<br>就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！<br>所以简单说就是 <strong>“压力测试”</strong></p>
+<p><a href="http://developer.android.com/tools/help/monkey.html" target="_blank" rel="noopener">官方介绍文档地址，点这里</a></p>
+<p>那要准备点什么吗？</p>
+<a id="more"></a>
+<p>Monkey的tools是一个命令行工具，当连接Android设备时，只要在命令行里输入相应命令就能运行tools；<br>像下面这样：<br><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb <span class="keyword">shell</span><span class="bash"> monkey -v 10</span></span><br></pre></td></tr></table></figure></p>
+<p>Monkey test跑出来crash的bug等级永远为1，版本release前，Monkey跑出的结果中crash要为0。</p>
+<p>业内标准：final release前，Monkey跑完的总次数应为25W次，其结果里不允许有nullPointException出现.</p>
+<h1 id="2，Monkey-test的使用流程"><a href="#2，Monkey-test的使用流程" class="headerlink" title="2，Monkey test的使用流程"></a>2，Monkey test的使用流程</h1><p>你可以直接在Android Studio的底部的<code>Terminal</code>里面输入指令的。<br>如果现在手机连接着的话。<br>如果显示没有ADB这个命令，那么你就配置下环境，在path里面加多  <code>; 你的SDK路径/platform-tools</code><br>因为<code>adb.exe</code>就在这个文件夹里面</p>
+<p><img src="http://www.testwo.com/attachment/201211/15/10203_1352975858ZMmb.jpg" alt="这里写图片描述"></p>
+<p>#3，简单的Monkey脚本示例</p>
+<p><img src="http://www.testwo.com/attachment/201211/15/10203_13529765616p8w.jpg" alt="这里写图片描述"></p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb <span class="keyword">shell</span><span class="bash"> monkey -v 10</span></span><br></pre></td></tr></table></figure>
+<p>其中10代表运行脚本的操作次数为10次，若seed不指定值默认为0；</p>
+<p>后面两行为intent的描述，运行了Android基本的LAUNCHER主进程，LAUNCHER主进程之后运行了MONKEY进程;</p>
+<p>Event percentages,因为命令中只加了一个限制条件，次数为10，当其余参数没有添加时，就如上图百分比出现；</p>
+<p>//Money finished 完成。</p>
+<h1 id="4，Monkey-test实例1"><a href="#4，Monkey-test实例1" class="headerlink" title="4，Monkey test实例1"></a>4，Monkey test实例1</h1><p><img src="http://www.testwo.com/attachment/201211/15/10203_1352981102ks1g.jpg" alt="这里写图片描述"></p>
+<blockquote>
+<p>第一个-s emulator-5554 设备的序列号；<br>-p com.lovebizhi.wallpaper-1 要测试对象的package name(adb shell data/data)，     若测试多个对象，则应为-p package_name1 -p package_name2；<br>–pct-xxx 用来设定每个事件在测试中的百分比，百分比总和不能超过100%；<br>–pct-touch 调整触摸事件的百分比<br>–pct-motion 调整动作事件的百分比<br>–pct-trackball 调整轨迹事件的百分比(轨迹事件由一个或几个随机的移动组成，有时还伴随着点击)<br>–pct-nav 调整“基本”导航事件的百分比(导航事件由来自方向输入设备的up/down/left/right组成)<br>–pct-majormav 调整“主要”导航事件的百分比(这些导航事件通常引发图形界面中的动作)<br>               第二个-s 同样的seed值(seed值由自己定义，相当于一个文件的文件名,monkey的操作顺序<br>             相当于文件)有同样的随机序列，复现问题时，需要monkey用同样的操作步骤重新跑一遍，<br>            可以在日志的第一行看到seed值；</p>
+</blockquote>
+<blockquote>
+<p>–throttle 设定事件发生的间隔，不设置时，在android系统极限内操作，若手机性能较低，容易出现系统无响应,最佳的时间间隔在300或者500，单位是毫秒；</p>
+<p>-v 指定Log的详细程度，共有三个级别：<br>-v 日志级别为level 0<br>-v -v 日志级别为level 1<br>-v -v -v 日志级别为level 2     日志的详细程度越来越详细</p>
+</blockquote>
+<p>Monkey tools在Android内只能针对Activity做测试，<strong>不能对service做测试。</strong></p>
+<p><strong>tips:</strong></p>
+<pre><code>adb devices 可以获取设备id
+
+adb shell data/data获取应用包的名称
+</code></pre><p>Monkey test中只能指定activity属性的应用包进行测试，当出现指定的应用程序不是activity的时候，monkey会出现以下log，并终止运行：<br><img src="http://www.testwo.com/attachment/201211/15/10203_1352983461eSu4.jpg" alt="这里写图片描述"></p>
+<h1 id="5，Monkey-test实例2"><a href="#5，Monkey-test实例2" class="headerlink" title="5，Monkey test实例2"></a>5，Monkey test实例2</h1><p>想要跑完脚本后再去总结过程中出现的crash或者系统无响应，<br>需要指定参数<code>--ignore-crashes --ignore-timeouts</code>，<br>若不指定，遇到问题就会停止运行，效率会降低。</p>
+<p>当且仅当设备有滚轮时需要设定–pct-trackball，如果没有滚轮需设置为0。</p>
+<p>monkey可以不指定-p后的应用，若为了有针对的跑需要指定。</p>
+<h1 id="6，检查结果"><a href="#6，检查结果" class="headerlink" title="6，检查结果"></a>6，检查结果</h1><p><img src="http://www.testwo.com/attachment/201211/15/10203_1352984702F1Zz.jpg" alt="这里写图片描述"></p>
+<p>查找关键字crash</p>
+<p>//sending event 表示目前已经执行的测试次数</p>
+<p>查看有效crash，注意crash:后的进程(pid)，及其后的package name是被测对象；java.lang.NullPointerException下会给出错误在开发工程中的第几行。</p>
+<p><strong>tips:</strong></p>
+<pre><code>指定要保存log的路径（&gt; d:\test.txt）可以进入D盘下的test.txt进行crash关键字的筛选 
+</code></pre><h1 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h1><p>在进行monkey的测试时，最好不进行adb的操作；<br>跑monkey时需要记录<code>3个log</code>：<br>monkey的log（重新指向到某个txt中），<br>dump system的log(查看系统占有)，<br>android本身的log logcat。</p>
+<p>#后记</p>
+<p> 你可能觉得这种乱点乱好的测试不好，希望可以控制下点那里，输入什么等等，那就有了下面这个<br> <code>MonkeyRunner</code>，也是Android SDK提供的测试工具。</p>
+<p>严格意义上来说MonkeyRunner其实是一个Api工具包，比Monkey强大，可以编写测试脚本来自定义数据、事件。</p>
+<p>缺点是脚本用<code>Python</code>来写，对测试人员来说要求较高，有比较大的学习成本。</p>
+<p>或者你也可以用<a href="http://blog.csdn.net/sanjay_f/article/details/49925821" target="_blank" rel="noopener">Robotium来生自动生成操作</a><br> 这个就是记录你所有的操作的一个记录软件！</p>
+<hr>
+<p>来源:<br><a href="http://www.testwo.com/blog/6188" target="_blank" rel="noopener">Monkey test——Mr.Monkey 移动测试培训课后总结(三)</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/测试/" rel="tag">#测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/04/Android测试教程11--Mock之mockito，异步测试/" rel="prev">Android测试教程11--Mock之mockito，异步测试</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/" rel="next">Android测试教程9--聊聊配置测试环境的一些问题</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/03/Android测试教程10--monkey Test/"
+     data-title="Android测试教程10--monkey Test"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/03/Android测试教程10--monkey Test/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/03/Android测试教程10--monkey Test/"
+                   data-title="Android测试教程10--monkey Test" data-url="http://yoursite.com/2015/12/03/Android测试教程10--monkey Test/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2，Monkey-test的使用流程"><span class="nav-number">1.</span> <span class="nav-text">2，Monkey test的使用流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4，Monkey-test实例1"><span class="nav-number">2.</span> <span class="nav-text">4，Monkey test实例1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5，Monkey-test实例2"><span class="nav-number">3.</span> <span class="nav-text">5，Monkey test实例2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6，检查结果"><span class="nav-number">4.</span> <span class="nav-text">6，检查结果</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注意事项："><span class="nav-number">5.</span> <span class="nav-text">注意事项：</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

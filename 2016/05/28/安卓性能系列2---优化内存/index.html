@@ -1,0 +1,1027 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,animator,property," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。 本次涉及到的工">
+<meta name="keywords" content="android,animator,property">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓性能系列2---优化内存">
+<meta property="og:url" content="http://yoursite.com/2016/05/28/安卓性能系列2---优化内存/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。 本次涉及到的工">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160527143645.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527150146.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527160941.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527165232.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527171130.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527174247.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527175659.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.704Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="安卓性能系列2---优化内存">
+<meta name="twitter:description" content="针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。 本次涉及到的工">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160527143645.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 安卓性能系列2---优化内存 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              安卓性能系列2---优化内存
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-05-28T22:45:46+08:00" content="2016-05-28">
+            2016-05-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/28/安卓性能系列2---优化内存/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/28/安卓性能系列2---优化内存/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。<br>在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。<br>先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。</p>
+<p>本次涉及到的工具有Android Studio自带的Memory Monitor，然后是些adb命令。<br>最后来看下Deep Memory Profile。</p>
+<a id="more"></a>
+<h2 id="Memory-Monitor"><a href="#Memory-Monitor" class="headerlink" title="Memory Monitor"></a>Memory Monitor</h2><p>现在的Android Studio自带了不少工具，其中Android Monitor就非常好用，可以帮助我们快速的定位问题，这相对以前快捷易用不少，而且图形化。<br>谷歌有意识的把很多软件的功能集成到它的这个Android Studio IDE中来，例如Sdk Manager现在变成了设置中的一项了，不再是单独的直接另外打开一个窗口，虽然在底部有一个选择可以让我们继续看到原来的界面效果。原本在Android Device Monitor的内容，也部分被搬到了底部的Android Monitor去了。</p>
+<p>好了，废话不多说，我们进入主题。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160527143645.png" alt="enter image description here"></p>
+<blockquote>
+<p>Memory  Monitor可以帮助我们实时的看下现在的内存情况是怎样的，如上图所示，深蓝色是我们Allocated,然后透明的浅色是目前还剩余的大小。<br>有需要我们还可以dump内存情况来看，只需要点击<code>按钮2</code> 另外还可以记录跟踪，这时候点<code>按钮3</code>，这样就可以从我们点击的时刻开始记录。<br>同时我们可以主动的触发GC。只需要点击<code>按钮1</code>。</p>
+</blockquote>
+<h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>以上就是他的基本使用点，在进一步介绍前，我们来写点代码，作为后面讲解用：<br>假设我们的app只有一个按钮，点击后就会去调用<code>onBugClick</code>函数</p>
+<pre><code>public class MainActivity extends Activity {
+    private static final String TAG = MainActivity.class.getSimpleName();          
+    private ArrayList&lt;Object&gt; ourBugBeanLists;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+    }     
+
+    public void onBugClick(View view) {    
+        ourBugBeanLists = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; 100; i++) {
+            BugBean bugBean = new BugBean();
+            bugBean.setIndex(i);
+            ourBugBeanLists.add(bugBean);
+        }
+        Log.e(TAG, &quot;onBugClick() size=&quot; + ourBugBeanLists.size());
+    }
+}
+</code></pre><p>接着是我们的bean</p>
+<pre><code>public class BugBean {
+
+    private List&lt;String&gt; data;
+    private int index;
+    private String name;
+
+    public BugBean() {
+        // 为了能在内存上造成一个起伏，我们的直接来个3000个String
+        data = new ArrayList&lt;&gt;(3000);
+    }
+
+    ...//getter &amp; setter 
+}
+</code></pre><p>在这样的基础上，接着我们开始实际的使用，我们先看下下面的效果图，在大约启动后的第<strong>46</strong>秒的时候，我点击哪按钮，触发了onBugClick函数，效果很好，内存直接多了差不多1MB的大小。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527150146.png" alt="enter image description here"></p>
+<p>假设我们实际不知道上面的代码内容，只是一般的在用APP，然后看到整个界面突然内存飞起来了，<br>然后我们想知道为何增加了这么多，而且多出来的内容实际是什么。</p>
+<p>不过由于我们没有点击<strong>按钮3</strong>去跟踪，所以我们就先来直接dump Java Heap看下现在内存是怎样的，那些类用了内存，做个大概的推断。点击后弹出来的界面大致这样子的。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527160941.png" alt="enter image description here"></p>
+<p><a href="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527160941.png" target="_blank" rel="noopener">点击查看大图</a></p>
+<h2 id="面板介绍"><a href="#面板介绍" class="headerlink" title="面板介绍"></a>面板介绍</h2><p> 现在我们来解释下顶部各栏的意思是什么：</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Class Name</td>
+<td>The Java class responsible for the memory.</td>
+</tr>
+<tr>
+<td>Total Count</td>
+<td>Total number of instances outstanding.</td>
+</tr>
+<tr>
+<td>Heap Count</td>
+<td>Number of instances in the selected heap.</td>
+</tr>
+<tr>
+<td>Sizeof</td>
+<td>Size of the instances (currently, 0 if the size is variable).</td>
+</tr>
+<tr>
+<td>Shallow Size</td>
+<td>Total size of all instances in this heap.</td>
+</tr>
+<tr>
+<td>Retained Size</td>
+<td>Size of memory that all instances of this class is dominating.</td>
+</tr>
+<tr>
+<td>Instance</td>
+<td>A specific instance of the class.</td>
+</tr>
+<tr>
+<td>Reference Tree</td>
+<td>References that point to the selected instance, as well as references pointing to the references.</td>
+</tr>
+<tr>
+<td>Depth</td>
+<td>The shortest number of hops from any GC root to the selected instance.</td>
+</tr>
+<tr>
+<td>Shallow Size</td>
+<td>Size of this instance.</td>
+</tr>
+<tr>
+<td>Dominating Size</td>
+<td>Size of memory that this instance is dominating.</td>
+</tr>
+</tbody>
+</table>
+<p>这里简单的说下，左上角可以版主我们整理下面的Class Name面板的排序情况。<br>包括App Heap和Zygote Heap两种，右边的有Package Tree View 和Class List View两种。</p>
+<p>如果我们选中了Class List View，可以快速的看现在各种类的使用情况。<br>这个可以给我们一个依据，看现在是什么类霸占了较多的内存，一般估计是图片 ^_^。</p>
+<p>最右边有一个<code>Analyzer Task</code> 面板，提供对Activity是否泄漏和字符串重复的检测。同时有对应的检测结果和解释可以看。这比生成了快照，然后跑去<strong>MAT</strong>查看是否感觉便捷多了呢？<br>虽然现在检测泄漏我用<code>LeakCanary</code>去做，不怎么用MAT了，毕竟用起来还是相对麻烦些。</p>
+<p> <strong>Tips:</strong></p>
+<ol>
+<li><p>另外想提的是，这里dump的文件是不能给MAT直接用的，还需要装换下格式。<br>步骤如下：<br>In the Captures window, right-click a heap snapshot file and select Export to standard .hprof.<br>In the Convert Android Java Heap Dump dialog, specify a filename and click OK.</p>
+</li>
+<li><p>Dump文件已经自动保存好了，如果你后面如果还要看这些信息，可以点击Captures，(View &gt; Tools Windows &gt; Captures.) </p>
+</li>
+</ol>
+<h2 id="静态寻找—Dump-Java-Heap"><a href="#静态寻找—Dump-Java-Heap" class="headerlink" title="静态寻找—Dump Java Heap"></a>静态寻找—Dump Java Heap</h2><h3 id="按Class-List-View"><a href="#按Class-List-View" class="headerlink" title="按Class List View"></a>按Class List View</h3><p>按照<code>Retained Size</code>排序，发现ArrayList占用了不少。<br>计划着我们看左边的<strong>Instance</strong>面板，也是按照<code>Retained Size</code>排序，点击开头那个最大的，<br>在底部的<strong>Reference Tree</strong>，我们看到是在<code>MainActivity</code>里面的<code>ourBugBeanLists</code>占用了很大空间。<br>这样我们可以某种程度怀疑就是这家伙导致内存上升了，然后去对应的界面看对应的代码是怎么回事。</p>
+<p>不过有时候可以直接选对应的Activity，因为内存的增加，一般都是在界面上做了些什么操作导致的，那么我们去选中对应的Activity会是一个不错的方案。</p>
+<p>例如像上面那样，直接选MainActivity会好些，因为当程序大了，ArrayList会在很多地方被调用，直接看会像右边那样有一大堆的Instance，如果大小差不多，要排查就不容易了。</p>
+<p>当然以上只是提供一个思路，具体问题，灵活处理，以上只是基本套路。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527165232.png" alt="enter image description here"></p>
+<h3 id="按Package-Tree-View"><a href="#按Package-Tree-View" class="headerlink" title="按Package Tree View"></a>按Package Tree View</h3><p>除了上面的按类排序看，我们可以按照Packages看，这个我自己比较喜欢的目录树结构，就像我们的项目结构一样，我们可以清晰的看到整体的情况。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527171130.png" alt="enter image description here"></p>
+<p>根据上图，我们发现的是在com包里面有不少内容，一层层看下去，到了我们的MainActivity用了很多，同时在右边的Instance面板，看到主要是我们的<code>ourBugBeanLists</code>霸占了1204560 ，约1MB。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上可以帮助我们快速的看内存的情况，不过没有调用的信息，我们不知道到底是哪些函数的调用导致了内存的增加，虽然根据对应的界面的对应变量信息，我们也可以挺快的定位到问题了。</p>
+<h2 id="Why-Look-at-the-Java-Heap"><a href="#Why-Look-at-the-Java-Heap" class="headerlink" title="Why Look at the Java Heap?"></a>Why Look at the Java Heap?</h2><p>然后附加个官方说的，为何要看Java Heap</p>
+<p>The Java heap display does the following:</p>
+<ul>
+<li>Shows snapshots of a number of objects allocated by type.</li>
+<li>Samples data every time a garbage collection event occurs naturally or is triggered by you.</li>
+<li>Helps identify which object types might be involved in memory leaks.</li>
+</ul>
+<p>However, you have to look for changes over time yourself by tracking what’s happening in the graph.</p>
+<p>The HPROF Analyzer finds the following <strong>potential issues</strong>:</p>
+<ul>
+<li>All destroyed activity instances that are reachable from garbage collection roots.</li>
+<li>Where the target program has strings that repeat values.</li>
+</ul>
+<p>A dominator is at the top of a tree. If you remove it, you also remove the branches of the tree it dominates, so it’s a potential way to free memory.（从根源消灭问题）</p>
+<h2 id="动态跟踪—-Start-Allocation-Tracking"><a href="#动态跟踪—-Start-Allocation-Tracking" class="headerlink" title="动态跟踪— Start Allocation Tracking"></a>动态跟踪— Start Allocation Tracking</h2><p>前面我们已经知道，像这样的直接看其实是不容易知道到底是哪里加了内存的！纯粹看下怎样就好了，<br>上面的点也解释了为何我们要看<code>Java Heap</code>的原因了。</p>
+<p>我们现在来看下动态的跟踪情况。<br>我们在发送跳变前先点击下按钮3，大小标记，表示从这里开始跟踪，然后当我们觉得可以的时候再点多一次，表示这次跟踪到这里结束。<br><strong>效果如下图所示：</strong></p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527174247.png" alt="enter image description here"></p>
+<p>然后系统会弹出来一个对话框内容如下</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/memoryQQ%E6%88%AA%E5%9B%BE20160527175659.png" alt="enter image description here"></p>
+<p>我们再还是那样，按照右边的Size栏排序，然后一路跟踪下去，发现是 OnBugClick()函数霸占了大部分的空间。如果你点击顶部的<strong>饼状图</strong>的按钮，下面还回出现多一个Panel，可以非常直观的看实际情况！<br>布局也有多种方式，请自己探索下，效果很绚丽！</p>
+<p>在下面的框，当我选中了棕黄色那条时候，右边那一栏显示到了onBugclick()函数，是MainActivity的第196行代码！！！！顶部有显示对应的占用是1.07mb,然后最后面一排非常细小的模块组成的那根柱子，就是我们调用的那几百个对象！是不是很酷的效果！</p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>The Allocation Tracker does the following:</p>
+<ul>
+<li>Shows when and where your code allocates object types, their size, allocating thread, and stack traces.</li>
+<li>Helps recognize memory churn through recurring allocation/deallocation patterns.</li>
+<li>Helps you track down memory leaks when used in combination with the HPROF Viewer. For example, if you see a bitmap object resident on the heap, you can find its allocation location with Allocation Tracker.</li>
+</ul>
+<h2 id="ADB"><a href="#ADB" class="headerlink" title="ADB"></a>ADB</h2><p>前面我们看的都是非常细的内容，为我们的某些对象的占用情况，不过关于整体性的，目前的内存占用整体用了多少，我们还可以有多少，什么类型的用得多，快满了要OOM了，需要调节下，我们都没有概念。<br>所以我们现在需要来对这里做个了解 。</p>
+<h3 id="adb-shell-dumpsys-meminfo"><a href="#adb-shell-dumpsys-meminfo" class="headerlink" title="adb shell dumpsys meminfo"></a>adb shell dumpsys meminfo</h3><p>利用下面这个指令，我们可以查看当前的内存情况。</p>
+<pre><code>adb shell dumpsys meminfo &lt;package_name|pid&gt; [-d]
+</code></pre><p>另外这个ADB还有别的如<code>adb shell dumpsys activity</code>    等，这里就不细说了。<br>我们先打印下我们的demo内容：</p>
+<pre><code>adb shell dumpsys meminfo 2173 -d
+</code></pre><p>在我们的终端打印的内容如下 ，数据单位为<strong>kilobytes</strong></p>
+<pre><code>   ** MEMINFO in pid 2173 [com.example.sanjay.demo] **
+                        Shared  Private     Heap     Heap     Heap
+                  Pss    Dirty    Dirty     Size    Alloc     Free
+               ------   ------   ------   ------   ------   ------
+      Native     1038     1280      996     7024     7013       10
+      Dalvik     2451    12012     2000     9300     9103      197
+       Stack       72       12       72
+      Cursor        0        0        0
+      Ashmem        0        0        0
+   Other dev        4       24        0
+    .so mmap      721     5028      200
+   .jar mmap        0        0        0
+   .apk mmap       80        0        0
+   .ttf mmap        1        0        0
+   .dex mmap     1501        0       12
+  Other mmap        6        8        4
+     Unknown      132        4      132
+       TOTAL     6006    18368     3416    16324    16116      207
+
+Objects
+              Views:       15         ViewRootImpl:        1
+        AppContexts:        3           Activities:        1
+             Assets:        2        AssetManagers:        2
+      Local Binders:        7        Proxy Binders:       14
+   Death Recipients:        0
+    OpenSSL Sockets:        0
+
+SQL
+        MEMORY_USED:        0
+ PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:        0
+</code></pre><p>有意思的是，这个命令打印出来的内容变了挺多次的。我看到有列和行对换的，也有一些有一些别的列的。<br>例如<a href="https://developer.android.com/training/articles/memory.html" target="_blank" rel="noopener">官网的文档</a>里面有Private Clean列。我的这个没有。看来不同系统版本的差异也体现在这里哈。<br>关于以上数据，我们可能比较关心的是<code>Pss Total</code>  &amp;  <code>Private Dirty</code> 列，有时<code>the Private Clean</code> &amp; <code>Heap Alloc</code> 也还是我们需要关心下的。具体含义在下面做介绍</p>
+<h3 id="解释含义"><a href="#解释含义" class="headerlink" title="解释含义"></a>解释含义</h3><h4 id="列名"><a href="#列名" class="headerlink" title="列名"></a>列名</h4><p>看下我们第一行的<strong>列名意思</strong></p>
+<ul>
+<li>Proportional Set Size (<strong>PSS</strong>)<br>可以简单的理解为就是一个进程所占用的内存，具体为占用的<strong>私有内存</strong>加上平分的<strong>共享内存</strong>。所以各进程的Pss相加基本等于实际被使用的物理内存。 一般安卓都会只开一个进程，所以某种程度是APP占用的大小</li>
+</ul>
+<ul>
+<li><p>Private (Clean and Dirty) RAM<br>你的进程独享的内存，非共享的，又不能换页出去（can not be paged to disk ）的内存的大小。在我们的程序被杀后该内存也不会被释放掉，只是重新回到缓冲中去。我们的Dalvik和native heap的内存调用都会归到 Private Dirty RAM，所以这个空间比较昂贵，因为安卓在内存管理上不使用Swap，我们使用的内存page是不会做存储在硬盘的，是一直待在内存中的(估计是为了效率和实际考虑吧)。</p>
+</li>
+<li><p>Shared Dirty RAM<br>它和上面的Private不一样的只在这是共享的内存，不过一样是不能换页的。</p>
+</li>
+</ul>
+<ul>
+<li>Heap Size / Alloc / Free<br>这几个就是对应的堆大小，申请的，还省下多少，基本上是这样的：HeapSize =HeapAlloc + HeapFree。</li>
+</ul>
+<p>一般来说，我们只需要关注<code>Pss Total</code> 和 <code>Private Dirty columns.</code> </p>
+<h4 id="行名"><a href="#行名" class="headerlink" title="行名"></a>行名</h4><p>在看完了列，我们接下来看<strong>行信息</strong></p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Native 和Dalvik</td>
+<td>对应我们的JNI和java代码所霸占的内存信息。</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>Cursor消耗的内存(KB)</td>
+</tr>
+<tr>
+<td>Ashmem</td>
+<td>匿名共享内存用来提供共享内存通过分配一个多个进程                                                        可以共享的带名称的内存块</td>
+</tr>
+<tr>
+<td>Other dev</td>
+<td>/dev/内部driver占用的在 “Other dev”</td>
+</tr>
+<tr>
+<td>.so mmap</td>
+<td>C 库代码占用的内存</td>
+</tr>
+<tr>
+<td>.jar mmap</td>
+<td>Java 文件代码占用的内存</td>
+</tr>
+<tr>
+<td>.apk mmap</td>
+<td>apk代码占用的内存</td>
+</tr>
+<tr>
+<td>.ttf mmap</td>
+<td>ttf 文件代码占用的内存</td>
+</tr>
+<tr>
+<td>.dex mmap</td>
+<td>Dex 文件代码占用的内存</td>
+</tr>
+<tr>
+<td>Other mmap</td>
+<td>其他文件占用的内存</td>
+</tr>
+<tr>
+<td>Unknown</td>
+<td>目前系统无法归类的内存页，主要是写native的调用，因为系统收集信息的时候由于ASLR，所以工具无法识别出这是什么 As with the Dalvik heap, the Pss Total for Unknown takes into account sharing with Zygote, and Private Dirty is unknown RAM dedicated to only your app.</td>
+</tr>
+<tr>
+<td>TOTAL</td>
+<td>The total Proportional Set Size (PSS) RAM used by your process. This is the sum of all PSS fields above it. It indicates the overall memory weight of your process, which can be directly compared with other processes and the total available RAM.The Private Dirty and Private Clean are the total allocations within your process, which are not shared with other processes. Together (especially Private Dirty), this is the amount of RAM that will be released back to the system when your process is destroyed. Dirty RAM is pages that have been modified and so must stay committed to RAM (because there is no swap); clean RAM is pages that have been mapped from a persistent file (such as code being executed) and so can be paged out if not used for a while.</td>
+</tr>
+<tr>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>一般来说 Heap Alloc是大于Pss Total和Private Dirty 的，因为我们的程序是靠Zygote来生成的，因此还包括一些和别的app共享的信息。  </p>
+<p>而Total 的 PSS 这个值就是你的应用真正占据的内存大小，通过这个信息，你可以轻松判别手机中哪些程序占内存比较大了。</p>
+<p><strong>另外说下几个重要的参数：</strong></p>
+<ul>
+<li><p>ViewRootImpl<br>The number of root views that are active in your process. Each root view is associated with a window, so this can help you identify <code>memory leaks</code> involving dialogs or other windows.</p>
+</li>
+<li><p>AppContexts and Activities<br>The number of app Context and Activity objects that currently live in your process. This can be useful to quickly <code>identify leaked Activity objects</code> that can’t be garbage collected due to static references on them, which is common. These objects often have a lot of other allocations associated with them and so are a good way to track large memory leaks.</p>
+<blockquote>
+<p>Note: A View or Drawable object also holds a reference to the Activity<br> that it’s from, so holding a View or Drawable object can also lead to<br>your app leaking an Activity.</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>TIPS:</strong> 另外，如果我们在上面的命令尾部加多 -d 的flag，会有额外的信息：</p>
+<h4 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h4><p>这命令帮助我们知道我们的调用的内存被 分成的各中RAM调用 ，知道目前的整体情况。</p>
+<ul>
+<li><p>如何指导我们做优化？<br>前面这个命令可以怎么知道我们去做内存优化问题呢？我们用Memory Monitor可以非常细粒度的看到内存的占用情况，可以针对性的对一些霸占内存多的代码做优化。但现在的这条资料提供的内存信息非常的粗，没有细节，只有APP目前的整体的使用情况，到底怎么指导我们去做优化呢？<br>虽然后面的Objects和SQL的内容可以帮助我们去看是否有泄漏的问题，不过前面的数据到底是什么意义呢？<br>对这个问题，我再官方的文档看到这么一段： </p>
+<blockquote>
+<p> The process has now almost tripled in size, to 4MB, simply by showing some text in the UI. This leads to an important conclusion: If you are going to split your app into multiple processes, <strong>only one process should be responsible for UI</strong>. Other processes should avoid any UI, as this will quickly increase the RAM required by the process (especially  once you start loading bitmap assets and other resources). It may then be hard or impossible to reduce the memory usage once the UI is drawn.<br><strong>Additionally</strong>, when running more than one process, it’s more important than ever<br>that you keep your code as lean as possible, because any unnecessary RAM overhead<br>for common implementations are now replicated in each process. </p>
+</blockquote>
+<p>建议我们如果你打算开多线程，应该只有一个负责UI的。不然你的RAM会用得很快哦。<br>以上的内容，除了建议，个人感觉，对内存优化的指导意义在给我们一个大方向，告诉我们具体应该往那个方向尝试去花多点时间做优化。</p>
+</li>
+</ul>
+<h3 id="adb-shell-top"><a href="#adb-shell-top" class="headerlink" title="adb shell top"></a>adb shell top</h3><p>当我们打下面其中一条命令时候</p>
+<blockquote>
+<pre><code>adb shell top 
+ adb shell procrank
+</code></pre></blockquote>
+<p>终端，会有类似下面的内容</p>
+<pre><code>User 89%, System 7%, IOW 0%, IRQ 2%
+User 270 + Nice 0 + Sys 23 + Idle 2 + IOW 0 + IRQ 0 + SIRQ 7 = 302
+
+  PID PR CPU% S  #THR     VSS     RSS PCY UID      Name
+  370  0  89% S    80 631912K  61772K  fg system   system_server
+   60  0   3% S    13  12968K    416K  fg root     /sbin/adbd    
+  407  0   0% S     7  63800K   3820K  fg system   /system/bin/surfaceflinger
+  472  0   0% S    19 553932K  55480K  fg u0_a44   com.android.systemui
+    1  0   0% S     1    716K    484K  fg root     /init
+   49  0   0% S     1      0K      0K  fg root     ext4-dio-unwrit
+   46  0   0% S     4 509156K  47892K  fg root     zygote 
+  173  0   0% S    10 525896K  34820K  bg u0_a74   com.example.sanjay.demo
+</code></pre><p>除了上面提到的PSS外，我们看到另外几个新属性 </p>
+<blockquote>
+<p>VSS- Virtual Set Size 虚拟耗用内存（包含共享库占用的内存）<br>RSS- Resident Set Size  实际使用物理内存（包含共享库占用的内存）<br>PSS- Proportional Set Size 实际使用的物理内存（比例分配共享库占用的内存）<br>USS- Unique Set Size 进程独自占用的物理内存（不包含共享库占用的内存）</p>
+<p>一般来说内存占用大小有如下规律：VSS &gt;= RSS &gt;= PSS &gt;= USS</p>
+</blockquote>
+<h2 id="检测内存泄漏"><a href="#检测内存泄漏" class="headerlink" title="检测内存泄漏"></a>检测内存泄漏</h2><p>检测泄漏目前有不少很好的工具，例如LeakCanary，MAT等！关于这两者就不做过多介绍，找下就有一堆资料。<br>另外来看下官方文档提到的两个小技巧:<br>You can also trigger a memory leak in one of the following ways:</p>
+<ol>
+<li>Rotate the device from portrait to landscape and back again multiple times while in different activity states. Rotating the device can often cause an app to leak an Activity, Context, or View object because the system recreates the Activity and if your app holds a reference to one of those objects somewhere else, the system can’t garbage collect it.</li>
+<li>Switch between your app and another app while in different activity states (navigate to the Home screen, then return to your app).</li>
+</ol>
+<p>非常经典的两个哈！一个旋转屏幕，一个来回切换。</p>
+<blockquote>
+<p><strong>Tip:</strong> You can also perform the above steps by using the “monkey” test<br>framework. For more information on running the monkey test framework,<br>read the <a href="https://developer.android.com/studio/test/monkeyrunner/index.html" target="_blank" rel="noopener">monkeyrunner documentation</a>.</p>
+</blockquote>
+<h2 id="Deep-Memory-Profile"><a href="#Deep-Memory-Profile" class="headerlink" title="Deep Memory Profile"></a>Deep Memory Profile</h2><p>这个是谷歌自己做的一个工具，听名字就感觉有深度哈！一定很厉害啊！</p>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><ol>
+<li><a href="https://developer.android.com/studio/profile/android-monitor.html" target="_blank" rel="noopener">Android Monitor Overview</a></li>
+<li><a href="https://developer.android.com/studio/profile/am-hprof.html" target="_blank" rel="noopener">HPROF Viewer and Analyzer</a></li>
+<li><a href="https://developer.android.com/studio/profile/am-allocation.html" target="_blank" rel="noopener">Allocation Tracker</a></li>
+<li><a href="https://developer.android.com/training/articles/memory.html" target="_blank" rel="noopener">Managing Your App’s Memory</a> </li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/animator/" rel="tag">#animator</a>
+          
+            <a href="/tags/property/" rel="tag">#property</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/" rel="prev">源码探索系列38---关于dalvik虚拟机</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/" rel="next">安卓性能系列1---用TraceView找耗时操作</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/05/28/安卓性能系列2---优化内存/"
+     data-title="安卓性能系列2---优化内存"
+     data-content=""
+     data-url="http://yoursite.com/2016/05/28/安卓性能系列2---优化内存/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/05/28/安卓性能系列2---优化内存/"
+                   data-title="安卓性能系列2---优化内存" data-url="http://yoursite.com/2016/05/28/安卓性能系列2---优化内存/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Memory-Monitor"><span class="nav-number">1.</span> <span class="nav-text">Memory Monitor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Demo"><span class="nav-number">2.</span> <span class="nav-text">Demo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面板介绍"><span class="nav-number">3.</span> <span class="nav-text">面板介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态寻找—Dump-Java-Heap"><span class="nav-number">4.</span> <span class="nav-text">静态寻找—Dump Java Heap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#按Class-List-View"><span class="nav-number">4.1.</span> <span class="nav-text">按Class List View</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#按Package-Tree-View"><span class="nav-number">4.2.</span> <span class="nav-text">按Package Tree View</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">4.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-Look-at-the-Java-Heap"><span class="nav-number">5.</span> <span class="nav-text">Why Look at the Java Heap?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态跟踪—-Start-Allocation-Tracking"><span class="nav-number">6.</span> <span class="nav-text">动态跟踪— Start Allocation Tracking</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">6.1.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ADB"><span class="nav-number">7.</span> <span class="nav-text">ADB</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#adb-shell-dumpsys-meminfo"><span class="nav-number">7.1.</span> <span class="nav-text">adb shell dumpsys meminfo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解释含义"><span class="nav-number">7.2.</span> <span class="nav-text">解释含义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#列名"><span class="nav-number">7.2.1.</span> <span class="nav-text">列名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#行名"><span class="nav-number">7.2.2.</span> <span class="nav-text">行名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结-2"><span class="nav-number">7.2.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#adb-shell-top"><span class="nav-number">7.3.</span> <span class="nav-text">adb shell top</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测内存泄漏"><span class="nav-number">8.</span> <span class="nav-text">检测内存泄漏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deep-Memory-Profile"><span class="nav-number">9.</span> <span class="nav-text">Deep Memory Profile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ref"><span class="nav-number">10.</span> <span class="nav-text">ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

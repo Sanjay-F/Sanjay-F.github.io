@@ -1,0 +1,865 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,设计模式,pattern,Facade,门面,外观," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="说到门面这个词， 在我国的文化就很有内涵啦！不过Facade 这个词有时候翻译为外观。到底该怎么理解这个门面模型呢？ 我们可以看一个公司的架构   董事长同他的总经理说他要把今年的销售额翻30倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。 这样对于发号施令的董事长，不需要知道具体的细节，只">
+<meta name="keywords" content="android,设计模式,pattern,Facade,门面,外观">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式系列4---对外包办的门面模型">
+<meta property="og:url" content="http://yoursite.com/2015/12/31/设计模式系列4---对外包办的门面模型/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="说到门面这个词， 在我国的文化就很有内涵啦！不过Facade 这个词有时候翻译为外观。到底该怎么理解这个门面模型呢？ 我们可以看一个公司的架构   董事长同他的总经理说他要把今年的销售额翻30倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。 这样对于发号施令的董事长，不需要知道具体的细节，只">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/20120725112047797.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.740Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式系列4---对外包办的门面模型">
+<meta name="twitter:description" content="说到门面这个词， 在我国的文化就很有内涵啦！不过Facade 这个词有时候翻译为外观。到底该怎么理解这个门面模型呢？ 我们可以看一个公司的架构   董事长同他的总经理说他要把今年的销售额翻30倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。 这样对于发号施令的董事长，不需要知道具体的细节，只">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/20120725112047797.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 设计模式系列4---对外包办的门面模型 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              设计模式系列4---对外包办的门面模型
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-31T16:26:00+08:00" content="2015-12-31">
+            2015-12-31
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/31/设计模式系列4---对外包办的门面模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/31/设计模式系列4---对外包办的门面模型/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>说到门面这个词， 在我国的文化就很有内涵啦！<br>不过<code>Facade</code> 这个词有时候翻译为外观。<br>到底该怎么理解这个门面模型呢？</p>
+<p>我们可以看一个公司的架构 </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/20120725112047797.jpg" alt="enter image description here"></p>
+<p><strong>董事长</strong>同他的<strong>总经理</strong>说他要把今年的销售额翻<code>30</code>倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。</p>
+<p>这样对于发号施令的董事长，不需要知道具体的细节，只需要记得找总经理负责这事就好了。<br>就是苦了这个总经理，需要了解所有的部门情况，分割不同的事情给下面的人干活去。</p>
+<p>所以我们可以简化这个流程成这样的，老板说要去赚钱，总经理找了技术部开发了个杀手级应用，然后销售部门就负责去卖，从而达到赚钱的效果。</p>
+<a id="more"></a>
+<p>这样我们的demo可以这么写：</p>
+<pre><code>public class Boss {
+
+    public static void main(String[] args) {
+
+        MakeProfitManager makeProfitManager = new ManagerA();
+        makeProfitManager.makeMoreMoney();
+    }
+}
+
+public class ManagerA extends MakeProfitManager {
+
+    TechnologDepartment technologDepartment = new TechnologDepartment();
+    SalesDepartment salesDepartment = new SalesDepartment(); 
+
+    @Override
+    public void makeMoreMoney() { 
+            //技术部的开发了一个厉害的产品
+            technologDepartment.releaseAmazingProduct();
+            //销售的买了产品，赚了钱
+            salesDepartment.saleProductMakeProfits(); 
+        }
+    }
+}
+
+
+public abstract class MakeProfitManager {
+    public abstract void makeMoreMoney();
+}  
+
+public class TechnologDepartment {
+    public void releaseAmazingProduct() {
+    }
+}
+
+public class SalesDepartment {
+
+    public void saleProductMakeProfits() {
+
+    }
+}    
+</code></pre><p>通过这样的门面写法，我们老板就只需要找到能赚钱的经理，告诉他去给我赚钱就好了。<br>如果这个经理看了下这个业绩，不怎样，可以悄悄的升级下方案，老板也不用操心。</p>
+<pre><code>public class ManagerA extends MakeProfitManager {
+
+    TechnologDepartment technologDepartment = new TechnologDepartment();
+    SalesDepartment salesDepartment = new SalesDepartment();
+    WaterArmyDepartment waterArmyDepartment = new WaterArmyDepartment();
+
+    @Override
+    public void makeMoreMoney() {
+
+        for (int i = 0; i &lt; 3; i++) {
+            //技术部的开发了一个厉害的产品
+            technologDepartment.releaseAmazingProduct();
+            //销售的买了产品，赚了钱
+            salesDepartment.saleProductMakeProfits();
+            //找水军去帮忙干活
+            waterArmyDepartment.MakeRumour();
+        }
+    }
+}
+
+public class WaterArmyDepartment {
+
+    public void MakeRumour() {
+
+    }
+}
+</code></pre><p>这样我们的经理A直接开发三个产品去卖，还请了水军，机智如他啊！    </p>
+<hr>
+<p>这是大公司的样子，如果是小公司的话可能是这样的</p>
+<pre><code>public class Boss {
+
+    public static void main(String[] args) {
+
+        //老板找来了技术和销售的人。
+        TechnologDepartment technologDepartment = new TechnologDepartment();
+        SalesDepartment salesDepartment = new SalesDepartment();            
+        //开了个会，要求他们去开发一个好产品，然后去叫销售的把他卖出去。    
+        technologDepartment.releaseAmazingProduct();          
+        salesDepartment.saleProductMakeProfits();            
+    }
+}
+</code></pre><p>具体的整个实现过程都要求老板去落实，去跟进，这对于老板来说很累，而且效果不一定好，毕竟老板还有很多事要做的，把握公司大方向等等。更何况有时候，老板脑热，发现请水军很有效果，就修改了下流程。</p>
+<pre><code> public class Boss {
+
+    public static void main(String[] args) {
+        TechnologDepartment technologDepartment = new TechnologDepartment();
+        SalesDepartment salesDepartment = new SalesDepartment();
+        WaterArmyDepartment waterArmyDepartment = new WaterArmyDepartment();
+
+        technologDepartment.releaseAmazingProduct();
+        salesDepartment.saleProductMakeProfits();
+        waterArmyDepartment.MakeRumour();                         
+    }
+}
+</code></pre><p>这样的频繁修改显然不怎么好，如果这个老板就是我们要写的客户端，每次接口修改，为了实现一个赚钱方法，我们都要去加这么多方法的话，很显然不妥妥的。所以我们能感觉到了门面模式的威力了嘛？</p>
+<p>当然了，门面除了这样的整合功能外，他和我们的代理一样，有一个功效，就是屏蔽部分内容。</p>
+<h1 id="实际情况"><a href="#实际情况" class="headerlink" title="实际情况"></a>实际情况</h1><p>上面的案例只是为了说情况而夸张写的案例，实际我们可能并不会这么写。<br>毕竟我们是偏向于OCP原则的，像上面那样的修改应该是要关闭的<br>而且一般更多的是一个函数值对应某一个类的一个方法。</p>
+<pre><code>    public class ManagerA extends MakeProfitManager {
+
+        SalesDepartment salesDepartment = new SalesDepartment();
+
+        @Override
+        public void makeMoreMoney() {
+             salesDepartment.saleProductMakeProfits();
+        }
+}
+</code></pre><p>例如像上面这样的，最终这个总经理只是督促销售部门去多卖点产品赚钱而已。<br>希望你能意会到我的意思。</p>
+<h1 id="屏蔽部分内容"><a href="#屏蔽部分内容" class="headerlink" title="屏蔽部分内容"></a>屏蔽部分内容</h1><p>假设有一天，总经理出去赌钱，结果赔惨了，但一时半会手头紧，一时起了坏主意，想到挪用公款，就叫产品部的去做个别的产品，叫销售的去卖，不过不让老板知道。</p>
+<pre><code>public class ManagerB extends MakeProfitManager {
+
+    TechnologDepartment technologDepartment = new TechnologDepartment();
+    SalesDepartment salesDepartment = new SalesDepartment();
+
+    @Override
+    public void makeMoreMoney() {
+
+        for (int i = 0; i &lt; 3; i++) {
+            //技术部的开发了一个厉害的产品
+            technologDepartment.releaseAmazingProduct();
+            //销售的买了产品，赚了钱
+            salesDepartment.saleProductMakeProfits(); 
+        }
+        makePrivateMoney();
+    }
+
+    private void makePrivateMoney() {
+        technologDepartment.releasePrivateProduct();
+        salesDepartment.salePrivateProduct();
+    }
+}
+
+
+public abstract class MakeProfitManager {
+    public abstract void makeMoreMoney();
+}
+
+public class TechnologDepartment {
+    public void releaseAmazingProduct() {
+    }
+    //偷偷开发产品
+    public void releasePrivateProduct() {
+    }
+}
+
+public class SalesDepartment {
+
+    public void saleProductMakeProfits() {
+    }
+
+    //偷偷卖产品
+    public void salePrivateProduct() {
+    }
+}
+</code></pre><p>我们看到，整个过程，这个总经理还偷偷的搞了外快，但董事长不知道。<br>这就是屏蔽了部分内容，上一层不知道背后的逻辑，尽管这方法是<code>public</code>的。<br>后面还有别的模式也有类似的功效，因为有这么一个<code>“中间人”</code>但在中间。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>这个门面模式某种程度和代理还是挺像的。<br>例如极端情况下，这个门面里面只有一个实际干活的类时候。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/设计模式/" rel="tag">#设计模式</a>
+          
+            <a href="/tags/pattern/" rel="tag">#pattern</a>
+          
+            <a href="/tags/Facade/" rel="tag">#Facade</a>
+          
+            <a href="/tags/门面/" rel="tag">#门面</a>
+          
+            <a href="/tags/外观/" rel="tag">#外观</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/31/设计模式系列5---多变灵活的桥接/" rel="prev">设计模式系列5---多变灵活的桥接</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/30/设计模式系列3---搞转换的适配器模型/" rel="next">设计模式系列3---搞转换的适配器模型</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/31/设计模式系列4---对外包办的门面模型/"
+     data-title="设计模式系列4---对外包办的门面模型"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/31/设计模式系列4---对外包办的门面模型/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/31/设计模式系列4---对外包办的门面模型/"
+                   data-title="设计模式系列4---对外包办的门面模型" data-url="http://yoursite.com/2015/12/31/设计模式系列4---对外包办的门面模型/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#实际情况"><span class="nav-number">1.</span> <span class="nav-text">实际情况</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#屏蔽部分内容"><span class="nav-number">2.</span> <span class="nav-text">屏蔽部分内容</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

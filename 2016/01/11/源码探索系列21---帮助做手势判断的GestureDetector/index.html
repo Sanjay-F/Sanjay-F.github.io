@@ -1,0 +1,1084 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,GestureDetector," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个GestureDetector，发现真是大法好啊。 今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。">
+<meta name="keywords" content="android,源码,GestureDetector">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列21---帮助做手势判断的GestureDetector">
+<meta property="og:url" content="http://yoursite.com/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个GestureDetector，发现真是大法好啊。 今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/rdn_5215744b835e8.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.716Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列21---帮助做手势判断的GestureDetector">
+<meta name="twitter:description" content="很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个GestureDetector，发现真是大法好啊。 今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/rdn_5215744b835e8.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列21---帮助做手势判断的GestureDetector | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列21---帮助做手势判断的GestureDetector
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-11T15:37:00+08:00" content="2016-01-11">
+            2016-01-11
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/rdn_5215744b835e8.jpg" alt="enter image description here"></p>
+<p>很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个<code>GestureDetector</code>，发现真是大法好啊。</p>
+<p>今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。</p>
+<a id="more"></a>
+<h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>API:23</p>
+<p>开始分析前，我们看下使用方法</p>
+<pre><code>//在我们关注的地方由mGestureDetector来处理MotionEvent
+mDoubleBtn.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mGestureDetector.onTouchEvent(event);
+            return false;
+        }
+    });
+
+mGestureDetector = new GestureDetector(this, onGestureListener);
+ mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
+     @Override
+     public boolean onSingleTapConfirmed(MotionEvent e) {
+
+         return false;
+     }
+
+     @Override
+     public boolean onDoubleTap(MotionEvent e) {
+         Log.e(&quot;double&quot;, &quot; double&quot;);
+         return false;
+     }
+
+     @Override
+     public boolean onDoubleTapEvent(MotionEvent e) {
+
+         return false;
+     }
+ });
+
+    //监听回调
+OnGestureListener onGestureListener= new OnGestureListener() {
+    @Override
+    public boolean onDown(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
+    }
+};
+</code></pre><p> 上面简单的演示了一些基本的用法。（额外的提下，在前面我们的解析View的事件传递过程的时候，我们就有提到，注册事件监听的优先级是高于View本身的onTouch函数的） </p>
+<hr>
+<p>我们先来看下构造函数</p>
+<pre><code>public GestureDetector(Context context, OnGestureListener listener) {
+    this(context, listener, null);
+}
+
+public GestureDetector(Context context,OnGestureListener listener,Handler handler){
+    if (handler != null) {
+        mHandler = new GestureHandler(handler);
+    } else {
+        mHandler = new GestureHandler();
+    }
+    mListener = listener;
+    if (listener instanceof OnDoubleTapListener) {
+        setOnDoubleTapListener((OnDoubleTapListener) listener);
+    }
+    if (listener instanceof OnContextClickListener) {
+        setContextClickListener((OnContextClickListener) listener);
+    }
+    init(context);
+}
+</code></pre><p>哎呀，看到这构造函数他会对<code>listener</code>做类型的判断，前面我加了<code>onGestureListener</code>，虽然没用到，但因为不加他会在<code>init（）</code>里面扔异常出来。</p>
+<pre><code>private void init(Context context) {
+    if (mListener == null) {
+        throw new NullPointerException(&quot;OnGestureListener must not be null&quot;);
+    }      
+    mIsLongpressEnabled = true;  
+    ...
+}
+</code></pre><p>看到这，我智商就不够了。<code>OnDoubleTapListener</code>，<code>OnGestureListener</code>和<code>OnContextClickListener</code>都是接口来的，如果写成下面这样，是会遇到<code>java.lang.ClassCastException</code>的啊…<br>另外那个<code>OnContextClickListener</code>是后面在加上去的，我看v18版的时候都没有这个接口。也不加多一个<code>@since</code> ，小气。</p>
+<pre><code>mGestureDetector = new GestureDetector(this,
+ (GestureDetector.OnGestureListener) new GestureDetector.OnDoubleTapListener() {});
+</code></pre><p>那个<code>GestureHandler</code>是用来接收消息，回调我们的监听函数的。</p>
+<pre><code> private class GestureHandler extends Handler {
+    GestureHandler() {
+        super();
+    }
+    GestureHandler(Handler handler) {
+        super(handler.getLooper());
+    }
+
+    @Override
+    public void handleMessage(Message msg) {
+        switch (msg.what) {
+        case SHOW_PRESS:
+            mListener.onShowPress(mCurrentDownEvent);
+            break;                
+        case LONG_PRESS:
+            dispatchLongPress();
+            break;                
+        case TAP:
+             if (mDoubleTapListener != null) {
+                if (!mStillDown) {                        mDoubleTapListener.onSingleTapConfirmed(mCurrentDownEvent);
+                } else {
+                    mDeferConfirmSingleTap = true;
+                }
+            }
+            break; 
+         ...
+        }
+    }
+}
+</code></pre><hr>
+<p>接着我们去<code>GestureDetector</code> 的<code>onTouchEvent(event)</code>看下里面写了什么吧。</p>
+<p> 整个也就一百多行，现在都感觉挺短的，先把整体的贴在这里，有个整体的印象，再分别讨论具体case的内容 </p>
+<pre><code>public boolean onTouchEvent(MotionEvent ev) {
+
+    ...
+    final int action = ev.getAction();
+
+    if (mVelocityTracker == null) {
+        mVelocityTracker = VelocityTracker.obtain();
+    }
+    mVelocityTracker.addMovement(ev);
+
+    final boolean pointerUp =
+            (action &amp; MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP;
+    final int skipIndex = pointerUp ? ev.getActionIndex() : -1;
+
+    // Determine focal point
+    float sumX = 0, sumY = 0;
+    final int count = ev.getPointerCount();
+    for (int i = 0; i &lt; count; i++) {
+        if (skipIndex == i) continue;
+        sumX += ev.getX(i);
+        sumY += ev.getY(i);
+    }
+    final int div = pointerUp ? count - 1 : count;
+    final float focusX = sumX / div;
+    final float focusY = sumY / div;
+
+    boolean handled = false;
+
+    switch (action &amp; MotionEvent.ACTION_MASK) {
+    case MotionEvent.ACTION_POINTER_DOWN:
+         ...
+    case MotionEvent.ACTION_POINTER_UP:
+         ...
+    case MotionEvent.ACTION_DOWN:
+        ...
+     case MotionEvent.ACTION_UP:
+         ... 
+
+    case MotionEvent.ACTION_CANCEL:
+         ...  
+    }
+
+    if (!handled &amp;&amp; mInputEventConsistencyVerifier != null) {
+        mInputEventConsistencyVerifier.onUnhandledEvent(ev, 0);
+    }
+    return handled;
+}
+</code></pre><h2 id="各个Action"><a href="#各个Action" class="headerlink" title="各个Action"></a>各个Action</h2><p>现在我们分各个<code>Action</code>来看下具体的内容</p>
+<h3 id="ACTION-POINTER-DOWN"><a href="#ACTION-POINTER-DOWN" class="headerlink" title="ACTION_POINTER_DOWN"></a>ACTION_POINTER_DOWN</h3><pre><code>case MotionEvent.ACTION_POINTER_DOWN:
+        mDownFocusX = mLastFocusX = focusX;
+        mDownFocusY = mLastFocusY = focusY;
+        // Cancel long press and taps
+        cancelTaps();
+        break;
+
+private void cancelTaps() {
+    mHandler.removeMessages(SHOW_PRESS);
+    mHandler.removeMessages(LONG_PRESS);
+    mHandler.removeMessages(TAP);
+    mIsDoubleTapping = false;
+    mAlwaysInTapRegion = false;
+    mAlwaysInBiggerTapRegion = false;
+    mDeferConfirmSingleTap = false;
+    mInLongPress = false;
+    mInContextClick = false;
+    mIgnoreNextUpEvent = false;
+}
+</code></pre><p>对于ACTION_POINTER_DOWN的情况，他记录当前的点，然后取消各种事件</p>
+<h3 id="ACTION-DOWN"><a href="#ACTION-DOWN" class="headerlink" title="ACTION_DOWN"></a>ACTION_DOWN</h3><pre><code>case MotionEvent.ACTION_DOWN:
+
+ if (mDoubleTapListener != null) {      
+    //不像前面那样单独开个函数取消啊
+    boolean hadTapMessage = mHandler.hasMessages(TAP);
+    if (hadTapMessage) mHandler.removeMessages(TAP);
+
+    if ((mCurrentDownEvent != null) &amp;&amp; (mPreviousUpEvent != null) &amp;&amp;hadTapMessage
+         &amp;&amp;isConsideredDoubleTap(mCurrentDownEvent,mPreviousUpEvent, ev)) {
+
+        // This is a second tap
+        mIsDoubleTapping = true;
+        // Give a callback with the first tap of the double-tap
+        handled |= mDoubleTapListener.onDoubleTap(mCurrentDownEvent);
+        // Give a callback with down event of the double-tap
+        handled |= mDoubleTapListener.onDoubleTapEvent(ev);
+    } else {
+        // This is a first tap
+        mHandler.sendEmptyMessageDelayed(TAP, DOUBLE_TAP_TIMEOUT);
+    }
+  }
+
+  mDownFocusX = mLastFocusX = focusX;
+  mDownFocusY = mLastFocusY = focusY;
+  if (mCurrentDownEvent != null) {
+      mCurrentDownEvent.recycle();
+  }
+  mCurrentDownEvent = MotionEvent.obtain(ev);
+  mAlwaysInTapRegion = true;
+  mAlwaysInBiggerTapRegion = true;
+  mStillDown = true;
+  mInLongPress = false;
+  mDeferConfirmSingleTap = false;
+
+  if (mIsLongpressEnabled) {
+      mHandler.removeMessages(LONG_PRESS);
+      mHandler.sendEmptyMessageAtTime(LONG_PRESS, mCurrentDownEvent.getDownTime()
+              + TAP_TIMEOUT + LONGPRESS_TIMEOUT);
+  }
+
+  mHandler.sendEmptyMessageAtTime(SHOW_PRESS, mCurrentDownEvent.getDownTime() + TAP_TIMEOUT);
+  handled |= mListener.onDown(ev);
+
+  break;
+</code></pre><p>我们看到开头在处理双击事件的方法是通过给我们的Handler发一个空延迟消息，然后那个时间是300ms的间隔。</p>
+<pre><code>private static final int DOUBLE_TAP_TIMEOUT = ViewConfiguration.
+                                                getDoubleTapTimeout();
+
+private static final int DOUBLE_TAP_TIMEOUT = 300;
+</code></pre><h3 id="ACTION-MOVE"><a href="#ACTION-MOVE" class="headerlink" title="ACTION_MOVE"></a>ACTION_MOVE</h3><pre><code>case MotionEvent.ACTION_MOVE:
+
+     if (mInLongPress || mInContextClick) {
+         break;
+     }
+     final float scrollX = mLastFocusX - focusX;
+     final float scrollY = mLastFocusY - focusY;
+     if (mIsDoubleTapping) {
+         // Give the move events of the double-tap
+         handled |= mDoubleTapListener.onDoubleTapEvent(ev);
+     } else if (mAlwaysInTapRegion) {
+         final int deltaX = (int) (focusX - mDownFocusX);
+         final int deltaY = (int) (focusY - mDownFocusY);
+         int distance = (deltaX * deltaX) + (deltaY * deltaY);
+         if (distance &gt; mTouchSlopSquare) {
+             handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
+             mLastFocusX = focusX;
+             mLastFocusY = focusY;
+             mAlwaysInTapRegion = false;
+             mHandler.removeMessages(TAP);
+             mHandler.removeMessages(SHOW_PRESS);
+             mHandler.removeMessages(LONG_PRESS);
+         }
+         if (distance &gt; mDoubleTapTouchSlopSquare) {
+             mAlwaysInBiggerTapRegion = false;
+         }
+     } else if ((Math.abs(scrollX) &gt;= 1) || (Math.abs(scrollY) &gt;= 1)) {
+         handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
+         mLastFocusX = focusX;
+         mLastFocusY = focusY;
+     }
+     break;
+</code></pre><p>对于我们的move的情况，我们看到的是但移动的距离distance如果超过mTouchSlopSquare，就认为是一次挪动，移除原先的TAP,PRESS消息。也不是单独弄个函数来搞。这人写的时候很有权衡啊。</p>
+<p>我们看下他对这个值得设置，回到我们的<code>init</code>函数</p>
+<pre><code> private void init(Context context) {
+
+    ... 
+    int touchSlop, doubleTapSlop, doubleTapTouchSlop;
+    if (context == null) {
+        //noinspection deprecation
+        touchSlop = ViewConfiguration.getTouchSlop();
+        doubleTapTouchSlop = touchSlop; // Hack rather than adding a hiden method for this
+        doubleTapSlop = ViewConfiguration.getDoubleTapSlop();
+        //noinspection deprecation
+        mMinimumFlingVelocity = ViewConfiguration.getMinimumFlingVelocity();
+        mMaximumFlingVelocity = ViewConfiguration.getMaximumFlingVelocity();
+    } else {
+        final ViewConfiguration configuration = ViewConfiguration.get(context);
+        touchSlop = configuration.getScaledTouchSlop();
+        doubleTapTouchSlop = configuration.getScaledDoubleTapTouchSlop();
+        doubleTapSlop = configuration.getScaledDoubleTapSlop();
+        mMinimumFlingVelocity = configuration.getScaledMinimumFlingVelocity();
+        mMaximumFlingVelocity = configuration.getScaledMaximumFlingVelocity();
+    }
+    mTouchSlopSquare = touchSlop * touchSlop;
+    mDoubleTapTouchSlopSquare = doubleTapTouchSlop * doubleTapTouchSlop;
+    mDoubleTapSlopSquare = doubleTapSlop * doubleTapSlop;
+}
+</code></pre><p> 前面没有对<code>init</code>进行说明，就是觉得好时机没到，现在可以了。 ^_^<br> 这个我们来看下，对于没有加context的，则用默认的大小配置。<br>我们是有传入<code>context</code>的，他可以根据屏幕大小做适配，得出一个更佳的值</p>
+<pre><code>public static ViewConfiguration get(Context context) {
+    final DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    final int density = (int) (100.0f * metrics.density);
+
+    ViewConfiguration configuration = sConfigurations.get(density);
+    if (configuration == null) {
+        configuration = new ViewConfiguration(context);
+        sConfigurations.put(density, configuration);
+    }
+
+    return configuration;
+} 
+</code></pre><p>做适配可以参考这模式，来一个配置类。</p>
+<h3 id="ACTION-UP"><a href="#ACTION-UP" class="headerlink" title="ACTION_UP"></a>ACTION_UP</h3><pre><code>case MotionEvent.ACTION_UP:
+
+  mStillDown = false;
+  MotionEvent currentUpEvent = MotionEvent.obtain(ev);
+  if (mIsDoubleTapping) {
+      // Finally, give the up event of the double-tap
+      handled |= mDoubleTapListener.onDoubleTapEvent(ev);
+  } else if (mInLongPress) {
+      mHandler.removeMessages(TAP);
+      mInLongPress = false;
+  } else if (mAlwaysInTapRegion &amp;&amp; !mIgnoreNextUpEvent) {
+      handled = mListener.onSingleTapUp(ev);
+      if (mDeferConfirmSingleTap &amp;&amp; mDoubleTapListener != null) {
+          mDoubleTapListener.onSingleTapConfirmed(ev);
+      }
+  } else if (!mIgnoreNextUpEvent) {
+
+      // A fling must travel the minimum tap distance
+      final VelocityTracker velocityTracker = mVelocityTracker;
+      final int pointerId = ev.getPointerId(0);
+      velocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
+      final float velocityY = velocityTracker.getYVelocity(pointerId);
+      final float velocityX = velocityTracker.getXVelocity(pointerId);
+
+      if ((Math.abs(velocityY) &gt; mMinimumFlingVelocity)
+              || (Math.abs(velocityX) &gt; mMinimumFlingVelocity)){
+          handled = mListener.onFling(mCurrentDownEvent, ev, velocityX, velocityY);
+      }
+  }
+  if (mPreviousUpEvent != null) {
+      mPreviousUpEvent.recycle();
+  }
+  // Hold the event we obtained above - listeners may have changed the original.
+  mPreviousUpEvent = currentUpEvent;
+  if (mVelocityTracker != null) {
+      // This may have been cleared when we called out to the
+      // application above.
+      mVelocityTracker.recycle();
+      mVelocityTracker = null;
+  }
+  mIsDoubleTapping = false;
+  mDeferConfirmSingleTap = false;
+  mIgnoreNextUpEvent = false;
+  mHandler.removeMessages(SHOW_PRESS);
+  mHandler.removeMessages(LONG_PRESS);
+  break;
+</code></pre><h3 id="ACTION-CANCEL"><a href="#ACTION-CANCEL" class="headerlink" title="ACTION_CANCEL"></a>ACTION_CANCEL</h3><pre><code>case MotionEvent.ACTION_CANCEL:
+        cancel();
+        break;
+
+private void cancel() {
+    mHandler.removeMessages(SHOW_PRESS);
+    mHandler.removeMessages(LONG_PRESS);
+    mHandler.removeMessages(TAP);
+    mVelocityTracker.recycle();
+    mVelocityTracker = null;
+    mIsDoubleTapping = false;
+    mStillDown = false;
+    mAlwaysInTapRegion = false;
+    mAlwaysInBiggerTapRegion = false;
+    mDeferConfirmSingleTap = false;
+    mInLongPress = false;
+    mInContextClick = false;
+    mIgnoreNextUpEvent = false;
+}
+</code></pre><h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>我们看到这个判断很大程度是利用Handler来处理的，并不是用一些变量来寄存，然后判断。</p>
+<p> 写到这类，突然有种像那些人说的，需要“取材”，每次要写文章，就憋着想写点什么好…<br> 现在是靠看以前写的项目里面看到什么没写过的就抓主来写下，不知道这个可以支撑多久…</p>
+<p>估计也只能再硬憋几篇文章，就写不下去，得开结尾篇了，然后写点第三方库的内容，例如Volley，EventBus，ButterKnifer，Universial-Image-Loader，FastJson等。这些库也就差FastJson没去看过了，在csdn都给他们写过分析稿。就是能坑爹的CSDN吃了我几篇文章还没吐出来，不见了。哎，搭个高可靠的服务器还真的不容易。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/GestureDetector/" rel="tag">#GestureDetector</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/" rel="prev">源码探索系列22---顺滑滚动的Scroller</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/" rel="next">源码探索系列20---安装APK的PackageManagerService</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/"
+     data-title="源码探索系列21---帮助做手势判断的GestureDetector"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/"
+                   data-title="源码探索系列21---帮助做手势判断的GestureDetector" data-url="http://yoursite.com/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">1.</span> <span class="nav-text">前进</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#各个Action"><span class="nav-number">1.1.</span> <span class="nav-text">各个Action</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-POINTER-DOWN"><span class="nav-number">1.1.1.</span> <span class="nav-text">ACTION_POINTER_DOWN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-DOWN"><span class="nav-number">1.1.2.</span> <span class="nav-text">ACTION_DOWN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-MOVE"><span class="nav-number">1.1.3.</span> <span class="nav-text">ACTION_MOVE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-UP"><span class="nav-number">1.1.4.</span> <span class="nav-text">ACTION_UP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-CANCEL"><span class="nav-number">1.1.5.</span> <span class="nav-text">ACTION_CANCEL</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

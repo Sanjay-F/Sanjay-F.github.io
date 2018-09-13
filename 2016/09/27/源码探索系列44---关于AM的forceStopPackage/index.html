@@ -1,0 +1,1051 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,AM,forceStopPackage," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="最近想寻找什么方法能够彻底的关闭别人的app！这听起来就很流氓，居然是关闭别人的，而且还要是关闭 前台进程（Foreground process)，这想法真大胆。查了下目前的资料，  类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。按照我们熟悉的  forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并">
+<meta name="keywords" content="android,AM,forceStopPackage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列44---关于AM的forceStopPackage">
+<meta property="og:url" content="http://yoursite.com/2016/09/27/源码探索系列44---关于AM的forceStopPackage/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="最近想寻找什么方法能够彻底的关闭别人的app！这听起来就很流氓，居然是关闭别人的，而且还要是关闭 前台进程（Foreground process)，这想法真大胆。查了下目前的资料，  类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。按照我们熟悉的  forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.730Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列44---关于AM的forceStopPackage">
+<meta name="twitter:description" content="最近想寻找什么方法能够彻底的关闭别人的app！这听起来就很流氓，居然是关闭别人的，而且还要是关闭 前台进程（Foreground process)，这想法真大胆。查了下目前的资料，  类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。按照我们熟悉的  forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列44---关于AM的forceStopPackage | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列44---关于AM的forceStopPackage
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-09-27T23:25:00+08:00" content="2016-09-27">
+            2016-09-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/27/源码探索系列44---关于AM的forceStopPackage/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最近想寻找什么方法能够彻底的关闭别人的app！<br>这听起来就很流氓，居然是关闭别人的，而且还要是关闭 <code>前台进程（Foreground process)</code>，这想法真大胆。查了下目前的资料，</p>
+<ol>
+<li><p>类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。<br>按照我们熟悉的</p>
+</li>
+<li><p>forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并不能真的关闭第三方，别人的程序。另外AM还有别的方法听起来像可以关闭别人进程的，如<code>killBackgroundProcesses</code>，<code>removeTask</code>等。</p>
+</li>
+<li><p>Process.killProcess()<br>在process这个类里面，由几个方法可以调用去关闭，其中有一个的注释很有意思，打算贴出来。</p>
+<pre><code> /**
+ * @hide
+ * Private impl for avoiding a log message...  DO NOT USE without doing
+ * your own log, or the Android Illuminati （安卓光明会）will find you some night and beat you up.
+ * 这段注释很调皮😝，特拿出来哈
+ */
+public static final void killProcessQuiet(int pid) {
+    sendSignalQuiet(pid, SIGNAL_KILL);
+}
+
+public static final native void sendSignalQuiet(int pid, int signal);
+</code></pre></li>
+</ol>
+<p>对于上面的所有，这篇文章主要记录<code>forceStopPackage（）</code>背后执行的内容，别的方法之后再考虑写。</p>
+ <a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>api:23</p>
+<h2 id="AM-forceStopPackage"><a href="#AM-forceStopPackage" class="headerlink" title="AM.forceStopPackage"></a>AM.forceStopPackage</h2><pre><code> /**
+ * @see #forceStopPackageAsUser(String, int)
+ * @hide
+ */
+public void forceStopPackage(String packageName) {
+    forceStopPackageAsUser(packageName, UserHandle.myUserId());
+}
+</code></pre><p>我们调用这个方法，背后是去掉哟功能asUser这个。前者参数为我们想关闭的包名，后者是当前调用者的uid。</p>
+<pre><code>/**
+ * Have the system perform a force stop of everything associated with
+ * the given application package.  All processes that share its uid
+ * will be killed, all services it has running stopped, all activities
+ * removed, etc.  In addition, a {@link Intent#ACTION_PACKAGE_RESTARTED}
+ * broadcast will be sent, so that any of its registered alarms can
+ * be stopped, notifications removed, etc.
+ * 看注释，我们知道这个是非常强效的关闭第三方app，很彻底的，包括他的service，闹钟等都关闭。对应我们需要声明FORCE_STOP_PACKAGES这个权限。
+ * 
+ * &lt;p&gt;You must hold the permission
+ * {@link android.Manifest.permission#FORCE_STOP_PACKAGES} to be able to
+ * call this method.
+ *
+ * @param packageName The name of the package to be stopped.
+ * @param userId The user for which the running package is to be stopped.
+ *
+ * @hide This is not available to third party applications due to
+ * it allowing them to break other applications by stopping their
+ * services, removing their alarms, etc.
+ */
+public void forceStopPackageAsUser(String packageName, int userId) {
+    try {
+        ActivityManagerNative.getDefault().forceStopPackage(packageName, userId);
+        //然后这个方法实际是跑到ams去调用的
+    } catch (RemoteException e) {
+    }
+}
+</code></pre><h2 id="ams-forceStopPackage"><a href="#ams-forceStopPackage" class="headerlink" title="ams.forceStopPackage()"></a>ams.forceStopPackage()</h2><pre><code>@Override
+public void forceStopPackage(final String packageName, int userId) {
+   //开头会检验下你是否声明了FORCE_STOP_PACKAGES权限，没有就送你一个se的异常
+   //整个检验不是我们这次关注的核心就不细说了。
+   //结论就是跑去pms.checkUidPermission(permName,uid)
+
+    if (checkCallingPermission(
+    android.Manifest.permission.FORCE_STOP_PACKAGES)
+            != PackageManager.PERMISSION_GRANTED) {
+
+        String msg = &quot;Permission Denial: forceStopPackage() from pid=&quot;
+                + Binder.getCallingPid()
+                + &quot;, uid=&quot; + Binder.getCallingUid()
+                + &quot; requires &quot; + android.Manifest.permission.FORCE_STOP_PACKAGES;
+            throw new SecurityException(msg);
+    }
+
+    //准备参数
+    final int callingPid = Binder.getCallingPid();
+    userId = handleIncomingUser(callingPid, Binder.getCallingUid(),
+            userId, true, ALLOW_FULL_ONLY, &quot;forceStopPackage&quot;, null);
+    long callingId = Binder.clearCallingIdentity();
+
+    try {
+
+        IPackageManager pm = AppGlobals.getPackageManager();
+        synchronized(this) {
+
+            int[] users = userId == UserHandle.USER_ALL
+                    ? getUsersLocked() : new int[] { userId };
+             //   /** @hide A user id to indicate all users on the device */
+            //    public static final int USER_ALL = -1;
+            //这句看起来让人觉得云里雾里，作为固定正数值-1,好像这个三元判断优点不对劲啊。
+
+            for (int user : users) {
+                int pkgUid = -1;
+                pkgUid = pm.getPackageUid(packageName, user);                    
+                if (pkgUid == -1) {
+                    Slog.w(TAG, &quot;Invalid packageName: &quot; + packageName);
+                    continue;
+                }                    
+                //然后就是告诉pms去表记包为停止状态，
+                pm.setPackageStoppedState(packageName, true, user);                                        
+                if (isUserRunningLocked(user, false)) {
+                    forceStopPackageLocked(packageName, pkgUid, &quot;from pid &quot; + callingPid);
+                }
+
+            }
+        }
+    } finally {
+        Binder.restoreCallingIdentity(callingId);
+    }
+}
+</code></pre><h3 id="pms-getPackageUid"><a href="#pms-getPackageUid" class="headerlink" title="pms.getPackageUid"></a>pms.getPackageUid</h3><pre><code>@Override
+public int getPackageUid(String packageName, int userId) {
+    if (!sUserManager.exists(userId)) return -1;
+    enforceCrossUserPermission(Binder.getCallingUid(), userId, false, false, &quot;get package uid&quot;);
+
+    // reader
+    synchronized (mPackages) {
+
+        PackageParser.Package p = mPackages.get(packageName);
+        if(p != null) {
+            return UserHandle.getUid(userId, p.applicationInfo.uid);
+            //如果包存在，拿包的uid和当前用户的uid出来去
+        }
+
+        PackageSetting ps = mSettings.mPackages.get(packageName);
+        if((ps == null) || (ps.pkg == null)
+             || (ps.pkg.applicationInfo == null)) {
+
+            return -1;
+        }
+        p = ps.pkg;
+        return p != null ? 
+                UserHandle.getUid(userId, p.applicationInfo.uid) 
+                : -1;
+    }
+}    
+</code></pre><h3 id="getUid"><a href="#getUid" class="headerlink" title="getUid"></a>getUid</h3><pre><code>     /**
+ * Returns the uid that is composed from the userId and the appId.
+ * @hide
+ */
+public static final int getUid(int userId, int appId) {
+    if (MU_ENABLED) {
+        return userId * PER_USER_RANGE + (appId % PER_USER_RANGE);
+    } else {
+        return appId;
+    }
+}
+</code></pre><h2 id="pms-setPackageStoppedState"><a href="#pms-setPackageStoppedState" class="headerlink" title="pms.setPackageStoppedState"></a>pms.setPackageStoppedState</h2><pre><code>@Override
+public void setPackageStoppedState(String packageName, boolean stopped, int userId) {
+
+    if (!sUserManager.exists(userId)) return;
+    final int uid = Binder.getCallingUid();
+    final int permission = mContext.checkCallingOrSelfPermission(
+            android.Manifest.permission.CHANGE_COMPONENT_ENABLED_STATE);
+
+    final boolean allowedByPermission = (permission == PackageManager.PERMISSION_GRANTED);
+
+    enforceCrossUserPermission(uid, userId, true, true, &quot;stop package&quot;);
+
+    // writer
+    synchronized (mPackages) {
+        if (mSettings.setPackageStoppedStateLPw(this, packageName, stopped,
+                allowedByPermission, uid, userId)) {
+
+            scheduleWritePackageRestrictionsLocked(userId);
+        }
+    }
+}
+</code></pre><p>关于这个uid需要说明下的是，一般的非系统级别的，除了uid一样外，两个包还需要一样的签名。</p>
+<blockquote>
+<p>The name of a Linux user ID that will be shared with other<br>applications. By default, Android assigns each application its own<br>unique user ID. However, if this attribute is set to the same value<br>for two or more applications, they will all share the same ID —<br>provided that they are also <code>signed by the same certificate</code>.<br>Application with the same user ID can access each other’s data and, if<br>desired, run in the same process.</p>
+</blockquote>
+<p>对于上面那个函数，我们不再深究下去，看下它调用的另外一个函数</p>
+<h2 id="forceStopPackageLocked"><a href="#forceStopPackageLocked" class="headerlink" title="forceStopPackageLocked"></a>forceStopPackageLocked</h2><pre><code> private void forceStopPackageLocked(final String packageName, int uid, String reason) {
+
+        forceStopPackageLocked(packageName, UserHandle.getAppId(uid), false,            
+             false, true, false, false, UserHandle.getUserId(uid), reason);
+             ／／参数真多
+
+        Intent intent = new Intent(Intent.ACTION_PACKAGE_RESTARTED,
+                Uri.fromParts(&quot;package&quot;, packageName, null));
+        if (!mProcessesReady) {
+            intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY
+                    | Intent.FLAG_RECEIVER_FOREGROUND);
+        }
+        intent.putExtra(Intent.EXTRA_UID, uid);
+        intent.putExtra(Intent.EXTRA_USER_HANDLE, UserHandle.getUserId(uid));
+        broadcastIntentLocked(null, null, intent,
+                null, null, 0, null, null, null, AppOpsManager.OP_NONE,
+                null, false, false, MY_PID, Process.SYSTEM_UID, 
+                UserHandle.getUserId(uid));                    
+    }
+
+
+
+
+private final boolean forceStopPackageLocked(String packageName, int appId,
+        boolean callerWillRestart, boolean purgeCache, boolean doit,
+        boolean evenPersistent, boolean uninstalling, int userId, String reason) {
+    int i;
+
+   ...
+
+    if (doit) {//doit为真
+
+        final ArrayMap&lt;String, SparseArray&lt;Long&gt;&gt; pmap = mProcessCrashTimes.getMap();
+
+        for (int ip = pmap.size() - 1; ip &gt;= 0; ip--) {
+            SparseArray&lt;Long&gt; ba = pmap.valueAt(ip);
+            for (i = ba.size() - 1; i &gt;= 0; i--) {
+                boolean remove = false;
+                final int entUid = ba.keyAt(i);
+                if (packageName != null) {
+                    if (userId == UserHandle.USER_ALL) {
+                        if (UserHandle.getAppId(entUid) == appId) {
+                            remove = true;
+                        }
+                    } else {
+                        if (entUid == UserHandle.getUid(userId, appId)) {
+                            remove = true;
+                        }
+                    }
+
+                } else if (UserHandle.getUserId(entUid) == userId) {
+                    remove = true;
+                }
+                if (remove) {//找到记录就移除
+                    ba.removeAt(i);
+                }
+            }
+            if (ba.size() == 0) {
+                pmap.removeAt(ip);
+            }
+        }
+    }
+
+    boolean didSomething = killPackageProcessesLocked(packageName, appId, 
+    userId,-100, callerWillRestart, true, doit, evenPersistent,
+    packageName == null ? (&quot;stop user &quot; + userId) : (&quot;stop &quot; + packageName));
+     //这哥们真实节约啊，还弄个三元操作到参数里面去
+
+    if (mStackSupervisor.finishDisabledPackageActivitiesLocked(
+            packageName, null, doit, evenPersistent, userId)) {
+        if (!doit) {
+            return true;
+        }
+        didSomething = true;
+    }
+
+    //关闭service
+    if (mServices.bringDownDisabledPackageServicesLocked(
+            packageName, null, userId, evenPersistent, doit)) {
+        if (!doit) {
+            return true;
+        }
+        didSomething = true;
+    }
+
+    if (packageName == null) {
+        // Remove all sticky broadcasts from this user.
+        mStickyBroadcasts.remove(userId);
+    }
+
+    //清空contentProvider
+    ArrayList&lt;ContentProviderRecord&gt; providers = new ArrayList&lt;&gt;();
+    if (mProviderMap.collectPackageProvidersLocked(packageName, null, doit, evenPersistent,
+            userId, providers)) {
+        if (!doit) {
+            return true;
+        }
+        didSomething = true;
+    }
+    for (i = providers.size() - 1; i &gt;= 0; i--) {
+        removeDyingProviderLocked(null, providers.get(i), true);
+    }
+
+    // Remove transient permissions granted from/to this package/user
+    removeUriPermissionsForPackageLocked(packageName, userId, false);
+
+    //关广播接收
+    if (doit) {
+        for (i = mBroadcastQueues.length - 1; i &gt;= 0; i--) {
+            didSomething |= mBroadcastQueues[i].cleanupDisabledPackageReceiversLocked(
+                    packageName, null, userId, doit);
+        }
+    }
+
+    //删除pending的intent
+    if (packageName == null || uninstalling) {
+        if (mIntentSenderRecords.size() &gt; 0) {
+            Iterator&lt;WeakReference&lt;PendingIntentRecord&gt;&gt; it
+                    = mIntentSenderRecords.values().iterator();
+            while (it.hasNext()) {
+                WeakReference&lt;PendingIntentRecord&gt; wpir = it.next();
+                if (wpir == null) {
+                    it.remove();
+                    continue;
+                }
+                PendingIntentRecord pir = wpir.get();
+                if (pir == null) {
+                    it.remove();
+                    continue;
+                }
+                if (packageName == null) {
+                    // Stopping user, remove all objects for the user.
+                    if (pir.key.userId != userId) {
+                        // Not the same user, skip it.
+                        continue;
+                    }
+                } else {
+                    if (UserHandle.getAppId(pir.uid) != appId) {
+                        // Different app id, skip it.
+                        continue;
+                    }
+                    if (userId != UserHandle.USER_ALL &amp;&amp; 
+                        pir.key.userId != userId) {
+                        // Different user, skip it.
+                        continue;
+                    }
+
+                    if (!pir.key.packageName.equals(packageName)) {
+                        // Different package, skip it.
+                        continue;
+                    }
+                }
+                if (!doit) {
+                    return true;
+                }
+                didSomething = true;
+                it.remove();
+                pir.canceled = true;
+                if (pir.key.activity != null &amp;&amp; 
+                    pir.key.activity.pendingResults != null) {
+
+                    pir.key.activity.pendingResults.remove(pir.ref);
+                }
+            }
+        }
+    }
+
+    if (doit) {
+        if (purgeCache &amp;&amp; packageName != null) {
+            AttributeCache ac = AttributeCache.instance();
+            if (ac != null) {
+                ac.removePackage(packageName);
+            }
+        }
+        if (mBooted) {
+            mStackSupervisor.resumeTopActivitiesLocked();
+            mStackSupervisor.scheduleIdleLocked();
+        }
+    }
+
+    return didSomething;
+}
+</code></pre><p>未完待续。。。</p>
+<p>最近在android weekly 看到一篇类似的文章，贴下地址，写得挺好的<br>[Android 进程绝杀技–forceStop]{<a href="http://www.diycode.cc/topics/374}" target="_blank" rel="noopener">http://www.diycode.cc/topics/374}</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/AM/" rel="tag">#AM</a>
+          
+            <a href="/tags/forceStopPackage/" rel="tag">#forceStopPackage</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" rel="prev">源码探索系列45---关于局域网播放与ServerSocket</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" rel="next">源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/27/源码探索系列44---关于AM的forceStopPackage/"
+     data-title="源码探索系列44---关于AM的forceStopPackage"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/27/源码探索系列44---关于AM的forceStopPackage/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/09/27/源码探索系列44---关于AM的forceStopPackage/"
+                   data-title="源码探索系列44---关于AM的forceStopPackage" data-url="http://yoursite.com/2016/09/27/源码探索系列44---关于AM的forceStopPackage/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AM-forceStopPackage"><span class="nav-number">1.1.</span> <span class="nav-text">AM.forceStopPackage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ams-forceStopPackage"><span class="nav-number">1.2.</span> <span class="nav-text">ams.forceStopPackage()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pms-getPackageUid"><span class="nav-number">1.2.1.</span> <span class="nav-text">pms.getPackageUid</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getUid"><span class="nav-number">1.2.2.</span> <span class="nav-text">getUid</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pms-setPackageStoppedState"><span class="nav-number">1.3.</span> <span class="nav-text">pms.setPackageStoppedState</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#forceStopPackageLocked"><span class="nav-number">1.4.</span> <span class="nav-text">forceStopPackageLocked</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

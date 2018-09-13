@@ -1,0 +1,940 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,DroidPlugin,Activity," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，在这个基础上，我们需要来看下怎么开启我们的插件中的Activity">
+<meta name="keywords" content="android,源码,DroidPlugin,Activity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列29---插件化基础之启动插件的Activity">
+<meta property="og:url" content="http://yoursite.com/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，在这个基础上，我们需要来看下怎么开启我们的插件中的Activity">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://hi.csdn.net/attachment/201108/14/0_1313305334OkCc.gif">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.720Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列29---插件化基础之启动插件的Activity">
+<meta name="twitter:description" content="昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，在这个基础上，我们需要来看下怎么开启我们的插件中的Activity">
+<meta name="twitter:image" content="http://hi.csdn.net/attachment/201108/14/0_1313305334OkCc.gif">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列29---插件化基础之启动插件的Activity | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列29---插件化基础之启动插件的Activity
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-01T17:41:46+08:00" content="2016-04-01">
+            2016-04-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，<br>在这个基础上，我们需要来看下怎么开启我们的插件中的Activity</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>目前DroidPlugin采用的是预先注册占坑，预先注册权限的方式。<br>利用假的Activity来做“运行”真的PluginActivity。</p>
+<p>为何要这样做呢？因为我们在看整个Activity的启动源码就有看到，对于没在AndroidManifest.XML文件注册的Activity，人家是会抛下面这个错误：</p>
+<pre><code>case ActivityManager.START_CLASS_NOT_FOUND:
+    if (intent instanceof Intent &amp;&amp; ((Intent)intent).getComponent() != null)
+        throw new ActivityNotFoundException(
+        &quot;Unable to find explicit activity class &quot;
+        +((Intent)intent).getComponent().toShortString()+ &quot;; 
+        +have you declared this activity in your AndroidManifest.xml?&quot;);
+</code></pre><p>我相信刚开始开发的或多或少有遇到过这个bug的了.<br>因此，作者对这个占坑问题也说了会预注册一堆各种Launch Mode的Activity.然后是Hook了startActivity和handleLaunchActivity             </p>
+<hr>
+<p>那么，现在我们应该怎么处理这件事呢？从而让我们的插件在不做大的改动下，也可以正常运行呢？<br>这先让我们来回顾下大概的Activity启动流程：</p>
+<p><img src="http://hi.csdn.net/attachment/201108/14/0_1313305334OkCc.gif" alt="图盗自老罗哥的博客"></p>
+<p>当我们调用Actvity的时候，会经过一大段的流程，最后再回到我们的ActivityThread里面的Handle去，在里面启动我们想要的Activity！详情可以看我写的这篇，<a href="http://sanjay-f.github.io/2015/12/15/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%973---%E5%9B%9B%E5%A4%A7%E9%87%91%E5%88%9A%E4%B9%8BActivity%E7%9A%84%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%AE%8C%E5%85%A8%E8%A7%A3%E6%9E%90/" target="_blank" rel="noopener">源码探索系列3—四大金刚之Activity的启动过程完全解析</a>具体就不贴出来，我们挑着说。</p>
+<p>在被缩略的整个一大段流程中重要的内容是处于系统进程(system_server)的<br>AMS会对我们想启动的Activity做个检测（例如上面提到的bug），看是否在我们的AndroidManifes.xml里面有注册了，这样某种程度避免我们程序受到注入攻击。不过由于系统的<strong>进程隔离</strong>的存在，我们没办法HOOK掉这个系统进程，但这让我们挑选HOOK点显得好找。去掉中间，那就是两头咯！</p>
+<h2 id="思路："><a href="#思路：" class="headerlink" title="思路："></a>思路：</h2><p>  因此我们就这样的思路出来了：</p>
+<pre><code>当我们要启动一个插件Activity的时候，把这个intent修改下，传一个真的注册了的Activity信息过去给AMS做检测等工作，等处理完回调到我们的ActivityThread去调用启动Activity的时候，我们再Hook，去启动我们最终想启动的！
+</code></pre><h2 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h2><p>有了这样的思路，我们来测试下效果如果</p>
+<p>我们创建两个Activity，一个叫RealActivity，另外一个叫StubActvity<br>然后我们我们在AndroidManifes.xml里面只保留StubActvity的注册信息。</p>
+<pre><code>&lt;application 
+    android:allowBackup=&quot;true&quot;
+    android:icon=&quot;@mipmap/ic_launcher&quot;
+    android:label=&quot;@string/app_name&quot; 
+    android:theme=&quot;@style/AppTheme&quot;&gt;
+
+    &lt;activity android:name=&quot;.ui.MainActivity&quot;&gt;
+        &lt;intent-filter&gt;
+            &lt;action android:name=&quot;android.intent.action.MAIN&quot;/&gt;
+            &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot;/&gt;
+        &lt;/intent-filter&gt;
+    &lt;/activity&gt;         
+
+    &lt;activity android:name=&quot;.ui.StubActivity&quot;&gt;  //&lt;-只有Stub没有realActivity
+    &lt;/activity&gt; 
+&lt;/application&gt;
+</code></pre><p>准备好这些后，我们在MainActivity里面发 startActivity到StubActivity</p>
+<pre><code>public class MainActivity extends Activity { 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);    
+        //现在我们要去我们的插件Activity的，类似于这个RealActivity
+        startActivity(new Intent(MainActivity.this, RealActivity.class));
+    } 
+}
+</code></pre><p>这些准备好后，我们来看下怎么HOOK掉两头的内容，让发到AMS的是真的，但到了另外一头Handler里面就是启动plugin的activty。</p>
+<p>假认你看了上一篇<a href="http://sanjay-f.github.io/2016/03/28/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9728---%E6%8F%92%E4%BB%B6%E5%8C%96%E5%9F%BA%E7%A1%80%E4%B9%8B%E4%BB%A3%E7%90%86Hook/" target="_blank" rel="noopener">源码探索系列28—插件化基础之代理Hook</a>，知道如何写HOOK这个startActivity的方法。</p>
+<p>那么我们就只重点的看下invoke里面的内容，后续再贴整个项目的参考代码地址</p>
+<pre><code>public class IActivityManagerHook implements InvocationHandler {
+
+    private static final String TAG = IActivityManagerHook.class.getSimpleName();
+    private Object originalObject;
+    public static final String EXTRA_ORIGINAL_INTENT = &quot;EXTRA_INTENT_data_2&quot;;
+
+    public IActivityManagerHook(Object originalObject) {
+        this.originalObject = originalObject;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) 
+     throws Throwable {
+
+        Log.e(TAG, &quot;invoke() called with: &quot; + &quot;proxy = [&quot; + &quot; &quot; + method.getName());
+
+        if (method.getName().equals(&quot;startActivity&quot;)) {//我们的starActivity方法
+            for (int i = 0; i &lt; args.length; i++) {
+                if (args[i] instanceof Intent) {//找到传过来的intent了！
+
+                    Intent ourFakeIntent = new Intent();
+                    ComponentName componentName = new ComponentName(
+                                        &quot;com.example.administrator.testdemo&quot;, 
+                                        StubActivity.class.getName());
+                    ourFakeIntent.setComponent(componentName);
+                    ourFakeIntent.putExtra(EXTRA_ORIGINAL_INTENT, 
+                                            (Intent) args[i]);//存真的intent    
+                    args[i] = ourFakeIntent;//替换过去给AMS检测    
+                    break;
+                }
+            }
+
+            return method.invoke(originalObject, args);//  &lt;- 送检
+
+        } else {
+            return method.invoke(originalObject, args);
+        }
+    }
+}
+</code></pre><p>根据这部分内容，我们之后需要去hook掉回到我们ActivityThread部分的内容！<br>依据我们前面在看Activity的启动过程的时候，我们知道，最终他会回到ActivityThread的一个名叫mH的变量的H类（H继承Handle.不知为何要搞这么短的名字，记得大学的时候看到一个日本人写的关于C语言的极简编程的书，大量的利用编译器的特性，这家伙不会也是个日本人吧！还是说受到他的影响呢？），接着他会收到一条<code>LAUNCH_ACTIVITY</code>的消息.</p>
+<pre><code>private class H extends Handler {
+    public static final int LAUNCH_ACTIVITY         = 100;
+    ...
+
+    public void handleMessage(Message msg) {         
+         switch (msg.what) {
+           case LAUNCH_ACTIVITY: {
+               Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, 
+                                            &quot;activityStart&quot;);
+               final ActivityClientRecord r = (ActivityClientRecord) msg.obj;    
+               r.packageInfo = getPackageInfoNoCheck(r.activityInfo.applicationInfo,                                                                                                 
+                                                     r.compatInfo);
+               handleLaunchActivity(r, null);//启动Activity
+               Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+           } break;
+    }
+}
+</code></pre><p>因此我们可以Hook掉的点就来了。在去调用<code>handleLaunchActivity()</code>前，我们得替换回我们实际的Activty去！这样就可以达到借尸还魂了。那么得怎么做呢？<br>好在我们以前有看过Handle的源码，知道这个handleMessage是一个之类需要实现的方法，</p>
+<pre><code>/**
+ * Subclasses must implement this to receive messages.
+ */
+public void handleMessage(Message msg) { 
+
+ }    
+</code></pre><p>嗯，我记得看<a href="http://sanjay-f.github.io/2016/03/16/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9727---%E6%8F%92%E4%BB%B6%E5%8C%96%E5%9F%BA%E7%A1%80%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8DexClassLoader/" target="_blank" rel="noopener">DexClassLoader</a>里面的有一个片段代码，就是下面这个</p>
+<pre><code>protected Class&lt;?&gt; findClass(String className) throws ClassNotFoundException {
+   throw new ClassNotFoundException(className);              
+
+    //我们的子类必须实现他！所以我们就去看下我们的BaseDexClassLoder
+    //不要问我为何他不设置抽象,尽管这个类就是抽象类!
+}
+</code></pre><p>在里面也有一个需要之类重写的方法，不然就直接抛异常的。<br>显然这不是同一个人呢写的。风格不一样。</p>
+<p>在他前面还有别人调用它，类似下面这样</p>
+<pre><code>public void dispatchMessage(Message msg) {
+    if (msg.callback != null) {
+        handleCallback(msg);
+    } else {
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
+            }
+        }
+        handleMessage(msg);
+    }
+}
+</code></pre><p>我们看下这个Handle类的这段代码，如果这个消息自带了callback的话，就去调用它自带的，要不然看有没设置mCallback这个属性，没有才轮到我们重写的 handleMessage()部分!!而ActivityThread的H先生是没设置这个的，我也是看源码才发现有这个属性设置的！所以，我们可以在这里做点文章，这是我们去调用我们的真实Activity的地方！</p>
+<pre><code>public static void hookHandler() throws Exception {
+
+    // 先获取到当前的ActivityThread对象
+    Class&lt;?&gt; activityThreadClass = Class.forName(&quot;android.app.ActivityThread&quot;);
+    Field currentActivityThreadField = activityThreadClass.getDeclaredField(
+                                       &quot;sCurrentActivityThread&quot;);                                           
+    currentActivityThreadField.setAccessible(true);
+    Object currentActivityThread = currentActivityThreadField.get(null);
+
+    //拿我们的H先生
+    Field mHField = activityThreadClass.getDeclaredField(&quot;mH&quot;);
+    mHField.setAccessible(true);
+    Handler mH = (Handler) mHField.get(currentActivityThread);
+
+    Field mCallBackField = Handler.class.getDeclaredField(&quot;mCallback&quot;);
+    mCallBackField.setAccessible(true);
+    //修改它的callback为我们的,从而HOOK掉
+    mCallBackField.set(mH, new ActivityThreadHandlerCallback(mH));
+
+}
+</code></pre><p>好了，有这样的铺垫，我们来看下那个<code>ActivityThreadHandlerCallback</code>的内容</p>
+<pre><code>class ActivityThreadHandlerCallback implements Handler.Callback {
+
+    private static final String TAG = ActivityThreadHandlerCallback.
+                                       class.getSimpleName();
+    public static final int LAUNCH_ACTIVITY = 100;    
+    Handler mOriginalHandle;    
+    public ActivityThreadHandlerCallback(Handler base) {
+        mOriginalHandle = base;
+    }    
+
+    @Override
+    public boolean handleMessage(Message msg) {
+
+        switch (msg.what) {
+            case LAUNCH_ACTIVITY: {
+                Object obj = msg.obj;
+                try {
+                    Field intent = obj.getClass().getDeclaredField(&quot;intent&quot;);
+                    intent.setAccessible(true);
+                    Intent raw = (Intent) intent.get(obj);
+                    Intent target = raw.getParcelableExtra(
+                                IActivityManagerHook.EXTRA_ORIGINAL_INTENT);
+                    ComponentName component = new ComponentName(
+                                            target.getComponent().getPackageName(), 
+                                            target.getComponent().getClassName());
+
+                    //替换我们原本送去AMS的stubActivity为真的RealActivity的 intent!
+                    raw.setComponent(component);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            break;
+        }
+
+        //替换好后，再用原来的ActivityThread的mH去处理
+        //到此大功告成!
+        mOriginalHandle.handleMessage(msg);
+        return true;
+    }
+
+}
+</code></pre><h2 id="之后的生命和周期呢？"><a href="#之后的生命和周期呢？" class="headerlink" title="之后的生命和周期呢？"></a>之后的生命和周期呢？</h2><p>我们前面已经成功做到了启动一个没有在AndroidManifest中注册的Activity，那么接下来对这个Activity的别的生命周期的调用还有效吗？<br>    在看Activity的启动过程我们知道，。AMS与ActivityThread之间对于Activity的生命周期的交互，是使用一个<strong>Token</strong>来标识，而不是直接使用Activity对象来进行操作管理的！而这个token是<strong>Binder</strong>对象，因此可以跨进程传递。Activity里面有一个成员变量<code>mToken</code>代表的就是它，token唯一地标识一个Activity对象，它在Activity的attach方法里面被初始化；<br>    我们传给AMS的是我们的假Activity，当在AMS处理Activity的任务栈的时候，使用这个token标记我们传过去的Activity，因此实际上AMS进程里面的token对应的是StubActivity。但到了我们的进程里面时候，我们在他去调用哪<br>    个<code>handle</code>的<code>handleMessage</code>前，掉包了那个Activity，换成为了我们的<br>    <code>RealActivity</code>，因此token对应的却是RealActivity！<br>    所以ActivityThread执行回调的时候，能正确地回调到RealActivity相应的方法。因此我们可以确认，通过这种方式启动的Activity有它自己完整生命周期！和真的没什么区别！<br>    这样的设计和我们的服务器的token一样，只要偷到这个，我们就可以做<code>中间人攻击</code>，从而让两端被骗的人以为没事，一切正常进行。</p>
+<h3 id="AppCompatActivity与Activity"><a href="#AppCompatActivity与Activity" class="headerlink" title="AppCompatActivity与Activity"></a>AppCompatActivity与Activity</h3><pre><code> Caused by: android.content.pm.PackageManager$NameNotFoundException:      
+ ComponentInfo{com.example.administrator.testdemo.ui/
+ com.example.administrator.testdemo.ui.RealActivity}     
+ atandroid.app.ApplicationPackageManager.getActivityInfo(ApplicationPackageManager.
+ java:342)
+ at android.support.v4.app.NavUtils.getParentActivityName(NavUtils.java:301) 
+ at android.support.v4.app.NavUtils.getParentActivityName(NavUtils.java:281)
+ atandroid.support.v7.app.AppCompatDelegateImplV7.onCreate(AppCompatDelegateImplV7.
+java:152) 
+at android.support.v7.app.AppCompatActivity.onCreate(AppCompatActivity.java:60) 
+at com.example.administrator.testdemo.ui.RealActivity.onCreate(RealActivity.java:12) 
+</code></pre><p>写这篇文章的时候，用AS建的模板程序，写完一直是这个bug！看了好久才发现我继承的是<br><code>AppCompatActivity</code>而不是<code>Activity</code>！！！！差点哭晕在厕所，这么低级的错误。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>在明白了整个插件的Activity启动的原理流程后，还有些细节需要我们去了解的，例如去获取资源时候涉及到用的R部分的内容，有些是编号规则来的，其中也涉及到AssetsManager等内容！再详细看吧</p>
+<p>另外我们都知道Activity是有四种启动模式的，我们都需要占坑，因此会在AndroidManifest写下面的内容 </p>
+<pre><code>&lt;activity
+        android:name=&quot;.StandardActivity&quot;
+        android:label=&quot;@string/title_activity_standard&quot; /&gt;
+
+&lt;activity
+        android:name=&quot;.SingleTopActivity&quot;
+        android:label=&quot;@string/title_activity_single_top&quot;
+        android:launchMode=&quot;singleTop&quot; /&gt;
+
+&lt;activity
+        android:name=&quot;.SingleTaskActivity&quot;
+        android:label=&quot;@string/title_activity_single_task&quot;
+        android:launchMode=&quot;singleTask&quot; /&gt;
+ &lt;activity
+        android:name=&quot;.SingleTaskActivity$SingleTaskActivity1&quot;
+        android:label=&quot;@string/title_activity_single_task1&quot;
+        android:launchMode=&quot;singleTask&quot; /&gt;
+
+  &lt;activity
+        android:name=&quot;.SingleInstanceActivity&quot;
+        android:label=&quot;@string/title_activity_single_instance&quot;
+        android:launchMode=&quot;singleInstance&quot; /&gt;
+ &lt;activity
+        android:name=&quot;.SingleInstanceActivity$SingleInstanceActivity1&quot;
+        android:label=&quot;@string/title_activity_single_instance1&quot;
+        android:launchMode=&quot;singleInstance&quot; /&gt;
+</code></pre><p>为何有这些.SingleInstanceActivity$SingleInstanceActivity1这样的名字的类，应该和混淆有关。</p>
+<p>另外不可避免的是在插件会有很多的Activity被新启动，这需要我们根据业务需要来看下最大的数目，从而确定占坑的数目。</p>
+<p>另外，这里的那个RealActivity是在同一个包内的，所以我们前面可以用那样的方式去直接写是没问题的。但显然的，插件时候是不会再在同一个包内的，这时候需要一个类似Java的ClassLoader加载类的工具，在Android上就是DexClassLoader啦。这个在上一篇 <a href="http://sanjay-f.github.io/2016/03/16/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9727---%E6%8F%92%E4%BB%B6%E5%8C%96%E5%9F%BA%E7%A1%80%E4%B9%8B%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8DexClassLoader/" target="_blank" rel="noopener">源码探索系列27—插件化基础之类加载器DexClassLoader</a> 有做过简单的介绍。下次再看怎么修改这部分内容。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/DroidPlugin/" rel="tag">#DroidPlugin</a>
+          
+            <a href="/tags/Activity/" rel="tag">#Activity</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" rel="prev">源码探索系列30---插件包PackageManagerService/PMS</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/" rel="next">源码探索系列28---插件化基础之代理Hook</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/"
+     data-title="源码探索系列29---插件化基础之启动插件的Activity"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/"
+                   data-title="源码探索系列29---插件化基础之启动插件的Activity" data-url="http://yoursite.com/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#思路："><span class="nav-number">1.1.</span> <span class="nav-text">思路：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#demo"><span class="nav-number">1.2.</span> <span class="nav-text">demo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之后的生命和周期呢？"><span class="nav-number">1.3.</span> <span class="nav-text">之后的生命和周期呢？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AppCompatActivity与Activity"><span class="nav-number">1.3.1.</span> <span class="nav-text">AppCompatActivity与Activity</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

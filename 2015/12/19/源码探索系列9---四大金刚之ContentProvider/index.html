@@ -1,0 +1,1141 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,ContentProvider," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧 起航 — ContentResolverAPI： 23 说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！现在都不能记起来用他来干嘛了，虽然知道他">
+<meta name="keywords" content="android,源码,ContentProvider">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列9---四大金刚之ContentProvider">
+<meta property="og:url" content="http://yoursite.com/2015/12/19/源码探索系列9---四大金刚之ContentProvider/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧 起航 — ContentResolverAPI： 23 说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！现在都不能记起来用他来干嘛了，虽然知道他">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.732Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列9---四大金刚之ContentProvider">
+<meta name="twitter:description" content="好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧 起航 — ContentResolverAPI： 23 说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！现在都不能记起来用他来干嘛了，虽然知道他">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列9---四大金刚之ContentProvider | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列9---四大金刚之ContentProvider
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-19T02:42:00+08:00" content="2015-12-19">
+            2015-12-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧</p>
+<h1 id="起航-—-ContentResolver"><a href="#起航-—-ContentResolver" class="headerlink" title="起航 — ContentResolver"></a>起航 — ContentResolver</h1><p>API： 23</p>
+<p>说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！<br>现在都不能记起来用他来干嘛了，虽然知道他能用来做跨进程通讯用，不过对于一般的app。<br>这玩意还真的用的次数少啊! 现在能想起来的一次使用这个就是要获取图片的时候。<br>以前开发的时候遇到的恶心的是，有些Rom把相册给阉割了，搞了个别的来代替，导致调不了图库！<br>所以搞到需要自己开发一个，真的很无语！ </p>
+<pre><code>ContentResolver mContentResolver = this.getContentResolver();
+Cursor mCursor = mContentResolver.query(mImageUri, null,
+            MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot;
+                    + MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot; + &quot; or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot;,
+            new String[]{&quot;image/jpeg&quot;, &quot;image/png&quot;, &quot;image/jpg&quot;, &quot;image/jpe&quot;},
+            MediaStore.Images.Media.DATA);
+</code></pre><p>从这里我们开始看起吧</p>
+<a id="more"></a>
+<pre><code>public final Cursor query(Uri uri, String[] projection,
+        String selection, String[] selectionArgs, String sortOrder) {
+    return query(uri, projection, selection, selectionArgs, sortOrder, null);
+}
+
+
+public final Cursor query(final Uri uri, String[] projection,
+        String selection, String[] selectionArgs, String sortOrder,
+        CancellationSignal cancellationSignal) {
+
+    IContentProvider unstableProvider = acquireUnstableProvider(uri);
+    if (unstableProvider == null) {
+        return null;
+    }
+    IContentProvider stableProvider = null;
+    Cursor qCursor = null;
+    try { 
+        ...
+
+        ICancellationSignal remoteCancellationSignal = null;
+        if (cancellationSignal != null) {
+            cancellationSignal.throwIfCanceled();
+            remoteCancellationSignal = unstableProvider.createCancellationSignal();
+            cancellationSignal.setRemote(remoteCancellationSignal);
+        }
+        try {
+            qCursor = unstableProvider.query(mPackageName, uri, projection,
+                    selection, selectionArgs, sortOrder, remoteCancellationSignal);
+        } catch (DeadObjectException e) { 
+            unstableProviderDied(unstableProvider);
+            stableProvider = acquireProvider(uri);
+            if (stableProvider == null) {
+                return null;
+            }
+            qCursor = stableProvider.query(mPackageName, uri, projection,
+                    selection, selectionArgs, sortOrder, remoteCancellationSignal);
+        }
+        if (qCursor == null) {
+            return null;
+        }
+
+        // Force query execution.  Might fail and throw a runtime exception here.
+        qCursor.getCount();
+        long durationMillis = SystemClock.uptimeMillis() - startTime;
+        maybeLogQueryToEventLog(durationMillis, uri, projection, selection, sortOrder);
+
+        // Wrap the cursor object into CursorWrapperInner object.
+        CursorWrapperInner wrapper = new CursorWrapperInner(qCursor,
+                stableProvider != null ? stableProvider : acquireProvider(uri));
+        stableProvider = null;
+        qCursor = null;
+        return wrapper;
+    } catch (RemoteException e) { 
+        return null;
+    } finally {
+       ...
+    }
+}
+@Override
+    protected IContentProvider acquireUnstableProvider(Context c, String auth) {
+        return mMainThread.acquireProvider(c,
+                ContentProvider.getAuthorityWithoutUserId(auth),
+                resolveUserIdFromAuthority(auth), false);
+    }
+</code></pre><p>开头调用<code>acquireUnstableProvider(uri)</code>，经过一轮跟踪，发现他跑到了<code>ActivityThread</code>里面的<code>acquireProvider</code>，内容如下</p>
+<pre><code>public final IContentProvider acquireProvider(
+        Context c, String auth, int userId, boolean stable) {
+
+    final IContentProvider provider = acquireExistingProvider(c, auth, userId, stable);
+    if (provider != null) {
+        return provider;
+    } 
+
+    IActivityManager.ContentProviderHolder holder = null;
+    try {
+        holder = ActivityManagerNative.getDefault().getContentProvider(
+                getApplicationThread(), auth, userId, stable);
+    } catch (RemoteException ex) {
+    }
+    if (holder == null) {         
+        return null;
+    } 
+
+    // Install provider will increment the reference count for us, and break
+    // any ties in the race.
+    holder = installProvider(c, holder, holder.info,
+            true /*noisy*/, holder.noReleaseNeeded, stable);
+    return holder.provider;
+}
+</code></pre><p>我们看到他先查找本地有没有，有就返回，没有就去找了AMS要<code>ContentProvider</code>，拿回来后就存本地，然后返回。<br>好了，让我们去看下AMS里面的实现吧</p>
+<pre><code> @Override
+public final ContentProviderHolder getContentProvider(
+        IApplicationThread caller, String name, int userId, boolean stable) {
+
+    enforceNotIsolatedCaller(&quot;getContentProvider&quot;);
+    if (caller == null) {
+        String msg = &quot;null IApplicationThread when getting content provider &quot;
+                + name;
+        Slog.w(TAG, msg);
+        throw new SecurityException(msg);
+    } 
+
+    return getContentProviderImpl(caller, name, null, stable, userId);
+}
+</code></pre><p>他跑去了他的实现函数<code>getContentProviderImpl(）</code>….真无语，同个类里面还搞抽象和实现啊，<br>像前面那样写成<code>realGetContentProviderImpl(）</code>不就好了嘛，哈哈，真 <strong>·</strong> 干活函数<br>不过这个实现还不小，三百多行，这在AMS里面都是这样的，看着头疼，一堆的判断，截取关键的部分：</p>
+<pre><code>private final ContentProviderHolder getContentProviderImpl(IApplicationThread caller,
+        String name, IBinder token, boolean stable, int userId) {
+    ContentProviderRecord cpr;
+    ContentProviderConnection conn = null;
+    ProviderInfo cpi = null;
+
+    ...
+
+    proc = startProcessLocked(cpi.processName,
+                             cpr.appInfo, false, 0, &quot;content provider&quot;,
+                             new ComponentName(cpi.applicationInfo.packageName,
+                             cpi.name), false, false, false);
+
+     cpr.launchingApp = proc;
+     mLaunchingProviders.add(cpr);
+
+
+     mProviderMap.putProviderByName(name, cpr);
+     conn = incProviderCountLocked(r, cpr, token, stable); 
+
+    return cpr != null ? cpr.newHolder(conn) : null;
+}
+</code></pre><p>这里需要补充的说明是，我们都知道那个ContentProvider的启动是伴随进程的启动，启动进程是有上面的startProcessLocked(）来完成的。我们来看下他里面写了什么。。。</p>
+<pre><code>  private final void startProcessLocked(ProcessRecord app, String hostingType,
+        String hostingNameStr, String abiOverride, String entryPoint, String[] entryPointArgs) {
+         ...
+
+        checkTime(startTime, &quot;startProcess: asking zygote to start proc&quot;);
+        Process.ProcessStartResult startResult = Process.start(entryPoint,
+                app.processName, uid, uid, gids, debugFlags, mountExternal,
+                app.info.targetSdkVersion, app.info.seinfo, requiredAbi, instructionSet,
+                app.info.dataDir, entryPointArgs);
+        checkTime(startTime, &quot;startProcess: returned from zygote!&quot;);
+         ...
+}
+</code></pre><p>这个函数也是一个巨无霸，我想那个AMS一定是靠几个人写完的，因为他的函数风格不在一样，呵呵，虽然我也经常写得不一样。只截取重要的几句..<br>这个函数最终通过调用Process的start方法来启动。我们继续深入看下</p>
+<pre><code> public static final ProcessStartResult start(final String processClass,
+                              final String niceName,
+                              int uid, int gid, int[] gids,
+                              int debugFlags, int mountExternal,
+                              int targetSdkVersion,
+                              String seInfo,
+                              String abi,
+                              String instructionSet,
+                              String appDataDir,
+                              String[] zygoteArgs) {
+    try {
+        return startViaZygote(processClass, niceName, uid, gid, gids,
+                debugFlags, mountExternal, targetSdkVersion, seInfo,
+                abi, instructionSet, appDataDir, zygoteArgs);
+    } catch (ZygoteStartFailedEx ex) {
+        Log.e(LOG_TAG,
+                &quot;Starting VM process through Zygote failed&quot;);
+        throw new RuntimeException(
+                &quot;Starting VM process through Zygote failed&quot;, ex);
+    }
+}
+</code></pre><p>好，遇到了一个传说级别的名字了<code>Zygote</code>，不要问我这个名词代表的故事，百度下吧。<br>感觉写完这些组件后，可以开始写更底层的部分了…哎。说真的，挺无聊的，看完又没怎么样，但出来混，他们老觉得高级开发就得看底层代码，精通整个Android系统啊！这学习量真的不小，不过也就那点工资…<br>还不如学校门口一个摆摊的，好了，罗嗦了，继续吧。</p>
+<p>结论就是通过Zygote,最后我们到了ActivityThread的main方法，还记得这个玩意嘛？<br>我们在很久前解析那个Handler的时候有提到，程序的入口方法是ActivityThread的<code>mian</code>方法！<br>是不是觉得很像以前学java时候！居然在安卓里面遇到人家！</p>
+<pre><code>public static void main(String[] args) {
+    SamplingProfilerIntegration.start();
+
+    ...
+
+    Looper.prepareMainLooper();
+
+    ActivityThread thread = new ActivityThread();
+    thread.attach(false);
+
+    if (sMainThreadHandler == null) {
+        sMainThreadHandler = thread.getHandler();
+    }
+
+    AsyncTask.init();
+
+    if (false) {
+        Looper.myLooper().setMessageLogging(new
+                LogPrinter(Log.DEBUG, &quot;ActivityThread&quot;));
+    }
+
+    Looper.loop();
+
+    throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
+}
+</code></pre><p>整个的main方法就初始主线程的地方，同时开动主Looper，    然后attach这个方法会最终把消息传递AMS，然后AMS就完成了ContentProvider的创建！</p>
+<pre><code>private void attach(boolean system) {
+      ...
+
+       try {
+            mgr.attachApplication(mAppThread);
+        } catch (RemoteException ex) {
+            // Ignore
+        } 
+      ...
+}
+
+private final boolean attachApplicationLocked(IApplicationThread thread,
+        int pid) {
+
+    // Find the application record that is being attached...  either via
+    // the pid if we are running in multiple processes, or just pull the
+    // next app record if we are emulating process with anonymous threads.
+    ProcessRecord app;
+    ...
+
+        if (DEBUG_CONFIGURATION) Slog.v(TAG, &quot;Binding proc &quot;
+                + processName + &quot; with config &quot; + mConfiguration);
+        ApplicationInfo appInfo = app.instrumentationInfo != null
+                ? app.instrumentationInfo : app.info;
+        app.compat = compatibilityInfoForPackageLocked(appInfo);
+        if (profileFd != null) {
+            profileFd = profileFd.dup();
+        }
+        ProfilerInfo profilerInfo = profileFile == null ? null
+                : new ProfilerInfo(profileFile, profileFd, samplingInterval, profileAutoStop);
+        thread.bindApplication(processName, appInfo, providers, app.instrumentationClass,
+                profilerInfo, app.instrumentationArguments, app.instrumentationWatcher,
+                app.instrumentationUiAutomationConnection, testMode, enableOpenGlTrace,
+                isRestrictedBackupMode || !normalMode, app.persistent,
+                new Configuration(mConfiguration), app.compat, getCommonServicesLocked(),
+                mCoreSettingsObserver.getCoreSettingsLocked());
+        updateLruProcessLocked(app, false, null);
+        app.lastRequestedGc = app.lastLowMemory = SystemClock.uptimeMillis();
+
+     ...
+}
+</code></pre><p>每次到AMS里面的函数都是一大串！！！这里的thread就是那个<code>ApplicationThread</code>，我们很熟悉。<br>走了一圈，又跑回来了</p>
+<pre><code>public final void bindApplication(String processName, ApplicationInfo appInfo,
+           List&lt;ProviderInfo&gt; providers, ComponentName instrumentationName,
+           ProfilerInfo profilerInfo, Bundle instrumentationArgs,
+           IInstrumentationWatcher instrumentationWatcher,
+           IUiAutomationConnection instrumentationUiConnection, int debugMode,
+           boolean enableOpenGlTrace, boolean isRestrictedBackupMode, boolean persistent,
+           Configuration config, CompatibilityInfo compatInfo, Map&lt;String, IBinder&gt; services,
+           Bundle coreSettings) {
+
+       ...
+
+       AppBindData data = new AppBindData();
+       data.processName = processName;
+       data.appInfo = appInfo;
+       data.providers = providers;
+       data.instrumentationName = instrumentationName;
+       data.instrumentationArgs = instrumentationArgs;
+       data.instrumentationWatcher = instrumentationWatcher;
+       data.instrumentationUiAutomationConnection = instrumentationUiConnection;
+       data.debugMode = debugMode;
+       data.enableOpenGlTrace = enableOpenGlTrace;
+       data.restrictedBackupMode = isRestrictedBackupMode;
+       data.persistent = persistent;
+       data.config = config;
+       data.compatInfo = compatInfo;
+       data.initProfilerInfo = profilerInfo;
+       sendMessage(H.BIND_APPLICATION, data);
+   }
+</code></pre><p>最终这个变成了同我们的H先生发送BIND_APPLICATION消息！</p>
+<pre><code>private void handleBindApplication(AppBindData data) {
+    ...
+    // 1.创建Context        
+   ContextImpl instrContext = ContextImpl.createAppContext(this, pi);
+
+   java.lang.ClassLoader cl = instrContext.getClassLoader();
+   mInstrumentation = (Instrumentation)
+         cl.loadClass(data.instrumentationName.getClassName()).newInstance();
+
+  mInstrumentation.init(this, instrContext, appContext,
+               new ComponentName(ii.packageName, ii.name), data.instrumentationWatcher,
+               data.instrumentationUiAutomationConnection);
+
+   ...
+   // 2.创建app
+  Application app = data.info.makeApplication(data.restrictedBackupMode, null);
+  mInitialApplication = app;
+
+   ...
+   // 3. 启动ContentProvider，发送消息，调用onCreate函数
+  // don&apos;t bring up providers in restricted mode; they may depend on the
+  // app&apos;s custom Application class
+  if (!data.restrictedBackupMode) {
+      List&lt;ProviderInfo&gt; providers = data.providers;
+      if (providers != null) {
+          installContentProviders(app, providers);
+          // For process that contains content providers, we want to
+          // ensure that the JIT is enabled &quot;at some point&quot;.
+          mH.sendEmptyMessageDelayed(H.ENABLE_JIT, 10*1000);
+      }
+  }
+
+  ...
+  //4. 启动我们Application的onCreate方法。
+  // Do this after providers, since instrumentation tests generally start their
+     // test thread at this point, and we don&apos;t want that racing.         
+   mInstrumentation.onCreate(data.instrumentationArgs);　
+    mInstrumentation.callApplicationOnCreate(app);   
+    StrictMode.setThreadPolicy(savedPolicy);
+　
+}
+</code></pre><p>这个函数受AMS污染，也是贼长的一个函数。<br>在这个handleBindApplication函数里面，我截取保留了核心的信息，同时加了注释。<br>具体就是创建<code>context</code>和<code>Application</code>，然后通过installContentProviders(）来启动当前进程的<code>ContentProvider</code>，所以下次有人和你提问题，说你知道那个ContentProvider嘛？<br>你就反问，说你知道这个组件是在哪里初始化的嘛？<br>不知道你就说是在ActivityThread里面的H先生接受到了BindApplication消息，然后在处理消息对应的<code>handleBindApplication（）</code>方法里面的<code>installContentProviders(）</code>函数啦！<br>是不是很装逼的样子！！</p>
+<p>为了彻底的装逼，我们来看下这个installContentProviders(）到底做了什么！<br>免得人家也看过代码，惨遭装逼失败的下场。</p>
+<pre><code>private void installContentProviders(
+        Context context, List&lt;ProviderInfo&gt; providers) {
+
+    final ArrayList&lt;IActivityManager.ContentProviderHolder&gt; results =
+        new ArrayList&lt;IActivityManager.ContentProviderHolder&gt;();
+
+    for (ProviderInfo cpi : providers) {
+
+        IActivityManager.ContentProviderHolder cph = installProvider(context, null, cpi,
+                false /*noisy*/, true /*noReleaseNeeded*/, true /*stable*/);
+        if (cph != null) {
+            cph.noReleaseNeeded = true;
+            results.add(cph);
+        }
+    }
+
+    try {
+        ActivityManagerNative.getDefault().publishContentProviders(
+            getApplicationThread(), results);
+    } catch (RemoteException ex) {
+    }
+}
+</code></pre><p>这里面遍历了<code>providers</code>，然后<code>installProvider</code>去启动他们。最后找AMS把他们给注册保存了。<br>而且是保存在一个叫<code>mProviderMap</code>的map里面中，便于别的进程通过AMS来调用！<br>有代码有真相，有木有，就在下面，没骗人的啊！</p>
+<pre><code> public final void publishContentProviders(IApplicationThread caller,
+        List&lt;ContentProviderHolder&gt; providers) {
+
+     ...
+
+    enforceNotIsolatedCaller(&quot;publishContentProviders&quot;);
+    synchronized (this) {
+        final ProcessRecord r = getRecordForAppLocked(caller);
+         final long origId = Binder.clearCallingIdentity();
+
+
+        final int N = providers.size();
+        for (int i=0; i&lt;N; i++) {
+            ContentProviderHolder src = providers.get(i);
+
+            ...
+            ContentProviderRecord dst = r.pubProviders.get(src.info.name);
+
+            if (dst != null) {
+                ComponentName comp = new ComponentName(dst.info.packageName, dst.info.name);
+                mProviderMap.putProviderByClass(comp, dst);
+                String names[] = dst.info.authority.split(&quot;;&quot;);
+                for (int j = 0; j &lt; names.length; j++) {
+                    mProviderMap.putProviderByName(names[j], dst);
+                }
+                ...
+                 updateOomAdjLocked(r);
+            }
+        }
+        Binder.restoreCallingIdentity(origId);
+    }
+}
+</code></pre><p> 在彻底的装逼，我们需要来看下这个<code>installProvider</code>函数</p>
+<pre><code>private IActivityManager.ContentProviderHolder installProvider(Context context,
+        IActivityManager.ContentProviderHolder holder, ProviderInfo info,
+        boolean noisy, boolean noReleaseNeeded, boolean stable) {
+    ContentProvider localProvider = null;
+    IContentProvider provider;
+
+    ...
+
+        try { //用ClassLoader去加载！
+            final java.lang.ClassLoader cl = c.getClassLoader();
+            localProvider = (ContentProvider)cl.
+                loadClass(info.name).newInstance();
+            provider = localProvider.getIContentProvider();
+             ...
+            // XXX Need to create the correct context for this provider.
+            localProvider.attachInfo(c, info);
+        } catch (java.lang.Exception e) {
+           ...   
+         }
+            return null;
+        }
+    }  
+
+    ...
+}
+</code></pre><p>好了他的启动过程基本到这里结束，我们回溯到前面的步骤，回到我们处理Application消息的第四点</p>
+<pre><code>//4. 启动我们Application的onCreate方法。
+ // Do this after providers, since instrumentation tests generally start their
+    // test thread at this point, and we don&apos;t want that racing.         
+  mInstrumentation.onCreate(data.instrumentationArgs);　
+   mInstrumentation.callApplicationOnCreate(app);   
+
+   StrictMode.setThreadPolicy(savedPolicy);
+</code></pre><p>好了，整个过程基本这样了。</p>
+<p>我们从一开始的<code>acquireUnstableProvider(uri);</code>函数跑到这里，都快忘记原本是要干嘛了。</p>
+<h1 id="续航-Query"><a href="#续航-Query" class="headerlink" title="续航 ==== Query"></a>续航 ==== Query</h1><p>让我们继续启程，回到一开始query函数，在获得了我们IContentProvider后，就调用了他的query方法。</p>
+<pre><code>qCursor = unstableProvider.query(mPackageName, uri, projection,
+                selection, selectionArgs, sortOrder, remoteCancellationSignal);
+</code></pre><p>这个<code>IContentProvider</code> 是一个<code>Binder</code>接口，具体的干活的人是谁呢？<br><code>IContentProvider</code>的具体实现是<code>ContentProviderNative</code>，然后<code>Transport</code> 又继承了它。</p>
+<pre><code>abstract public class ContentProviderNative extends Binder implements IContentProvider 
+
+class Transport extends ContentProviderNative 
+</code></pre><p>这个类是躲在ContentProvider的里面的即ContentProvider.Transport 。好了，写了这么多，回主线</p>
+<pre><code>@Override
+    public Cursor query(String callingPkg, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder,
+            ICancellationSignal cancellationSignal) {
+        validateIncomingUri(uri);
+        uri = getUriWithoutUserId(uri);
+        if (enforceReadPermission(callingPkg, uri, null) != AppOpsManager.MODE_ALLOWED) {
+               ...
+             Cursor cursor = ContentProvider.this.query(uri, projection, selection,
+                    selectionArgs, sortOrder, CancellationSignal.fromTransport(
+                            cancellationSignal));
+            if (cursor == null) {
+                return null;
+            }
+
+            // Return an empty cursor for all columns.
+            return new MatrixCursor(cursor.getColumnNames(), 0);
+        }
+
+        final String original = setCallingPackage(callingPkg);
+        try {
+            return ContentProvider.this.query(
+                    uri, projection, selection, selectionArgs, sortOrder,
+                    CancellationSignal.fromTransport(cancellationSignal));
+        } finally {
+            setCallingPackage(original);
+        }
+    }
+</code></pre><p>到这里去调用了ContentProvider的query方法。这样整个过程就结束了。其余的方法也在这个类里面，套路类似的，就不再写了，这篇文章已经写了很长了，而且现在有事，得去做点别了！</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>今天写得好晚，看到都有点累，不段的翻滚。。。写到后面都没精神和注意力了。。<br>先写到这里，洗个澡睡觉，明天抽时间在继续做补充。。</p>
+<p>但无论如何把四大金刚的源码都写了一遍了。</p>
+<p>====<br>更新：<br>重新补充了部分内容，把整个流程更细化了下。<br>不过还是有些具体的内容不是很清楚，<br>下一次在游览别的时候，能有空再把这个过程写得更清楚的话，就再来更新吧</p>
+<p>对于Zygote这个下次得抽时间再写一篇他的专辑。<br>谷歌起这个名字给它，这么有深度东西，很有故事。</p>
+<p>下一篇就这么定是他了 ^_ ^</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/ContentProvider/" rel="tag">#ContentProvider</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/" rel="prev">源码探索系列10---替代Listview的RecycleView</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/18/源码探索系列8---IntentService/" rel="next">源码探索系列8---IntentService</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/"
+     data-title="源码探索系列9---四大金刚之ContentProvider"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/19/源码探索系列9---四大金刚之ContentProvider/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/"
+                   data-title="源码探索系列9---四大金刚之ContentProvider" data-url="http://yoursite.com/2015/12/19/源码探索系列9---四大金刚之ContentProvider/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航-—-ContentResolver"><span class="nav-number">1.</span> <span class="nav-text">起航 — ContentResolver</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#续航-Query"><span class="nav-number">2.</span> <span class="nav-text">续航 ==== Query</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

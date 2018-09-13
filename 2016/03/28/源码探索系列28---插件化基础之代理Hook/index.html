@@ -1,0 +1,902 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Hook," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="代理有两种，一种是常见的静态代理模型，这个在设计模式系列2—幕后黑手的代理模式就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。">
+<meta name="keywords" content="android,源码,Hook">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列28---插件化基础之代理Hook">
+<meta property="og:url" content="http://yoursite.com/2016/03/28/源码探索系列28---插件化基础之代理Hook/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="代理有两种，一种是常见的静态代理模型，这个在设计模式系列2—幕后黑手的代理模式就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160328184052.png">
+<meta property="og:image" content="http://pic002.cnblogs.com/images/2012/328668/2012040716440386.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.720Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列28---插件化基础之代理Hook">
+<meta name="twitter:description" content="代理有两种，一种是常见的静态代理模型，这个在设计模式系列2—幕后黑手的代理模式就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160328184052.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列28---插件化基础之代理Hook | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列28---插件化基础之代理Hook
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-28T18:41:46+08:00" content="2016-03-28">
+            2016-03-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/源码探索系列28---插件化基础之代理Hook/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160328184052.png" alt="enter image description here"></p>
+<p>代理有两种，一种是常见的静态代理模型，这个在<a href="http://sanjay-f.github.io/2015/12/30/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%972---%E5%B9%95%E5%90%8E%E9%BB%91%E6%89%8B%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" target="_blank" rel="noopener">设计模式系列2—幕后黑手的代理模式</a>就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。<br>但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23</p>
+<p>在做插件化，需要的一件事情就是Hook掉部分的内容，由我们来做接替。<br>所以我们先从继承的PluginApplicatiion开始看起</p>
+<pre><code>public class PluginApplication extends Application {     
+
+    @Override
+    public void onCreate() {
+        super.onCreate();            
+        PluginHelper.getInstance().applicationOnCreate(getBaseContext());
+    } 
+    ...
+}
+
+
+public void applicationOnCreate(final Context baseContext) {
+        mContext = baseContext;
+        initPlugin(baseContext);
+}
+</code></pre><p>//HOOK起点    </p>
+<pre><code>private void initPlugin(Context baseContext) {
+            ...
+   PluginPatchManager.getInstance().init(baseContext);
+   PluginProcessManager.installHook(baseContext);
+
+   if (PluginProcessManager.isPluginProcess(baseContext)) {
+       PluginProcessManager.setHookEnable(true);
+   } else {
+       PluginProcessManager.setHookEnable(false);
+   }             
+   ...
+ }
+</code></pre><p>我们跳到PluginProcessManager看下里面内容，是调用Hook工厂类去安装这个HOOK内容，里面内容很多</p>
+<pre><code>public static void installHook(Context hostContext) throws Throwable {
+        HookFactory.getInstance().installHook(hostContext, null);
+    }
+</code></pre><p>传说的熟悉各个版本的差异，兼容问题就在下面有所体现了：</p>
+<pre><code>public final void installHook(Context context, ClassLoader classLoader) throws Throwable {
+    installHook(new IClipboardBinderHook(context), classLoader);
+    //for ISearchManager
+    installHook(new ISearchManagerBinderHook(context), classLoader);
+    //for INotificationManager
+    installHook(new INotificationManagerBinderHook(context), classLoader);
+    installHook(new IMountServiceBinder(context), classLoader);
+    installHook(new IAudioServiceBinderHook(context), classLoader);
+    installHook(new IContentServiceBinderHook(context), classLoader);
+    installHook(new IWindowManagerBinderHook(context), classLoader);
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP_MR1) {
+        installHook(new IGraphicsStatsBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.KITKAT) {
+        installHook(new WebViewFactoryProviderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.KITKAT) {
+        installHook(new IMediaRouterServiceBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP) {
+        installHook(new ISessionManagerBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.JELLY_BEAN_MR2) {
+        installHook(new IWifiManagerBinderHook(context), classLoader);
+    }
+
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.JELLY_BEAN_MR2) {
+        installHook(new IInputMethodManagerBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+        installHook(new ILocationManagerBinderHook(context), classLoader);
+    }
+    installHook(new IPackageManagerHook(context), classLoader);
+    installHook(new IActivityManagerHook(context), classLoader);
+    installHook(new PluginCallbackHook(context), classLoader);
+    installHook(new InstrumentationHook(context), classLoader);
+    installHook(new LibCoreHook(context), classLoader);
+
+    installHook(new SQLiteDatabaseHook(context), classLoader);
+}
+
+ public void installHook(Hook hook, ClassLoader cl) {         
+    hook.onInstall(cl);
+    synchronized (mHookList) {
+        mHookList.add(hook);          
+    }
+    ...
+}
+</code></pre><p>我们举个粒子进去看下，我们挑选InstrumentationHook，因为这个好说，与我们熟悉的Activity调用有关。</p>
+<pre><code>@Override
+protected void onInstall(ClassLoader classLoader) throws Throwable {
+
+    Object target = ActivityThreadCompat.currentActivityThread();
+    Class ActivityThreadClass = ActivityThreadCompat.activityThreadClass();
+
+     /*替换ActivityThread.mInstrumentation，拦截组件调度消息*/
+    Field mInstrumentationField = FieldUtils.getField(ActivityThreadClass, 
+                                    &quot;mInstrumentation&quot;);
+
+    Instrumentation mInstrumentation = (Instrumentation) FieldUtils.readField(
+                                        mInstrumentationField, target);
+
+    if (!PluginInstrumentation.class.isInstance(mInstrumentation)) {
+        PluginInstrumentation pit = new PluginInstrumentation(
+                                    mHostContext, mInstrumentation);
+        pit.setEnable(isEnable());
+        mPluginInstrumentations.add(pit);
+        FieldUtils.writeField(mInstrumentationField, target, pit);
+
+     } else {
+        Log.i(TAG, &quot;Instrumentation has installed,skip&quot;);
+    }
+}
+</code></pre><p>替换主线程<code>ActivityThread</code>的<code>mInstrumentation</code>变量为我们的<code>PluginInstrumentation</code>。<br>那么问题来了，为何要这样呢？</p>
+<h2 id="Context-gt-StartActivity"><a href="#Context-gt-StartActivity" class="headerlink" title="Context - &gt; StartActivity"></a>Context - &gt; StartActivity</h2><p>之所以要去替换他，是因为当我们调用Context.StartActivity的时候，他背后的内容如下：</p>
+<pre><code>@Override
+public void startActivity(Intent intent, Bundle options) {
+      ...
+     mMainThread.getInstrumentation().execStartActivity(
+        getOuterContext(), mMainThread.getApplicationThread(), null,
+        (Activity)null, intent, -1, options);
+}
+</code></pre><p>调用它的execStartActivity()函数去执行任务，所以通过拦截它，我们就可以算拦截了Activity启动的钥匙，但为何是这个还是另有原因。</p>
+<blockquote>
+<p>我们找Hook点，一般寻找<strong>静态变量和单例</strong>，<strong>静态变量和单例</strong>，<strong>静态变量和单例</strong>；</p>
+</blockquote>
+<p>因为在<strong>一个进程</strong>之内，静态变量和单例的是相对不变的，因此容易做到hook一次，永久有效。就像把守关口，咽喉要道一样的道理，因此你应该也就知道为何选他了。</p>
+<p>一个进程只有一个主线程(ActivityThread/UI线程)，而这个是它的变量，因此我们拿这个“单例”的变量来做HOOK点。就很自然而然了。这样下次当我们调用像下面这样的代码的时候：</p>
+<pre><code>getBaseContext().startActivity(intent2);
+</code></pre><p>我们就可以做一些处理。不过以上是调用context来启动的。</p>
+<h2 id="Activity-gt-StartActivity"><a href="#Activity-gt-StartActivity" class="headerlink" title="Activity - &gt;StartActivity"></a>Activity - &gt;StartActivity</h2><p>有时我们是直接调用Activity的启动，就是自己再Activity里面调用它，对这个情况需要我们另外处理，我们看整个启动流程</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/328668/2012040716440386.jpg" alt="enter image description here"></p>
+<p>（题外话： 这时候终于觉得看源码，写个记录文章<a href="http://sanjay-f.github.io/2015/12/15/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%973---%E5%9B%9B%E5%A4%A7%E9%87%91%E5%88%9A%E4%B9%8BActivity%E7%9A%84%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%AE%8C%E5%85%A8%E8%A7%A3%E6%9E%90/" target="_blank" rel="noopener">源码探索系列3—四大金刚之Activity的启动过程完全解析</a> 有点用了。帮助明白了DroidPlugin里面代码是什么鬼，不会觉得陌生。）</p>
+<p>我们分析下<code>StartActivity</code>的调用链，这个AMN会是一个可以的点。<br>根据提到的那篇文章，我们知道他启动背后是调用AMN的getDefault的启动方法startActivity()</p>
+<pre><code>int result = ActivityManagerNative.getDefault()
+            .startActivity(whoThread, who.getBasePackageName(), intent,
+                    intent.resolveTypeIfNeeded(who.getContentResolver()),
+                    token, target != null ? target.mEmbeddedID : null,
+                    requestCode, 0, null, options);
+</code></pre><p>是的，这里是个好地方。<br>getDefault作为一个静态方法，返回的是IActivityManager这个Binder。<br>这样我们回到DroidPlugin里面对AMS的处理</p>
+<pre><code>installHook(new IActivityManagerHook(context), classLoader);
+</code></pre><p>背后的是</p>
+<pre><code>@Override
+public void onInstall(ClassLoader classLoader) throws Throwable {
+
+    Class cls = ActivityManagerNativeCompat.Class();
+    Object obj = FieldUtils.readStaticField(cls, &quot;gDefault&quot;);
+
+    if (obj == null) {
+        ActivityManagerNativeCompat.getDefault();
+        obj = FieldUtils.readStaticField(cls, &quot;gDefault&quot;);
+    }
+
+    if (IActivityManagerCompat.isIActivityManager(obj)) {
+        setOldObj(obj);
+        Class&lt;?&gt; objClass = mOldObj.getClass();
+        List&lt;Class&lt;?&gt;&gt; interfaces = Utils.getAllInterfaces(objClass);
+        Class[] ifs = interfaces != null &amp;&amp; interfaces.size() &gt; 0 ? 
+                        interfaces.toArray(new Class[interfaces.size()]) : 
+                        new Class[0];
+
+        Object proxiedActivityManager = MyProxy.newProxyInstance(
+                                        objClass.getClassLoader(),ifs,this);//&lt;-回调自己
+
+        FieldUtils.writeStaticField(cls, &quot;gDefault&quot;, proxiedActivityManager);
+
+        Log.i(TAG, &quot;Install ActivityManager Hook 1 old=%s,new=%s&quot;, mOldObj, 
+               proxiedActivityManager);             
+       }
+        ...
+}
+</code></pre><p>下面是用到的ActivityManagerNativeCompat的内容</p>
+<pre><code>public class ActivityManagerNativeCompat {
+
+    private static Class sClass;
+
+    public static Class Class() throws ClassNotFoundException {
+        if (sClass == null) {
+            sClass = Class.forName(&quot;android.app.ActivityManagerNative&quot;);
+        }
+        return sClass;
+    }
+
+    public static Object getDefault() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        return MethodUtils.invokeStaticMethod(Class(), &quot;getDefault&quot;);
+    }
+}
+</code></pre><p>这样也就明白了为何这段代码是这么写的了。</p>
+<p>我们看下实现InvocationHandler接口后的invoke是怎么写的</p>
+<pre><code>public Object invoke(Object proxy, Method method, Object[] args){
+
+     ...
+  HookedMethodHandler hookedMethodHandler = mHookHandles.getHookedMethodHandler(      
+                                              method);
+  if (hookedMethodHandler != null) {
+      return hookedMethodHandler.doHookInner(mOldObj, method, args);
+  }
+  return method.invoke(mOldObj, args);
+    ...
+}
+</code></pre><p>这堆在IActivityManagerHookHandle 的init初始化了</p>
+<pre><code>@Override
+protected void init() {
+    sHookedMethodHandlers.put(&quot;startActivity&quot;, new startActivity(mHostContext));
+    ...
+}
+</code></pre><p>最后由静态的内部类startActivity去处理内容</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>动态代理在自己的开发过程还是很少用到，就算是静态代理。目前用得还是相对少，不过在这个项目过程，重复利用Java这个代理来给我们干活，替我们去拦截一些方法。<br>整个项目涉及到了很多FrameWork的内容，看完也算不错的一次学习机会！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Hook/" rel="tag">#Hook</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" rel="prev">源码探索系列29---插件化基础之启动插件的Activity</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" rel="next">源码探索系列27---插件化基础之类加载器DexClassLoader</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/03/28/源码探索系列28---插件化基础之代理Hook/"
+     data-title="源码探索系列28---插件化基础之代理Hook"
+     data-content=""
+     data-url="http://yoursite.com/2016/03/28/源码探索系列28---插件化基础之代理Hook/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/28/源码探索系列28---插件化基础之代理Hook/"
+                   data-title="源码探索系列28---插件化基础之代理Hook" data-url="http://yoursite.com/2016/03/28/源码探索系列28---插件化基础之代理Hook/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Context-gt-StartActivity"><span class="nav-number">1.1.</span> <span class="nav-text">Context - &gt; StartActivity</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity-gt-StartActivity"><span class="nav-number">1.2.</span> <span class="nav-text">Activity - &gt;StartActivity</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

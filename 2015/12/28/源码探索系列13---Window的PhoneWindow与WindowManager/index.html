@@ -1,0 +1,1118 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,window,windowManager,PhoneWindow," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="关于Window，PhoneWindow和WindowManager三者的关系是：  Window是一个抽象类，他的具体实现是PhoneWindow我们通过WindowManager来管理Window。  我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。 很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑">
+<meta name="keywords" content="android,源码,window,windowManager,PhoneWindow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列13---Window的PhoneWindow与WindowManager">
+<meta property="og:url" content="http://yoursite.com/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="关于Window，PhoneWindow和WindowManager三者的关系是：  Window是一个抽象类，他的具体实现是PhoneWindow我们通过WindowManager来管理Window。  我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。 很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151227164259739">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.708Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列13---Window的PhoneWindow与WindowManager">
+<meta name="twitter:description" content="关于Window，PhoneWindow和WindowManager三者的关系是：  Window是一个抽象类，他的具体实现是PhoneWindow我们通过WindowManager来管理Window。  我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。 很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151227164259739">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列13---Window的PhoneWindow与WindowManager | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列13---Window的PhoneWindow与WindowManager
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-28T17:36:00+08:00" content="2015-12-28">
+            2015-12-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>关于Window，PhoneWindow和WindowManager三者的关系是：</p>
+<blockquote>
+<p>Window是一个抽象类，他的具体实现是PhoneWindow<br>我们通过WindowManager来管理Window。</p>
+</blockquote>
+<p>我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。</p>
+<p>很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑出来一个小悬浮窗来提示用户。现在看得多的就是各种管家关于内存的提示！这真的很让人纠结的安卓机啊！特别是某米的手机，当年发现他不支持这个功能！搞到得单独为他开发一个别的方式….</p>
+<p>好了，说这么多，我们该从哪里开始说起呢？</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23</p>
+<p> 我们先挑WindowManager 开始吧。</p>
+<pre><code>public interface WindowManager extends ViewManager 
+</code></pre><p>我们的WiddowManger是一个接口，不是实际干活的人，看下他继承的ViewManager    </p>
+<pre><code>public interface ViewManager{ 
+public void addView(View view, ViewGroup.LayoutParams params);
+public void updateViewLayout(View view, ViewGroup.LayoutParams params);
+public void removeView(View view);
+}
+</code></pre><p>定义了我们使用到的三个操作。增加，更新，移除。<br>那么背后到底谁在干活呢，是<code>WindowManagerImpl</code><br>不过很有意思的是，他也是一个壳，实际干活的都交给了WindowManagerGlobal去干了。</p>
+<pre><code>public final class WindowManagerImpl implements WindowManager {
+private final WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+
+    @Override
+    public void addView(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+        applyDefaultToken(params);
+        mGlobal.addView(view, params, mDisplay, mParentWindow);
+    }
+    @Override
+    public void removeView(View view) {
+         mGlobal.removeView(view, false);
+    }
+
+    @Override
+    public void updateViewLayout(@NonNull View view, @NonNull ViewGroup.LayoutParams params) {
+        applyDefaultToken(params);
+        mGlobal.updateViewLayout(view, params);
+    }
+    ...
+}
+</code></pre><h2 id="addView"><a href="#addView" class="headerlink" title="addView"></a>addView</h2><p>我们继续跟下，看在addView背后做了什么</p>
+<pre><code>public void addView(View view, ViewGroup.LayoutParams params,
+        Display display, Window parentWindow) {
+
+     ... 
+
+    final WindowManager.LayoutParams wparams = (WindowManager.LayoutParams) params;
+    ViewRootImpl root;
+    View panelParentView = null;
+    synchronized (mLock) {
+
+        ...
+
+        root = new ViewRootImpl(view.getContext(), display);
+
+        view.setLayoutParams(wparams);
+
+        mViews.add(view);
+        mRoots.add(root);
+        mParams.add(wparams);
+    }
+    // do this last because it fires off messages to start doing things
+    try {
+        root.setView(view, wparams, panelParentView);
+    } catch (RuntimeException e) {
+        ...
+    }
+}
+
+private final ArrayList&lt;View&gt; mViews = new ArrayList&lt;View&gt;();
+private final ArrayList&lt;ViewRootImpl&gt; mRoots = new ArrayList&lt;ViewRootImpl&gt;();
+private final ArrayList&lt;WindowManager.LayoutParams&gt; mParams =
+        new ArrayList&lt;WindowManager.LayoutParams&gt;();
+</code></pre><p>我们看到他主要是创建了新的ViewRootImpl，然后将View，ViewRootImpl和params保存起来，最后将View添加进去ViewRootImpl里面去。这里有种感觉，removeView做的就可能和上面的相反，从数组移除，然后调用root.removeView()的类似函数去移除。这是猜测，我们先留着，看完我们的主线</p>
+<p>我们来看下这个setView里面做了什么</p>
+<pre><code>public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) {
+    synchronized (this) {
+        if (mView == null) {
+            mView = view; 
+
+            ... 
+            requestLayout();
+
+            ... 
+
+            try {
+                mOrigWindowType = mWindowAttributes.type;
+                mAttachInfo.mRecomputeGlobalAttributes = true;
+                collectViewAttributes();
+                res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
+                        getHostVisibility(), mDisplay.getDisplayId(),
+                        mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,
+                        mAttachInfo.mOutsets, mInputChannel);
+            } catch (RemoteException e) {
+                ...
+            } finally {
+                if (restore) {
+                    attrs.restore();
+                }
+            }
+        }
+    }
+}
+</code></pre><p>通过requestLayout，然后去更新界面。</p>
+<pre><code>@Override
+public void requestLayout() {
+    if (!mHandlingLayoutInLayoutRequest) {
+        checkThread();
+        mLayoutRequested = true;
+        scheduleTraversals();
+    }
+}
+
+void scheduleTraversals() {
+    if (!mTraversalScheduled) {
+        mTraversalScheduled = true;
+        mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();
+        mChoreographer.postCallback(
+                Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+        if (!mUnbufferedInputDispatch) {
+            scheduleConsumeBatchedInput();
+        }
+        notifyRendererOfFramePending();
+        pokeDrawLockIfNeeded();
+    }
+}
+</code></pre><p>  那个mTraversalRunnable最后回去调用   performTraversals()，执行对界面的更新。</p>
+<pre><code>  final class TraversalRunnable implements Runnable {
+    @Override
+    public void run() {
+        doTraversal();
+    }
+}  
+
+void doTraversal() {
+    if (mTraversalScheduled) { 
+       ...
+        performTraversals(); 
+        ..
+    }
+}
+</code></pre><p>关于这个函数，我们前面在讲View的绘制的时候有说到，他最终去调用我们View的measure，layout，draw等方法，在这里就不深入说了。<br>     继续回主线</p>
+<pre><code>res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
+                 getHostVisibility(), mDisplay.getDisplayId(),
+                 mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,
+                 mAttachInfo.mOutsets, mInputChannel);
+</code></pre><p>这mWindowSession是一个IWindowSession类，就一个Bidner，具体干活的是Session类。</p>
+<pre><code>@Override
+public int addToDisplay(IWindow window, int seq, WindowManager.LayoutParams attrs,
+        int viewVisibility, int displayId, Rect outContentInsets, Rect outStableInsets,
+        Rect outOutsets, InputChannel outInputChannel) {
+
+    return mService.addWindow(this, window, seq, attrs, viewVisibility, displayId,
+            outContentInsets, outStableInsets, outOutsets, outInputChannel);
+
+}
+</code></pre><p>这里看到他最终是用WindowManagerService去添加Window的。这个WMS深似海和AMS一样的坑啊.每个函数都是些几百号才能结束的.我们下次有空再深入看下，还有PW很多内容没说呢，已经写了很长了。。</p>
+<h2 id="removeView"><a href="#removeView" class="headerlink" title="removeView"></a>removeView</h2><p>和原来的套路一样，我们到WMG去看下，验证下和一开始的想法是不是一样的</p>
+<pre><code>@Override
+public void removeView(View view) {
+    mGlobal.removeView(view, false);
+}
+
+public void removeView(View view, boolean immediate) {
+    ...
+    synchronized (mLock) {
+        int index = findViewLocked(view, true);
+        View curView = mRoots.get(index).getView();
+        removeViewLocked(index, immediate);
+        if (curView == view) {
+            return;
+        } 
+    }
+}
+</code></pre><p>根据索引去移除View，没什么好说的，继续</p>
+<pre><code>private void removeViewLocked(int index, boolean immediate) {
+
+       ViewRootImpl root = mRoots.get(index);
+       View view = root.getView();
+
+       if (view != null) {
+           InputMethodManager imm = InputMethodManager.getInstance();
+           if (imm != null) {
+               imm.windowDismissed(mViews.get(index).getWindowToken());
+           }
+       }
+
+       boolean deferred = root.die(immediate);
+       if (view != null) {
+           view.assignParent(null);
+           if (deferred) {
+               mDyingViews.add(view);
+           }
+       }
+   }
+</code></pre><p>关于这个InputMethodManager，在前面的添加Window的时候就一直出现，这里没把它去掉，是因为想说件事，在整个建立的过程中，是涉及到了Input子系统事件分发流程，建立一个通讯的过程，这个也是一匹布那么长，我们忽略跳过他。。我们继续看下那个ViewRootImpl的<code>die()</code>方法。</p>
+<pre><code>boolean die(boolean immediate) {
+    // Make sure we do execute immediately 
+    //if we are in the middle of a traversal or the damage
+    // done by dispatchDetachedFromWindow will cause havoc on return.
+    if (immediate &amp;&amp; !mIsInTraversal) {
+        doDie();
+        return false;
+    }
+
+    if (!mIsDrawing) {
+        destroyHardwareRenderer();
+    }  
+    mHandler.sendEmptyMessage(MSG_DIE);
+    return true;
+}
+</code></pre><p>我们的immediate是一个false，所以执行的只是下面的用handler去发送一个消息就结束了    ，然后返回。<br>这里我们回去看下那个windowMangerImpl的函数，他有两个remove方法</p>
+<pre><code>@Override
+public void removeView(View view) {
+    mGlobal.removeView(view, false);
+}
+
+@Override
+public void removeViewImmediate(View view) {
+    mGlobal.removeView(view, true);
+}
+</code></pre><p>结合上面的函数，我们的出结论，实际移除有同步和异步的方式，同步的方法可能带来一些问题。<br>异步方式是发送消息返回true，而<code>removeViewLocked</code>还把View加入<code>mDyingViews.add(view)</code>死亡数组去。呵呵，我们继续看下去</p>
+<pre><code>case MSG_DIE:
+     doDie();
+     break;
+</code></pre><p>这个消息执行的也是doDie方法啊。。</p>
+<pre><code>void doDie() {
+    ...
+    dispatchDetachedFromWindow();
+    WindowManagerGlobal.getInstance().doRemoveView(this);
+    ... 
+}
+</code></pre><p>看下dispatchDetachedFromWindow去做了什么</p>
+<pre><code>void dispatchDetachedFromWindow() {
+
+    if (mView != null &amp;&amp; mView.mAttachInfo != null) {
+        mAttachInfo.mTreeObserver.dispatchOnWindowAttachedChange(false);
+        mView.dispatchDetachedFromWindow();
+    }
+    mAccessibilityInteractionConnectionManager.ensureNoConnection();
+    mAccessibilityManager.removeAccessibilityStateChangeListener(
+            mAccessibilityInteractionConnectionManager);
+    mAccessibilityManager.removeHighTextContrastStateChangeListener(
+            mHighContrastTextManager);
+    removeSendWindowContentChangedCallback();
+
+    destroyHardwareRenderer();
+
+    setAccessibilityFocus(null, null);
+
+    mView.assignParent(null);
+    mView = null;
+    mAttachInfo.mRootView = null;
+
+    mSurface.release();
+    ...
+    try {
+        mWindowSession.remove(mWindow);
+    } catch (RemoteException e) {
+    }
+    mDisplayManager.unregisterDisplayListener(mDisplayListener);
+
+    unscheduleTraversals();
+}
+</code></pre><p>整个过程先调用View的<code>dispatchDetachedFromWindow()</code>，然后去一堆变量，接着是Session去remove()。</p>
+<pre><code>public void remove(IWindow window) {
+    mService.removeWindow(this, window);
+}
+</code></pre><p>好了，我们看到他去调用了AMS的removeWindow方法，和一开添加的时候的设想一直。    </p>
+<p>最后在我们的<code>doDie（）</code>里面是用<code>WindowManagerGlobal.getInstance().doRemoveView(this);</code>移除</p>
+<pre><code>void doRemoveView(ViewRootImpl root) {
+    synchronized (mLock) {
+        final int index = mRoots.indexOf(root);
+        if (index &gt;= 0) {
+            mRoots.remove(index);
+            mParams.remove(index);
+            final View view = mViews.remove(index);
+            mDyingViews.remove(view);
+        }
+    }
+    if (HardwareRenderer.sTrimForeground &amp;&amp; HardwareRenderer.isAvailable()) {
+        doTrimForeground();
+    }
+}
+</code></pre><p>这部分工作和我们一开始的设想的内容一致啦。</p>
+<p>好了，大致的过程我们基本就看完了，最后的update部分类似，就不细写了。</p>
+<h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>看完了Window的增加，我们来看下我们的Window吧。<br>关于Window和Activity的建立过程，查了下资料，背后还是挺复杂的，我们就从一个我们属性的方法入手</p>
+<pre><code>setContentView(R.layout.activity_main);
+
+public void setContentView(int layoutResID) {
+        getWindow().setContentView(layoutResID);
+        initWindowDecorActionBar();
+}
+</code></pre><p>这里的getWindow函数就是我们的Window，他的具体实现是PhoneWindow，我们跳过去看下</p>
+<pre><code>@Override
+public void setContentView(int layoutResID) { 
+
+    if (mContentParent == null) {
+        installDecor();
+    } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+        mContentParent.removeAllViews();
+    }
+
+    if (hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+        final Scene newScene = Scene.getSceneForLayout(mContentParent, layoutResID,
+                getContext());
+        transitionTo(newScene);
+    } else {
+        mLayoutInflater.inflate(layoutResID, mContentParent);
+    }
+    mContentParent.requestApplyInsets();
+     ...
+}
+</code></pre><p>先初始化decorView，然后有句熟悉的<code>mLayoutInflater.inflate(layoutResID, mContentParent)</code><br>传递了mContentParent去inflate，我们需要去看<code>installDecor()</code>里面做了什么。</p>
+<pre><code>private void installDecor() {
+    if (mDecor == null) {
+        mDecor = generateDecor(); 
+        mDecor.setIsRootNamespace(true); 
+        ...
+    }
+
+    if (mContentParent == null) {
+        mContentParent = generateLayout(mDecor);
+        ...
+    }
+}
+</code></pre><p>我们看到的是，这个新生成了一个DecorView，最后通过这个mDecor去生成一个mContentParent。</p>
+<pre><code>protected ViewGroup generateLayout(DecorView decor) {
+
+    ...           
+
+    View in = mLayoutInflater.inflate(layoutResource, null);
+    decor.addView(in, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+    mContentRoot = (ViewGroup) in;
+
+    ViewGroup contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
+      ...
+
+    return contentParent;
+}
+</code></pre><p>这里我们看这里会去inflate我们的View，然后将它赋值给我们的decor，需要补充说下这个inflate的内容就是我们的整个手机界面，前面会根据不同的选择判断来确定是要那个layoutResource的。<br>所以我们每次例如要求请求全屏等，就需要在这个setContentView前面先调用就是这个原因！</p>
+<p>最后这个<code>contentParent</code>似乎看起来和我们的DecorView没什么关系，我们继续看下。</p>
+<pre><code>public View findViewById(@IdRes int id) {
+    return getDecorView().findViewById(id);
+}
+</code></pre><p> 这个<code>getDecorView（）</code>返回的就是我们的<code>DecorView</code>类的mDecor，我们已经说过他就是PhoneWindow的一个内部类。通过给他一个ID来获取我们的ContentParent，直觉就是说这个是在DecorView里面的一个childView咯？当然是的，因为前面我们通过inflate得到的view加到我们的decor的时候，那个布局文件里面就有了这个ID了。</p>
+<pre><code>@Override
+public final View getDecorView() {
+    if (mDecor == null) {
+        installDecor();
+    }
+    return mDecor;
+}
+</code></pre><p>到这里我们重新建立了我们的<code>decor</code>和我们的<code>mContentParent</code>的关系，即后者是前者的一个子View。<br>这样我们看完了<code>installDecor()</code>继续回到主线，他的下一句</p>
+<pre><code>mLayoutInflater.inflate(layoutResID, mContentParent);
+</code></pre><p>我们看到他是根据传过来的我们写的布局ID文件，然后加到我们的mContentParent里面去的。</p>
+<p> 在继续看下去之前，我们补充一张图片，这里可以解释下，就是我们的DecorView里面包着我们的界面。<br> 我们的ActionBar和我们的自定义的布局文件。</p>
+<p><img src="http://img.blog.csdn.net/20151227164259739" alt="这里写图片描述"></p>
+<p>有了这个概念，我们继续下面关于inflate部分的介绍:</p>
+<pre><code>public View inflate(int resource, ViewGroup root) {
+    return inflate(resource, root, root != null);
+}
+
+public View inflate(int resource, ViewGroup root, boolean attachToRoot) {
+    final Resources res = getContext().getResources();
+
+    final XmlResourceParser parser = res.getLayout(resource);
+    try {
+        return inflate(parser, root, attachToRoot);
+    } finally {
+        parser.close();
+    }
+}
+
+public View inflate(XmlPullParser parser, ViewGroup root, boolean attachToRoot) {
+    synchronized (mConstructorArgs) {
+
+     final AttributeSet attrs = Xml.asAttributeSet(parser);
+      Context lastContext = (Context)mConstructorArgs[0];
+      mConstructorArgs[0] = mContext;
+      View result = root;
+
+      final String name = parser.getName();
+
+     // Temp is the root view that was found in the xml
+     final View temp = createViewFromTag(root, name, attrs, false);
+
+     ViewGroup.LayoutParams params = null; 
+
+     ...
+     // Inflate all children under temp
+     rInflate(parser, temp, attrs, true, true);
+      ...
+
+     if (root != null &amp;&amp; attachToRoot) {
+         root.addView(temp, params);
+     }
+
+     ...
+    return result;
+
+}
+</code></pre><p>整个过程就成功的根据我们给的id去找到view，然后加到我们的root里面去。</p>
+<p>这样我们的整个界面的过程是完成了。<br>另外对于这个PhoneWindow的内容还有很多没说，其余的设计到了界面的一些设置等等的内容。</p>
+<pre><code>public void setStatusBarColor(int color)
+public void setNavigationBarColor(int color)
+public void setTitle(CharSequence title)
+public void setLogo(int resId) 
+public void setLogo(int resId) 
+</code></pre><hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><ol>
+<li><p><strong>桥接模式</strong><br>这次看了下还是有点收获的，例如我们在<code>WindowManger</code>与windowGloabl里面看到了<code>桥接模式</code>的使用</p>
+</li>
+<li><p>设置屏幕属性需要在<code>setContentView</code>前</p>
+<pre><code>requestWindowFeature(Window.FEATURE_NO_TITLE); //设置无标题
+getWindow().setFlags(WindowManager.LayoutParams.FILL_PARENT, 
+                    WindowManager.LayoutParams.FILL_PARENT);  //设置全屏  
+setContentView(R.layout.activity_main );
+</code></pre><p>以前可以这么写全屏，但需要在        setContentView(）函数前，原因我的Window的创建是在他里面。</p>
+</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/window/" rel="tag">#window</a>
+          
+            <a href="/tags/windowManager/" rel="tag">#windowManager</a>
+          
+            <a href="/tags/PhoneWindow/" rel="tag">#PhoneWindow</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/28/源码探索系列14---那个HandleThread/" rel="prev">源码探索系列14---那个HandleThread</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/" rel="next">源码探索系列12---关于事件分发机制</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/"
+     data-title="源码探索系列13---Window的PhoneWindow与WindowManager"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/"
+                   data-title="源码探索系列13---Window的PhoneWindow与WindowManager" data-url="http://yoursite.com/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#addView"><span class="nav-number">1.1.</span> <span class="nav-text">addView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#removeView"><span class="nav-number">1.2.</span> <span class="nav-text">removeView</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">2.</span> <span class="nav-text">前进</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

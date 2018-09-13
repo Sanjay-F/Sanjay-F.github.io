@@ -1,0 +1,1349 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,socket," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。 整个局域网播放流畅主要是下面的流程 客户端 &amp;lt;--- (socket通讯)---&amp;gt;服务器&amp;lt;---(smb协议)---&amp;gt;某台局域网电脑 我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这">
+<meta name="keywords" content="android,socket">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列45---关于局域网播放与ServerSocket">
+<meta property="og:url" content="http://yoursite.com/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。 整个局域网播放流畅主要是下面的流程 客户端 &amp;lt;--- (socket通讯)---&amp;gt;服务器&amp;lt;---(smb协议)---&amp;gt;某台局域网电脑 我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.731Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列45---关于局域网播放与ServerSocket">
+<meta name="twitter:description" content="最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。 整个局域网播放流畅主要是下面的流程 客户端 &amp;lt;--- (socket通讯)---&amp;gt;服务器&amp;lt;---(smb协议)---&amp;gt;某台局域网电脑 我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列45---关于局域网播放与ServerSocket | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列45---关于局域网播放与ServerSocket
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-10-08T15:25:00+08:00" content="2016-10-08">
+            2016-10-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。</p>
+<p>整个局域网播放流畅主要是下面的流程</p>
+<pre><code>客户端 &lt;--- (socket通讯)---&gt;服务器&lt;---(smb协议)---&gt;某台局域网电脑
+</code></pre><p>我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这个服务器和播放器做通讯，根据播放器 发来的请求头的<code>range</code>（类似断点续成的原理），来加载特定的数据给播放器。<br>而服务器的数据是从某台局域网电脑上读取的啊，在windows上，有<code>smb</code>协议负责处理这部分内容，我们靠着这个smb协议去链接 <code>数据源</code> ，即某台有我们想要播放的视频的那台电脑。去加载播放器请求的内容，然后扔回给播放器。</p>
+<p>大致的流程就是上面这样。至于具体的代码细节，在下面给出demo</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>首先来看下我们的http服务器部分的内容，</p>
+<pre><code>SmbOverHttpService httpService = SmbOverHttpService.getInstance();
+httpService.start();
+</code></pre><p>当然开头很简单，就是启动他，背后具体是下面这样</p>
+<pre><code>public static int mBindPort = 0;
+public static String mDefalutServerIP = &quot;127.0.0.1&quot;;
+private int default_port=5356;
+
+
+public boolean start() {
+    if (isServing()) {
+        return true;
+    }
+    int port = defalut_port;
+    //尝试去绑定一个端口，因为有些端口会被霸用，
+    //所以这里写了一个循环去试
+    while (mHttpServer == null) {
+        HTTPServer httpServer = new HTTPServer(mDefalutServerIP, port);
+        try {
+            httpServer.start();
+            mHttpServer=httpServer;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (mHttpServer != null) {
+            mBindPort = port;
+        }
+        ++port;//绑定默认端口失败就一直加，然后继续尝试绑定。直到成功
+    }
+     return isServing();
+  }
+
+    public boolean isServing() {
+        return mHttpServer != null;
+    }
+</code></pre><p>下面我们来看下这个 HTTPServer的内容</p>
+<h2 id="httpServer"><a href="#httpServer" class="headerlink" title="httpServer"></a>httpServer</h2><pre><code>public class HTTPServer extends NanoHTTPD {
+
+      public HTTPServer(String addr, int port) {
+        super(addr, port);
+     }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+
+         Method requestMethod = session.getMethod();
+         String requestUri = session.getUri();
+
+        if (requestMethod == Method.GET &amp;&amp; 
+            requestUri.startsWith(SAMBA_PREFIX)) {
+
+            return serveSamba(session);
+        }
+
+        return newFixedLengthResponse(Status.FORBIDDEN, 
+                                        &quot;text/html&quot;, &quot;Forbidden&quot;);
+    }
+
+   private Response serveSamba(IHTTPSession session) {
+
+        ...something
+        ／／在这里我们去处理播放器发来的请求，通过smb读取视频的数据返回。    
+    }
+
+    ...
+
+}
+</code></pre><p>我们的server是继承<a href="https://github.com/NanoHttpd/nanohttpd" target="_blank" rel="noopener">NanoHTTPD</a>的，他是一个非常简易的http协议实现，所以我们继承后需要处理的就是实现<code>server()</code>函数，去分不同的情况作处理。目前我们只对get请求的读取smb内容作处理。具体的处理我们现在先不看，继续去看下绑定时候的<code>start（）</code>函数背后的内容</p>
+<pre><code>public void start() throws IOException {
+    start(NanoHTTPD.SOCKET_READ_TIMEOUT);
+}
+
+public void start(final int timeout) throws IOException {
+    start(timeout, true);
+}
+
+public void start(final int timeout, boolean daemon) throws IOException {
+
+    this.myServerSocket = this.getServerSocketFactory().create();
+    this.myServerSocket.setReuseAddress(true);
+
+    //创建的这个新的ServerRunnable对象，
+    //通过名字就可以猜到是一个runnable对象，要不然也不会扔到thread做参数了
+    ServerRunnable serverRunnable = createServerRunnable(timeout);
+    this.myThread = new Thread(serverRunnable);
+
+    this.myThread.setDaemon(daemon);
+    this.myThread.setName(&quot;NanoHttpd Main Listener&quot;);
+    this.myThread.start();
+    while (!serverRunnable.hasBinded() &amp;&amp;
+             serverRunnable.getBindException() == null) {
+
+        try {
+            Thread.sleep(10L);
+        } catch (Throwable e) {
+            // on android this may not be allowed, that&apos;s why we
+            // catch throwable the wait should be very short because we are
+            // just waiting for the bind of the socket
+        }
+
+    }
+    if (serverRunnable.getBindException() != null) {
+        throw serverRunnable.getBindException();
+    }
+}
+</code></pre><p>上面整个背后的套路，其实就是在<code>ServerSocket.accept()</code> 得到一个socket后，开一个线程去处理，<a href="http://blog.csdn.net/yangyi22/article/details/7523968" target="_blank" rel="noopener">具体看这份入门demo</a>。</p>
+<p>然后我们来看下这个创建一个runnable的内容</p>
+<h3 id="createServerRunnable"><a href="#createServerRunnable" class="headerlink" title="createServerRunnable"></a>createServerRunnable</h3><pre><code> protected ServerRunnable createServerRunnable(final int timeout) {
+    return new ServerRunnable(this, timeout);
+}
+</code></pre><p> 我们来看下这个serverRunnable内容，整个类不大，就整个粘上来了。</p>
+<pre><code>public class ServerRunnable implements Runnable {
+
+    private NanoHTTPD httpd;
+    private final int timeout;
+    private IOException bindException;
+    private boolean hasBinded = false;
+
+    public ServerRunnable(NanoHTTPD httpd, int timeout) {
+        this.httpd = httpd;
+        this.timeout = timeout;
+    }
+
+    @Override
+    public void run() {
+        try {
+            //显然我们是有hostname=“127.0.0.0”的
+             //就在这一行，我们调用了ServerSocket去绑定hostname+port
+              httpd.getMyServerSocket().bind(httpd.hostname != null ?
+              new InetSocketAddress(httpd.hostname, httpd.myPort) :
+              new InetSocketAddress(httpd.myPort));
+
+            hasBinded = true;
+        } catch (IOException e) {
+            //如果绑定失败，就保存下这个e，然后上面就根据这个做判断看是否绑定成功。
+            this.bindException = e;
+            return;
+        }
+
+        do {
+            try {
+                //前面绑定成功后，就调用ServerSocket的accept函数去等客户端消息来
+                Socket finalAccept = httpd.getMyServerSocket().accept();
+                if (this.timeout &gt; 0) {
+                    finalAccept.setSoTimeout(this.timeout);
+                }
+                //有了消息，就拿inputStream给开一条新的线程去处理这次通讯。
+                InputStream inputStream = finalAccept.getInputStream();
+                httpd.asyncRunner.exec(httpd.createClientHandler(
+                                        finalAccept, inputStream));
+
+            } catch (IOException e) {
+                log(Level.FINE, &quot;Communication with the client broken&quot;, e);
+            }
+        } while (!httpd.getMyServerSocket().isClosed());
+        //这里写了一个循环在这里，直到服务器关了才不再监听消息。     
+    }
+
+    public IOException getBindException() {
+        return bindException;
+    }
+
+    public boolean hasBinded() {
+        return hasBinded;
+    }
+}
+</code></pre><p>我们看下run函数里面，拿从<code>ServerSocket.accept()</code>得到的<code>socket</code>处理部分，就是下面这句</p>
+<pre><code> httpd.asyncRunner.exec(httpd.createClientHandler(
+                                       finalAccept, inputStream));
+
+
+ClientHandler createClientHandler(Socket socket,InputStream inStream) {
+   return new ClientHandler(this, inStream, socket);
+ }
+</code></pre><p>  就是创建一个新的runnable去处理这次的客户请求</p>
+<p>然后这个asyncRunner.exec 就是一个套壳的thread函数，我们截取了核心的代码段。</p>
+<pre><code>@Override
+public void exec(ClientHandler clientHandler) {
+    ...
+    createThread(clientHandler).start();
+}
+
+protected Thread createThread(ClientHandler clientHandler){
+    Thread t = new Thread(clientHandler);
+    t.setDaemon(true);
+    t.setName(&quot;NanoHttpd Request Processor (#&quot; + this.requestCount + &quot;)&quot;);
+    return t;
+}    
+</code></pre><p>所以我们还是去看下这个ClientHandler的run函数的内容吧，这个才是全部的重点内容</p>
+<h3 id="ClientHandler"><a href="#ClientHandler" class="headerlink" title="ClientHandler"></a>ClientHandler</h3><pre><code>/**
+ * The runnable that will be used for every new client connection.
+ */
+public class ClientHandler implements Runnable {
+
+    private final NanoHTTPD httpd;
+    private final InputStream inputStream;
+    private final Socket acceptSocket;
+
+    public ClientHandler(NanoHTTPD httpd, 
+          InputStream inputStream, Socket acceptSocket) {
+
+        this.httpd = httpd;
+        this.inputStream = inputStream;
+        this.acceptSocket = acceptSocket;
+    }
+
+    public void close() {
+        NanoHTTPD.safeClose(this.inputStream);
+        NanoHTTPD.safeClose(this.acceptSocket);
+    }
+
+    @Override
+    public void run() {
+        OutputStream outputStream = null;
+        try {
+            outputStream = this.acceptSocket.getOutputStream();
+
+            ITempFileManager tempFileManager = 
+                httpd.getTempFileManagerFactory().create();
+
+            HTTPSession session = new HTTPSession(httpd, 
+                tempFileManager, this.inputStream,outputStream, 
+                this.acceptSocket.getInetAddress());
+
+            //这段就是构造了一个session，接着掉哟功能execute，
+            //估计会回调到我们开头处理请求的server()
+            while (!this.acceptSocket.isClosed()) {
+                session.execute();
+            }
+
+        } catch (Exception e) {
+            // When the socket is closed by the client,
+            // we throw our own SocketException to 
+            // break the &quot;keep alive&quot; loop above. If
+            // the exception was anything other than 
+            //the expected SocketException OR a
+            // SocketTimeoutException, print the  stacktrace
+
+            if (!(e instanceof SocketException &amp;&amp;
+                 &quot;NanoHttpd Shutdown&quot;.equals(e.getMessage())) &amp;&amp;
+                  !(e instanceof SocketTimeoutException)) {
+
+              log(Level.SEVERE, &quot;Communication with the client broken, 
+                                         or an bug in the handler code&quot;, e);
+
+            }
+
+        } finally {
+            NanoHTTPD.safeClose(outputStream);
+            NanoHTTPD.safeClose(this.inputStream);
+            NanoHTTPD.safeClose(this.acceptSocket);
+            httpd.asyncRunner.closed(this);
+        }
+    }
+}
+</code></pre><h2 id="httpSession-execute"><a href="#httpSession-execute" class="headerlink" title="httpSession.execute()"></a>httpSession.execute()</h2><p>这个httpSession有点长，不好直接都粘贴上来，毕竟整个请求解析的实现都浓缩在这里了</p>
+<pre><code>public class HTTPSession implements IHTTPSession {
+
+    ...
+
+  public HTTPSession(NanoHTTPD httpd, ITempFileManager tempFileManager,
+                     InputStream inputStream, OutputStream outputStream, 
+                     InetAddress inetAddress) {
+    ／／ 把构造函数贴出来，直到变量的关系，便于后面的execute函数内容的理解
+    this.httpd = httpd;
+    this.tempFileManager = tempFileManager;
+    this.inputStream = new BufferedInputStream(inputStream,
+                                 HTTPSession.BUFSIZE);
+    this.outputStream = outputStream;
+    this.remoteIp = inetAddress.isLoopbackAddress() ||
+                    inetAddress.isAnyLocalAddress() ?
+                            &quot;127.0.0.1&quot; : 
+                           inetAddress.getHostAddress().toString();
+
+    this.remoteHostname = inetAddress.isLoopbackAddress() || 
+                            inetAddress.isAnyLocalAddress() ?
+                                    &quot;localhost&quot; : 
+                                    inetAddress.getHostName().toString();
+
+    this.headers = new HashMap&lt;String, String&gt;();
+}
+
+...
+
+ @Override
+ public void execute() throws IOException {
+    Response r = null;
+    try {
+
+        byte[] buf = new byte[HTTPSession.BUFSIZE];
+        this.splitbyte = 0;
+        this.rlen = 0;
+        int read = -1;
+        this.inputStream.mark(HTTPSession.BUFSIZE);
+        try {
+            read = this.inputStream.read(buf, 0, HTTPSession.BUFSIZE);
+        } catch (SSLException e) {
+            throw e;
+        } catch (IOException e) {
+            NanoHTTPD.safeClose(this.inputStream);
+            NanoHTTPD.safeClose(this.outputStream);
+            throw new SocketException(&quot;NanoHttpd Shutdown&quot;);
+        }
+
+        //读取数据到buf部分
+        if (read == -1) {
+            // socket was been closed
+            NanoHTTPD.safeClose(this.inputStream);
+            NanoHTTPD.safeClose(this.outputStream);
+            throw new SocketException(&quot;NanoHttpd Shutdown&quot;);
+        }
+        while (read &gt; 0) {
+            this.rlen += read;
+            this.splitbyte = findHeaderEnd(buf, this.rlen);
+            if (this.splitbyte &gt; 0) {
+                break;
+            }
+            read = this.inputStream.read(buf, this.rlen, 
+                                        HTTPSession.BUFSIZE - this.rlen);
+        }
+
+        if (this.splitbyte &lt; this.rlen) {
+            this.inputStream.reset();
+            this.inputStream.skip(this.splitbyte);
+        }
+
+        ／／下面开始是🐷部解析
+        this.parms = new HashMap&lt;String, List&lt;String&gt;&gt;();
+        if (null == this.headers) {
+            this.headers = new HashMap&lt;String, String&gt;();
+        } else {
+            this.headers.clear();
+        }
+        // Create a BufferedReader for parsing the header.
+        BufferedReader hin = new BufferedReader(new InputStreamReader(
+                                                new ByteArrayInputStream(buf, 
+                                                    0, this.rlen)));
+
+        // Decode the header into parms and header java properties
+        Map&lt;String, String&gt; pre = new HashMap&lt;String, String&gt;();
+        decodeHeader(hin, pre, this.parms, this.headers);
+        //具体怎么解析我们这次不关心，不看🙈 
+
+        if (null != this.remoteIp) {
+            this.headers.put(&quot;remote-addr&quot;, this.remoteIp);
+            this.headers.put(&quot;http-client-ip&quot;, this.remoteIp);
+        }
+
+        //根据解析的结果，初始化这个session
+        //还是另起一个函数来处理吧，不要都扔在这里，这个函数已经很长了
+        this.method = Method.lookup(pre.get(&quot;method&quot;));           
+        this.uri = pre.get(&quot;uri&quot;);
+        this.cookies = new CookieHandler(this.headers);
+        String connection = this.headers.get(&quot;connection&quot;);
+        boolean keepAlive = &quot;HTTP/1.1&quot;.equals(protocolVersion)
+                             &amp;&amp; (connection == null || 
+                                 !connection.matches(&quot;(?i).*close.*&quot;));
+
+
+         //我们比较关心的内容来了，通过前面的一堆解析，构造好必备的session信息，
+         //就去回调我们的serve函数，我们去具体的处理这个请求
+        r = httpd.serve(this);
+           //处理完生成一个Respone对象，最后我们在send发送给客户端
+
+        if (r == null) {
+            throw new NanoHTTPD.ResponseException(Status.INTERNAL_ERROR, 
+                &quot;SERVER INTERNAL ERROR: Serve() returned a null response.&quot;);
+        } else {
+            String acceptEncoding = this.headers.get(&quot;accept-encoding&quot;);
+            this.cookies.unloadQueue(r);
+            r.setRequestMethod(this.method);
+            r.setGzipEncoding(httpd.useGzipWhenAccepted(r) 
+                              &amp;&amp; acceptEncoding != null
+                              &amp;&amp; acceptEncoding.contains(&quot;gzip&quot;));
+
+            r.setKeepAlive(keepAlive);
+            r.send(this.outputStream);
+            //会送消息给客户端
+        }
+
+        if (!keepAlive || r.isCloseConnection()) {
+            throw new SocketException(&quot;NanoHttpd Shutdown&quot;);
+        }
+
+    } catch (Exception e) {
+        ...
+    } finally {
+        NanoHTTPD.safeClose(r);
+        this.tempFileManager.clear();
+    }
+}
+</code></pre><p>看我这上面的一大串，我们来缕清下思路，主要就是在accept得到socket后，根据socket得到的inputStream去读客户端发送来的内容，接着就是解析，解析好后是去serve函数处理请求，处理得到一个response结果再回传给客户端。</p>
+<p>明白上面的过程，我们现在就可以去看下怎么处理这个请求<br>我们直接就来看下serveSamba的内容吧</p>
+<h2 id="serveSamba"><a href="#serveSamba" class="headerlink" title="serveSamba"></a>serveSamba</h2><pre><code> //对于处理smb协议的核心处理部分，
+//跑到这里根据get请求头的range信息，从smbFile对象拿信息返回
+private Response serveSamba(IHTTPSession session) {
+
+    String reqUri = session.getUri();
+    String base64EncodeSmbUri = reqUri.substring(SAMBA_PREFIX.length());
+    byte[] smbUriBytes = Base64.decode(base64EncodeSmbUri, Base64.URL_SAFE);
+    String smbUri = new String(smbUriBytes, Charset.forName(&quot;utf8&quot;));
+
+
+
+    InputStream smbFileInputStream = null;
+    long fileLength = 0;
+    String filename = null; 
+    SmbFile smbFile = new SmbFile(smbUri);
+
+    if (smbFile!=null &amp;&amp; !smbFile.exists() || !smbFile.isFile()) {
+        return newFixedLengthResponse(Status.NOT_FOUND, 
+                          &quot;text/html&quot;, &quot;Not Found&quot;);
+    }
+
+    fileLength = smbFile.length();
+    filename = smbFile.getName();
+    smbFileInputStream = smbFile.getInputStream();
+
+    ...
+
+    boolean releaseSmbFileInputStream = true;
+    try {
+        Map&lt;String, String&gt; reqHeader = session.getHeaders();
+        boolean hasHeaderRange = reqHeader.containsKey(&quot;range&quot;);
+
+        long rangeBegin = 0;
+        long rangeEnd = -1;
+        if (hasHeaderRange) {
+            //对于请求带range的，就解析下
+             String rangeValue = reqHeader.get(&quot;range&quot;);
+             boolean parseRangeSuccess = false;
+            if (rangeValue.startsWith(&quot;bytes=&quot;)) {
+                int minus = rangeValue.indexOf(&apos;-&apos;);
+                if (minus &gt; &quot;bytes=&quot;.length()) {                       
+                   rangeBegin = Long.parseLong(
+                            rangeValue.substring(&quot;bytes=&quot;.length(), minus));
+                    rangeEnd = Long.parseLong(
+                            rangeValue.substring(minus + 1));                         
+                    parseRangeSuccess = true;
+                }
+            }
+
+            ...
+        }
+
+        //获取请求文件的类型avi，mp4等
+        String mimeType = null;
+        if (filename != null) {
+            int pos = filename.lastIndexOf(&apos;.&apos;);
+            if (pos &gt; 0) {
+                mimeType = fileExtNameToMIMEType(
+                            filename.substring(pos + 1));
+            }
+        }
+
+        //对于请求没带range的，就是默认的[0-fileLength]
+        Response res = null;
+        if (rangeEnd &lt; 0) {
+            rangeEnd = (fileLength &gt; 0 ? fileLength - 1 : 0);
+        }
+
+
+        long resContentLength = rangeEnd - rangeBegin + 1;
+        if (hasHeaderRange) {
+            //下面根据请求的range去返回对应的数据给客户端
+            smbFileInputStream.skip(rangeBegin);
+
+            res = newFixedLengthResponse(Status.PARTIAL_CONTENT, mimeType, 
+                                    smbFileInputStream, resContentLength);
+            res.addHeader(&quot;Accept-Ranges&quot;, &quot;bytes&quot;);
+            res.addHeader(&quot;Content-Range&quot;, 
+                            &quot;bytes &quot; + rangeBegin + &quot;-&quot; + 
+                            rangeEnd + &quot;/&quot; + fileLength);
+        } else {//不加range的就整个流送回去
+            res = newFixedLengthResponse(Status.OK, mimeType, 
+                            smbFileInputStream, resContentLength);
+        }
+
+        res.addHeader(&quot;Content-Length&quot;, &quot;&quot; + resContentLength);
+        releaseSmbFileInputStream = false;
+        return res;//到此顺利的构造好一个Respone，可以返回给客户端了
+
+     }catch (Exception e){
+        Log.i(TAG, &quot;serveSamba: try read fail -&gt; &quot;+e.toString());
+        return newFixedLengthResponse(Status.NOT_FOUND, 
+                                    &quot;text/html&quot;, &quot;Not Found&quot;);
+     }finally {
+        if (releaseSmbFileInputStream &amp;&amp; smbFileInputStream != null) {
+            smbFileInputStream.close();//最后记得关闭文件流！
+        }
+
+    }
+}
+</code></pre><p>看完构造response，这部分就是和局域网的数据沟通部分内容，很简单的感觉不是吗？。<br>一个封装好了的SmbFile对象，曾经自己写了一个类似的，实在是不堪重负🙈最后找这个第三方包</p>
+<h2 id="respone-send"><a href="#respone-send" class="headerlink" title="respone.send"></a>respone.send</h2><p>我们看最后的送回去给客户端的部分</p>
+<pre><code>  /**
+ * Sends given response to the socket.
+ */
+public void send(OutputStream outputStream) {
+
+    //下面一大串就是构造头部内容，为何不单独一个函数里面...
+    SimpleDateFormat gmtFrmt = new SimpleDateFormat(
+                &quot;E, d MMM yyyy HH:mm:ss &apos;GMT&apos;&quot;, Locale.US);                                                                                                 
+
+    gmtFrmt.setTimeZone(TimeZone.getTimeZone(&quot;GMT&quot;));
+
+    try {
+        if (this.status == null) {
+            throw new Error(&quot;sendResponse(): Status can&apos;t be null.&quot;);
+        }
+
+        //构造一个writer实在是太长了
+        PrintWriter pw = new PrintWriter(
+            new BufferedWriter(
+             new OutputStreamWriter(outputStream, 
+            new ContentType(this.mimeType).getEncoding())), false);
+
+        //使用1.1协议，话说现在2.0都出来了，解决队首堵塞等问题。                            
+        pw.append(&quot;HTTP/1.1 &quot;).
+            append(this.status.getDescription()).append(&quot; \r\n&quot;);
+
+        if (this.mimeType != null) {
+            printHeader(pw, &quot;Content-Type&quot;, this.mimeType);
+        }
+        if (getHeader(&quot;date&quot;) == null) {
+            printHeader(pw, &quot;Date&quot;, gmtFrmt.format(new Date()));
+        }
+
+        for (String cookieHeader : this.cookieHeaders) {
+            printHeader(pw, &quot;Set-Cookie&quot;, cookieHeader);
+        }
+
+        if (getHeader(&quot;connection&quot;) == null) {
+            printHeader(pw, &quot;Connection&quot;, (this.keepAlive ? 
+                                                    &quot;keep-alive&quot; : &quot;close&quot;));
+        }
+
+        if (getHeader(&quot;content-length&quot;) != null) {
+            encodeAsGzip = false;
+        }
+
+         //我们是有length的，所以不适用gzip，而且不是chunkedTransfer
+
+        if (encodeAsGzip) {
+            printHeader(pw, &quot;Content-Encoding&quot;, &quot;gzip&quot;);
+            setChunkedTransfer(true);
+        }
+
+            /／致于这个pending，当然在我们的情况，播放视频的背景下
+            //data为真，用contentLength
+        long pending = this.data != null ? this.contentLength : 0;
+
+        if (this.requestMethod != Method.HEAD &amp;&amp; this.chunkedTransfer) {
+            printHeader(pw, &quot;Transfer-Encoding&quot;, &quot;chunked&quot;);
+        } else if (!encodeAsGzip) {
+            pending = 
+                    sendContentLengthHeaderIfNotAlreadyPresent(pw, pending);
+        }
+
+        pw.append(&quot;\r\n&quot;);
+        pw.flush();
+
+        sendBodyWithCorrectTransferAndEncoding(outputStream, pending);
+
+        //写完flush，发送。
+        outputStream.flush();
+        NanoHTTPD.safeClose(this.data);
+
+    } catch (IOException ioe) {
+        NanoHTTPD.LOG.log(Level.SEVERE, &quot;Could not send response to the client&quot;, ioe);
+    }
+}
+
+private void sendBodyWithCorrectTransferAndEncoding(
+            OutputStream outputStream, long pending) throws IOException {
+
+    if (this.requestMethod != Method.HEAD &amp;&amp; this.chunkedTransfer) {
+        ChunkedOutputStream chunkedOutputStream = 
+                new ChunkedOutputStream(outputStream);
+
+        sendBodyWithCorrectEncoding(chunkedOutputStream, -1);
+        chunkedOutputStream.finish();
+    } else {
+        //走这个分支，chunkedTransfer为fasle
+        sendBodyWithCorrectEncoding(outputStream, pending);
+    }
+}
+
+private void sendBodyWithCorrectEncoding(
+        OutputStream outputStream, long pending) throws IOException {
+
+    if (encodeAsGzip) {
+        GZIPOutputStream gzipOutputStream = 
+           new GZIPOutputStream(outputStream);
+
+        sendBody(gzipOutputStream, -1);
+        gzipOutputStream.finish();
+
+    } else {
+        //这个分支，我们不用gzip
+        sendBody(outputStream, pending);
+    }
+}
+
+/**
+ * Sends the body to the specified OutputStream. 
+ * The pending parameter
+ * limits the maximum amounts of bytes sent unless it is -1,
+ *  in which case everything is sent. 
+ */
+private void sendBody(OutputStream outputStream, long pending)
+     throws IOException {
+
+    long BUFFER_SIZE = 16 * 1024;
+    //然后需要说下这个缓冲大小
+    //根据自己实际调整下大小。
+
+    byte[] buff = new byte[(int) BUFFER_SIZE];
+    boolean sendEverything = pending == -1;
+    //接下来这部分就是循环读数据，每次读bufferSize的大小，然后送给客户端
+    //直到读完，就算结束掉这次的socket请求了。
+
+    while (pending &gt; 0 || sendEverything) {
+        long bytesToRead = sendEverything ? BUFFER_SIZE : Math.min(pending, BUFFER_SIZE);
+        int read = this.data.read(buff, 0, (int) bytesToRead);
+        if (read &lt;= 0) {
+            break;
+        }
+        outputStream.write(buff, 0, read);
+        if (!sendEverything) {
+            pending -= read;
+        }
+    }
+}
+</code></pre><p>好了，整个流程就这样看我了，整个demo也基本核心的都贴出来了。</p>
+<p>看我整个流程，理论上一个视频的播放流不流畅的关键，即瓶颈我们也知道在哪里了，<br>一般主要耗费的时间一般都在sendBody(）这个函数，例如当你的pending就是文件大小，即你的range就是0-fileSize的时候。<br>那么到底要怎么改进性能呢？</p>
+<p>改进性能是一个很大的话题，最好有一些工具帮助你去量化，测量结果。<br>从内存，耗时，网络带宽等等多方面考察，Android studio带的monitor工具就是一个挺好的帮手，具体见我前面的文章。</p>
+<ol>
+<li><p>播放器内核直接支持<br>关于局域网播放，在处理一些小视频还好，要是遇到一些超高码率的，例如那些1G大小的视频居然只有几十秒的那些。<br>那么假设一个中间转接的服务器是不太合适的，最好就是让播放器直接支持局域网播放。<br>毕竟像上面这样，读取完，再写回给客户端，客户端再播放出来，和 客户端直接播放器读取播放是不一样的。</p>
+</li>
+<li><p>开多个请求<br>以上是基于每次请求的range为0-fileSize的整个文件大小问题，那么我们可以像多点续传一样，让播放器多发点请求，多线程去加数据回来，尽量把带宽都霸占满。</p>
+</li>
+<li><p>播放内核不支持，就改进缓存大小<br>缓冲大小这个是很直接的因素，例如上面写死了是16kB。但最好还是动态来调可能是最好的，毕竟这个直觉上我们能够知道是受服务器的iops，网速，客户端的读取速度等多方面影响的。如果是千兆光谦，ssd盘，我们设置缓冲1kb，那就有点浪费了。所以根据实际的服务器情况，带宽，磁盘io情况来设置这个缓冲大小会更合适。当然我们看到如果把判断条件改下，是否会缩短一点点时间呢？</p>
+</li>
+<li><p>改进jcifs<br>我们是通过jcifs这个实现smb协议的库来和局域网的电脑交互，读取数据等。那么理论上这里面必然会有一些优化的地步，致于具体的，就靠读者你自己分析了。<br>Linux系统默认自带的Samba，都有优化的配置文件，估计jcifs也会有，不过好像在官网没注意到有。</p>
+</li>
+</ol>
+<h1 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h1><ol>
+<li><a href="https://github.com/NanoHttpd/nanohttpd" target="_blank" rel="noopener">nanoHttpd</a>，http 服务器是用了这个项目的内容</li>
+<li><a href="https://jcifs.samba.org/" target="_blank" rel="noopener">jcifs</a>，JCIFS is an Open Source client library that implements the CIFS/SMB networking protocol in 100% Java. CIFS is the standard file sharing protocol on the Microsoft Windows platform (e.g. Map Network Drive …). This client is used extensively in production on large Intranets.</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/socket/" rel="tag">#socket</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/13/在离开两年后的归来/" rel="prev">离开两年后的归来</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/" rel="next">源码探索系列44---关于AM的forceStopPackage</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/"
+     data-title="源码探索系列45---关于局域网播放与ServerSocket"
+     data-content=""
+     data-url="http://yoursite.com/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/"
+                   data-title="源码探索系列45---关于局域网播放与ServerSocket" data-url="http://yoursite.com/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#httpServer"><span class="nav-number">1.1.</span> <span class="nav-text">httpServer</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#createServerRunnable"><span class="nav-number">1.1.1.</span> <span class="nav-text">createServerRunnable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClientHandler"><span class="nav-number">1.1.2.</span> <span class="nav-text">ClientHandler</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#httpSession-execute"><span class="nav-number">1.2.</span> <span class="nav-text">httpSession.execute()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#serveSamba"><span class="nav-number">1.3.</span> <span class="nav-text">serveSamba</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#respone-send"><span class="nav-number">1.4.</span> <span class="nav-text">respone.send</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ref"><span class="nav-number">2.</span> <span class="nav-text">ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

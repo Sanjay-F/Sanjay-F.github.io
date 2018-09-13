@@ -1,0 +1,979 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,LocalBroadCast,Broadcast,EventBus," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="这篇文章将会对这三者做简单的综合性的比较，同时对LocalBroadCast深入到源码进行一个探索。看这个类为何相对BroadCast高效！ 起航1. 比较 性能 对比 ：  EventBus不差   EventBus ~ LocalBroadCast  &amp;gt; Bradocast   运行的线程环境：    EventBus完胜！  LocalBroadcastManager 所有调用都是在主">
+<meta name="keywords" content="android,LocalBroadCast,Broadcast,EventBus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析">
+<meta property="og:url" content="http://yoursite.com/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="这篇文章将会对这三者做简单的综合性的比较，同时对LocalBroadCast深入到源码进行一个探索。看这个类为何相对BroadCast高效！ 起航1. 比较 性能 对比 ：  EventBus不差   EventBus ~ LocalBroadCast  &amp;gt; Bradocast   运行的线程环境：    EventBus完胜！  LocalBroadcastManager 所有调用都是在主">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.731Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析">
+<meta name="twitter:description" content="这篇文章将会对这三者做简单的综合性的比较，同时对LocalBroadCast深入到源码进行一个探索。看这个类为何相对BroadCast高效！ 起航1. 比较 性能 对比 ：  EventBus不差   EventBus ~ LocalBroadCast  &amp;gt; Bradocast   运行的线程环境：    EventBus完胜！  LocalBroadcastManager 所有调用都是在主">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-17T01:24:00+08:00" content="2015-12-17">
+            2015-12-17
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>这篇文章将会对这三者做简单的综合性的比较，同时对LocalBroadCast深入到源码进行一个探索。看这个类为何相对BroadCast高效！</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><h1 id="1-比较"><a href="#1-比较" class="headerlink" title="1. 比较"></a>1. 比较</h1><ul>
+<li><p><strong>性能 对比 ：  EventBus不差 </strong> </p>
+<pre><code>EventBus ~ LocalBroadCast  &gt; Bradocast 
+</code></pre></li>
+<li><p><strong>运行的线程环境：    EventBus完胜！</strong></p>
+<p> LocalBroadcastManager 所有调用都是在主线程，<br> EventBus 可以定义在调用线程、主线程、后台线程、异步。</p>
+</li>
+<li><p><strong>代码量比较：  EventBus完胜！</strong></p>
+<a id="more"></a>
+</li>
+</ul>
+<ol>
+<li><p><strong>Bradocast</strong></p>
+<pre><code>  @Override
+  public void onStart() {
+      super.onStart();
+      // 注册广播接收
+      IntentFilter filter = new IntentFilter();
+      filter.addAction(Constants.USER_UPDATE);
+      receiveBroadCast = new ReceiveBroadCast();
+      registerReceiver(receiveBroadCast, filter);
+  }
+
+// 发送
+ Intent intent = new Intent();
+ intent.setAction(Constants.BP_UPDATE);
+  sendBroadcast(intent);
+
+  class ReceiveBroadCast extends BroadcastReceiver {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+          String action = intent.getAction();
+
+          if ( !TextUtils.isEmpty(action) &amp;&amp; action.equals(Constants.USER_UPDATE)) {
+              Bundle bundle = intent.getExtras();
+              if (null != bundle) {
+                  ...do Something 
+                  }
+              }
+          }
+
+      }
+  }        
+
+  @Override
+  public void onStop() {
+      super.onStop();
+
+      if (receiveBroadCast != null) {
+          unregisterReceiver(receiveBroadCast);//注销
+      }
+  }
+</code></pre></li>
+<li><p><strong>EventBus</strong></p>
+<pre><code>EventBus.getDefault().register(this);//注册
+
+EventBus.getInstance().post(ourEvnet());         //发送
+
+@Subscribe
+public void onEvent(TokenInvalidEvent event) {
+   .....处理接收到的消息
+}
+</code></pre></li>
+</ol>
+<pre><code>        EventBus.getDefault().unregister(this); //注销
+
+3. **LocalBroadcastManager**
+
+        //注册
+        LocalBroadcastReceiver localReceiver = new LocalBroadcastReceiver();
+        LocalBroadcastManager.getInstance(context).registerReceiver(localReceiver, new IntentFilter(ACTION_LOCAL_SEND));  
+
+        //发送
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_LOCAL_SEND));
+
+        //接收广播
+        public class LocalBroadcastReceiver extends BroadcastReceiver {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                localMsg.setText(intent.getStringExtra(MSG_KEY));
+            }
+        }    
+
+        //取消
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(localReceiver);
+</code></pre><p>好啦，我们可以看到，如果追求代码行数，正常人都会选择用<code>EventBus</code>，简单好用！<br>EventBus &lt; BroadCast ~ LocalBroadCast 。  </p>
+<ul>
+<li><strong>信息量</strong> </li>
+</ul>
+<ol>
+<li><strong>系统广播：</strong><br>使用广播另外的一个点是，许多<strong>系统级的事件</strong>都是使用广播来进行的，<br>像常用的屏幕开闭、网络状态变化、短信发送接收的状态等等。<br>对于这些事情，没办法，系统指定了的，就只能用广播来干了。<br>但广播的另外一个问题就是，他也是<strong>性能和空间消耗</strong>最大的，<br>如果你不需要接收系统的消息和跨进程的，那用这个就显得有点浪费了。</li>
+<li><strong>接收方数目</strong><br>EventBus 还有一些额外功能，比如说定义多个接收方接收的顺序，LocalBroadcastManager对此不支持，<br>但全局 Broadcast 是支持的 。</li>
+</ol>
+<ul>
+<li><strong>灵活性</strong><br>EventBus的调度灵活，不依赖于 Context，使用时无需像广播一样关注 Context 的注入与传递。<br>父类对于通知的监听和处理可以<code>继承</code>给子类，<strong>这对于简化代码至关重要</strong>；<br>通知的优先级，能够保证 Subscriber 关注最重要的通知；<br>粘滞事件（sticky events）能够保证通知不会因 Subscriber 的不在场而忽略。<br><strong>可继承、优先级、粘滞，是 EventBus 比之于广播、观察者等方式最大的优点，它们使得创建结构良好组织紧密的通知系统成为可能。</strong></li>
+</ul>
+<hr>
+<p> 综上，请根据自己需要做选择，已经说的明了，我们来看下源码上的事吧</p>
+<h1 id="LocalBroadcastManager-源码解析"><a href="#LocalBroadcastManager-源码解析" class="headerlink" title="LocalBroadcastManager 源码解析"></a>LocalBroadcastManager 源码解析</h1><p>API：23</p>
+<h2 id="获取单例"><a href="#获取单例" class="headerlink" title="获取单例"></a>获取单例</h2><p>首先，我们从getInstance（）开始说起，整个类就两百多行，算不复杂的了。</p>
+<pre><code>private static LocalBroadcastManager mInstance;
+
+public static LocalBroadcastManager getInstance(Context context) {
+        synchronized (mLock) {
+            if (mInstance == null) {
+                mInstance = new LocalBroadcastManager(context.getApplicationContext());
+            }
+            return mInstance;
+        }
+    }
+
+  private LocalBroadcastManager(Context context) {
+    mAppContext = context;
+    mHandler = new Handler(context.getMainLooper()) {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_EXEC_PENDING_BROADCASTS:
+                    executePendingBroadcasts();
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    };
+}
+</code></pre><p>我们看到些有意思的内容，他的内部使用了<code>Handler</code>  ，还记得前面比较说的工作环境吗？我们的本地广播是在主线程的，因为他内部用Handler的时候用的是<code>MainLooper</code>，在<code>handleMessage（）</code>中会调用接收器对广播的消息进行处理。 </p>
+<p>另外我们看到了他的单例是这样些的，这种的效率是偏低的，但实际我们的程序一般没那么高的效率要求，这种也没太大问题，要改的话，可以改成<code>DCL模式</code>，或者<code>静态内部类</code>的形式。</p>
+<pre><code>public static LocalBroadcastManager getInstance(Context context) {
+    if (mInstance == null) {
+        synchronized (mLock) {
+            if (mInstance == null) {
+                mInstance = new LocalBroadcastManager(context.getApplicationContext());
+            }                  
+        }
+     } 
+
+   return mInstance;            
+}
+</code></pre><h2 id="注册广播"><a href="#注册广播" class="headerlink" title="注册广播"></a>注册广播</h2><pre><code>private final HashMap&lt;BroadcastReceiver, ArrayList&lt;IntentFilter&gt;&gt; mReceivers
+            = new HashMap&lt;BroadcastReceiver, ArrayList&lt;IntentFilter&gt;&gt;();
+private final HashMap&lt;String, ArrayList&lt;ReceiverRecord&gt;&gt; mActions
+            = new HashMap&lt;String, ArrayList&lt;ReceiverRecord&gt;&gt;();
+
+public void registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
+    synchronized (mReceivers) {
+        ReceiverRecord entry = new ReceiverRecord(filter, receiver);
+        ArrayList&lt;IntentFilter&gt; filters = mReceivers.get(receiver);
+        if (filters == null) {
+            filters = new ArrayList&lt;IntentFilter&gt;(1);
+            mReceivers.put(receiver, filters);
+        }
+        filters.add(filter);
+        for (int i=0; i&lt;filter.countActions(); i++) {
+            String action = filter.getAction(i);
+            ArrayList&lt;ReceiverRecord&gt; entries = mActions.get(action);
+            if (entries == null) {
+                entries = new ArrayList&lt;ReceiverRecord&gt;(1);
+                mActions.put(action, entries);
+            }
+            entries.add(entry);
+        }
+    }
+}
+</code></pre><p>我们看到他把广播信息存储下来，我猜应该就是用于后面有收到广播的时候，去查看是否有匹配的消息，然后调用接收去执行的把。 同时mReceivers 是接收器和IntentFilter的对应表，主要作用是方便在unregisterReceiver(…)取消注册。<br>mActions 以Action为 key，注册这个Action的BroadcastReceiver链表为 value。我猜是为了方便在广播发送后快速得到可以接收它的BroadcastReceiver。<br>有这种猜测是因为EventBus的源码里面也有类似的做法，在有程序发送Post消息时候，可以查找然后执行。</p>
+<h2 id="注销"><a href="#注销" class="headerlink" title="注销"></a>注销</h2><p>就让我们来看下他取消注册的时候是怎么干的，来验证下我们前面的猜想把</p>
+<pre><code> public void unregisterReceiver(BroadcastReceiver receiver) {
+    synchronized (mReceivers) {
+        ArrayList&lt;IntentFilter&gt; filters = mReceivers.remove(receiver);
+        if (filters == null) {
+            return;
+        }
+        for (int i=0; i&lt;filters.size(); i++) {
+            IntentFilter filter = filters.get(i);
+            for (int j=0; j&lt;filter.countActions(); j++) {                     
+                String action = filter.getAction(j);
+                ArrayList&lt;ReceiverRecord&gt; receivers = mActions.get(action);
+                //这几句说明我们猜对了
+                if (receivers != null) {
+                    for (int k=0; k&lt;receivers.size(); k++) {
+                        if (receivers.get(k).receiver == receiver) {
+                            receivers.remove(k);
+                            k--;
+                        }
+                    }
+                    if (receivers.size() &lt;= 0) {
+                        mActions.remove(action);
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre><h2 id="发送广播消息"><a href="#发送广播消息" class="headerlink" title="发送广播消息"></a>发送广播消息</h2><p>为了方便阅读，把一些debug的内容给砍掉了，来让我们看下我们前面的猜想，以及消息是如何传递到目标Receiver吧</p>
+<pre><code> public boolean sendBroadcast(Intent intent) {
+    synchronized (mReceivers) {
+        final String action = intent.getAction();
+        final String type = intent.resolveTypeIfNeeded(
+                mAppContext.getContentResolver());
+        final Uri data = intent.getData();
+        final String scheme = intent.getScheme();
+        final Set&lt;String&gt; categories = intent.getCategories();
+        ...
+        ArrayList&lt;ReceiverRecord&gt; entries = mActions.get(intent.getAction());
+        if (entries != null) { 
+
+            ArrayList&lt;ReceiverRecord&gt; receivers = null;
+            for (int i=0; i&lt;entries.size(); i++) {
+                ReceiverRecord receiver = entries.get(i); 
+
+                if (receiver.broadcasting) { 
+                    continue;
+                }
+
+                int match = receiver.filter.match(action, type, scheme, data,
+                        categories, &quot;LocalBroadcastManager&quot;);
+                if (match &gt;= 0) {
+                    if (debug) Log.v(TAG, &quot;  Filter matched!  match=0x&quot; +
+                            Integer.toHexString(match));
+                    if (receivers == null) {
+                        receivers = new ArrayList&lt;ReceiverRecord&gt;();
+                    }
+                    receivers.add(receiver);
+                    receiver.broadcasting = true;
+                }  
+                     ...
+            }
+
+            if (receivers != null) {
+                for (int i=0; i&lt;receivers.size(); i++) {
+                    receivers.get(i).broadcasting = false;
+                }
+                mPendingBroadcasts.add(new BroadcastRecord(intent, receivers));
+                if (!mHandler.hasMessages(MSG_EXEC_PENDING_BROADCASTS)) {
+                    mHandler.sendEmptyMessage(MSG_EXEC_PENDING_BROADCASTS);
+                }
+                return true;
+            }
+        }
+    }
+    return false;
+}
+</code></pre><p>开头我们就看到，他取出Action对应的ReceiverRecord列表，遍历每个ReceiverRecord是否 匹配，是的话则保存到receivers中去，接着发送<code>MSG_EXEC_PENDING_BROADCASTS</code>消息，通过 Handler 去处理。<br>对于匹配，我们看到好长一行，<code>match(action, type, scheme, data,categories, &quot;LocalBroadcastManager&quot;)</code> ，对于匹配规则，估计对于一些人还是很模糊，欢迎百度查阅下。</p>
+<p>我们继续来看下这个消息对应的函数执行了什么</p>
+<pre><code>private void executePendingBroadcasts() {
+    while (true) {
+        BroadcastRecord[] brs = null;
+        synchronized (mReceivers) {
+            final int N = mPendingBroadcasts.size();
+            if (N &lt;= 0) {
+                return;
+            }
+            brs = new BroadcastRecord[N];
+            mPendingBroadcasts.toArray(brs);
+            mPendingBroadcasts.clear();
+        }
+        for (int i=0; i&lt;brs.length; i++) {
+            BroadcastRecord br = brs[i];
+            for (int j=0; j&lt;br.receivers.size(); j++) {
+                br.receivers.get(j).receiver.onReceive(mAppContext, br.intent);
+            }
+        }
+    }
+}
+</code></pre><p>我们看到他对mReceiver加了<code>synchronized</code>，防止后面还有人发送广播时候再修改它，导致bug。<br>最后再做遍历，去调用各个receive的onReceive方法。这样整个广播流程基本就跑完了</p>
+<p>另外他还提供了个同步的方法来发送广播，这个有意思。</p>
+<pre><code>* Like {@link #sendBroadcast(Intent)}, but if there are any receivers for
+* the Intent this function will block and immediately dispatch them before
+* returning.
+ public void sendBroadcastSync(Intent intent) {
+        if (sendBroadcast(intent)) {
+            executePendingBroadcasts();
+        }
+    }
+</code></pre><h2 id="一些观点"><a href="#一些观点" class="headerlink" title="一些观点:"></a>一些观点:</h2><p>对于这个本地广播LocalBroadcastManager，我们就有个大致的理解了，怎么说也把人家给看了遍了，<br>他的底层实现是基于Handler来做应用内的通信，自然安全性更好，相比与基于Binder的系统广播来说，效率更高。<br><strong>另外比较坑的是</strong>，<br><strong>另外比较坑的是</strong>，<br><strong>另外比较坑的是</strong>，<br>这个类要我们写的接收是<code>BroadcastReceiver</code>，但我们阅读完可以知道，完全没必要啊，自己定义一个接口都行啦 ，直接就是匹配然后就执行。这也很好解释他是没有优先级等概念的原因，这个就是”轻量级”的系统广播嘛。</p>
+<p>而且，像上面那也不是使用静态内部类的做法不是很好，虽然在这个上下文情况看是不会有大问题。<br>关于Handler的正确姿势，欢迎查看这篇文章<a href="http://blog.csdn.net/sanjay_f/article/details/50208847" target="_blank" rel="noopener">源码探索系列—Handler与HandlerLeak的那些事</a> </p>
+<h1 id="最后想说的"><a href="#最后想说的" class="headerlink" title="最后想说的"></a>最后想说的</h1><p>虽然比较了这么多，但实际想说的是，<code>本地广播</code>和<code>EventBus</code>其实对于很多人写的那项目来说是差不多，只是写起来啰嗦点，像我这种追求简洁和效率点的（其实就是懒），应该都会用EventBus，最少从我看的很多项目里面有看到他的影子，就这样^_^。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>不知道为啥，有个习惯就是有个后记，哈哈，虽然上面写的就是最后想说了。<br>想在还缺了EventBus的源码解析，虽然这库看了两次吧，不过也没记录过，因为网上分析这个太多而且写得太好了。虽然这个本地广播也有大把人写过，不过自己没看过，就顺便写在这里吧。<br>接下来有空再去看下系统广播是怎么实现，再 贴出来。</p>
+<p>参考来源：</p>
+<p><a href="http://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager.html" target="_blank" rel="noopener">LocalBroadcastManager</a></p>
+<p><a href="https://www.zhihu.com/question/33030182" target="_blank" rel="noopener">Android 应用内全局通知那种方案更好？观察者、eventbus、本地广播</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/LocalBroadCast/" rel="tag">#LocalBroadCast</a>
+          
+            <a href="/tags/Broadcast/" rel="tag">#Broadcast</a>
+          
+            <a href="/tags/EventBus/" rel="tag">#EventBus</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/18/源码探索系列7---四大金刚之Service/" rel="prev">源码探索系列7---四大金刚之Service</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/" rel="next">源码探索系列4---数据库ORM框架之Ormlite解析</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/"
+     data-title="源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/"
+                   data-title="源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析" data-url="http://yoursite.com/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-比较"><span class="nav-number">2.</span> <span class="nav-text">1. 比较</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LocalBroadcastManager-源码解析"><span class="nav-number">3.</span> <span class="nav-text">LocalBroadcastManager 源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#获取单例"><span class="nav-number">3.1.</span> <span class="nav-text">获取单例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注册广播"><span class="nav-number">3.2.</span> <span class="nav-text">注册广播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注销"><span class="nav-number">3.3.</span> <span class="nav-text">注销</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#发送广播消息"><span class="nav-number">3.4.</span> <span class="nav-text">发送广播消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些观点"><span class="nav-number">3.5.</span> <span class="nav-text">一些观点:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最后想说的"><span class="nav-number">4.</span> <span class="nav-text">最后想说的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

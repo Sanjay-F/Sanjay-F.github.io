@@ -1,0 +1,1104 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,DroidPlugin,AMS,AMN,service," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="今天我们来看下四大金刚之一的另外一个Sevice。他和Activity一样，也需要提前占坑，然后HOOK才可以使用。就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。">
+<meta name="keywords" content="android,源码,DroidPlugin,AMS,AMN,service">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列31---插件化基础之Service组件管理">
+<meta property="og:url" content="http://yoursite.com/2016/04/17/源码探索系列31---插件化基础之Service组件管理/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="今天我们来看下四大金刚之一的另外一个Sevice。他和Activity一样，也需要提前占坑，然后HOOK才可以使用。就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/service.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160417155107.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.722Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列31---插件化基础之Service组件管理">
+<meta name="twitter:description" content="今天我们来看下四大金刚之一的另外一个Sevice。他和Activity一样，也需要提前占坑，然后HOOK才可以使用。就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/service.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列31---插件化基础之Service组件管理 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列31---插件化基础之Service组件管理
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-17T17:27:46+08:00" content="2016-04-17">
+            2016-04-17
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/17/源码探索系列31---插件化基础之Service组件管理/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>今天我们来看下四大金刚之一的另外一个Sevice。<br>他和Activity一样，也需要提前占坑，然后HOOK才可以使用。<br>就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/service.png" alt="enter image description here"></p>
+<a id="more"></a>
+<p>#起航<br>API:23</p>
+<p>为了能够成功的HOOK，我们需要找下HOOK点。根据前面在<a href="http://sanjay-f.github.io/2015/12/18/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%977---%E5%9B%9B%E5%A4%A7%E9%87%91%E5%88%9A%E4%B9%8BService/" target="_blank" rel="noopener">源码探索系列7—四大金刚之Service</a>记录，我们了解一个大概的Service启动过程。很有意思的是，他的流程和启动Activity某种程度的神似。我们在这里把启动service过程做个小结，大致流程如下：</p>
+<p>当我们调用<code>context.StartService(serviceIntent)</code>后，他经过<code>AMS</code>和<code>AS</code>的一顿处理，最后在AS的<code>realStartServiceLocked（）</code>里面会去调用了<code>ActivityThread</code>的<code>scheduleCreateService()</code>函数 </p>
+<pre><code>public final void scheduleCreateService(IBinder token,
+        ServiceInfo info, CompatibilityInfo compatInfo, int processState) {
+    updateProcessState(processState, false);
+    CreateServiceData s = new CreateServiceData();
+    s.token = token;
+    s.info = info;
+    s.compatInfo = compatInfo;
+
+    sendMessage(H.CREATE_SERVICE, s);
+}
+</code></pre><p>这个函数有重要的参数就是<code>CreateServiceData</code>，我们创建service的信息在他里面。这个函数会发送一个<code>H.CREATE_SERVICE</code>消息给我们的Handle，由他去执行后面的创建工作，内容如下 </p>
+<pre><code>private void handleCreateService(CreateServiceData data) { 
+
+    LoadedApk packageInfo = getPackageInfoNoCheck(
+            data.info.applicationInfo, data.compatInfo);
+    Service service = null;
+
+    java.lang.ClassLoader cl = packageInfo.getClassLoader();
+    //创建我们的service！
+    service = (Service) cl.loadClass(data.info.name).newInstance();
+
+    ContextImpl context = ContextImpl.createAppContext(this, packageInfo);
+    context.setOuterContext(service);
+
+    Application app = packageInfo.makeApplication(false, mInstrumentation);
+    service.attach(context, this, data.info.name, data.token, app,
+             ActivityManagerNative.getDefault());
+
+        service.onCreate();//oncreate函数，onStartCommand()在别的地方
+    mServices.put(data.token, service);
+
+    ActivityManagerNative.getDefault().serviceDoneExecuting(
+               data.token, SERVICE_DONE_EXECUTING_ANON, 0, 0);    
+
+}
+</code></pre><p>和我们的Activity有些类似，一个<code>LoadedApk</code>参数，另外用<code>token</code>标记特定的<code>service</code>，放在<code>mServices</code>里面缓存起来。不过有点不一样的是，如果我们直接启动没在AndroidManifese里面注册的service，系统是不会崩溃报错的。</p>
+<p><strong>重要：</strong><br>根据上面的内容，我们HOOK的一个点就是要确保最后的<code>data.info.name</code> 变量是我们的目标<code>service</code>！</p>
+<p>在<code>AS</code>调用完上面的函数后，他会继续调用<code>sendServiceArgsLocked(r, execInFg, true);</code> 函数，这函数会调用<code>ActivityThread</code>的内部类<code>ApplicationThread</code>的 <code>scheduleServiceArgs()</code>函数，发送一条<code>SERVICE_ARGS</code>消息给我们的handle，最后由他来调用我们的service的<code>onStartCommand()</code>函数，把参数发回来。</p>
+<pre><code>public final void scheduleServiceArgs(IBinder token, boolean taskRemoved, 
+                                    int startId,int flags ,Intent args) {
+
+        ServiceArgsData s = new ServiceArgsData();
+        s.token = token;
+        s.taskRemoved = taskRemoved;
+        s.startId = startId;
+        s.flags = flags;
+        s.args = args;
+
+        sendMessage(H.SERVICE_ARGS, s);
+    }
+
+
+private void handleServiceArgs(ServiceArgsData data) {
+
+    Service s = mServices.get(data.token);
+    if (s != null) {
+
+        if (data.args != null) {
+            data.args.setExtrasClassLoader(s.getClassLoader());
+            data.args.prepareToEnterProcess();
+        }
+        int res;
+        if (!data.taskRemoved) {
+            res = s.onStartCommand(data.args, data.flags, data.startId);
+        } else {
+            s.onTaskRemoved(data.args);
+            res = Service.START_TASK_REMOVED_COMPLETE;
+        }
+        ...
+   }
+}
+</code></pre><p>（题外话，不知道你有没注意到一点，不少变量都是只有一个字母，例如上面的<code>“S&quot;</code>，很好奇为何这么做。这名字起得让人觉得很不舒服，如果你去细看ActivityService的代码，里面不少变量也是只有一个字母，估计都是同一个人写的这部分代码）</p>
+<p>这样我们算是快速的温习了一边service的启动过程，在看这个过程，我们已经目色到可以使用的HOOK点了.和我们的Activity类似的，在送去AMS前我们要掉包，接着在回调去创建service时候，需要再处理一下。<br>也那就是AMS和handle的mCallback组合。</p>
+<h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>根据前面的简单分析，这样我们可以些出这样的最原始的模板代码。<br>假设我们有两个Service，一个<code>ProxyService</code>和<code>TargetService</code>，而且我们只在AndroidManifeset注册了ProxyService;</p>
+<pre><code>&lt;service android:name=&quot;.ProxyService&quot; /&gt;
+</code></pre><p>接着在我们的MainActivty里面，我们去启动我们的TargetService。</p>
+<pre><code>public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        getApplicationContext().startService(new Intent(this, TargetService.class));
+    }
+
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        HookFactory.hookActivityThreadHandle();
+        HookFactory.hookActivityManagerNative();         
+    }
+}
+</code></pre><p>然后HOOK得内容我们都很熟悉了，和前面的Activity类似的。</p>
+<pre><code>public static void hookActivityThreadHandle() {
+
+
+    Class&lt;?&gt; activityThreadClass = null;
+    try {
+        activityThreadClass = Class.forName(&quot;android.app.ActivityThread&quot;);
+
+        Field currentActivityThreadField = activityThreadClass.getDeclaredField(
+                &quot;sCurrentActivityThread&quot;);
+        currentActivityThreadField.setAccessible(true);
+        Object currentActivityThread = currentActivityThreadField.get(null);
+
+        //拿我们的H先生
+        Field mHField = activityThreadClass.getDeclaredField(&quot;mH&quot;);
+        mHField.setAccessible(true);
+        Handler mH = (Handler) mHField.get(currentActivityThread);
+
+        Field mCallBackField = Handler.class.getDeclaredField(&quot;mCallback&quot;);
+        mCallBackField.setAccessible(true);
+        //修改它的callback为我们的,从而HOOK掉
+        mCallBackField.set(mH, new ActivityThreadHandlerCallback(mH));
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+
+public static void hookActivityManagerNative() {
+
+    Class&lt;?&gt; activityManagerNativeClass = null;
+    try {
+        activityManagerNativeClass = Class.forName(
+                    &quot;android.app.ActivityManagerNative&quot;);
+
+
+        Field gDefaultField = activityManagerNativeClass.getDeclaredField(
+                                                        &quot;gDefault&quot;);
+        gDefaultField.setAccessible(true);
+
+        Object gDefault = gDefaultField.get(null); 
+        Class&lt;?&gt; singleton = Class.forName(&quot;android.util.Singleton&quot;);
+        Field mInstanceField = singleton.getDeclaredField(&quot;mInstance&quot;);
+        mInstanceField.setAccessible(true); 
+
+        Object rawIActivityManager = mInstanceField.get(gDefault);             
+        Class&lt;?&gt; iActivityManagerInterface = Class.forName(
+                            &quot;android.app.IActivityManager&quot;);
+        Object proxy = Proxy.newProxyInstance(
+                Thread.currentThread().getContextClassLoader(),
+                new Class&lt;?&gt;[]{iActivityManagerInterface}, 
+                new IActivityManagerHook(rawIActivityManager));
+
+        mInstanceField.set(gDefault, proxy);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>接着我们看下IActivityManagerHook 里面的invoke内容</p>
+<pre><code>@Override
+public Object invoke(Object proxy, Method method, Object[] args)
+        throws Throwable {
+
+    Log.e(TAG, &quot;invoke() called with: &quot; + &quot;proxy = [&quot; + &quot; &quot; + method.getName());
+
+    if (method.getName().equals(&quot;startService&quot;)) { 
+        for (int i = 0; i &lt; args.length; i++) {
+            if (args[i] instanceof Intent) {
+                Intent ourFakeIntent = new Intent();
+                ComponentName componentName = new ComponentName(
+                        &quot;com.example.sanjay.demohook&quot;,
+                        ProxyService.class.getName());//替换                     
+                ourFakeIntent.setComponent(componentName);
+                ourFakeIntent.putExtra(EXTRA_ORIGINAL_INTENT,
+                        (Intent) args[i]);//保存真的intent
+                args[i] = ourFakeIntent;
+                break;
+            }
+        }
+        return method.invoke(originalObject, args);
+    }
+}
+</code></pre><p>主要就是替换成我们的proxyService<br>然后我们来看下那个ActivityThreadHandlerCallback里面的handleMessage内容:</p>
+<pre><code>@Override
+public boolean handleMessage(Message msg) { 
+    switch (msg.what) {             
+        case CREATE_SERVICE: {
+            Object obj = msg.obj;
+            try { 
+                Field serviceInfo= obj.getClass().getDeclaredField(&quot;info&quot;);
+                serviceInfo.setAccessible(true);
+                ServiceInfo info= (ServiceInfo) serviceInfo.get(obj);
+                info.name=&quot;com.example.sanjay.demohook.TargetService&quot;;
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, &quot;handleMessage() called with: error=&quot; +e.getMessage());
+            }
+        } 
+        break;
+    } 
+    mOriginalHandle.handleMessage(msg);
+    return true;
+}
+</code></pre><p>好了，这样基本就写好了。<br>需要注意的是，这里采用直接硬编码的方式，把info.name直接换成了我们的targetService，而不是像启动<br>Activity那样的，采用intent去换，是因为系统传到这里的参数是不一样的。只有到了<code>handleServiceArgs</code>时候，系统才会传Intent过来。所以可能我们需要配置下对应的ProxyService和TargetService之间的对应关系。这里为了说明方便，就直接这么做使用了。</p>
+<p>最后是我们的service</p>
+<pre><code>public class TargetService extends Service {
+    private static final String TAG = TargetService.class.getSimpleName();
+
+    public TargetService() {
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.e(TAG, &quot;ok ,now is onCreate: &quot;);
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        throw new UnsupportedOperationException(&quot;Not yet implemented&quot;);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e(TAG, &quot; congratulation --onStartCommand success &quot;);
+        return super.onStartCommand(intent, flags, startId);
+    }
+}
+</code></pre><p>让我们来启动一下看看！</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160417155107.jpg" alt="enter image description here"></p>
+<p>根据打印的内容，我们想我们基本是成功了！</p>
+<p>但这和前面在介绍关于Activity的启动一样，目前我们的<code>TargetService</code>还是在已知包内的。如果我们想启动插件包里面的service，还需要做些额外的工作。例如那个LoadedApk变量等等。</p>
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>目前我们hook方案很”原生态“，DroidPlugin原本也是这样的方案，不过我们看到他把相关的代码都注释了，看来用了另外一种解决方案来处理这个问题，那么它是怎么处理这问题的。下次继续写，今天的就到这里吧</p>
+<h1 id="DroidPlugin的方案"><a href="#DroidPlugin的方案" class="headerlink" title="DroidPlugin的方案"></a>DroidPlugin的方案</h1><p>目前我们在<code>IActivityManagerHookHandle</code>看到，它会在发送去AMS前对<code>Intent</code>做些处理做些。如下</p>
+<pre><code> private static class startService extends ReplaceCallingPackageHookedMethodHandler{
+
+    public startService(Context hostContext) {
+        super(hostContext);
+    }
+    private ServiceInfo info = null;
+
+    @Override
+    protected boolean beforeInvoke(Object receiver, Method method, Object[] args){                 
+        info = replaceFirstServiceIntentOfArgs(args);
+        return super.beforeInvoke(receiver, method, args);
+    }
+
+    @Override
+    protected void afterInvoke(Object receiver, Method method, Object[] args,
+     Object invokeResult) {
+
+        if (invokeResult instanceof ComponentName) {
+            if (info != null) {
+               //让startService函数返回这个构造的假结果
+                setFakedResult(new ComponentName(info.packageName, info.name));
+            }
+        }
+        info = null;
+        super.afterInvoke(receiver, method, args, invokeResult);
+    }
+}
+</code></pre><p>看下<code>replaceFirstServiceIntentOfArgs</code>，主要是替换传过来的Intent内容：</p>
+<pre><code>private static ServiceInfo replaceFirstServiceIntentOfArgs(Object[] args){
+
+    int intentOfArgIndex = findFirstIntentIndexInArgs(args);
+    if (args != null &amp;&amp; args.length &gt; 1 &amp;&amp; intentOfArgIndex &gt;= 0) {
+
+        Intent intent = (Intent) args[intentOfArgIndex];
+        ServiceInfo serviceInfo = resolveService(intent);
+
+        if (serviceInfo != null &amp;&amp; isPackagePlugin(serviceInfo.packageName)) {
+            ServiceInfo proxyService = selectProxyService(intent);
+            if (proxyService != null) {
+                Intent newIntent = new Intent();
+                //FIXBUG：https://github.com/Qihoo360/DroidPlugin/issues/122
+                //如果插件中有两个Service：ServiceA和ServiceB，在bind ServiceA的时候会调用
+                //ServiceA的onBind并返回其IBinder对象，但是再次bind ServiceA的时候还是会返
+                //回ServiceA的IBinder对象，这是因为插件系统对多个Service使用了同一个
+                //StubService来代理，而系统对StubService的IBinder做了缓存的问题。
+                //这里设置一个Action则会穿透这种缓存。                    
+                newIntent.setAction(proxyService.name + new Random().nextInt());
+
+                //作者这也是绝啊，弄个随机数来凑action
+
+                newIntent.setClassName(proxyService.packageName, proxyService.name);
+                newIntent.putExtra(Env.EXTRA_TARGET_INTENT, intent);
+                newIntent.setFlags(intent.getFlags());
+                args[intentOfArgIndex] = newIntent;
+                return serviceInfo;
+            }
+        }
+    }
+    return null;
+}
+</code></pre><p>这个和我们的Activity类似，需要替换下<code>Intent</code>内容。<code>resolveService</code>背后会去查看下是否对应的插件有匹配的Service，整条过程还是挺长的。</p>
+<hr>
+<p>在发送出这个消息后，我们要看的当然就是之后的启动过程啦，是吧？看下背后是怎么启动我们的目标Service。这个工作我们在<code>ServiceStub</code>的父类<code>AbstarctServiceStub</code>我们看到一些线索。</p>
+<pre><code>@Override
+public void onStart(Intent intent, int startId) {
+
+    if (intent != null) {
+        if (intent.getBooleanExtra(&quot;ActionKillSelf&quot;, false)) {
+            startKillSelf();
+            if (!ServcesManager.getDefault().hasServiceRunning()) {
+                stopSelf(startId);
+                boolean stopService = getApplication().stopService(intent);
+             } 
+        } else {
+            mCreator.onStart(this, intent, 0, startId);// &lt;--这句
+        }
+    } 
+    super.onStart(intent, startId);
+}
+</code></pre><p>我们在前面的分析文章有提到过，当发送的<code>intent</code>走一轮，回调到<br><code>ActivityThread</code>的<code>handleCreateService</code> 时候，发送过来的参数类型是<br><code>CreateServiceData</code>的，里面是没包含我们一开始发送出去的<code>intent</code>的，所以导致我们不能在这个环节做掉包工作，把原来的ProxyService换成我们的目标TargetService，为了能做到掉包工作，我们可能需要做些别的额外的工作，例如弄一个缓存代理service和目标Service的关系等。<br>但在这里的就换了种做法，在走到代理Service的<code>onStart()</code>函数再去做启动工作。 </p>
+<p>我们到mCreator.onStart里面看下内容</p>
+<pre><code>public int onStart(Context context, Intent intent, int flags, int startId){
+
+    Intent targetIntent = intent.getParcelableExtra(Env.EXTRA_TARGET_INTENT);
+    if (targetIntent != null) {
+        ServiceInfo targetInfo = PluginManager.getInstance().
+                                   resolveServiceInfo(targetIntent, 0);
+        if (targetInfo != null) {
+            Service service = mNameService.get(targetInfo.name);
+            if (service == null) {
+                handleCreateServiceOne(context, intent, targetInfo);
+            }
+            handleOnStartOne(targetIntent, flags, startId);
+        }
+    }
+    return -1;
+}
+</code></pre><p>这里取出了我们的目标intent的内容，然后如果这service没创建过，那么缓存的mNameService就没记录，那么用<code>handleCreateServiceOne</code>去创建一个。我们继续看下内容</p>
+<pre><code>//这个需要适配,目前只是适配android api 21
+private void handleCreateServiceOne(Context hostContext, Intent stubIntent, 
+ServiceInfo info) {
+     //作者的注视，表示下面代码的意思。
+    //            CreateServiceData data = new CreateServiceData();
+    //            data.token = fakeToken;// IBinder
+    //            data.info =; //ServiceInfo
+    //            data.compatInfo =; //CompatibilityInfo
+    //            data.intent =; //Intent
+    //            activityThread.handleCreateServiceOne(data);
+    //            service = activityThread.mTokenServices.get(fakeToken);
+    //            activityThread.mTokenServices.remove(fakeToken);
+
+    ResolveInfo resolveInfo = hostContext.getPackageManager().
+                                          resolveService(stubIntent, 0);
+
+    ServiceInfo stubInfo = resolveInfo != null ? resolveInfo.serviceInfo : null;
+    PluginManager.getInstance().reportMyProcessName(stubInfo.processName, 
+                                                  info.processName, 
+                                                   info.packageName);
+
+    PluginProcessManager.preLoadApk(hostContext, info);
+    Object activityThread = ActivityThreadCompat.currentActivityThread();
+
+    IBinder fakeToken = new MyFakeIBinder();
+    Class CreateServiceData = Class.forName(
+                            ActivityThreadCompat.activityThreadClass().getName()+
+                             &quot;$CreateServiceData&quot;);
+
+    Constructor init = CreateServiceData.getDeclaredConstructor();
+    if (!init.isAccessible()) {
+        init.setAccessible(true);
+    }
+    Object data = init.newInstance();
+    // 自己构造一个CreateServiceData对象
+    FieldUtils.writeField(data, &quot;token&quot;, fakeToken);
+    FieldUtils.writeField(data, &quot;info&quot;, info);
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.HONEYCOMB) {
+        FieldUtils.writeField(data, &quot;compatInfo&quot;, 
+                              CompatibilityInfoCompat.DEFAULT_COMPATIBILITY_INFO());
+    }
+
+    //然后按流程的调用handleCreateService去创建Service
+    //配套的LoadedApk变量已在前面的PluginProcessManager.preLoadApk(hostContext, info)
+    //生成了    
+
+    Method method = activityThread.getClass().getDeclaredMethod(
+                                    &quot;handleCreateService&quot;, 
+                                    CreateServiceData);
+    if (!method.isAccessible()) {
+        method.setAccessible(true);
+    }
+    method.invoke(activityThread, data);
+
+    Object mService = FieldUtils.readField(activityThread, &quot;mServices&quot;);
+    Service service = (Service) MethodUtils.invokeMethod(mService, &quot;get&quot;, 
+                                                        fakeToken);
+
+     //把AT中缓存的给清掉了，这样它就不知道这个存在了,为何要这么做呢？
+    MethodUtils.invokeMethod(mService, &quot;remove&quot;, fakeToken);         
+   //然后交由自己的ServiceManage的这个变量管理，在onDestory等函数会用到       
+    mTokenServices.put(fakeToken, service);
+    mNameService.put(info.name, service);
+
+    if (stubInfo != null) { 
+       PluginManager.getInstance().onServiceCreated(stubInfo, info);
+    }
+}
+</code></pre><p>我们看到很有趣的事情，就是他不是去拦截<code>mCallback</code>，而是在代理service启动之后，再去实际启动插件的<br>Service，和我们预期的启动Activity的流程有些不一样的地方！</p>
+<h1 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h1><p>DroidPlugin在解决启动Service方面，采用的是一对多的方案。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/DroidPlugin/" rel="tag">#DroidPlugin</a>
+          
+            <a href="/tags/AMS/" rel="tag">#AMS</a>
+          
+            <a href="/tags/AMN/" rel="tag">#AMN</a>
+          
+            <a href="/tags/service/" rel="tag">#service</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/21/源码探索系列32---万物初生/" rel="prev">源码探索系列32---万物初生System Servers</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" rel="next">源码探索系列30---插件包PackageManagerService/PMS</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/17/源码探索系列31---插件化基础之Service组件管理/"
+     data-title="源码探索系列31---插件化基础之Service组件管理"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/17/源码探索系列31---插件化基础之Service组件管理/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/17/源码探索系列31---插件化基础之Service组件管理/"
+                   data-title="源码探索系列31---插件化基础之Service组件管理" data-url="http://yoursite.com/2016/04/17/源码探索系列31---插件化基础之Service组件管理/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">1.</span> <span class="nav-text">前进</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DroidPlugin的方案"><span class="nav-number">3.</span> <span class="nav-text">DroidPlugin的方案</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结-1"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

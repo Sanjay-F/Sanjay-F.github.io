@@ -1,0 +1,1243 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,SystemServers,Zygote," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？今天我们先来看下整个过程重要的一个环节SystemServer的内容">
+<meta name="keywords" content="android,源码,SystemServers,Zygote">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列32---万物初生System Servers">
+<meta property="og:url" content="http://yoursite.com/2016/04/21/源码探索系列32---万物初生/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？今天我们先来看下整个过程重要的一个环节SystemServer的内容">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/32_android_boot.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/32_419WCKFCYEL._SY344_BO1,204,203,200_.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.723Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列32---万物初生System Servers">
+<meta name="twitter:description" content="不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？今天我们先来看下整个过程重要的一个环节SystemServer的内容">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/32_android_boot.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列32---万物初生System Servers | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列32---万物初生System Servers
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-21T00:54:46+08:00" content="2016-04-21">
+            2016-04-21
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/21/源码探索系列32---万物初生/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/21/源码探索系列32---万物初生/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？<br>今天我们先来看下整个过程重要的一个环节SystemServer的内容<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/32_android_boot.png" alt="enter image description here"></p>
+<a id="more"></a>
+<p>如图所示，在系统启动好，到了第4步的时候<br><strong>首先，</strong><code>Zygote</code>进程由<code>init</code>进程解析<code>init.rc</code>文件后fork生成。(Zygote进程主要为加载<code>ZygoteInit</code>类、注册<code>Zygote Socket</code>服务端套接字、加载虚拟机、preloadClasses、preloadResouces等)，<br><strong>然后</strong>，<code>Zygote</code>进程<code>fork</code>出<code>System Server</code>进程。<code>System Server</code>进程很重要，负责启动和管理整个<code>Framework</code>内容，包括<code>ActivityManager</code>，<code>PowerManager</code>等服务。<br><strong>接着，</strong> 在孵化出上面的<code>SystemServer</code> 后，孵化出的第一个App进程是<code>Launcher</code>，就是我们的桌面； 除此之外，它还会创建各种系统App,例如电话phone，信息Message等程序。</p>
+<hr>
+<p>上面作为整个流程的大致介绍，现在我们就来看下SystemServer的内容吧！</p>
+<h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>API:23</p>
+<p>让我们先从他的启动开始说起吧，在<code>ZygoteInit</code>里面</p>
+<pre><code>public static void main(String argv[]) {
+
+  RuntimeInit.enableDdms();//启动DDMS，这个名字熟悉吧？
+  boolean startSystemServer = false;
+   String socketName = &quot;zygote&quot;;
+
+    String abiList = null;
+    for (int i = 1; i &lt; argv.length; i++) {
+        if (&quot;start-system-server&quot;.equals(argv[i])) {
+            startSystemServer = true;
+        } 
+        ...
+    }  
+    ...
+    if (startSystemServer) {
+        startSystemServer(abiList, socketName);
+    }  
+}
+</code></pre><p>这是启动SystemServer的起点</p>
+<pre><code> private static boolean startSystemServer(String abiList, String socketName)
+        throws MethodAndArgsCaller, RuntimeException {
+
+    long capabilities = posixCapabilitiesAsBits(
+        OsConstants.CAP_BLOCK_SUSPEND,
+        OsConstants.CAP_KILL,
+        OsConstants.CAP_NET_ADMIN,
+        OsConstants.CAP_NET_BIND_SERVICE,
+        OsConstants.CAP_NET_BROADCAST,
+        OsConstants.CAP_NET_RAW,
+        OsConstants.CAP_SYS_MODULE,
+        OsConstants.CAP_SYS_NICE,
+        OsConstants.CAP_SYS_RESOURCE,
+        OsConstants.CAP_SYS_TIME,
+        OsConstants.CAP_SYS_TTY_CONFIG
+    );
+
+    /* Hardcoded command line to start the system server */
+    String args[] = {&quot;--setuid=1000&quot;,&quot;--setgid=1000&quot;,
+      &quot;--setgroups=1001,1002,1003,1004,1005,1006,1007,1008,
+       1009,1010,1018,1021,1032,3001,3002,3003,3006,3007&quot;,        
+        &quot;--capabilities=&quot; + capabilities + &quot;,&quot; + capabilities,
+        &quot;--nice-name=system_server&quot;,
+        &quot;--runtime-args&quot;,
+        &quot;com.android.server.SystemServer&quot;, //&lt;--重要参数
+        //非常的显示的说到这个类是要被用到的。
+    };
+
+    ZygoteConnection.Arguments parsedArgs = null;
+
+
+    int pid;  
+    parsedArgs = new ZygoteConnection.Arguments(args);
+    ZygoteConnection.applyDebuggerSystemProperty(parsedArgs);
+    ZygoteConnection.applyInvokeWithSystemProperty(parsedArgs);
+
+    /* Request to fork the system server process */
+    pid = Zygote.forkSystemServer(
+            parsedArgs.uid, parsedArgs.gid,
+            parsedArgs.gids,
+            parsedArgs.debugFlags,
+            null,
+            parsedArgs.permittedCapabilities,
+            parsedArgs.effectiveCapabilities);                
+    //孵出子进程system_server
+
+    if (pid == 0) {
+        if (hasSecondZygote(abiList)) {
+            waitForSecondaryZygote(socketName);
+        }
+        //Finish remaining work for the newly forked system 
+        //server process.//我们的主线2
+        handleSystemServerProcess(parsedArgs);
+    }
+    return true;
+
+}
+</code></pre><p>我们看下叫Zygote类的内容</p>
+<pre><code> public static int forkSystemServer(int uid, int gid, int[] gids, int debugFlags,
+        int[][] rlimits, long permittedCapabilities, long effectiveCapabilities) {
+
+    VM_HOOKS.preFork();
+    int pid = nativeForkSystemServer(
+            uid, gid, gids, debugFlags, rlimits, permittedCapabilities, effectiveCapabilities);
+    // Enable tracing as soon as we enter the system_server.
+    if (pid == 0) {
+        Trace.setTracingEnabled(true);
+    }
+    VM_HOOKS.postForkCommon();
+    return pid;
+
+}
+</code></pre><p>通过native层去fork我们的SystemServer。那么他的native最后跑到哪里去呢？<br>看<code>frameworks/base/core/jni/com_android_internal_os_Zygote.cpp</code>内容</p>
+<pre><code>static jint com_android_internal_os_Zygote_nativeForkSystemServer(
+    JNIEnv* env, jclass, uid_t uid, gid_t gid, jintArray gids,
+    jint debug_flags, jobjectArray rlimits, jlong permittedCapabilities,
+    jlong effectiveCapabilities) {
+
+  pid_t pid = ForkAndSpecializeCommon(env, uid, gid, gids,
+                                          debug_flags, rlimits,
+                                          permittedCapabilities, 
+                                          effectiveCapabilities,
+                                          MOUNT_EXTERNAL_DEFAULT, NULL, NULL, true, 
+                                          NULL,NULL, NULL);
+        ...
+      return pid;
+}
+</code></pre><p>嗯，跳去另外一个</p>
+<pre><code>static pid_t ForkAndSpecializeCommon(JNIEnv* env, uid_t uid, gid_t gid, jintArray 
+    javaGids,jint debug_flags, jobjectArray javaRlimits,jlong permittedCapabilities, 
+    jlong effectiveCapabilities,jint mount_external,jstring java_se_info, 
+    jstring java_se_name,bool is_system_server, jintArray fdsToClose,
+    jstring instructionSet, jstring dataDir) {
+
+      SetSigChldHandler();
+      //fork子进程
+      pid_t pid = fork();
+
+    if (pid == 0) {
+
+      ...
+
+      env-&gt;CallStaticVoidMethod(gZygoteClass, gCallPostForkChildHooks, debug_flags,
+                              is_system_server ? NULL : instructionSet);
+      ...                       
+    } else if (pid &gt; 0) {
+        // the parent process
+    }
+
+    return pid;
+}
+
+int register_com_android_internal_os_Zygote(JNIEnv* env) {
+
+  gZygoteClass = MakeGlobalRefOrDie(env, FindClassOrDie(env, kZygoteClassName));
+  gCallPostForkChildHooks = GetStaticMethodIDOrDie(env, gZygoteClass, 
+  &quot;callPostForkChildHooks&quot;,&quot;(ILjava/lang/String;)V&quot;);
+
+  return RegisterMethodsOrDie(env, &quot;com/android/internal/os/Zygote&quot;, gMethods, 
+                              NELEM(gMethods));
+}                                
+</code></pre><p>主要是创建工作，我们回头看下主线2<code>handleSystemServerProcess()</code>的内容  </p>
+<pre><code>/**
+ * Finish remaining work for the newly forked system server process.
+ */
+private static void handleSystemServerProcess( ZygoteConnection.Arguments parsedArgs){
+
+       ...
+
+        if (parsedArgs.invokeWith != null) {
+            String[] args = parsedArgs.remainingArgs;
+            // If we have a non-null system server class path,  we&apos;ll have to 
+            //duplicate the existing arguments and append the classpath to it. 
+            //ART will handle the classpath correctly when we exec a new process.
+
+            if (systemServerClasspath != null) {
+                String[] amendedArgs = new String[args.length + 2];
+                amendedArgs[0] = &quot;-cp&quot;;
+                amendedArgs[1] = systemServerClasspath;
+                System.arraycopy(parsedArgs.remainingArgs, 0, amendedArgs, 2, 
+                                    parsedArgs.remainingArgs.length);
+            }
+          //创建出应用进程！
+            WrapperInit.execApplication(parsedArgs.invokeWith,
+                    parsedArgs.niceName, parsedArgs.targetSdkVersion,
+                    VMRuntime.getCurrentInstructionSet(), null, args);
+
+        } else {
+            ClassLoader cl = null;
+            if (systemServerClasspath != null) {
+                cl = new PathClassLoader(systemServerClasspath, 
+                ClassLoader.getSystemClassLoader());
+
+                Thread.currentThread().setContextClassLoader(cl);
+            } 
+
+             // Pass the remaining arguments to SystemServer.                  
+            RuntimeInit.zygoteInit(parsedArgs.targetSdkVersion, 
+                                            parsedArgs.remainingArgs, cl);
+
+        }     
+
+    }
+
+没什么好说的，继续看下RuntimeInit.zygoteInit()的内容
+
+public static final void zygoteInit(int targetSdkVersion, String[] argv, ClassLoader classLoader){ 
+
+      ...
+    commonInit();//一些初始化工作
+    nativeZygoteInit(); //跳来跳去...看得好累..zygote初始化
+    applicationInit(targetSdkVersion, argv, classLoader);       
+}
+
+private static final void commonInit() {
+    if (DEBUG) Slog.d(TAG, &quot;Entered RuntimeInit!&quot;);
+
+    /* set default handler; this applies to all threads in the VM */
+    Thread.setDefaultUncaughtExceptionHandler(new UncaughtHandler());
+
+    /*
+     * Install a TimezoneGetter subclass for ZoneInfo.db
+     */
+    TimezoneGetter.setInstance(new TimezoneGetter() {
+        @Override
+        public String getId() {
+           //哈，获取时区居然是硬编码在这里
+            return SystemProperties.get(&quot;persist.sys.timezone&quot;);
+        }
+    });
+    TimeZone.setDefault(null);
+
+    /*
+     * Sets handler for java.util.logging to use Android log facilities.
+     * The odd &quot;new instance-and-then-throw-away&quot; is a mirror of how
+     * the &quot;java.util.logging.config.class&quot; system property works. We
+     * can&apos;t use the system property here since the logger has almost
+     * certainly already been initialized.
+     */
+    LogManager.getLogManager().reset();
+    new AndroidConfig();
+
+    /*
+     * Sets the default HTTP User-Agent used by HttpURLConnection.
+     * 
+     * getDefaultUserAgent() Returns an HTTP user agent of the form
+     * &quot;Dalvik/1.1.0 (Linux; U; Android Eclair Build/MASTER)&quot;. 
+     */         
+    String userAgent = getDefaultUserAgent();
+    System.setProperty(&quot;http.agent&quot;, userAgent);
+
+    /*
+     * Wire socket tagging to traffic stats.
+     */
+    NetworkManagementSocketTagger.install();
+
+    /*
+     * If we&apos;re running in an emulator launched with &quot;-trace&quot;, put the
+     * VM into emulator trace profiling mode so that the user can hit
+     * F9/F10 at any time to capture traces.  This has performance
+     * consequences, so it&apos;s not something you want to do always.
+     */
+    String trace = SystemProperties.get(&quot;ro.kernel.android.tracing&quot;);
+    if (trace.equals(&quot;1&quot;)) {
+        Slog.i(TAG, &quot;NOTE: emulator trace profiling enabled&quot;);
+        Debug.enableEmulatorTraceOutput();
+    }
+
+    initialized = true;
+}
+</code></pre><p> 我们的曙光终于来了</p>
+<pre><code>private static void applicationInit(int targetSdkVersion, String[] argv, ClassLoader classLoader)
+        throws ZygoteInit.MethodAndArgsCaller {
+
+    // If the application calls System.exit(), terminate the process
+    // immediately without running any shutdown hooks.  It is not possible to
+    // shutdown an Android application gracefully.  Among other things, the
+    // Android runtime shutdown hooks close the Binder driver, which can cause
+    // leftover running threads to crash before the process actually exits.
+    nativeSetExitWithoutCleanup(true);
+
+    // We want to be fairly aggressive about heap utilization, to avoid
+    // holding on to a lot of memory that isn&apos;t needed.
+    VMRuntime.getRuntime().setTargetHeapUtilization(0.75f);
+    VMRuntime.getRuntime().setTargetSdkVersion(targetSdkVersion);
+
+    final Arguments args;
+    try {
+        args = new Arguments(argv);
+    } catch (IllegalArgumentException ex) {
+        Slog.e(TAG, ex.getMessage());
+        // let the process exit
+        return;
+    }
+
+    // The end of of the RuntimeInit event (see #zygoteInit).
+    Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+
+    // Remaining arguments are passed to the start class&apos;s static main
+    invokeStaticMain(args.startClass, args.startArgs, classLoader);
+    //最后这句是线索. 
+}
+</code></pre><h2 id="invokeStaticMain"><a href="#invokeStaticMain" class="headerlink" title="invokeStaticMain()"></a>invokeStaticMain()</h2><pre><code>private static void invokeStaticMain(String className, String[] argv,
+                                     ClassLoader classLoader){
+
+     //在startSystemServer()的硬编码初始化参数列表中，我有提到过一次总要参数
+    //显然此处args.startClass就是&quot;com.android.server.SystemServer&quot;啦！
+
+    Class&lt;?&gt; cl= Class.forName(className, true, classLoader);
+    Method m= cl.getMethod(&quot;main&quot;, new Class[] { String[].class });
+    ...
+
+    /*
+     * This throw gets caught in ZygoteInit.main(), which responds
+     * by invoking the exception&apos;s run() method. This arrangement
+     * clears up all the stack frames that were required in setting
+     * up the process.
+     * 这原因可以！以抛异常来搞，不看注释我也奇怪为了结尾怎么是这样
+     */
+        throw new ZygoteInit.MethodAndArgsCaller(m, argv);
+}
+</code></pre><p>  这样我们来看下main函数的内容</p>
+<pre><code>public static void main(String argv[]) {
+
+     try{
+            RuntimeInit.enableDdms();
+              // Start profiling the zygote initialization.
+              SamplingProfilerIntegration.start();
+            ...
+
+            boolean startSystemServer = false;
+            String socketName = &quot;zygote&quot;;
+            String abiList = null;
+            for (int i = 1; i &lt; argv.length; i++) {
+                if (&quot;start-system-server&quot;.equals(argv[i])) {
+                    startSystemServer = true;
+                } else if (argv[i].startsWith(ABI_LIST_ARG)) {
+                    abiList = argv[i].substring(ABI_LIST_ARG.length());
+                } 
+                ...
+            }
+            ...
+
+
+            //终于！！！！！！！！！！！
+            if (startSystemServer) {
+               startSystemServer(abiList, socketName);
+             }
+
+    } catch (MethodAndArgsCaller caller) {
+            caller.run(); //重要的一句！！！！
+        } catch (RuntimeException ex) {
+            Log.e(TAG, &quot;Zygote died with exception&quot;, ex);
+            closeServerSocket();
+            throw ex;
+        }
+     ...
+
+}
+</code></pre><p>我们去看下run的内容：</p>
+<pre><code>public static class MethodAndArgsCaller extends Exception
+    implements Runnable {
+
+    public void run() {
+        try {
+            //根据参数，反射调用的就是SystemServer.main()方法！！！
+            mMethod.invoke(null, new Object[] { mArgs }); 
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        } catch (InvocationTargetException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw new RuntimeException(ex);
+        }
+    }
+}
+</code></pre><h1 id="前进–SystemServer-Main"><a href="#前进–SystemServer-Main" class="headerlink" title="前进–SystemServer.Main"></a>前进–SystemServer.Main</h1><p>好了，看了前面一堆的内容，创建和初始化一堆内容。<br>我们终于知道最后反射调的地方在那里！就是<code>SystemServer.Main()</code></p>
+<pre><code>public static void main(String[] args) {
+        new SystemServer().run();
+}
+
+private void run() {
+
+    if (System.currentTimeMillis() &lt; EARLIEST_SUPPORTED_TIME) {
+        Slog.w(TAG, &quot;System clock is before 1970; setting to 1970.&quot;);
+        SystemClock.setCurrentTimeMillis(EARLIEST_SUPPORTED_TIME);
+        //初始最小时间为1970年！
+    }
+
+    // Here we go! 是的，俺老孙来也
+    Slog.i(TAG, &quot;Entered the Android system server!&quot;);
+    EventLog.writeEvent(EventLogTags.BOOT_PROGRESS_SYSTEM_RUN, SystemClock.uptimeMillis());
+
+       //6.0用libart.so
+     SystemProperties.set(&quot;persist.sys.dalvik.vm.lib.2&quot;, VMRuntime.getRuntime().vmLibrary());
+
+    // Enable the sampling profiler.
+    if (SamplingProfilerIntegration.isEnabled()) {
+        SamplingProfilerIntegration.start();
+        mProfilerSnapshotTimer = new Timer();
+        //一小时采集一次的分析器。
+        mProfilerSnapshotTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                SamplingProfilerIntegration.writeSnapshot(&quot;system_server&quot;, null);
+            }
+        }, SNAPSHOT_INTERVAL, SNAPSHOT_INTERVAL);
+    }
+
+    // Mmmmmm... more Mmmmmmmm...memory!
+    VMRuntime.getRuntime().clearGrowthLimit();
+
+    // The system server has to run all of the time, so it needs to be
+    // as efficient as possible with its memory usage.
+    //设置内存的使用率是0.8，尴尬的内存，以后6G内存普及就会好点了
+    VMRuntime.getRuntime().setTargetHeapUtilization(0.8f);
+
+    // Some devices rely on runtime fingerprint generation, so make sure
+    // we&apos;ve defined it before booting further.
+    Build.ensureFingerprintProperty();
+
+    // Within the system server, it is an error to access Environment paths without
+    // explicitly specifying a user.
+    Environment.setUserRequired(true);
+
+    // Ensure binder calls into the system always run at foreground priority.
+    BinderInternal.disableBackgroundScheduling(true);
+
+    // Prepare the main looper thread (this thread).
+    android.os.Process.setThreadPriority(
+            android.os.Process.THREAD_PRIORITY_FOREGROUND);
+    android.os.Process.setCanSelfBackground(false);
+    Looper.prepareMainLooper();
+
+    // Initialize native services.
+    System.loadLibrary(&quot;android_servers&quot;);
+
+    // Check whether we failed to shut down last time we tried.
+    // This call may not return.
+    //检测上次关机过程是否失败
+    performPendingShutdown();
+
+    // Initialize the system context. 
+    createSystemContext();
+
+    // Create the system service manager.
+    mSystemServiceManager = new SystemServiceManager(mSystemContext);
+    LocalServices.addService(SystemServiceManager.class, mSystemServiceManager);
+
+    // Start services.
+    //重要的内容，启动引导，核心等服务
+    startBootstrapServices();
+    startCoreServices();
+    startOtherServices();       
+
+    ...
+    // Loop forever.
+    Looper.loop();
+    throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
+}
+</code></pre><p>想说的是最后面的start service 的三个函数内容</p>
+<pre><code> /**
+ * Starts the small tangle of critical services that are needed to get
+ * the system off the ground.  These services have complex mutual dependencies
+ * which is why we initialize them all in one place here.  Unless your service
+ * is also entwined in these dependencies, it should be initialized in one of
+ * the other functions.
+ * 注释说明了为什么一次性的在这里初始这么多service的原因
+ * 打头阵都是有点原因哈，需要给别人提供服务
+ */
+private void startBootstrapServices() {
+
+    // Wait for installd to finish starting up so that it has a chance to
+    // create critical directories such as /data/user with the appropriate
+    //就是等和installd建立socket通道
+    Installer installer = mSystemServiceManager.startService(Installer.class);
+
+   //启动AMS，对他熟悉了
+    mActivityManagerService = mSystemServiceManager.startService(
+            ActivityManagerService.Lifecycle.class).getService();
+    mActivityManagerService.setSystemServiceManager(mSystemServiceManager);
+    mActivityManagerService.setInstaller(installer);
+
+
+
+    //电源管理部分，这个我还没看过，他需要早点启动因为别的服务需要它
+    mPowerManagerService = mSystemServiceManager.startService(PowerManagerService.class);
+
+  //嗯，为何不是PMS自己初始自己呢？稍后细看
+    mActivityManagerService.initPowerManagement();
+
+    // 负责LEDs 、背光灯部分的服务
+    mSystemServiceManager.startService(LightsService.class);
+
+    // Display manager is needed to provide display metrics before package manager
+    // starts up.
+    mDisplayManagerService = mSystemServiceManager.startService(DisplayManagerService.class);
+
+    // We need the default display before we can initialize the package manager.
+    mSystemServiceManager.startBootPhase(SystemService.PHASE_WAIT_FOR_DEFAULT_DISPLAY);
+
+    // 加密设备是只运行核心的内容，嗯，没加密过
+    String cryptState = SystemProperties.get(&quot;vold.decrypt&quot;);
+    if (ENCRYPTING_STATE.equals(cryptState)) {
+        Slog.w(TAG, &quot;Detected encryption in progress - only parsing core apps&quot;);
+        mOnlyCore = true;
+    } else if (ENCRYPTED_STATE.equals(cryptState)) {
+        Slog.w(TAG, &quot;Device encrypted - only parsing core apps&quot;);
+        mOnlyCore = true;
+    }
+
+    // PMS，最近也经常遇到他
+    mPackageManagerService = PackageManagerService.main(mSystemContext, installer,
+            mFactoryTestMode != FactoryTest.FACTORY_TEST_OFF, mOnlyCore);
+    mFirstBoot = mPackageManagerService.isFirstBoot();
+    mPackageManager = mSystemContext.getPackageManager();
+
+ //UMS内容，目录：/data/user
+    ServiceManager.addService(Context.USER_SERVICE, UserManagerService.getInstance());
+
+    // Initialize attribute cache used to cache resources from packages.
+    AttributeCache.init(mSystemContext);
+
+    // Set up the Application instance for the system process and get started.
+    mActivityManagerService.setSystemProcess();
+
+    // The sensor service needs access to package manager service, app ops
+    // service, and permissions service, therefore we start it after them.
+    //因为SensorService需要PMS的服务等，所以被安排到最后面
+    startSensorService();
+}
+</code></pre><p>我们看完这个，核心就是一堆的AMS,PMS,LS,DMS,PMS,UMS和Sensor的初始化。具体的启动过程代码即不贴了，很长，也很复杂。</p>
+<p>然后我们继续看另外两个函数的内容</p>
+<pre><code>    /**
+ * Starts some essential services that are not tangled up in the bootstrap process.
+ */
+private void startCoreServices() {
+
+    // Tracks the battery level.  Requires LightService.
+    //计算电池容量的，需要LS，所以前面先启动了
+    mSystemServiceManager.startService(BatteryService.class);
+
+    // Tracks application usage stats.
+    mSystemServiceManager.startService(UsageStatsService.class);
+    mActivityManagerService.setUsageStatsManager(
+            LocalServices.getService(UsageStatsManagerInternal.class));
+    // Update after UsageStatsService is available, needed before performBootDexOpt.
+    mPackageManagerService.getUsageStatsIfNoPackageUsageInfo();
+
+    // Tracks whether the updatable WebView is in a ready state and watches for update installs.
+    mSystemServiceManager.startService(WebViewUpdateService.class);
+}
+</code></pre><p>然后那个启动别的服务的函数800行的代码，呵呵，不敢贴上来<br>主要也是启动服务，包括：CameraService，AudioAservice，VibratorService等等</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>好吧，总算大致的看了下这个启动过程的一个节点SystemServer的内容<br>赫，感觉和看那些内核解析/情景源码解析书类似。贴一堆的代码。呵呵</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/32_419WCKFCYEL._SY344_BO1,204,203,200_.jpg" alt="Surreal Numbers "><br>看这部分代码，让我想起了一本书，高德纳的<code>Surreal Numbers</code> </p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/SystemServers/" rel="tag">#SystemServers</a>
+          
+            <a href="/tags/Zygote/" rel="tag">#Zygote</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" rel="prev">源码探索系列33---安卓系统的结合子Zygote</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/" rel="next">源码探索系列31---插件化基础之Service组件管理</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/21/源码探索系列32---万物初生/"
+     data-title="源码探索系列32---万物初生System Servers"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/21/源码探索系列32---万物初生/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/21/源码探索系列32---万物初生/"
+                   data-title="源码探索系列32---万物初生System Servers" data-url="http://yoursite.com/2016/04/21/源码探索系列32---万物初生/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">1.</span> <span class="nav-text">前进</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#invokeStaticMain"><span class="nav-number">1.1.</span> <span class="nav-text">invokeStaticMain()</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进–SystemServer-Main"><span class="nav-number">2.</span> <span class="nav-text">前进–SystemServer.Main</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

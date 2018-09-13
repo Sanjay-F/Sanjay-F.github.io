@@ -1,0 +1,914 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,RecycleView," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，可以看这篇文章。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。 一些不要搞懂的问题  为何谷歌推荐用这个，背后的效率是高在哪里？ LayoutManager是怎么去弄不同布局的">
+<meta name="keywords" content="android,源码,RecycleView">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列10---替代Listview的RecycleView">
+<meta property="og:url" content="http://yoursite.com/2015/12/23/源码探索系列10---替代Listview的RecycleView/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，可以看这篇文章。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。 一些不要搞懂的问题  为何谷歌推荐用这个，背后的效率是高在哪里？ LayoutManager是怎么去弄不同布局的">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151223205013314">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.707Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列10---替代Listview的RecycleView">
+<meta name="twitter:description" content="自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，可以看这篇文章。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。 一些不要搞懂的问题  为何谷歌推荐用这个，背后的效率是高在哪里？ LayoutManager是怎么去弄不同布局的">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151223205013314">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列10---替代Listview的RecycleView | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列10---替代Listview的RecycleView
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-23T01:22:00+08:00" content="2015-12-23">
+            2015-12-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p> 自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，<a href="http://blog.csdn.net/sanjay_f/article/details/48830311" target="_blank" rel="noopener">可以看这篇文章</a>。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。</p>
+<p>一些不要搞懂的问题</p>
+<ol>
+<li>为何谷歌推荐用这个，背后的效率是高在哪里？</li>
+<li>LayoutManager是怎么去弄不同布局的</li>
+</ol>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23 ，这RecyclerView有一万多行，看起来真的亚历山大啊。</p>
+<p>我们常用的方式就是下面这样：</p>
+<pre><code>mRecycleView.setAdapter(mAdapter);
+</code></pre><p>扔给他一个适配器，所以这个就当作我们的起航的第一个突破口吧，看下他背后都做了些什么事。</p>
+<pre><code>public void setAdapter(Adapter adapter) {
+    // bail out if layout is frozen
+    setLayoutFrozen(false);
+    setAdapterInternal(adapter, false, true);
+    requestLayout();
+}
+</code></pre><p>他先去调用<code>setLayoutFrozen(）</code>去停止移动，再更新适配器，最后调用<code>requestLayout()</code>去更新界面。这里补充说下，这个<code>RecyclerView</code>是直接继承<code>ViewGroup</code>的。</p>
+<pre><code>public void setLayoutFrozen(boolean frozen) {
+    if (frozen != mLayoutFrozen) { 
+      ...
+      final long now = SystemClock.uptimeMillis();
+      MotionEvent cancelEvent = MotionEvent.obtain(now, now,
+              MotionEvent.ACTION_CANCEL, 0.0f, 0.0f, 0);
+      onTouchEvent(cancelEvent);
+      mLayoutFrozen = frozen;
+      mIgnoreMotionEventTillDown = true;
+      stopScroll(); 　
+    }
+}
+</code></pre><p>我们看到他背后做的是发送一个cancelEvent同时调用了<code>stopScroll()</code>去停止滚动，背后是怎么停止滚动的呢？</p>
+<pre><code>public void stopScroll() {
+    setScrollState(SCROLL_STATE_IDLE);
+    stopScrollersInternal();
+}
+
+private void setScrollState(int state) {
+    if (state == mScrollState) {
+        return;
+    } 
+    ...
+    mScrollState = state; 
+    dispatchOnScrollStateChanged(state);
+}
+
+void dispatchOnScrollStateChanged(int state) {
+    // Let the LayoutManager go first; this allows it to bring any properties into
+    // a consistent state before the RecyclerView subclass responds.
+    if (mLayout != null) {
+        mLayout.onScrollStateChanged(state);
+    }
+
+    // Let the RecyclerView subclass handle this event next; any LayoutManager property
+    // changes will be reflected by this time.
+    onScrollStateChanged(state);
+
+    // Listeners go last. All other internal state is consistent by this point.
+    if (mScrollListener != null) {
+        mScrollListener.onScrollStateChanged(this, state);
+    }
+    if (mScrollListeners != null) {
+        for (int i = mScrollListeners.size() - 1; i &gt;= 0; i--) {
+            mScrollListeners.get(i).onScrollStateChanged(this, state);
+        }
+    }
+}
+
+/**
+ * Similar to {@link #stopScroll()} but does not set the state.
+ */
+private void stopScrollersInternal() {
+    mViewFlinger.stop();
+    if (mLayout != null) {
+        mLayout.stopSmoothScroller();
+    }
+}
+
+void stopSmoothScroller() {
+        if (mSmoothScroller != null) {
+            mSmoothScroller.stop();
+        }
+    }
+</code></pre><p>上面代码我们看到些有意思的东西，他先去调用我们的mLayout去设置状态是IDLE闲置状态，再不通知监听的接口更新状态。最后才是实际的调用mLayout的<code>stopSmoothScroller()</code>去停止，这个SmoothScroller是一个静态的抽象内部类，具体干活的是<code>LinearSmoothScroller</code><br>这个类最终是这mLayout是<code>LayoutManager</code>类，它是RecycleView的一个静态的抽象内部类，主要负责的是Measuring和Positioning我们的Item views 。<br>干活的有三个<code>StaggeredGridLayoutManager</code>，<code>LinearLayoutManager</code>，<code>GridLayoutManager</code>  。</p>
+<pre><code>StaggeredGridLayoutManager mGridLayoutManager =
+                    new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+//两列竖直方向的瀑布流
+mRecyclerView.setLayoutManager(mStaggeredGridLayoutManager);
+</code></pre><p>相信使用过RecyclerView的应该对这么名字不陌生，经典的案例就是拿来修改方向灯。这个类有个2K行的就不深挖了，点到即可，继续回主线。</p>
+<pre><code>    /**
+     * Stops running the SmoothScroller in each animation callback. Note that this does not
+     * cancel any existing {@link Action} updated by
+     * {@link #onTargetFound(android.view.View, RecyclerView.State, SmoothScroller.Action)} or
+     * {@link #onSeekTargetStep(int, int, RecyclerView.State, SmoothScroller.Action)}.
+     */
+final protected void stop() {
+        if (!mRunning) {
+            return;
+        }
+        onStop();
+        mRecyclerView.mState.mTargetPosition = RecyclerView.NO_POSITION;
+        mTargetView = null;
+        mTargetPosition = RecyclerView.NO_POSITION;
+        mPendingInitialRun = false;
+        mRunning = false;
+        // trigger a cleanup
+        mLayoutManager.onSmoothScrollerStopped(this);
+        // clear references to avoid any potential leak by a custom smooth scroller
+        mLayoutManager = null;
+        mRecyclerView = null;
+    } 
+</code></pre><p>我们到一个有意思的事情了，他在运行了得情况下并没有实际的去停止运行，就像我们的AsyncTask一样，是个假停止。如果没运行，才调用<code>SmoothScroller.onStop()</code>去实际的停止。</p>
+<p><strong>继续回主线</strong>，我们看完 <code>setLayoutFrozen(false)</code>的过程<br>现在继续下一步</p>
+<pre><code>setAdapterInternal(adapter, false, true);
+
+private void setAdapterInternal(Adapter adapter, boolean compatibleWithPrevious,
+        boolean removeAndRecycleViews) {
+     ...
+
+    mAdapterHelper.reset();
+    final Adapter oldAdapter = mAdapter;
+    mAdapter = adapter;
+    if (adapter != null) {
+        adapter.registerAdapterDataObserver(mObserver);
+        adapter.onAttachedToRecyclerView(this);
+    }
+    if (mLayout != null) {
+        mLayout.onAdapterChanged(oldAdapter, mAdapter);
+    }
+    mRecycler.onAdapterChanged(oldAdapter, mAdapter, compatibleWithPrevious);
+    mState.mStructureChanged = true;
+    markKnownViewsInvalid();
+}
+</code></pre><p>这个更改适配器 的界面，主要就更换了原来的适配器，然后注册新的数据观察者等操作<br>重要一句是调用Recycler的onAdapterChanged(）方法。这个Recycler主要的工作是负责我们在RecyclerView上的各自小itemView的重用功能，所以我们更新了适配器需要告诉下人家。</p>
+<pre><code>void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+            boolean compatibleWithPrevious) {
+        clear();
+        getRecycledViewPool().onAdapterChanged(oldAdapter, newAdapter, compatibleWithPrevious);
+    }
+</code></pre><p> 这样他就先去调用clear函数去清空原有的。再去调用RecycledViewPool的更新。<br>需要补充下，这个RecycledViewPool是RecyclerViews的静态内部类，他可以让你做到在不同的RecyclerViews内共享Views，<strong>这确实对我们的第一个问题有一定的解答作用</strong>，因为这是一个静态内部类啊，而且我们的View都是继承自<code>ViewHolder</code>的，就像我们java的<code>object</code>给人的感觉一样。这样用一个内部的ViewPool的做法，就像线程池，我们可以达到了更高的复用，提高滚动的效率。</p>
+<pre><code>private SparseArray&lt;ArrayList&lt;ViewHolder&gt;&gt; mScrap;
+</code></pre><p>这个是RecycledViewPool内部使用稀疏数组来存储我们的ViewHolder。嗯，稀疏，直觉好像觉得不对啊，后面看完再看下是怎么回事.</p>
+<pre><code>void onAdapterChanged(Adapter oldAdapter, Adapter newAdapter,
+            boolean compatibleWithPrevious) {
+    if (oldAdapter != null) {
+        detach();
+    }
+    if (!compatibleWithPrevious &amp;&amp; mAttachCount == 0) {
+         clear();
+     }
+    if (newAdapter != null) {
+       attach(newAdapter);
+    }
+ } 
+
+void detach() {
+     mAttachCount--;
+}
+
+void attach(Adapter adapter) {
+      mAttachCount++;//啊...这句让我有点意外，传的参数留着以后用？那就以后再加嘛.. 
+}
+
+public void clear() {
+        mScrap.clear();
+    }
+</code></pre><p>这里记录有多少个适配器，同时保存我们的ViewHolder，当我们的适配器都移除了，那就清空缓存的ViewHolder。<br>我们看下他存的方式</p>
+<pre><code>public void putRecycledView(ViewHolder scrap) {
+     final int viewType = scrap.getItemViewType();
+     final ArrayList scrapHeap = getScrapHeapForType(viewType);
+     if (mMaxScrap.get(viewType) &lt;= scrapHeap.size()) {
+         return;
+     }
+     if (DEBUG &amp;&amp; scrapHeap.contains(scrap)) {
+         throw new IllegalArgumentException(&quot;this scrap item already exists&quot;);
+     }
+     scrap.resetInternal();
+     scrapHeap.add(scrap);
+ }
+
+private ArrayList&lt;ViewHolder&gt; getScrapHeapForType(int viewType) {
+    ArrayList&lt;ViewHolder&gt; scrap = mScrap.get(viewType);
+      if (scrap == null) {
+          scrap = new ArrayList&lt;ViewHolder&gt;();
+          mScrap.put(viewType, scrap);
+          if (mMaxScrap.indexOfKey(viewType) &lt; 0) {
+              mMaxScrap.put(viewType, DEFAULT_MAX_SCRAP);
+          }
+      }
+      return scrap;
+ }
+</code></pre><p>他的存储是用viewType来做key从而存储对应的ViewHolder列表。<br>目前在我的开发项目中，这个ViewType存在感有点弱啊。<br>查看整个过程，发现这个itemViewType最后就是调用的是<code>getItemViewType(int position)</code>，默认为0；</p>
+<pre><code>final int type = mAdapter.getItemViewType(offsetPosition);
+</code></pre><p>这个补充一点，在前面的一篇比较RecyclerView和Listview的文章有提到，如果要给我们的RecyclerView添加头和尾，不想Listview那样可以 简单的加，实际会负责一点，其中就需要用到这个函数。具体的看 <a href="http://blog.csdn.net/sanjay_f/article/details/48830311" target="_blank" rel="noopener">Listview和RecycleView的简单比较</a> 这篇文章里面的缺点第一条。</p>
+<p>看完大致的设置适配器部分内容，我们继续回主线。<br>到了最后的一个函数</p>
+<pre><code>requestLayout();
+</code></pre><p>因为我们的RecyclerView是直接继承ViewGroup 的，那这句就会导致重画等步骤，我们继续看下去吧。<br>说道这里感觉也可以再开个贴，介绍下View的绘制流程和事件的传递流程，下次有空再写吧，虽然现在介绍这个已是烂大街的了，但自己来写应该有什么感觉呢？写了才知道  ^_^<br>继续：</p>
+<p>我们看下实际的绘制界面的部分吧</p>
+<hr>
+<p>今天时间有限，下次继续写。。。   </p>
+<p>#后记</p>
+<p>那个layoutManager可以做很多文章啊，上次就看到一个有意思的项目叫伦敦眼的</p>
+<p><a href="https://github.com/Danylo2006/LondonEyeLayoutManager" target="_blank" rel="noopener"><strong>LondonEyeLayoutManager</strong></a></p>
+<p>他的效果就像摩天轮一样绕着转动！<br> <img src="http://img.blog.csdn.net/20151223205013314" alt="这里写图片描述"></p>
+<p>==============2016.10.27====再次更新===<br> 最近看到一篇 微信开发团队对于 两者的对比，可以查看这里</p>
+<p> <a href="http://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=2649286405&amp;idx=1&amp;sn=414e2d2eb577884ccee5c9076e8b8357&amp;chksm=8334c387b4434a9124f5acd93f331968a44256b8374eeafb4b1857671072b3b6364e5ec38485&amp;scene=0#rd" target="_blank" rel="noopener">Android ListView与RecyclerView对比浅析–缓存机制</a></p>
+<p>这里直接贴下结论内容：</p>
+<blockquote>
+<p>三.结论</p>
+<ol>
+<li>在一些场景下，如界面初始化，滑动等，ListView和RecyclerView都能很好地工作，两者并没有很大的差异：</li>
+</ol>
+<p>文章的开头便抛出了这样一个问题，微信Android客户端卡券模块，大部分UI都是以列表页的形式展示，实现方式为ListView，是否有必要将其替换成RecyclerView呢？</p>
+<p>答案是否定的，从性能上看，RecyclerView并没有带来显著的提升，不需要频繁更新，暂不支持用动画，意味着RecyclerView优势也不太明显，没有太大的吸引力，ListView已经能很好地满足业务需求。</p>
+<ol start="2">
+<li>数据源频繁更新的场景，如弹幕：<a href="http://www.jianshu.com/p/2232a63442d6等RecyclerView的优势会非常明显；" target="_blank" rel="noopener">http://www.jianshu.com/p/2232a63442d6等RecyclerView的优势会非常明显；</a></li>
+</ol>
+<p>进一步来讲，结论是：<br>列表页展示界面，需要支持动画，或者频繁更新，局部刷新，建议使用RecyclerView，更加强大完善，易扩展；其它情况(如微信卡包列表页)两者都OK，但ListView在使用上会更加方便，快捷。</p>
+<p>Ps：仅从一个角度做了对比，盲人摸象，有误跪求指正。</p>
+</blockquote>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/RecycleView/" rel="tag">#RecycleView</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/25/开源系列1---造个图片选择器/" rel="prev">开源系列1---造个图片选择器</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/" rel="next">源码探索系列9---四大金刚之ContentProvider</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/"
+     data-title="源码探索系列10---替代Listview的RecycleView"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/23/源码探索系列10---替代Listview的RecycleView/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/"
+                   data-title="源码探索系列10---替代Listview的RecycleView" data-url="http://yoursite.com/2015/12/23/源码探索系列10---替代Listview的RecycleView/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

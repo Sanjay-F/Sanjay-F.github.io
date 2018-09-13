@@ -1,0 +1,853 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。当然据闻牛逼的人纯看代码直接看出来问题，哈。 解决系统性能问题的几个主要步骤是：找-&amp;gt;定-&amp;gt;调">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安卓性能系列1---用TraceView找耗时操作">
+<meta property="og:url" content="http://yoursite.com/2016/05/26/安卓性能系列1---用TraceView找耗时操作/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。当然据闻牛逼的人纯看代码直接看出来问题，哈。 解决系统性能问题的几个主要步骤是：找-&amp;gt;定-&amp;gt;调">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526162608.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526160639.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526163713.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526164749.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526165532.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526171932.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526182335.png">
+<meta property="og:image" content="http://img4.tbcdn.cn/L1/461/1/a9c179be255c18e3a46e244a328e23798c7e7c39">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="安卓性能系列1---用TraceView找耗时操作">
+<meta name="twitter:description" content="软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。当然据闻牛逼的人纯看代码直接看出来问题，哈。 解决系统性能问题的几个主要步骤是：找-&amp;gt;定-&amp;gt;调">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526162608.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 安卓性能系列1---用TraceView找耗时操作 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              安卓性能系列1---用TraceView找耗时操作
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-05-26T00:45:46+08:00" content="2016-05-26">
+            2016-05-26
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/26/安卓性能系列1---用TraceView找耗时操作/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。<br>当然据闻牛逼的人纯看代码直接看出来问题，哈。</p>
+<p>解决系统性能问题的几个主要步骤是：<strong>找-&gt;定-&gt;调</strong></p>
+<a id="more"></a>    
+<ol>
+<li><p><strong>找</strong>：要优化肯定要先找下那部分有性能问题啊，例如有用户投诉所APP卡，你和他沟通后，他说了在主界面滑动过程卡顿。这样我们就大致找到一个需要优化的范围点，接下来需要定位啊。当然这是游击，碎片化的方式，最好还是对程序进行大量的<strong>有针对性</strong>的测试，得到测试数据，然后根据需要定调整目标，要求达到一个怎样的优化效果，例如启动时间由2310ms编程1320ms等等。</p>
+</li>
+<li><p><strong>定</strong>：找到了问题的大致方向，需要更具体的分析系统瓶颈，分析测试数据，找到其中的bottleneck。</p>
+</li>
+<li><strong>调</strong>：找到瓶颈所在，当然需要对bottleneck的代码做优化。</li>
+</ol>
+<p>关于瓶颈，一般而言主要就这样三类：</p>
+<blockquote>
+<ol>
+<li><strong>低频高耗</strong>：函数被调用次数不多，但每次调用却花费很长时间。 </li>
+<li><strong>高频低耗</strong>：指那些函数自身占用时间不长，但调用却非常频繁的函数。</li>
+<li><strong>高频高耗</strong>：那被调用频繁，且函数本身耗费长的，这绝对重点关注对象啊。</li>
+</ol>
+</blockquote>
+<p>简单的理解就是这样的公式 </p>
+<blockquote>
+<p> 总用时 = 调用次数 * 函数的运行时间</p>
+</blockquote>
+<h1 id="如何找到这样的瓶颈呢？"><a href="#如何找到这样的瓶颈呢？" class="headerlink" title="如何找到这样的瓶颈呢？"></a>如何找到这样的瓶颈呢？</h1><p>找到这样的两点，我们可以用TraceView来做</p>
+<p>在详细介绍如何找到这样的瓶颈前，我们先来操作一遍，看下整个流程是怎样的</p>
+<h2 id="操作流程"><a href="#操作流程" class="headerlink" title="操作流程"></a>操作流程</h2><p>打开我们的ADM，选中我们想分析的程序，然后点击下图中指示的按钮（Start Method Profile），然后程序就会开始帮我们记录从这实践开始，我们程序的所有“工作”</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526162608.png" alt="enter image description here"></p>
+<p>接着在你觉得合适的时候，再点下这个按钮，就结束记录操作，生成一个结果出来。这个工具的使用就是这么简单。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526160639.png" alt="enter image description here"></p>
+<p>在开始用这个工具做分析前，我们先来写点代码，作为我们后面分析的demo。</p>
+<h2 id="实战演练"><a href="#实战演练" class="headerlink" title="实战演练"></a>实战演练</h2><p>假设我们的程序非常简单，只有两个按钮，第一个点击后会调用下面这个函数。<br>内容为开个线程，跑4秒钟时间。<br>这个就是我们的<strong>低频高耗</strong>类型，一次操作就消费你很多CPU时间。</p>
+<pre><code>void doSomething() {
+     for (int i = 0; i &lt; 66666; i++) {
+        Log.e(TAG, &quot;onTrackClick: &quot; + i);
+    }
+}
+</code></pre><p>另外一个按钮点击后，会调用下面这个onRepeatclick函数。这个函数内容也很简单，调用666次的<code>simplyFunc</code>去给我们打印<code>hello World</code>出来</p>
+<p>这个就是前面提到的第2类<strong>高频低耗</strong>类型。本身不特别耗时，不过被调用的次数多。</p>
+<pre><code>public void onRepeatclick(View view) {
+    for (int i = 0; i &lt; 666; i++) {
+        simplyFunc();
+    }
+}
+
+private void simplyFunc() {
+    String a = &quot;Hello &quot;;
+    String b = &quot;World !&quot;;
+    Log.e(TAG, &quot;simplyFunc() print= &quot; + a + b);
+
+}
+</code></pre><p>好了，有这样的背景，我们来开始实验吧，看怎么找出来这两个家伙！</p>
+<p>套路如前面一样，先点击<code>Start Method Profile</code>按钮，然后我们分别点这两个函数对应的按钮，让程序帮我们记录下载先。运行后的效果如下图</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526163713.png" alt="enter image description here"></p>
+<p><a href="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526163713.png" target="_blank" rel="noopener">点击查看大图</a></p>
+<h2 id="TraceView介绍"><a href="#TraceView介绍" class="headerlink" title="TraceView介绍"></a>TraceView介绍</h2><p>现在就需要来介绍下这个界面的内容了</p>
+<p>整个界面主要分两个大块，顶部由A和C构成的时间线面板（Timeline Panel）和下面的分析面板（Profile Panel）。 </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526164749.png" alt="enter image description here"></p>
+<blockquote>
+<p><strong>Tips：</strong><br> 双击上面的函数信息那一栏可以缩小，鼠标选中线程的颜色部分轻微水平拉动可以放大图<br> 颜色脉冲bar的高度表示cpu的利用率，高度越高表示cpu利用率越高<br>白色gap空白块表示该线程目前没有占CPU，被其他线程占用<br>黑块表示系统空闲(system idle)</p>
+</blockquote>
+<p> 我们细看下顶部的时间板，在放大后，当我们鼠标停在某个刻柱的时候，顶部会显示对应时刻，系统在运行的程序信息。左边表示对应的线程信息。如果你点击某个刻度的柱子，对应的柱子也会动一下！</p>
+<p>由图可得，在2509.181msec的时候，我们的CPU在运行着我们的<code>simplyfunc()</code>函数 下面一行的 excl cpu msec， incl cpu msec， excl readl msec等的时间信息会在后面细说。</p>
+<p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526165532.png" alt="enter image description here"></p>
+<p>下面的模板信息就很多啦。我们看下顶栏，现在对主要的各个属性的意思如下面表格</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>该线程运行过程中所调用的函数名</td>
+</tr>
+<tr>
+<td>Incl Cpu Time</td>
+<td>某函数占用的CPU时间，包含内部调用其它函数的CPU时间</td>
+</tr>
+<tr>
+<td>Excl Cpu Time</td>
+<td>某函数占用的CPU时间，但不含内部调用其它函数所占用的CPU时间</td>
+</tr>
+<tr>
+<td>Incl Real Time</td>
+<td>某函数运行的真实时间（以毫秒为单位），内含调用其它函数所占用的真实时间</td>
+</tr>
+<tr>
+<td>Excl Real Time</td>
+<td>某函数运行的真实时间（以毫秒为单位），不含调用其它函数所占用的真实时间</td>
+</tr>
+<tr>
+<td>Call+Recur Calls/Total</td>
+<td>某函数被调用次数以及递归调用占总调用次数的百分比</td>
+</tr>
+<tr>
+<td>Cpu Time/Call</td>
+<td>某函数调用CPU时间与调用次数的比。相当于该函数平均执行时间</td>
+</tr>
+<tr>
+<td>Real Time/Call</td>
+<td>同CPU Time/Call类似，只不过统计单位换成了真实时间</td>
+</tr>
+<tr>
+<td>Incl Cpu Time %</td>
+<td>表示以时间百分比来统计的Incl Cpu Time</td>
+</tr>
+</tbody>
+</table>
+<p>在明白了这些名字的意思后，现在我们可以用Traceview来查找我们的瓶颈了！</p>
+<h2 id="找瓶颈"><a href="#找瓶颈" class="headerlink" title="找瓶颈"></a>找瓶颈</h2><h3 id="高频低耗"><a href="#高频低耗" class="headerlink" title="高频低耗"></a>高频低耗</h3><p>先来看下我们的高频低耗类的，根据定义，他就是调用得多的那个家伙。<br>在我们前面关于列明的介绍中，有一列就是<strong>Call+Recur Calls/Total</strong>，他描述被调用的次数。<br>因此我们先按照这个属性来排个序，从高到低的。<br>排序结果如下图：<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526171932.png" alt="enter image description here"></p>
+<ol>
+<li><p><strong>次数</strong> ，我们看到，我们的simplyFunc被用了666次，很正确。很好，这样<br>看下他的上面几个667次的，我们的SimplyFunc内容为拼接字符串然后打印日志，所以与String相关的几个函数也被调用了很多次。 </p>
+<pre><code>private void simplyFunc() {
+    String a = &quot;hello &quot;;
+    String b = &quot;world&quot;;
+    Log.e(TAG, &quot;simplyFunc() print= &quot; + a + b);
+}
+</code></pre><p>直觉告诉我们，编译器有可能把第三行代码用一个StringBuilder来处理了。</p>
+</li>
+<li><strong>时间</strong>，我们是确定这个函数确实调用次数多很高频，但这不代表人家耗时，所以我们看下右边的关于霸占的CPU时间，我们看到他的Incl Cpu Time为37.183，占了总数的75.9%。很好，这样我们就确认这个函数是一个瓶颈，是我们需要花时间来处理的。</li>
+</ol>
+<p>到这里基本我们确定了，完成了<strong>找的步骤</strong>。现在需要完成的是<strong>定的步骤</strong>，确定下瓶颈实际在哪里。<br>我们再看下图，在我们的函数展开的下面，有些内容，我们需要看下。</p>
+<ol>
+<li><strong>Parents</strong> ： 这个表示调用这个函数的父方法，就是指是<code>onRepeatClick</code>调用了这个函数。</li>
+<li><strong>Children</strong>：相对于Parents，这个就是他调用的。</li>
+</ol>
+<p>我们看它耗费的时间多的是去调用StringBuilder去了。嗯，我们明明没调用这个类，为何他耗费时间去和Stringbuilder玩去了呢？因为这是编译后的运行效果，编译器会做些手脚嘛。</p>
+<p>根据<strong>Children</strong>的信息，告诉我们SimplyFunc主要耗费的时间都去做了什么去了，这样我们可以根据这些信息，对我们的函数做针对性的优化内容。你也可以一直点<code>children</code>里面最耗费时间的，一直跟进去，直到你觉得找到答案为主。</p>
+<h4 id="细看函数"><a href="#细看函数" class="headerlink" title="细看函数"></a>细看函数</h4><p>上面的整流程是相对粗糙的，因为整个下面的面板还有很多我们不关心的内容，有时函数多起来就找的麻烦，为了细化范围，这里提供另外的方案</p>
+<p>用<code>Debug.startMethodTracing()</code>和<code>Debug.stopMethodTracing()</code>方法，当我们再函数加多这对函数，运行完这段代码后，在<code>/sdcard</code>路径就会有一个trace文件生成。另外也可以调用<code>startMethodTracing(String traceName)</code> 设置trace文件的文件名，最后你可以用<code>adb pull /sdcard/test.trace /tmp</code> 命令将trace文件<strong>复制</strong>到你的电脑中，然后像刚才那样，用DDMS工具打开。</p>
+<p>用这种更精确的方法，虽然罗嗦些，但非常适合检测某一个方法的性能，颗粒度更细。</p>
+<pre><code>public void onRepeatClick(View view) {
+
+    Debug.startMethodTracing(&quot;simplyFunc&quot;);
+    for (int i = 0; i &lt; 666; i++) {
+        simplyFunc();
+    }
+    Debug.stopMethodTracing();
+}
+</code></pre><p>不过作为一名非键盘侠，我选择用DDMS。<br>靠他来给我们导出文件，点击右上角的那个软盘ICON。这真是复古的一个ICON啊。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/trace_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160526182335.png" alt="enter image description here"></p>
+<p>导出来后，再用ADM来打开这个文件，这样我们就可以细看了。</p>
+<h3 id="低频高耗"><a href="#低频高耗" class="headerlink" title="低频高耗"></a>低频高耗</h3><p>在    看了上面的找高频低耗流程后，我们需要找的就是这个低频高耗的函数了。<br>被调用次数少，不过一次就要搞好久的家伙。这需要我们关注的是耗费的时间是多少，这里就不细说了。<br>就是根据另外几个列属性，不断的排查.</p>
+<h3 id="查看部分GC原因和位置"><a href="#查看部分GC原因和位置" class="headerlink" title="查看部分GC原因和位置"></a>查看部分GC原因和位置</h3><p>因为安卓2.3以后GC并不会每次都停止其他线程因此只能跟踪到部分停止所有线程的GC情况。一般出现GC的时候时间线上会有比较大块的同颜色的区域点击后就可以定位到函数面板区域的GC函数一步一步向parent函数追踪就可以定位到GC的起因了。如下图的绿色部分主线程在加载资源图的时候发生了GC。</p>
+<p><img src="http://img4.tbcdn.cn/L1/461/1/a9c179be255c18e3a46e244a328e23798c7e7c39" alt="enter image description here"></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>靠现在的方式，找瓶颈是一个精致的工作，需要用TraceView工具一行行的排查。如果不是需要，估计不会没事就像这样搞。另外的方案就是核心路径的内容不断的打点，然后上传到后台，根据大规模的使用情况来做调整，这会好些，先对一劳永逸。<br>是否有更好的呢？肯定有呀，后面再介绍</p>
+<h1 id="REF"><a href="#REF" class="headerlink" title="REF"></a>REF</h1><ol>
+<li><a href="https://developer.android.com/studio/profile/systrace.html#options-4.3" target="_blank" rel="noopener">谷歌关于Systrace的文档</a></li>
+<li><a href="https://developer.android.com/studio/profile/traceview.html" target="_blank" rel="noopener">谷歌关于trace的文档介绍</a></li>
+<li><a href="https://developer.android.com/training/articles/perf-tips.html" target="_blank" rel="noopener">关于优化的建议</a></li>
+<li><a href="http://blog.csdn.net/innost/article/details/9008691/" target="_blank" rel="noopener">Android系统性能调优工具介绍</a></li>
+<li><a href="http://androidperformance.com/2015/11/18/Android-app-lunch-optimize-delay-load.html" target="_blank" rel="noopener">http://androidperformance.com/2015/11/18/Android-app-lunch-optimize-delay-load.html</a></li>
+<li><a href="http://myeyeofjava.iteye.com/blog/2250801" target="_blank" rel="noopener">TraceView的详细介绍</a></li>
+<li><a href="http://bxbxbai.github.io/2014/10/25/use-trace-view/" target="_blank" rel="noopener">正确使用Android性能分析工具——TraceView</a></li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/28/安卓性能系列2---优化内存/" rel="prev">安卓性能系列2---优化内存</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/23/源码探索系列37---Android的属性动画/" rel="next">源码探索系列37---Android的属性动画</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/05/26/安卓性能系列1---用TraceView找耗时操作/"
+     data-title="安卓性能系列1---用TraceView找耗时操作"
+     data-content=""
+     data-url="http://yoursite.com/2016/05/26/安卓性能系列1---用TraceView找耗时操作/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/05/26/安卓性能系列1---用TraceView找耗时操作/"
+                   data-title="安卓性能系列1---用TraceView找耗时操作" data-url="http://yoursite.com/2016/05/26/安卓性能系列1---用TraceView找耗时操作/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#如何找到这样的瓶颈呢？"><span class="nav-number">1.</span> <span class="nav-text">如何找到这样的瓶颈呢？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#操作流程"><span class="nav-number">1.1.</span> <span class="nav-text">操作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实战演练"><span class="nav-number">1.2.</span> <span class="nav-text">实战演练</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TraceView介绍"><span class="nav-number">1.3.</span> <span class="nav-text">TraceView介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#找瓶颈"><span class="nav-number">1.4.</span> <span class="nav-text">找瓶颈</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#高频低耗"><span class="nav-number">1.4.1.</span> <span class="nav-text">高频低耗</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#细看函数"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">细看函数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低频高耗"><span class="nav-number">1.4.2.</span> <span class="nav-text">低频高耗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看部分GC原因和位置"><span class="nav-number">1.4.3.</span> <span class="nav-text">查看部分GC原因和位置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#REF"><span class="nav-number">3.</span> <span class="nav-text">REF</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

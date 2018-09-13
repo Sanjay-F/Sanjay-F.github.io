@@ -1,0 +1,755 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,微信,图片,选图,仿," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="打算开个开源系列，用来分享在项目过程中些的一些小轮子。在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。能力有些，实现得也不算很优雅。还望各大神指点。 我要造轮子作为一名爱折腾人员，重复造轮子这种事还是常做的。没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等">
+<meta name="keywords" content="android,源码,微信,图片,选图,仿">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源系列1---造个图片选择器">
+<meta property="og:url" content="http://yoursite.com/2015/12/25/开源系列1---造个图片选择器/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="打算开个开源系列，用来分享在项目过程中些的一些小轮子。在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。能力有些，实现得也不算很优雅。还望各大神指点。 我要造轮子作为一名爱折腾人员，重复造轮子这种事还是常做的。没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151224225205588">
+<meta property="og:image" content="http://img.blog.csdn.net/20151224225846858">
+<meta property="og:image" content="http://img.blog.csdn.net/20151224233556670">
+<meta property="og:image" content="http://img.blog.csdn.net/20151223161145193">
+<meta property="og:image" content="http://img.blog.csdn.net/20151223161157836">
+<meta property="og:image" content="http://img.blog.csdn.net/20141010010337968?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbG1qNjIzNTY1Nzkx/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20151223161849948">
+<meta property="og:image" content="http://img.blog.csdn.net/20151224134011167">
+<meta property="og:image" content="http://img.blog.csdn.net/20151224151350088">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.705Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="开源系列1---造个图片选择器">
+<meta name="twitter:description" content="打算开个开源系列，用来分享在项目过程中些的一些小轮子。在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。能力有些，实现得也不算很优雅。还望各大神指点。 我要造轮子作为一名爱折腾人员，重复造轮子这种事还是常做的。没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151224225205588">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 开源系列1---造个图片选择器 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              开源系列1---造个图片选择器
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-25T11:41:00+08:00" content="2015-12-25">
+            2015-12-25
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/25/开源系列1---造个图片选择器/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/25/开源系列1---造个图片选择器/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>打算开个开源系列，用来分享在项目过程中些的一些小轮子。<br>在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。<br>能力有些，实现得也不算很优雅。<br>还望各大神指点。</p>
+<h1 id="我要造轮子"><a href="#我要造轮子" class="headerlink" title="我要造轮子"></a>我要造轮子</h1><p>作为一名爱折腾人员，重复造轮子这种事还是常做的。<br>没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！<br>例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等问题</p>
+<p> <a href="https://github.com/Sanjay-F/PhotoSelector" target="_blank" rel="noopener">项目的下载地址请点击这里</a></p>
+<p>我们直接上效果图，这个是完成后的样子，目前改得勉强像一回事了。<br>就先粘贴上来，有需要的就拿去再根据自己需要改一个。</p>
+<p> <img src="http://img.blog.csdn.net/20151224225205588" alt="这里写图片描述">     —  <img src="http://img.blog.csdn.net/20151224225846858" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20151224233556670" alt="这里写图片描述"></p>
+ <a id="more"></a>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>在做这个轮子的过程还是遇到一些小问题，所以这里列一下</p>
+<ul>
+<li><p>路径Bug<br>在开发过程过程，遇到一些bug，到现在还是很困惑，但时间限制，没去深究。<br>例如有时候，我们的ContentResolver 返回的路径中，有时小写，有时大写。<br>例如下面</p>
+<pre><code>/storage/emulated/0/Tencent/MicroMsg/WeiXin/1450409463723.jpg        
+/storage/emulated/0/tencent/MicroMsg/WeiXin/1450409423269.jpg
+/storage/emulated/0/Tencent/MicroMsg/Download/da_1446188743286.jpg
+/storage/emulated/0/tencent/MicroMsg/WeiXin/mmexport1446289719320.jpg
+/storage/emulated/0/tencent/MicroMsg/WeiXin/microMsg.1445260200558.jpg
+</code></pre><p>返回的路径里面的<code>tencent</code>这个单词有时是大写，有时是小写，导致做判断时候出错！<br>真的很让人绝望！！找了好久才调试出是这出了问题 !！有那个大神懂得看到了反馈下！<br>所以最后只能靠这句来搞定<code>path.equalsIgnoreCase(imageBean.path)</code>，忽略大小写。</p>
+</li>
+<li><p>扫描图片<br>要扫描整个手机图片， 如果用户突然把手机某个目录的图片删除了，在打开我们的程序，则会程序返回的数据还是历史数据，点击那个目录其实是空空如也，系统一般需要用户去重开机，更新缓存。</p>
+</li>
+<li><p>阴影效果<br>目前用了一个很蠢的办法来解决，就是在我们的弹出来的目录和背后的图片间夹一个view来做阴影，然后配合一个alpha动画。<br><strong>状态：不怎么优雅的解决了!</strong> </p>
+</li>
+<li><p>目录的弹出效果<br>这个功能没有优化，看到微信的那个弹出来的文件夹列表的效果挺好的，这个下次有空再继续做<br>另外这个框的大小的调整写得还是挺丑的，<br>监听<code>getViewTreeObserver().addOnGlobalLayoutListener(）</code>的方式来改变大小。</p>
+</li>
+<li><p><del>预览图片的界面优化</del><br>有个小问题就是预览图片就只能看，不支持多指触控进行方法，缩小，旋转等操作，以前的项目有写过一个类似插件，下次再把它加上。<br><strong>状态：解决!</strong> </p>
+</li>
+<li><p>提示时间效果<br>在滚动的过程中，需要在顶部哪里加多个时间的提示，出现和结束加多个动画，看起来好看些</p>
+</li>
+<li><p>拍照问题<br>真的遇到过第三方room把系统自带的相机给阉割了的，然后搞了一个不知道什么鬼的来替代，导致跳去拍照过程失败，下次有空把自己以前写的也继承到里面去。</p>
+</li>
+</ul>
+<h1 id="三个参考案例"><a href="#三个参考案例" class="headerlink" title="三个参考案例"></a>三个参考案例</h1><h3 id="1-MultiImageSelector"><a href="#1-MultiImageSelector" class="headerlink" title="1. MultiImageSelector"></a>1. <a href="https://github.com/lovetuzitong/MultiImageSelector" target="_blank" rel="noopener">MultiImageSelector</a></h3><p>看起来效果还是挺好的:<br><img src="http://img.blog.csdn.net/20151223161145193" alt="这里写图片描述">     <img src="http://img.blog.csdn.net/20151223161157836" alt="这里写图片描述"></p>
+<h3 id="2-鸿洋的超高仿微信图片选择器-图片该这么加载"><a href="#2-鸿洋的超高仿微信图片选择器-图片该这么加载" class="headerlink" title="2. 鸿洋的超高仿微信图片选择器 图片该这么加载"></a>2. <a href="http://blog.csdn.net/lmj623565791/article/details/39943731/" target="_blank" rel="noopener">鸿洋的超高仿微信图片选择器 图片该这么加载</a></h3><p><img src="http://img.blog.csdn.net/20141010010337968?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbG1qNjIzNTY1Nzkx/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<h3 id="3-Android-Ultra-Photo-Selector"><a href="#3-Android-Ultra-Photo-Selector" class="headerlink" title="3.Android-Ultra-Photo-Selector"></a>3.Android-Ultra-Photo-Selector</h3><p>地址：<a href="https://github.com/AizazAZ/Android-Ultra-Photo-Selector" target="_blank" rel="noopener">https://github.com/AizazAZ/Android-Ultra-Photo-Selector</a></p>
+<p><img src="http://img.blog.csdn.net/20151223161849948" alt="这里写图片描述"></p>
+<p>##关于这些案例的一些观点：</p>
+<ol>
+<li><strong>缩略图</strong><br>现在看到的这几个不是使用系统生成的缩略图来显示的，而是找到原图，然后压缩显示，这种策略不是很优雅，因为要实时的弄，关于缩略图的部分，<a href="http://developer.android.com/reference/android/provider/MediaStore.Images.Thumbnails.html" target="_blank" rel="noopener">欢迎看下官方的介绍</a>，这有时候也是无奈之举吧。因为曾经遇到过有一些第三方room会把系统图库给砍掉，用别的来替代。所以为了做适配和兼容，只能自己来搞了。</li>
+<li><p><strong>弹出来的目录框</strong><br>在点击左下角的目录选项的时候，弹出来的目录框没有考虑到如果文件夹少的时候，底部是没填充满的。<br><img src="http://img.blog.csdn.net/20151224134011167" alt="这里写图片描述"></p>
+</li>
+<li><p><strong>阴影效果</strong><br>弹出来的目录的背后是要加个阴影效果的，但目前看到的都是直接整个界面给抹黑，不是很好看。<br>基本使用的方法就像下面这样，这个效果不是很好看。</p>
+<pre><code> WindowManager.LayoutParams lp = getWindow().getAttributes();
+lp.alpha = 0.7f;
+getWindow().setAttributes(lp);
+</code></pre><p>微信的版本是这样的，他是背后的一层，在Actionbar下面，且是跟随着弹出来的框逐渐加深的。<br><img src="http://img.blog.csdn.net/20151224151350088" alt="这里写图片描述"></p>
+</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/微信/" rel="tag">#微信</a>
+          
+            <a href="/tags/图片/" rel="tag">#图片</a>
+          
+            <a href="/tags/选图/" rel="tag">#选图</a>
+          
+            <a href="/tags/仿/" rel="tag">#仿</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/27/源码探索系列11---关于View的绘制/" rel="prev">源码探索系列11---关于View的绘制</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/" rel="next">源码探索系列10---替代Listview的RecycleView</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/25/开源系列1---造个图片选择器/"
+     data-title="开源系列1---造个图片选择器"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/25/开源系列1---造个图片选择器/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/25/开源系列1---造个图片选择器/"
+                   data-title="开源系列1---造个图片选择器" data-url="http://yoursite.com/2015/12/25/开源系列1---造个图片选择器/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#我要造轮子"><span class="nav-number">1.</span> <span class="nav-text">我要造轮子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三个参考案例"><span class="nav-number">3.</span> <span class="nav-text">三个参考案例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-MultiImageSelector"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. MultiImageSelector</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-鸿洋的超高仿微信图片选择器-图片该这么加载"><span class="nav-number">3.0.2.</span> <span class="nav-text">2. 鸿洋的超高仿微信图片选择器 图片该这么加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Android-Ultra-Photo-Selector"><span class="nav-number">3.0.3.</span> <span class="nav-text">3.Android-Ultra-Photo-Selector</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

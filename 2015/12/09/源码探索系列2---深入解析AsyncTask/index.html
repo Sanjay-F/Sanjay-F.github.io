@@ -1,0 +1,987 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,AsyncTask," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在解析前，我们先来看下一般我们使用的情况是怎样的下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用publishProgress(i);来更新下进度。我想用过的人自己直接阅读下面代码没有任何问题。 class MyDemoAsyncTask extends AsyncTask&amp;lt;Integer, Integer, String&amp;gt; {          private">
+<meta name="keywords" content="android,源码,AsyncTask">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列2---深入解析AsyncTask">
+<meta property="og:url" content="http://yoursite.com/2015/12/09/源码探索系列2---深入解析AsyncTask/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在解析前，我们先来看下一般我们使用的情况是怎样的下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用publishProgress(i);来更新下进度。我想用过的人自己直接阅读下面代码没有任何问题。 class MyDemoAsyncTask extends AsyncTask&amp;lt;Integer, Integer, String&amp;gt; {          private">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.713Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列2---深入解析AsyncTask">
+<meta name="twitter:description" content="在解析前，我们先来看下一般我们使用的情况是怎样的下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用publishProgress(i);来更新下进度。我想用过的人自己直接阅读下面代码没有任何问题。 class MyDemoAsyncTask extends AsyncTask&amp;lt;Integer, Integer, String&amp;gt; {          private">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列2---深入解析AsyncTask | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列2---深入解析AsyncTask
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-09T02:04:00+08:00" content="2015-12-09">
+            2015-12-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/09/源码探索系列2---深入解析AsyncTask/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/09/源码探索系列2---深入解析AsyncTask/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在解析前，我们先来看下一般我们使用的情况是怎样的<br>下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用<code>publishProgress(i);</code>来更新下进度。<br>我想用过的人自己直接阅读下面代码没有任何问题。</p>
+<pre><code>class MyDemoAsyncTask extends AsyncTask&lt;Integer, Integer, String&gt; {
+
+        private TextView textView;
+        private ProgressBar progressBar;
+
+        public MyDemoAsyncTask(TextView textView, ProgressBar progressBar) {
+            super();
+            this.textView = textView;
+            this.progressBar = progressBar;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            textView.setText(&quot;开始执行异步线程&quot;);
+        }
+
+        @Override
+        protected String doInBackground(Integer... params) {
+            for (int i = 1; i &lt;= 100; i += 1) {
+                publishProgress(i);         
+               try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return &quot;resultString&quot;;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressBar.setProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            textView.setText(&quot;异步操作执行结束&quot; + result);
+        }
+    }
+</code></pre><h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>好了，这样一个demo，有几点需要解决的问题。</p>
+<ol>
+<li><p>为何他只能执行一次，再调用execute()就会出错</p>
+</li>
+<li><p>doInBackground()是怎么做到在后台执行的</p>
+</li>
+<li><p>为何 onPreExecute()，onProgressUpdate(）和onPostExecute(）能运行在主线程</p>
+</li>
+<li><p>为何Task的实例必须在UI thread中创建,execute方法必须在UI thread中调用；</p>
+</li>
+<li><p>为何不能手动的调用onPreExecute()，onPostExecute()，doInBackground(),，onProgressUpdate()这几个方法；</p>
+</li>
+</ol>
+<p>带着这么几个问题，我们开始深入的看下AsyncTask的源代码。</p>
+<a id="more"></a>
+<h1 id="起源"><a href="#起源" class="headerlink" title="起源"></a>起源</h1><p>让我们根据线索，先看下execute（）方法吧。</p>
+<pre><code>@MainThread
+public final AsyncTask&lt;Params, Progress, Result&gt; execute(Params... params) {
+     return executeOnExecutor(sDefaultExecutor, params);
+}
+
+@MainThread
+public final AsyncTask&lt;Params, Progress, Result&gt; executeOnExecutor(Executor exec,
+            Params... params) {
+
+       if (mStatus != Status.PENDING) {
+           switch (mStatus) {
+               case RUNNING:
+                   throw new IllegalStateException(&quot;Cannot execute task:&quot;
+                           + &quot; the task is already running.&quot;);
+               case FINISHED:
+                   throw new IllegalStateException(&quot;Cannot execute task:&quot;
+                           + &quot; the task has already been executed &quot;
+                           + &quot;(a task can be executed only once)&quot;);
+           }
+       }
+
+       mStatus = Status.RUNNING;
+
+       onPreExecute();
+
+       mWorker.mParams = params;
+       exec.execute(mFuture);
+
+       return this;
+}
+</code></pre><ol>
+<li><p>看到这里，我们似乎得到了<strong>第一个问题的答案</strong>，为何只能执行一次，因为AsyncTask会对自己的状态做一些标记，如果已经是<code>RUNNING</code>或者<code>FINISHED</code>状态，那么就会抛出异常，那么为何需要状态呢？</p>
+<ol>
+<li>主要因为不允许重用！当我们重用的话，一些变量可能被上一次给修改了，再用就有可能出错！就像我们写Junit一样，需要销毁掉，再开始新的测试用例一样。而且当有竞争并发的情况出现后，处理起来的问题就复杂多了。所以还是直接干脆让你在new一个好了。</li>
+<li>另外是为了避免内存泄漏问题！<br>当我们做那么多后台任务，这就有可能导致你的Activity都关了，人家还在干活，这就有可能导致内存泄漏问题啊！返回结果还没人要..</li>
+</ol>
+</li>
+<li><p>在调用了<code>Exccute()</code>后，我们看到他顺势也调用了<code>onPreExecute();</code>，这个运行在主线程也好理解了。</p>
+</li>
+<li><p>我们还看到，他使用本地的<code>sDefaultExecutor</code>执行器来执行了一个<code>mFuture</code>,我们来看下这个<code>sDefaultExecutor</code>，因为我们都听说AsyncTask底层是一个线程池，那到底是怎样的呢？</p>
+<pre><code>public static final Executor SERIAL_EXECUTOR = new SerialExecutor();
+
+private static volatile Executor sDefaultExecutor = SERIAL_EXECUTOR;
+
+ private static class SerialExecutor implements Executor {
+    final ArrayDeque&lt;Runnable&gt; mTasks = new ArrayDeque&lt;Runnable&gt;();
+    Runnable mActive;
+
+    public synchronized void execute(final Runnable r) {
+        mTasks.offer(new Runnable() {
+            public void run() {
+                try {
+                    r.run();
+                } finally {
+                    scheduleNext();
+                }
+            }
+        });
+        if (mActive == null) {
+            scheduleNext();
+        }
+    }
+
+   protected synchronized void scheduleNext() {
+        if ((mActive = mTasks.poll()) != null) {
+            THREAD_POOL_EXECUTOR.execute(mActive);
+        }
+    }
+}
+
+private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
+private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+private static final int KEEP_ALIVE = 1;
+
+public static final Executor THREAD_POOL_EXECUTOR
+            = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE,
+                    TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
+</code></pre><p> 通过代码我们看到，这个<code>sDefaultExecutor</code>是最终用了一个静态的内部类<code>SerialExecutor</code>，这个人如其名，是个线性执行的，一次只执行一个。<br> <strong>而且每次只运行一个异步任务</strong><br> <strong>而且每次只运行一个异步任务</strong><br> <strong>而且每次只运行一个异步任务</strong><br> 当然了你也可以根据自己的需要，指定自己的线程池<br>为了加深你对这个的理解，我写了个简单的demo,我们生成10个task，然后执行，看打印的时间是怎样的</p>
+<pre><code>for (int i = 0; i &lt; 10; i++) {
+    new MySerialAsyncTask().execute(i);
+ } 
+
+class MySerialAsyncTask extends AsyncTask&lt;Integer, Integer, String&gt; {    
+    @Override
+    protected String doInBackground(Integer... params) {
+        Log.e(TAG, &quot; task &quot; + params[0] + &quot; isRuning&quot;);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return &quot;&quot; + params[0];
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        Log.e(TAG, &quot; task &quot; + result + &quot; finish&quot;);
+    }
+}
+</code></pre><p>打印结果</p>
+<pre><code>12-09 03:09:30.760 23235-23267/org.test.demo E/LoginActivty:  task 0 isRuning
+12-09 03:09:33.780 23235-23235/org.test.demo E/LoginActivty:  task 0 finish
+12-09 03:09:33.780 23235-23307/org.test.demo E/LoginActivty:  task 1 isRuning
+12-09 03:09:36.784 23235-23235/org.test.demo E/LoginActivty:  task 1 finish
+12-09 03:09:36.784 23235-23348/org.test.demo E/LoginActivty:  task 2 isRuning
+12-09 03:09:39.792 23235-23235/org.test.demo E/LoginActivty:  task 2 finish
+12-09 03:09:39.808 23235-23395/org.test.demo E/LoginActivty:  task 3 isRuning
+12-09 03:09:42.812 23235-23235/org.test.demo E/LoginActivty:  task 3 finish
+12-09 03:09:42.812 23235-23438/org.test.demo E/LoginActivty:  task 4 isRuning
+12-09 03:09:45.812 23235-23438/org.test.demo E/LoginActivty:  task 5 isRuning
+12-09 03:09:45.812 23235-23235/org.test.demo E/LoginActivty:  task 4 finish
+12-09 03:09:48.816 23235-23438/org.test.demo E/LoginActivty:  task 6 isRuning
+12-09 03:09:48.816 23235-23235/org.test.demo E/LoginActivty:  task 5 finish
+12-09 03:09:51.820 23235-23438/org.test.demo E/LoginActivty:  task 7 isRuning
+12-09 03:09:51.820 23235-23235/org.test.demo E/LoginActivty:  task 6 finish
+12-09 03:09:54.820 23235-23438/org.test.demo E/LoginActivty:  task 8 isRuning
+12-09 03:09:54.820 23235-23235/org.test.demo E/LoginActivty:  task 7 finish
+12-09 03:09:57.824 23235-23438/org.test.demo E/LoginActivty:  task 9 isRuning
+12-09 03:09:57.824 23235-23235/org.test.demo E/LoginActivty:  task 8 finish
+12-09 03:10:00.824 23235-23235/org.test.demo E/LoginActivty:  task 9 finish
+</code></pre><p>我们看到，严格的没三秒后才执行下一个任务<br>当然，我们完全可以并发执行，用<code>AsyncTask.THREAD_POOL_EXECUTOR</code>，<br>根据参数的值，我们可知道是四种常见的线程池之一的<strong>延迟连接池</strong>（newScheduledThreadPool），<br>我们直接用<code>asyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, task);</code><br>就可以多任务并发执行了。当然你也可以自定义一个。<br>之所以这样，是谷歌基于性能的考虑，所以在3.0版本的时候，就改成这个默认的串行。<br>另外当如果我们开太多进程并发的去处理网络请求，挤在一起，那么很容易会把网速都霸占完，结果每个进程分到的网速就那么点， 导致延迟超时问题。</p>
+</li>
+</ol>
+<p>好了，跳了这么远，我们继续回到主线任务上去<br><strong>主线</strong>：</p>
+<pre><code>exec.execute(mFuture);
+</code></pre><p>我们回到上面看到execute()，最后调用了这句，去执行一个<code>mFuture</code>的东东，这个<code>mFuture</code>里面很可能就是执行我们业务内容的地方。让我们去看望下它</p>
+<pre><code>public AsyncTask() {
+        mWorker = new WorkerRunnable&lt;Params, Result&gt;() {
+            public Result call() throws Exception {
+                mTaskInvoked.set(true);
+
+                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                //noinspection unchecked
+                Result result = doInBackground(mParams);
+                Binder.flushPendingCommands();
+                return postResult(result);
+            }
+        };
+
+        mFuture = new FutureTask&lt;Result&gt;(mWorker) {
+            @Override
+            protected void done() {
+                try {
+                    postResultIfNotInvoked(get());
+                } catch (InterruptedException e) {
+                    android.util.Log.w(LOG_TAG, e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(&quot;An error occurred while executing doInBackground()&quot;,
+                            e.getCause());
+                } catch (CancellationException e) {
+                    postResultIfNotInvoked(null);
+                }
+            }
+        };
+}
+
+private static abstract class WorkerRunnable&lt;Params, Result&gt; implements Callable&lt;Result&gt; {
+        Params[] mParams;
+    }
+</code></pre><p>在我们的构造器里面，我们看到了我们的变量<code>mFuture</code>,它包着我们的<code>worker</code>，这个worker背后是实现了<code>Callback</code>接口，<br>而worker里面有一个关键的的一句<code>Result result = doInBackground(mParams);</code>,在这个worker里面执行了我们的<code>doInBackground</code>方法。然后执行的结果Result通过<code>PostResult()</code>做了分发。<br>对于<code>Runnable</code>，<code>Callback</code>，<code>FutureTask</code> 和 <code>Future</code> 这几个凑在一起，有时候还真忘了他们是什么关系。</p>
+<p>如果你不是清楚，那么记得这么个结论，我们的Executor会调用FutureTask里面的run()方法，因为FutureTask内部是实现了接口RunnableFuture的Run()方法的，在这个run()方法里面，会调用这个worker的<code>call()</code>方法。<br>当这个worker工作完了时候，结果就被保存起来了，这时候<code>FutureTask</code>的<code>done()</code>方法会被调用，这时候我们可以通过<code>get()</code>  方法得到结果啦。（呵呵，好想把代码贴出来，所谓有代码有真像的）</p>
+<p>所以看到上面的<code>done（）</code>里面这句<code>postResultIfNotInvoked(get());</code>，就是用来获取我们的worker的运算结果的。</p>
+<p>但最少，看到这里我们的<strong>第二个问题</strong>，doInBackground是怎么做到在后台执行的就知道了，他在<code>call（）</code>里面执行的。然后结果用Handler来post出去的。</p>
+<p>另外这个解决了我们的<strong>第一个问题</strong>，为何他只能执行一次，再调用execute()就会出错。<br>因为我们的mFuture只会被执行一次，再执行是没有效果的，如果我没记错的话   -_-</p>
+<pre><code>private Result postResult(Result result) {
+        @SuppressWarnings(&quot;unchecked&quot;)
+        Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT,
+                new AsyncTaskResult&lt;Result&gt;(this, result));
+        message.sendToTarget();
+        return result;
+    }
+
+ private static class AsyncTaskResult&lt;Data&gt; {
+        final AsyncTask mTask;
+        final Data[] mData;
+
+        AsyncTaskResult(AsyncTask task, Data... data) {
+            mTask = task;
+            mData = data;
+        }
+    }
+</code></pre><p>再来看下我们的getHandler();</p>
+<pre><code>private static Handler getHandler() {
+        synchronized (AsyncTask.class) {
+            if (sHandler == null) {
+                sHandler = new InternalHandler();
+            }
+            return sHandler;
+        }
+    }
+</code></pre><p>我们的<code>getHandler()</code>返回了一个内部静态<code>Handler</code>类,<a href="http://blog.csdn.net/liulipuo/article/details/39029643" target="_blank" rel="noopener">还记得上一篇文章说为何要写成静态内部类吗？</a><br>通过这段代码，我们了解到，由于 Handler 需要和主线程交互，而 Handler 作为静态内部类（静态成员在加载类的时候初始化）内置于 AsyncTask 中的，所以，AsyncTask 的创建必须在主线程。这样我们的<strong>第四个问题</strong>就解决了</p>
+<pre><code>private static class InternalHandler extends Handler {
+
+        public InternalHandler() {
+            super(Looper.getMainLooper());
+             //使用的是一个主线程的looper，这样就把消息切换到了主线程去了
+        }
+
+        @SuppressWarnings({&quot;unchecked&quot;, &quot;RawUseOfParameterizedType&quot;})
+        @Override
+        public void handleMessage(Message msg) {
+            AsyncTaskResult&lt;?&gt; result = (AsyncTaskResult&lt;?&gt;) msg.obj;
+            switch (msg.what) {
+                case MESSAGE_POST_RESULT:
+                    // There is only one result
+                    result.mTask.finish(result.mData[0]);
+                    break;
+                case MESSAGE_POST_PROGRESS:
+                    result.mTask.onProgressUpdate(result.mData);
+                    break;
+            }
+        }
+    }
+</code></pre><p>看到这个Handler的内部构造，我们看到一个<code>MESSAGE_POST_PROGRESS</code>消息下调用<code>onProgressUpdate()</code>，在看下我们的publishProgress()方法，确实发的就是这个消息</p>
+<pre><code>@WorkerThread
+protected final void publishProgress(Progress... values) {
+     if (!isCancelled()) {
+         getHandler().obtainMessage(MESSAGE_POST_PROGRESS,
+                 new AsyncTaskResult&lt;Progress&gt;(this, values)).sendToTarget();
+     }
+}
+</code></pre><p>这样我们的<strong>第三个问题</strong>，为何<code>publishProgress()</code>    可以更主线程UI就知道了。</p>
+<p> <strong>继续回到我们的主任务</strong><br>在这个结果，我们看到了他最后调用了<code>result</code>的<code>mTask</code>里面的<code>finish</code>方法。我们看下具体的内容是什么</p>
+<pre><code>private void finish(Result result) {
+   if (isCancelled()) {
+        onCancelled(result);
+    } else {
+        onPostExecute(result);
+    }
+    mStatus = Status.FINISHED;
+}
+</code></pre><p>在这里我们看到如果是被取消了，就调用onCancelled（），没取消就对<code>onPostExecute(result);</code>的调用，这样基本的流程我们就跑完了。从<code>execute()</code>到<code>onPostExecute()</code></p>
+<hr>
+<p>#后记 </p>
+<p>到这里我们就基本把AsyncTask的主要部分代码看完了，在实现上使用到了FutureTask，Callback这两个平时比较少用的类，温习了下，对他的使用以后就可以更有把握啦。</p>
+<p>看完觉得好和不好，欢迎评论下，知道改进，谢谢。</p>
+<p>虽然这个类应该用的很少了，不过也算了解，避免以后自己写类似的代码，从中也学到不少内容了</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/AsyncTask/" rel="tag">#AsyncTask</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/" rel="prev">源码探索系列3---四大金刚之Activity的启动过程完全解析</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" rel="next">源码探索系列1---Handler与HandlerLeak的那些事</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/09/源码探索系列2---深入解析AsyncTask/"
+     data-title="源码探索系列2---深入解析AsyncTask"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/09/源码探索系列2---深入解析AsyncTask/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/09/源码探索系列2---深入解析AsyncTask/"
+                   data-title="源码探索系列2---深入解析AsyncTask" data-url="http://yoursite.com/2015/12/09/源码探索系列2---深入解析AsyncTask/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#起源"><span class="nav-number">2.</span> <span class="nav-text">起源</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

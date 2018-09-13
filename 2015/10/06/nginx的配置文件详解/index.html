@@ -1,0 +1,841 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="nginx,conf," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="这是一篇介绍关于nginx的配置文件的介绍文章 主要有负载均衡策略，重试策略 ，备机策略 三个模块.">
+<meta name="keywords" content="nginx,conf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx的配置文件详解">
+<meta property="og:url" content="http://yoursite.com/2015/10/06/nginx的配置文件详解/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="这是一篇介绍关于nginx的配置文件的介绍文章 主要有负载均衡策略，重试策略 ，备机策略 三个模块.">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.700Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nginx的配置文件详解">
+<meta name="twitter:description" content="这是一篇介绍关于nginx的配置文件的介绍文章 主要有负载均衡策略，重试策略 ，备机策略 三个模块.">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> nginx的配置文件详解 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              nginx的配置文件详解
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-10-06T13:33:06+08:00" content="2015-10-06">
+            2015-10-06
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/06/nginx的配置文件详解/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/06/nginx的配置文件详解/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>这是一篇介绍关于nginx的配置文件的介绍文章</p>
+<p>主要有负载均衡策略，重试策略 ，备机策略 三个模块.</p>
+<a id="more"></a>
+<h2 id="1-配置文件的内容如下"><a href="#1-配置文件的内容如下" class="headerlink" title="1.配置文件的内容如下"></a>1.配置文件的内容如下</h2><pre><code>#运行nginx所在的用户名和用户组
+#user  www www;
+
+
+##工作的子进程数量（通常等于CPU数量或者2倍于CPU）
+worker_processes 8;
+#全局错误日志及PID文件
+error_log  /usr/local/nginx/logs/nginx_error.log  crit;
+
+pid        /usr/local/nginx/nginx.pid;
+
+#Specifies the value for maximum file descriptors that can be opened by this process.
+
+worker_rlimit_nofile 65535;
+
+#工作模式及连接数上限
+events
+{
+
+  use epoll;
+  #use 设置用于复用客户端线程的轮询方法。
+  #如果你使用Linux 2.6+，你应该使用epoll。
+  #如果你使用*BSD，你应该使用kqueue。       
+  #值得注意的是如果你不知道Nginx该使用哪种轮询方法的话，它会选择一个最适合你操作系统的。
+
+  worker_connections 65535;
+  #允许最大连接数  
+}
+
+#设定http服务器，利用它的反向代理功能提供负载均衡支持
+http
+{
+  #设定mime类型
+  include       mime.types;
+  #设置文件使用的默认的MIME-type。
+  default_type  application/octet-stream;
+
+  include /usr/local/nginx/conf/proxy.conf;#只是一个在当前文件中包含另一个文件内容的指令。这里我们使用它来加载稍后会用到的一系列的MIME类型。
+  #charset  gb2312;#设置我们的头文件中的默认的字符集。还有UTF-8版本的，charset UTF-8;
+
+  #设定请求缓冲   
+  server_names_hash_bucket_size 128;
+  client_header_buffer_size 32k;
+  large_client_header_buffers 4 32k;
+  #client_max_body_size 8m;
+
+  sendfile on;
+  #可以让sendfile()发挥作用。sendfile()可以在磁盘和TCP socket之间互相拷贝数据(或任意两个文件描述符)。Pre-sendfile是传送数据之前在用户空间申请数据缓冲区。之后用read()将数据从文件拷贝到这个缓冲区，write()将缓冲区数据写入网络。sendfile()是立即将数据从磁盘读到OS缓存。因为这种拷贝是在内核完成的，sendfile()要比组合read()和write()以及打开关闭丢弃缓冲更加有效(更多有关于sendfile)
+  tcp_nopush     on; #告诉nginx在一个数据包里发送所有头文件，而不一个接一个的发送
+
+
+
+  keepalive_timeout 60;
+  #keepalive_timeout 给客户端分配keep-alive链接超时时间。
+  #服务器将在这个超时时间过后关闭链接。我们将它设置低些可以让ngnix持续工作的时间更长。
+
+  tcp_nodelay on;
+  #告诉nginx不要缓存数据，而是一段一段的发送–当需要及时发送数据时，就应该给应用设置这个属性，这样发送一小块数据信息时就不能立即得到返回值。
+
+
+
+  access_log  off #设置nginx是否将存储访问日志。关闭这个选项可以让读取磁盘IO操作更快(aka,YOLO)。当然调试的时候还是开一下，看下有什么问题没
+
+
+
+
+  #fastcgi_cache_path /usr/local/nginx/fastcgi_cache levels=1:2 keys_zone=TEST:10m #inactive=5m; #这个指令为FastCGI缓存指定一个路径，目录结构等级，关键字区域存储时间和非活动删除时间。 
+#  fastcgi_connect_timeout 300;#指定连接到后端FastCGI的超时时间。 
+#  fastcgi_send_timeout 300;#向FastCGI传送请求的超时时间，这个值是指已经完成两次握手后向FastCGI传送请求的超时时间。 
+#  fastcgi_read_timeout 300;#接收FastCGI应答的超时时间，这个值是指已经完成两次握手后接收FastCGI应答的超时时间。 
+
+
+#  fastcgi_buffer_size 64k;    #指定读取FastCGI应答第一部分需要用多大的缓冲区，这里可以设置为fastcgi_buffers指令指定的缓冲区大小，上面的指令指定它将使用1 个16k的缓冲区去读取应答的第一部分，即应答头，其实这个应答头一般情况下都很小（不会超过1k），但是你如果在fastcgi_buffers指令中 指定了缓冲区的大小，那么它也会分配一个fastcgi_buffers指定的缓冲区大小去缓存。
+
+#  fastcgi_buffers 4 64k;
+#指定本地需要用多少和多大的缓冲区来缓冲FastCGI的应答，如上所示，如果一个php脚本所产生的页面大小为256k，则会为其分配16个16k的缓 冲区来缓存，如果大于256k，增大于256k的部分会缓存到fastcgi_temp指定的路径中，当然这对服务器负载来说是不明智的方案，因为内存中 处理数据速度要快于硬盘，通常这个值的设置应该选择一个你的站点中的php脚本所产生的页面大小的中间值，比如你的站点大部分脚本所产生的页面大小为 256k就可以把这个值设置为16 16k，或者4 64k 或者64 4k，但很显然，后两种并不是好的设置方法，因为如果产生的页面只有32k，如果用4 64k它会分配1个64k的缓冲区去缓存，而如果使用64 4k它会分配8个4k的缓冲区去缓存，而如果使用16 16k则它会分配2个16k去缓存页面，这样看起来似乎更加合理。
+
+
+#  fastcgi_busy_buffers_size 128k;#这个指令我也不知道是做什么用，只知道默认值是fastcgi_buffers的两倍。
+#  fastcgi_temp_file_write_size 128k;
+#在写入fastcgi_temp_path时将用多大的数据块，默认值是fastcgi_buffers的两倍。
+
+##!!gzip这个很重要，提升性能的重点啊
+##!!gzip这个很重要，提升性能的重点啊
+##!!gzip这个很重要，提升性能的重点啊
+
+#  gzip on;
+#  gzip_disable &quot;msie6&quot;; #为指定的客户端禁用gzip功能。我们设置成IE6或者更低版本以使我们的方案能够广泛兼容。****
+# gzip_static on; ##告诉nginx在压缩资源之前，先查找是否有预先gzip处理过的资源。这要求你预先压缩你的文件（在这个例子中被注释掉了），从而允许你使用最高压缩比，这样nginx就不用再压缩这些文件了（想要更详尽的gzip_static的信息，请点击这里）。
+#  gzip_min_length  1k; #设置对数据启用压缩的最少字节数。如果一个请求小于1000字节，我们最好不要压缩它，因为压缩这些小的数据会降低处理此请求的所有进程的速度。
+#gzip是告诉nginx采用gzip压缩的形式发送数据。这将会减少我们发送的数据量
+#  gzip_buffers     4 16k;
+#  gzip_http_version 1.0;
+#  gzip_comp_level 4;  #设置数据的压缩等级。这个等级可以是1-9之间的任意数值，9是最慢但是压缩比最大的。我们设置为4，这是一个比较折中的设置。
+#  gzip_types       text/plain application/x-javascript text/css application/xml; #设置需要压缩的数据格式。上面例子中已经有一些了，你也可以再添加更多的格式。
+#  gzip_vary on;
+
+
+
+  #limit_zone  crawler  $binary_remote_addr  10m;
+
+
+upstream tomcat{                      # 负载均衡站点的名称为tomcat，可以自己取
+   # ip_hash;                    # 可选，根据来源IP方式选择web服务器，省略的话按默认的轮循方式选择web服务器
+    server 127.0.0.1:8080;       # web服务器的IP地址及tomcat发布端口
+    server 127.0.0.1:8081;
+
+    ＃server localhost:8080 weight=1;
+   ＃server localhost:9999 weight=5;
+   ＃如果你的两台机器性能不一样，一台牛逼，一台配置渣渣，那么给牛逼的那台分配多点任务，使用weight＝5这样的大一些的权重，来让他多干点活。当然具体数值应该根据实际的性能比例来调这个数值
+        }
+server {
+     listen       80;                   # 站点侦听端口80
+     server_name  localhost;            # 站点名称
+
+  location / {
+        root   html;
+        index  index.html index.htm;
+        proxy_pass http://tomcat;      # 负载均衡指向的发布服务tomcat
+          }
+}
+}
+</code></pre><h2 id="2、负载均衡策略"><a href="#2、负载均衡策略" class="headerlink" title="2、负载均衡策略"></a>2、负载均衡策略</h2><p>Nginx 提供轮询（round robin）、用户 IP 哈希（client IP）和指定权重 3 种方式。</p>
+<p>默认情况下，Nginx 会为你提供轮询作为负载均衡策略。但是这并不一定能够让你满意。比如，某一时段内的一连串访问都是由同一个用户 Michael 发起的，那么第一次 Michael 的请求可能是 backend2，而下一次是 backend3，然后是 backend1、backend2、backend3…… 在大多数应用场景中，这样并不高效。当然，也正因如此，Nginx 为你提供了一个按照 Michael、Jason、David 等等这些乱七八糟的用户的 IP 来 hash 的方式，这样每个 client 的访问请求都会被甩给同一个后端服务器。具体的使用方式如下：</p>
+<pre><code> upstream backend {
+    ip_hash;
+    server backend1.example.com;
+    server backend2.example.com;
+    server.backend3.example.com;
+}
+</code></pre><p>这种策略中，用于进行 hash 运算的 key，是 client 的 C 类 IP 地址（C 类 IP 地址就是范围在 192.0.0.0 到 223.255.255.255 之间，前三段号码表示子网，第四段号码为本地主机的 IP 地址类别）。这样的方式保证一个 client 每次请求都将到达同一个 backend。当然，如果所 hash 到的 backend 当前不可用，则请求会被转移到其他 backend。</p>
+<p>再介绍一个和 ip_hash 配合使用的关键字：<code>down</code>。</p>
+<p>当某个一个 server 暂时性的宕机（down）时，你可以使用“down”来标示出来，并且这样被标示的 server 就不会接受请求去处理。具体如下：</p>
+<pre><code> upstream backend {
+    server blog.csdn.net/poechant down;
+    server 145.223.156.89:8090;
+    server unix:/tmp/backend3;
+}
+</code></pre><p>还可以使用指定权重（weight）的方式，如下：</p>
+<pre><code> upstream backend {
+    server backend1.example.com;
+    server 123.321.123.321:456 weight=4;
+} 
+</code></pre><p>默认情况下 weight 为 1，对于上面的例子，第一个 server 的权重取默认值 1，第二个是 4，所以相当于第一个 server 接收 20% 的请求，第二接收 80% 的。要注意的是 weight 与 ip_hash 是不能同时使用的，原因很简单，他们是不同且彼此冲突的策略。</p>
+<h2 id="3、重试策略"><a href="#3、重试策略" class="headerlink" title="3、重试策略"></a>3、重试策略</h2><p>可以为每个 backend 指定最大的重试次数，和重试时间间隔。所使用的关键字是 max_fails 和 fail_timeout。如下所示：</p>
+<pre><code>upstream backend {
+    server backend1.example.com weight=5;
+    server 54.244.56.3:8081 max_fails=3 fail_timeout=30s;
+} 
+</code></pre><p>在上例中，最大失败次数为 3，也就是最多进行 3 次尝试，且超时时间为 30秒。max_fails 的默认值为 1，fail_timeout 的默认值是 10s。传输失败的情形，由 proxy_next_upstream 或 fastcgi_next_upstream 指定。而且可以使用 proxy_connect_timeout 和 proxy_read_timeout 控制 upstream 响应时间。</p>
+<p>有一种情况需要注意，就是 upstream 中只有一个 server 时，max_fails 和 fail_timeout 参数可能不会起作用。导致的问题就是 nginx 只会尝试一次 upstream 请求，如果失败这个请求就被抛弃了 : ( ……解决的方法，比较取巧，就是在 upstream 中将你这个可怜的唯一 server 多写几次，如下：</p>
+<pre><code>upstream backend {
+    server backend.example.com max_fails fail_timeout=30s;
+    server backend.example.com max_fails fail_timeout=30s;
+    server backend.example.com max_fails fail_timeout=30s;
+} 
+</code></pre><h2 id="4、备机策略"><a href="#4、备机策略" class="headerlink" title="4、备机策略"></a>4、备机策略</h2><p>从 Nginx 的 0.6.7 版本开始，可以使用“backup”关键字。当所有的非备机（non-backup）都宕机（down）或者繁忙（busy）的时候，就只使用由 backup 标注的备机。必须要注意的是，backup 不能和 ip_hash 关键字一起使用。举例如下：</p>
+<pre><code>upstream backend {
+    server backend1.example.com;
+    server backend2.example.com backup;
+    server backend3.example.com;
+}
+</code></pre></span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nginx/" rel="tag">#nginx</a>
+          
+            <a href="/tags/conf/" rel="tag">#conf</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/07/给你的redis加上一把锁/" rel="prev">给你的redis加上一把锁</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/10/06/nginx环境的搭建和测试/" rel="next">nginx环境的搭建和测试</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/10/06/nginx的配置文件详解/"
+     data-title="nginx的配置文件详解"
+     data-content=""
+     data-url="http://yoursite.com/2015/10/06/nginx的配置文件详解/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/10/06/nginx的配置文件详解/"
+                   data-title="nginx的配置文件详解" data-url="http://yoursite.com/2015/10/06/nginx的配置文件详解/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-配置文件的内容如下"><span class="nav-number">1.</span> <span class="nav-text">1.配置文件的内容如下</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、负载均衡策略"><span class="nav-number">2.</span> <span class="nav-text">2、负载均衡策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、重试策略"><span class="nav-number">3.</span> <span class="nav-text">3、重试策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、备机策略"><span class="nav-number">4.</span> <span class="nav-text">4、备机策略</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

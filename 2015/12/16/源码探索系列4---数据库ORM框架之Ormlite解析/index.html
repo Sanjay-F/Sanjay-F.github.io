@@ -1,0 +1,1018 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,OrmLite,ORM," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在做项目时候，有使用Ormlite来做数据库部分，以提高开发速度。   OrmLite - Lightweight Object Relational Mapping (ORM) Java Package  这个ORM框架在一般数据量不大的情况下，是一个很好的工具，他封装得很好，使用起来也很方便！相比于原始的Sqlite来说，使用后，很容易回不去了，因为你不再需要敲一堆的sql语句，担心那个字段写">
+<meta name="keywords" content="android,源码,OrmLite,ORM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列4---数据库ORM框架之Ormlite解析">
+<meta property="og:url" content="http://yoursite.com/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在做项目时候，有使用Ormlite来做数据库部分，以提高开发速度。   OrmLite - Lightweight Object Relational Mapping (ORM) Java Package  这个ORM框架在一般数据量不大的情况下，是一个很好的工具，他封装得很好，使用起来也很方便！相比于原始的Sqlite来说，使用后，很容易回不去了，因为你不再需要敲一堆的sql语句，担心那个字段写">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.727Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列4---数据库ORM框架之Ormlite解析">
+<meta name="twitter:description" content="在做项目时候，有使用Ormlite来做数据库部分，以提高开发速度。   OrmLite - Lightweight Object Relational Mapping (ORM) Java Package  这个ORM框架在一般数据量不大的情况下，是一个很好的工具，他封装得很好，使用起来也很方便！相比于原始的Sqlite来说，使用后，很容易回不去了，因为你不再需要敲一堆的sql语句，担心那个字段写">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列4---数据库ORM框架之Ormlite解析 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列4---数据库ORM框架之Ormlite解析
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-16T02:37:00+08:00" content="2015-12-16">
+            2015-12-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在做项目时候，有使用Ormlite来做数据库部分，以提高开发速度。</p>
+<blockquote>
+<p> OrmLite - Lightweight Object Relational Mapping (ORM) Java Package</p>
+</blockquote>
+<p>这个ORM框架在一般数据量不大的情况下，是一个很好的工具，他封装得很好，使用起来也很方便！<br>相比于原始的<code>Sqlite</code>来说，使用后，很容易回不去了，<br>因为你不再需要敲一堆的sql语句，担心那个字段写错，处理cursor，写各种查询等等！<br>重要的是在增加一些字段属性时候，不再需要改到哭了！<br><a id="more"></a></p>
+<p>他提供了很多<code>Builder模式</code>设计的接口，方便我们进行<code>CRUD操作</code>，这真的用起来很友好啊。<br>当然这写ORM都是这样的友好</p>
+<p>如果你用的还是<code>原生的Sqlite</code>，最数据的速度没有那么高的要求（虽然我们实际也经常是开一个线程去加载的），没听说过ORM的，建议你采用下<code>Ormlite</code>。<br>它类似于Hibernate和Mybatis等等，在提高开发效率的同时，也可以有效避免数据库操作对应用带来的潜在影响。不要再去写那些 Magic Number和Xxx了 ，我对他的广告就到这里吧，对于他的使用，可以查看这篇文章</p>
+<p>现在刚好有点时间，就开始解析整个项目的代码，看下他背后是怎么做到这些功能的！</p>
+<h1 id="起航-–-创建表"><a href="#起航-–-创建表" class="headerlink" title="起航 – 创建表"></a>起航 – 创建表</h1><p>Ormlite版本：V4.48</p>
+<p>万事开头难，这个库已经挺成熟也庞大的了。就让我们从创建表格开始说起吧<br>如果你用过，对这句应该很熟悉</p>
+<pre><code>@Override
+    public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
+        try {
+            TableUtils.createTable(connectionSource, User.class);
+}
+</code></pre><p>那他背后到底怎么做到创建表的呢？<br>我猜可能就是根据获取类的注解，来获取各个字段，最后拼凑成sql语句的，让我看下源码吧</p>
+<pre><code>public static &lt;T&gt; int createTable(ConnectionSource connectionSource, Class&lt;T&gt; dataClass) throws SQLException {
+    return createTable(connectionSource, dataClass, false);
+}
+
+private static &lt;T, ID&gt; int createTable(ConnectionSource connectionSource, Class&lt;T&gt; dataClass, boolean ifNotExists) throws SQLException {
+    Dao dao = DaoManager.createDao(connectionSource, dataClass);
+    if(dao instanceof BaseDaoImpl) {
+        return doCreateTable(connectionSource, ((BaseDaoImpl)dao).getTableInfo(), ifNotExists);
+    } else {
+        TableInfo tableInfo = new TableInfo(connectionSource, (BaseDaoImpl)null, dataClass);
+        return doCreateTable(connectionSource, tableInfo, ifNotExists);
+    }
+}
+</code></pre><p>他会先去创建dao，同时这个dao是用<code>容器单例</code>的模式来做的，所以后面我们继续调用这个Dao的时候，可以快速的获得，<br>继续，在得到Dao后，他去创建<code>Table</code>，相关代码如下</p>
+<pre><code> public static synchronized &lt;D extends Dao&lt;T, ?&gt;, T&gt; D createDao(
+                 ConnectionSource connectionSource, Class&lt;T&gt; clazz) throws SQLException {
+
+
+        DaoManager.ClassConnectionSource key = new DaoManager.ClassConnectionSource(connectionSource, clazz);
+
+        Dao dao = lookupDao(key);
+        if(dao != null) {
+            return dao;
+        }  
+        ...
+
+}              
+
+private static &lt;T&gt; Dao&lt;?, ?&gt; lookupDao(DaoManager.ClassConnectionSource key) {
+    if(classMap == null) {
+        classMap = new HashMap();
+    }
+
+    Dao dao = (Dao)classMap.get(key);
+    return dao == null?null:dao;
+}
+</code></pre><p><strong>注意</strong> <strong>注意</strong> <strong>注意</strong><br>说到这里，需要重点强调下！<br>有些人为了省去在自己的<code>ormliteHelper</code>里面写各种的getXXxDao，用下面的方法：<br>例如那个<a href="http://blog.csdn.net/lmj623565791/article/details/39122981" target="_blank" rel="noopener">鸿大神的Android 快速开发系列 ORMLite 框架最佳实践</a> </p>
+<pre><code>public synchronized Dao getDao(Class clazz) throws SQLException  
+    {  
+        Dao dao = null;  
+        String className = clazz.getSimpleName();  
+
+        if (daos.containsKey(className))  
+        {  
+            dao = daos.get(className);  
+        }  
+        if (dao == null)  
+        {  
+            dao = super.getDao(clazz);  
+            daos.put(className, dao);  
+        }  
+        return dao;  
+    }  
+</code></pre><p>显然是没必要的，因为我们看到内部实现已经写了，用一个<code>HashMap</code>去保存了，但不得不说一般人不看源代码，哪里知道这事！他的最佳实践写得还有很多可以优化的地方，下次有空再把自己写的贴上来！最少要把各种操作给封装以下，免得下次要换掉<code>ORMLite</code>怎办？</p>
+<p>创建表：</p>
+<pre><code>private static &lt;T, ID&gt; int doCreateTable(ConnectionSource connectionSource, TableInfo&lt;T, ID&gt; tableInfo, boolean ifNotExists) throws SQLException {
+    DatabaseType databaseType = connectionSource.getDatabaseType();
+    logger.info(&quot;creating table \&apos;{}\&apos;&quot;, tableInfo.getTableName());
+    ArrayList statements = new ArrayList();
+    ArrayList queriesAfter = new ArrayList();
+    addCreateTableStatements(databaseType, tableInfo, statements, queriesAfter, ifNotExists);
+    DatabaseConnection connection = connectionSource.getReadWriteConnection();
+
+    int var8;
+    try {
+        int stmtC = doStatements(connection, &quot;create&quot;, statements, false, databaseType.isCreateTableReturnsNegative(), databaseType.isCreateTableReturnsZero());
+        stmtC += doCreateTestQueries(connection, databaseType, queriesAfter);
+        var8 = stmtC;
+    } finally {
+        connectionSource.releaseConnection(connection);
+    }
+
+    return var8;
+}
+</code></pre><p>这里有需要注意的</p>
+<ol>
+<li><p><strong>addCreateTableStatements(databaseType, tableInfo, statements, queriesAfter, ifNotExists);</strong><br>这句负责去生成我们要执行的sql语句。</p>
+<pre><code> private static &lt;T, ID&gt; void addCreateTableStatements(DatabaseType databaseType, TableInfo&lt;T, ID&gt; tableInfo, List&lt;String&gt; statements, List&lt;String&gt; queriesAfter, boolean ifNotExists) throws SQLException {
+    StringBuilder sb = new StringBuilder(256);
+    sb.append(&quot;CREATE TABLE &quot;);
+    if(ifNotExists &amp;&amp; databaseType.isCreateIfNotExistsSupported()) {
+        sb.append(&quot;IF NOT EXISTS &quot;);
+    }
+
+    databaseType.appendEscapedEntityName(sb, tableInfo.getTableName());
+    sb.append(&quot; (&quot;);
+    ArrayList additionalArgs = new ArrayList();
+    ArrayList statementsBefore = new ArrayList();
+    ArrayList statementsAfter = new ArrayList();
+    boolean first = true;
+    FieldType[] i$ = tableInfo.getFieldTypes();
+    int arg = i$.length;
+
+    for(int i$1 = 0; i$1 &lt; arg; ++i$1) {
+        FieldType fieldType = i$[i$1];
+        if(!fieldType.isForeignCollection()) {
+            if(first) {
+                first = false;
+            } else {
+                sb.append(&quot;, &quot;);
+            }
+
+            String columnDefinition = fieldType.getColumnDefinition();
+            if(columnDefinition == null) {
+                databaseType.appendColumnArg(tableInfo.getTableName(), sb, fieldType, additionalArgs, statementsBefore, statementsAfter, queriesAfter);
+            } else {
+                databaseType.appendEscapedEntityName(sb, fieldType.getColumnName());
+                sb.append(&apos; &apos;).append(columnDefinition).append(&apos; &apos;);
+            }
+        }
+    }
+
+    databaseType.addPrimaryKeySql(tableInfo.getFieldTypes(), additionalArgs, statementsBefore, statementsAfter, queriesAfter);
+    databaseType.addUniqueComboSql(tableInfo.getFieldTypes(), additionalArgs, statementsBefore, statementsAfter, queriesAfter);
+    Iterator var16 = additionalArgs.iterator();
+
+    while(var16.hasNext()) {
+        String var15 = (String)var16.next();
+        sb.append(&quot;, &quot;).append(var15);
+    }
+
+    sb.append(&quot;) &quot;);
+    databaseType.appendCreateTableSuffix(sb);
+    statements.addAll(statementsBefore);
+    statements.add(sb.toString());
+    statements.addAll(statementsAfter);
+    addCreateIndexStatements(databaseType, tableInfo, statements, ifNotExists, false);
+    addCreateIndexStatements(databaseType, tableInfo, statements, ifNotExists, true);
+}
+</code></pre></li>
+<li><p><strong>int stmtC = doStatements(connection, “create”, statements, false, </strong><br><strong>databaseType.isCreateTableReturnsNegative(), databaseType.isCreateTableReturnsZero());</strong><br>这句负责去执行我们的sql语句 </p>
+<pre><code> private static int doStatements(DatabaseConnection connection, String label, Collection&lt;String&gt; statements, boolean ignoreErrors, boolean returnsNegative, boolean expectingZero) throws SQLException {
+
+    int stmtC = 0;
+
+    for(Iterator i$ = statements.iterator(); i$.hasNext(); ++stmtC) {
+        String statement = (String)i$.next();
+        int rowC = 0;
+        CompiledStatement compiledStmt = null;
+
+            compiledStmt = connection.compileStatement(statement, StatementType.EXECUTE, noFieldTypes, -1);
+            rowC = compiledStmt.runExecute();
+            logger.info(&quot;executed {} table statement changed {} rows: {}&quot;, label, Integer.valueOf(rowC), statement); 
+        }
+
+       ...
+
+    return stmtC;
+}
+</code></pre><p>其中 <code>connection.compileStatement(）</code>，这个<code>connection</code>从前面可以看到在<br><code>DatabaseConnection connection =connectionSource.getReadWriteConnection();</code><br>是<code>ConnectionSource</code>给他的。而 <code>DatabaseConnection</code>是一个接口，他的具体实现是<code>AndroidConnectionSource</code>，出现在<code>OrmLiteSqliteOpenHelper</code> 的构造函数里面。</p>
+<p>   我们继续看下这个getReadWriteConnection() 里面返回了什么，因为这是把<code>Ormlite</code>和<code>Sqlite</code>连接上的地方</p>
+<pre><code>public DatabaseConnection getReadWriteConnection() throws SQLException {
+
+            ...
+
+      SQLiteDatabase db;
+      if(this.sqliteDatabase == null) { 
+               ....
+          db = this.helper.getWritableDatabase();
+      }else{                         
+          db = this.sqliteDatabase;
+      }
+
+      this.connection = new AndroidDatabaseConnection(db, true, this.cancelQueriesEnabled);
+      if(connectionProxyFactory != null) {
+          this.connection = connectionProxyFactory.createProxy(this.connection);
+      } 
+
+      return this.connection;
+
+}
+</code></pre><p>我们清楚的看到，他把我们的<code>SQLiteDatabase</code>给抓了，重新包装成了<code>AndroidDatabaseConnection</code>类，然后返回，而这个是实现了<code>DatabaseConnection</code>接口的，感觉像一个代理模型啊。<br>既然找到别后实际干活的人，那我们继续看下我们原来的那个<br><code>compiledStmt = connection.compileStatement(statement, StatementType.EXECUTE, noFieldTypes, -1);</code><br>里面到底做了什么。</p>
+<pre><code>public CompiledStatement compileStatement(String statement, StatementType type, FieldType[] argFieldTypes, int resultFlags) {
+
+        AndroidCompiledStatement stmt = new AndroidCompiledStatement(statement, this.db, type, this.cancelQueriesEnabled);
+
+        return stmt;
+    }
+</code></pre><p>我们看到的是他只是简单的把他封装成了一个<code>AndroidCompiledStatement</code>类，同时把我们的<code>SQLiteDatabase  DB</code>也送给他，交给他去干活 。另外他的命名也很有规则啊，涉及到具体于安卓相关的干活的人，都加个AndroidXXX的格式，这个则具体实现了CompiledStatement接口。</p>
+<pre><code>public class AndroidCompiledStatement implements CompiledStatement 
+</code></pre><p>我们继续看那个<code>runExecute()</code>方法的内容</p>
+<pre><code>public int runExecute() throws SQLException {
+   ...
+   return execSql(this.db, &quot;runExecute&quot;, this.sql, this.getArgArray()); 
+}
+</code></pre><p>好啦，看了这么久，终于看到一个背后具体干活去执行语句，创建我们的表的地方啦</p>
+<pre><code>static int execSql(SQLiteDatabase db, String label, String finalSql, Object[] argArray) {         
+
+    db.execSQL(finalSql, argArray);
+   ...
+
+    SQLiteStatement stmt = null;        
+    int result;
+
+    stmt = db.compileStatement(&quot;SELECT CHANGES()&quot;);
+    result = (int)stmt.simpleQueryForLong();          
+    if(stmt != null) {
+        stmt.close();
+    }        
+
+    return result;
+}
+</code></pre><p>到这里，我们的第一步，创建表的过程就了解。<br>他把所有的关于操作数据库的部分用接口写处理啊，然后加一个AndroidXXX，来表示具体实现，由它负责去干活，从而解耦，很好的面向接口编程的方式。</p>
+</li>
+</ol>
+<p>#四大神兽—CRUD</p>
+<p>看完了创建表的功能，接下来我们了解下基本的四大神兽增删查改—CRUD </p>
+<h2 id="增加-Create"><a href="#增加-Create" class="headerlink" title="增加(Create)"></a>增加(Create)</h2><p>先从我们的看到的第一句开始做入口</p>
+<pre><code>DataHelper helper = new DataHelper(this);        
+helper.getUserDao().create(mUser);
+</code></pre><p>这里，我们的Dao类也是一个借口，我们重新找真正干活的，不知道你在上面的流程有没注意到他的实现类是出现过的，就在我们创建表的时候，看到了一个<code>BaseDaoImpl</code>，居然不是AndroidDao的样子，不科学.</p>
+<pre><code>private static &lt;T, ID&gt; int createTable(ConnectionSource connectionSource, Class&lt;T&gt; dataClass, boolean ifNotExists) throws SQLException {
+    Dao dao = DaoManager.createDao(connectionSource, dataClass);
+    if(dao instanceof BaseDaoImpl) {
+        return doCreateTable(connectionSource, ((BaseDaoImpl)dao).getTableInfo(), ifNotExists);
+    } else {
+        TableInfo tableInfo = new TableInfo(connectionSource, (BaseDaoImpl)null, dataClass);
+        return doCreateTable(connectionSource, tableInfo, ifNotExists);
+    }
+}
+</code></pre><p>就是这里提示了我们是BaseDaoImpl，我们就去这里，看下背后干了什么</p>
+<pre><code>public int create(T data) throws SQLException {
+
+    ...
+
+    DatabaseConnection connection1 = this.connectionSource.getReadWriteConnection();
+
+    int var3;
+    try {
+        var3 = this.statementExecutor.create(connection1, data, this.objectCache);
+    } finally {
+        this.connectionSource.releaseConnection(connection1);
+    }
+
+    return var3;  
+}
+</code></pre><p>我们看到了些熟悉的东西，<code>DatabaseConnection connection1 = this.connectionSource.getReadWriteConnection();</code><br>获得与数据库的连接，然后<code>this.statementExecutor.create(connection1, data, this.objectCache);</code>这个执行语句。</p>
+<pre><code>public int create(DatabaseConnection databaseConnection, T data, ObjectCache objectCache) throws SQLException {
+    if(this.mappedInsert == null) {
+        this.mappedInsert = MappedCreate.build(this.databaseType, this.tableInfo);
+    }
+
+    return this.mappedInsert.insert(this.databaseType, databaseConnection, data, objectCache);
+}
+</code></pre><p>  这里有一点需要注意的，就是这个<code>MappedCreate.build()</code>，他负责的工作和他名字一样，是做Map工作的，<code>build（）</code>函数他根据传给他的表信息<code>tableInfo</code>，生成了相关的插入Sql语句。交给后面去执行<br>    经过处理后，我们继续看插入操作</p>
+<pre><code>public int insert(DatabaseType databaseType, DatabaseConnection databaseConnection, T data, ObjectCache objectCache) throws SQLException {
+
+    ...
+
+   rowC = databaseConnection.insert(this.statement, var14, this.argFieldTypes, keyHolder);
+    ...             
+
+}
+</code></pre><p>   很好，这个<code>databaseConnection</code>我们知道，前面遇到过他了，<code>AndroidDatabaseConnection</code>是他的具体实现，我们去他的insert看看，很可能就是实际插入的地方</p>
+<pre><code>public int insert(String statement, Object[] args, FieldType[] argFieldTypes, GeneratedKeyHolder keyHolder) throws SQLException {
+
+    SQLiteStatement stmt = null;
+    byte var9; 
+
+    stmt = this.db.compileStatement(statement);
+    this.bindArgs(stmt, args, argFieldTypes);
+    long e = stmt.executeInsert();
+
+    ...
+    byte result = 1;      
+    var9 = result;     
+     ...
+    return var9;
+}
+</code></pre><p>看到这里，整个语句也就结束了， 他这里使用的方式是<br><code>stmt = this.db.compileStatement(statement);</code>然后加参数bindArgs(）的形式去执的。</p>
+<h2 id="读取-Retrieve"><a href="#读取-Retrieve" class="headerlink" title="读取(Retrieve)"></a>读取(Retrieve)</h2><p>下次补充。。。<br>这个和前面不一样</p>
+<h2 id="更新-Update"><a href="#更新-Update" class="headerlink" title="更新(Update)"></a>更新(Update)</h2><p>前面的步骤和Create的差不多，就不多余，在我们的最后的AndroidDatabaseConnection里面有一点不一样，</p>
+<pre><code>public int update(String statement, Object[] args, FieldType[] argFieldTypes) throws SQLException {
+    return this.update(statement, args, argFieldTypes, &quot;updated&quot;);
+} 
+
+ private int update(String statement, Object[] args, FieldType[] argFieldTypes, String label) throws SQLException {
+    SQLiteStatement stmt = null;
+    ...
+
+    stmt = this.db.compileStatement(statement);
+    this.bindArgs(stmt, args, argFieldTypes);
+    stmt.execute();
+
+    int result;
+
+    stmt = this.db.compileStatement(&quot;SELECT CHANGES()&quot;);
+    result = (int)stmt.simpleQueryForLong();
+     ...
+
+    return result;
+}
+</code></pre><h2 id="删除-Delete"><a href="#删除-Delete" class="headerlink" title="删除(Delete)"></a>删除(Delete)</h2><p>前面的步骤和Create的差不多，就不重复，不一样的地方在于他是重用了update函数的</p>
+<pre><code>public int delete(String statement, Object[] args, FieldType[] argFieldTypes) throws SQLException {
+    return this.update(statement, args, argFieldTypes, &quot;deleted&quot;);
+}
+</code></pre><hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>时间限制，今天就先写到这类把。。。<br>更多内容再做补充</p>
+<ol>
+<li>关于CRUD操作的Buildr模式</li>
+<li>直接的查询工作。</li>
+<li>还有解析注解部分，生成表的工作</li>
+<li>各个类之间调用的类关系图等</li>
+</ol>
+<hr>
+<p>参考资料：</p>
+<p><a href="http://ormlite.com/" target="_blank" rel="noopener">Ormlite官网</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/OrmLite/" rel="tag">#OrmLite</a>
+          
+            <a href="/tags/ORM/" rel="tag">#ORM</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/" rel="prev">源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/" rel="next">源码探索系列3---四大金刚之Activity的启动过程完全解析</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/"
+     data-title="源码探索系列4---数据库ORM框架之Ormlite解析"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/"
+                   data-title="源码探索系列4---数据库ORM框架之Ormlite解析" data-url="http://yoursite.com/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航-–-创建表"><span class="nav-number">1.</span> <span class="nav-text">起航 – 创建表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#增加-Create"><span class="nav-number">1.1.</span> <span class="nav-text">增加(Create)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取-Retrieve"><span class="nav-number">1.2.</span> <span class="nav-text">读取(Retrieve)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更新-Update"><span class="nav-number">1.3.</span> <span class="nav-text">更新(Update)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删除-Delete"><span class="nav-number">1.4.</span> <span class="nav-text">删除(Delete)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

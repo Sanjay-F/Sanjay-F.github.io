@@ -1,0 +1,1065 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,View,事件分发," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="关于View的事件分发，实质就是关于MotionEvent时间的分发再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。  三巨头分发过程中有主要涉及到三个人：dispatchTouchEvent(),onInterceptTouchEvent(),onTouchEvent()这三者的关系如下  public boolean dispatchTouchEvent(Motio">
+<meta name="keywords" content="android,源码,View,事件分发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列12---关于事件分发机制">
+<meta property="og:url" content="http://yoursite.com/2015/12/27/源码探索系列12---关于事件分发机制/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="关于View的事件分发，实质就是关于MotionEvent时间的分发再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。  三巨头分发过程中有主要涉及到三个人：dispatchTouchEvent(),onInterceptTouchEvent(),onTouchEvent()这三者的关系如下  public boolean dispatchTouchEvent(Motio">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151227164259739">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160428104314.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.708Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列12---关于事件分发机制">
+<meta name="twitter:description" content="关于View的事件分发，实质就是关于MotionEvent时间的分发再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。  三巨头分发过程中有主要涉及到三个人：dispatchTouchEvent(),onInterceptTouchEvent(),onTouchEvent()这三者的关系如下  public boolean dispatchTouchEvent(Motio">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151227164259739">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列12---关于事件分发机制 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列12---关于事件分发机制
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-27T21:36:00+08:00" content="2015-12-27">
+            2015-12-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>关于View的事件分发，实质就是关于MotionEvent时间的分发<br>再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。</p>
+<ul>
+<li><p><strong>三巨头</strong><br>分发过程中有主要涉及到三个人：<br><code>dispatchTouchEvent()</code>,<code>onInterceptTouchEvent()</code>,<code>onTouchEvent()</code><br>这三者的关系如下</p>
+<pre><code> public boolean dispatchTouchEvent(MotionEvent ev) {
+      boolean belongToMe=false;
+      if(onInterceptTouchEvent(ev)){
+           belongToMe=onTouchEvent(ev);
+      }else{
+          belongToMe=child.dispatchTouchEvent(ev);
+      }
+      return belongToMe;
+}        
+</code></pre><a id="more"></a>
+<pre><code>但有点击事件产生的时候，    dispatchTouchEvent被调用，然后给onInterceptTouchEvent看下要不要拦截，拦截下来的就调用onTouchEvent处理下。如果不拦截，就传递给子view去做，重复这个流程。
+</code></pre><p>不过需要说的是，这个onInterceptTouchEvent()是ViewGroup的，View里面没有这个。<br><strong>另外</strong>这个事件还受<code>OnTouchListener</code>这个的影响，如果我们设置了监听，且他的<code>onTouch（）</code>事件返回真，那么事件是不会发到<code>onTouchEvent</code>里面去的。即前者有更高的优先级。</p>
+</li>
+<li><p><strong>传递顺序</strong><br>事件的传递顺序是从Activity传起，最后到我们的各种View里面去的，即使父传给子的关系。<br>如果传到底部的<code>onTouchEvent</code>也没有人出来处理这个MotionEvent的话，最终这个事件会像递归一样，跑回来Activity，然后他的<code>onTouchEvent</code>函数被调用.<br><img src="http://img.blog.csdn.net/20151227164259739" alt="图1"><br>即：<br>MotionEvent—-&gt;Activity-&gt;widnow-&gt;DecorView-&gt;ViewGroup-&gt;View-&gt;ViewGroup-&gt;DecorView-&gt;window-&gt;Activity;<br>就像下面这样的：</p>
+</li>
+</ul>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160428104314.png" alt="enter image description here"><br>HEXO到现在不支持时序图，也是挺郁闷的，下次得看下怎么改</p>
+<pre><code class="sequence">Note left of Activity: 我要去给Activity \n 送点击事件咯
+Note over Activity: 啊哈，我收到了MotionEvent 
+Activity-&gt;Widnow:dispatchTouchEvent 
+Widnow-&gt;DecorView:dispatchTouchEvent
+DecorView-&gt;ViewGroup:dispatchTouchEvent 
+ViewGroup-&gt;View:dispatchTouchEvent 
+
+View-&gt;ViewGroup:搞不定啊
+ViewGroup-&gt;DecorView:搞不定啊
+DecorView-&gt;Widnow:搞不定啊
+Widnow-&gt;Activity:搞不定啊
+Activity-&gt;Activity:onTouchEvent()
+
+</code></pre>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23</p>
+<p>我们看下我们的Activity的处理</p>
+<pre><code>public boolean dispatchTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+        onUserInteraction();
+    }
+    if (getWindow().superDispatchTouchEvent(ev)) {
+        return true;
+    }
+    return onTouchEvent(ev);
+}
+</code></pre><p>他会调用window的时间分发，把时间分发下去，如果返回的是false，再调用回自己的<code>onTouchEvent（）</code>。<br>这里的getWindow()返回的是Windows类，一个抽象类，他的具体实现是PhoneWidnow<br>看下我们的PhoneWindow里面写的内容：</p>
+<pre><code>@Override
+public boolean superDispatchTouchEvent(MotionEvent event) {
+    return mDecor.superDispatchTouchEvent(event);
+}
+</code></pre><p>跑去了mDecor即DecorView里面去了 </p>
+<pre><code>private final class DecorView extends FrameLayout implements RootViewSurfaceTaker 
+</code></pre><p>这DecorView是PhoneWindow里面的一个内部类，继承FrameLayout。<br>我们在Activity里面通过<code>setContentView(R.layout.activity_main);</code>来设置我们的界面，而这个函数生成的View，即我们的界面是他的子View。<br>所以他的分发事件我们看下，是直接调用super的。这样再去看顶部的那张<code>图1</code>，ViewGroup下面一堆的View。就可以知道事件最后会分发到我们的View去。</p>
+<pre><code>public boolean superDispatchTouchEvent(MotionEvent event) {
+        return super.dispatchTouchEvent(event);
+}
+</code></pre><p>好了，我们继续看下那个ViewGroup里面的内容</p>
+<pre><code>@Override
+public boolean dispatchTouchEvent(MotionEvent ev) {
+
+      ...
+
+    //1.  Handle an initial down.
+    if (actionMasked == MotionEvent.ACTION_DOWN) {
+        // Throw away all previous state when starting a new touch gesture.
+        // The framework may have dropped the up or cancel event for the previous gesture
+        // due to an app switch, ANR, or some other state change.
+        cancelAndClearTouchTargets(ev);
+        resetTouchState();
+    }
+
+   //2.  Check for interception.
+    final boolean intercepted;
+    if (actionMasked == MotionEvent.ACTION_DOWN
+            || mFirstTouchTarget != null) {
+        final boolean disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != 0;
+        if (!disallowIntercept) {
+            intercepted = onInterceptTouchEvent(ev);
+            ev.setAction(action); // restore action in case it was changed
+        } else {
+            intercepted = false;
+        }
+    }else {
+        // There are no touch targets and this action is not an initial down
+        // so this view group continues to intercept touches.
+        intercepted = true;
+    } 
+
+
+   //3.分发事件 
+    final View[] children = mChildren;
+    for (int i = childrenCount - 1; i &gt;= 0; i--) {
+        final int childIndex = customOrder
+                ? getChildDrawingOrder(childrenCount, i) : i;
+        final View child = (preorderedList == null)
+                ? children[childIndex] : preorderedList.get(childIndex);
+        if (!canViewReceivePointerEvents(child)
+                || !isTransformedTouchPointInView(x, y, child, null)) {
+            continue;
+        }
+
+        newTouchTarget = getTouchTarget(child);
+        if (newTouchTarget != null) {
+            // Child is already receiving touch within its bounds.
+            // Give it the new pointer in addition to the ones it is handling.
+            newTouchTarget.pointerIdBits |= idBitsToAssign;
+            break;
+        }
+
+        resetCancelNextUpFlag(child);
+        if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
+            // Child wants to receive touch within its bounds.
+            mLastTouchDownTime = ev.getDownTime();
+            if (preorderedList != null) {
+                // childIndex points into presorted list, find original index
+                for (int j = 0; j &lt; childrenCount; j++) {
+                    if (children[childIndex] == mChildren[j]) {
+                        mLastTouchDownIndex = j;
+                        break;
+                    }
+                }
+            } else {
+                mLastTouchDownIndex = childIndex;
+            }
+            mLastTouchDownX = ev.getX();
+            mLastTouchDownY = ev.getY();
+            newTouchTarget = addTouchTarget(child, idBitsToAssign);
+            alreadyDispatchedToNewTouchTarget = true;
+            break;
+        }
+    }
+
+
+        // Dispatch to touch targets.
+        if (mFirstTouchTarget == null) {
+            // No touch targets so treat this as an ordinary view.
+            handled = dispatchTransformedTouchEvent(ev, canceled, null,
+                    TouchTarget.ALL_POINTER_IDS);
+        } else {
+           ...
+        }
+
+     ...
+    return handled;
+}
+</code></pre><p>这个过程真的挺长的，一百多行，不过在看多了AMS里面的内容，这个也就一般般的感觉了。<br><strong>我们慢慢说起，</strong></p>
+<ol>
+<li><p>首先第一步。<br>我们看下第二个函数里面的内容</p>
+<pre><code>private void resetTouchState() {
+    clearTouchTargets();
+    resetCancelNextUpFlag(this);
+    mGroupFlags &amp;= ~FLAG_DISALLOW_INTERCEPT;
+    mNestedScrollAxes = SCROLL_AXIS_NONE;
+}
+</code></pre><p>这里他会去设置一个   <code>FLAG_DISALLOW_INTERCEPT</code>的标记，关于他，真的是看得好累啊。<br>下次补充。<a href="http://blog.csdn.net/jiwangkailai02/article/details/46666147" target="_blank" rel="noopener">可以看下这篇文章</a></p>
+</li>
+<li><p>看下拦截里面的内容</p>
+<pre><code>final boolean intercepted;
+   if (actionMasked == MotionEvent.ACTION_DOWN
+           || mFirstTouchTarget != null) {
+       final boolean disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != 0;
+       if (!disallowIntercept) {
+           intercepted = onInterceptTouchEvent(ev);
+           ev.setAction(action); // restore action in case it was changed
+       } else {
+           intercepted = false;
+       }
+   }else {
+       // There are no touch targets and this action is not an initial down
+       // so this view group continues to intercept touches.
+       intercepted = true;
+   } 
+</code></pre><p>他判断这个事件是否为<code>Action_Down</code>或者<code>mFirstTouchTarget != null</code>来进一步选择是否要拦截。<br>前面的判断条件好理解，后面这个<code>mFirstTouchTarget</code>表示的意思是， 当事件由子View成功处理后，mFirstTouchTarget会被赋值并指向childView，就是说，如果这时间被childView处理了，这标记就不是空，因此ViewGroup不再做拦截，并且事件将继续默认都交给这个ChildView。因此这个<code>onInterceptTouchEvent（）</code>并不是每次都回被调用，虽然我开头那样写，看起来像每次都要拦截的样子。</p>
+</li>
+<li><p>事件分发<br>在事件分发部分的内容，他先看下这个Child是在播动画，或者这个child的区域在不再这个Event的范围内的，不在范围就不发给这个child。</p>
+<pre><code>if (!canViewReceivePointerEvents(child)
+                || !isTransformedTouchPointInView(x, y, child, null)) {
+            continue;
+        }
+</code></pre><p>如果没播而且在这个范围内，就发送事件给她</p>
+<pre><code>dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)
+</code></pre><p>具体的内容是调用他的<code>dispatchTouchEvent()</code>,就像下面代码一样。</p>
+<pre><code>private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
+    View child, int desiredPointerIdBits) {
+final boolean handled;
+
+        final int oldAction = event.getAction();
+        if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
+            event.setAction(MotionEvent.ACTION_CANCEL);
+            if (child == null) {
+                handled = super.dispatchTouchEvent(event);
+            } else {
+                handled = child.dispatchTouchEvent(event);
+            }
+            event.setAction(oldAction);
+            return handled;
+        }                
+        ...
+}
+</code></pre><p>如果这个处理返回的handled是 <strong>true</strong>，那么我们看到下面的内容：</p>
+<pre><code>newTouchTarget = addTouchTarget(child, idBitsToAssign);
+alreadyDispatchedToNewTouchTarget = true;
+break;
+</code></pre><p>他标记新的touchTarGet，然后退出循环，另外在addTouchTarget()函数里面 </p>
+<pre><code>private TouchTarget addTouchTarget(View child, int pointerIdBits) {
+    TouchTarget target = TouchTarget.obtain(child, pointerIdBits);
+    target.next = mFirstTouchTarget;
+    mFirstTouchTarget = target;
+    return target;
+}
+</code></pre><p>我们看到了<code>mFirstTouchTarget = target</code>     这句话，前面我们在拦截的时候，有用到这个作为一个判断条件！判断是否要对事件拦截。<br>对于循环一圈分发完后，如果都没人处理的话，即没有一个ChildView或者ChildView返回了false的情况。</p>
+<pre><code>// Dispatch to touch targets.
+if (mFirstTouchTarget == null) {
+      // No touch targets so treat this as an ordinary view.
+      handled = dispatchTransformedTouchEvent(ev, canceled, null,
+              TouchTarget.ALL_POINTER_IDS);
+ } 
+</code></pre><p>这时候我们的ViewGroup就自己处理了。这个<code>dispatchTransformedTouchEvent(）</code>我们前面有提到，因child参数被设成null，我们知道他会调用 <code>handled = super.dispatchTouchEvent(event);</code>这句。<br>这句跑去调用的就是View的dispatchTouchEvent(）去了。</p>
+</li>
+</ol>
+<p><strong>小结：</strong><br>这里我们可以做个简单的总结，当我们ViewGroup在分发事件的过程中，如果自己的childView没一个处理好了事件，那么这事件会从ViewGroup转到View去分发。</p>
+<h1 id="前进-——-View的事件处理"><a href="#前进-——-View的事件处理" class="headerlink" title="前进 —— View的事件处理"></a>前进 —— View的事件处理</h1><pre><code>public boolean dispatchTouchEvent(MotionEvent event) {
+    boolean result = false;
+    ... 
+
+    if (onFilterTouchEventForSecurity(event)) { 
+        ListenerInfo li = mListenerInfo;
+        if (li != null &amp;&amp; li.mOnTouchListener != null
+                &amp;&amp; (mViewFlags &amp; ENABLED_MASK) == ENABLED
+                &amp;&amp; li.mOnTouchListener.onTouch(this, event)) {
+            result = true;
+        }
+
+        if (!result &amp;&amp; onTouchEvent(event)) {
+            result = true;
+        }
+    }
+    ...
+
+    return result;
+}
+</code></pre><p> 我们截取重要部分。<br> 他看下我们有没设置<code>onTouchListener</code>，如果有调用，并且如果返回的是true，那么就结束了，不会再去调用<code>onTouchEvent</code>了，没有的话才去调用onTouchEvent。<br> 这个onTouchevent还是挺长的，基本都是对event的Action()做处理，为何不分割成几个小函数呢，不就容易看多了。<br> 哎，这里弄个大概的样子，方便掌握整体，清楚顺序逻辑。</p>
+<pre><code>public boolean onTouchEvent(MotionEvent event) {
+    final float x = event.getX();
+    final float y = event.getY();
+    final int viewFlags = mViewFlags;
+
+    if ((viewFlags &amp; ENABLED_MASK) == DISABLED) {
+        if (event.getAction() == MotionEvent.ACTION_UP &amp;&amp; (mPrivateFlags &amp; PFLAG_PRESSED) != 0) {
+            setPressed(false);
+        }
+        // A disabled view that is clickable still consumes the touch
+        // events, it just doesn&apos;t respond to them.
+        return (((viewFlags &amp; CLICKABLE) == CLICKABLE ||
+                (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE));
+    }
+
+    if (mTouchDelegate != null) {
+        if (mTouchDelegate.onTouchEvent(event)) {
+            return true;
+        }
+    }
+
+    if (((viewFlags &amp; CLICKABLE) == CLICKABLE ||
+            (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE)) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                 ...
+                 break;
+
+            case MotionEvent.ACTION_DOWN:
+                 ...
+                 break;
+
+            case MotionEvent.ACTION_CANCEL:
+                setPressed(false);
+                removeTapCallback();
+                removeLongPressCallback();
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                 ...
+                 break;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+</code></pre><p>我们来看下开头的</p>
+<pre><code>if ((viewFlags &amp; ENABLED_MASK) == DISABLED) {
+     if (event.getAction() == MotionEvent.ACTION_UP &amp;&amp; (mPrivateFlags &amp; PFLAG_PRESSED) != 0) {
+         setPressed(false);
+     }
+     // A disabled view that is clickable still consumes the touch
+     // events, it just doesn&apos;t respond to them.
+      return (((viewFlags &amp; CLICKABLE) == CLICKABLE ||
+             (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE));
+ }
+
+ if (mTouchDelegate != null) {
+     if (mTouchDelegate.onTouchEvent(event)) {
+         return true;
+     }
+ }
+</code></pre><p>这里说的内容是，当我们设置我们的View是Disabled的状态，不过还ClickAble的话，就消耗掉事件。<br><strong>这里补充一点：</strong><br> 我们平常的LONG_CLICKABLE默认是false，而CLICKABLE就分情况了，例如那个Textview就默认是false。Button默认是true。有时我习惯用Textview来替代Button做一些事，所以老要加这个熟悉的设置….</p>
+<p>接下来就到了一句有趣的了，如果我们给View设置了代理，就调用我们的代理 <code>onTouchEvent(）</code>去干活。<br>这么久都没有设置过<code>view.setTouchDelegate()</code>有点意思，查了下，<a href="http://blog.csdn.net/tongcpp/article/details/23450975" target="_blank" rel="noopener">可以用来扩大触摸点击区域</a></p>
+<p>接着看下面的内容</p>
+<pre><code>if (((viewFlags &amp; CLICKABLE) == CLICKABLE ||
+            (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE)) {
+    switch (event.getAction()) { 
+            ...
+    }
+    return true;
+}
+
+return false;
+</code></pre><p> 我们的View有一个特效，只要是可点击的状态，不管你是不是Enable，都能消耗掉MotionEvent！</p>
+<p>我们看下其中的一个case情况</p>
+<pre><code>case MotionEvent.ACTION_UP:
+    boolean prepressed = (mPrivateFlags &amp; PFLAG_PREPRESSED) != 0;
+    if ((mPrivateFlags &amp; PFLAG_PRESSED) != 0 || prepressed) { 
+        boolean focusTaken = false;
+        ...
+        if (!mHasPerformedLongPress) {
+            // This is a tap, so remove the longpress check
+            removeLongPressCallback();
+
+            // Only perform take click actions if we were in the pressed state
+            if (!focusTaken) {
+                // Use a Runnable and post this rather than calling
+                // performClick directly. This lets other visual state
+                // of the view update before click actions start.
+                if (mPerformClick == null) {
+                    mPerformClick = new PerformClick();
+                }
+                if (!post(mPerformClick)) {
+                    performClick();
+                }
+            }
+        }
+        ...
+        removeTapCallback();
+    }
+    break;
+</code></pre><p>这里面说了一件重要的事，当我们申起手的时候，会触发点击事件。</p>
+<pre><code>public boolean performClick() {
+    final boolean result;
+    final ListenerInfo li = mListenerInfo;
+    if (li != null &amp;&amp; li.mOnClickListener != null) {
+        playSoundEffect(SoundEffectConstants.CLICK);
+        li.mOnClickListener.onClick(this);
+        result = true;
+    } else {
+        result = false;
+    }
+
+    sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+    return result;
+}
+</code></pre><hr>
+<p> 好啦，到这里，我们的事件基本就处理完了，从Activity到最后我们的View的过程。<br> 不过还是有一些内容没说，下次有空记得再补充吧！   </p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>在这个过程看到了关于Touch事件的委托。<br>Window类的具体实现的PhoneWindow，和里面的DecorView.<br>重要的是其中我们熟悉的每次设置界面都调用的函数，看来下次的目标就是PhoeWindow咯。</p>
+<hr>
+<p>参考资料：</p>
+<p><a href="http://blog.csdn.net/jiwangkailai02/article/details/46666147" target="_blank" rel="noopener">FLAG_DISALLOW_INTERCEPT： 探究requestDisallowInterceptTouchEvent失效的原因</a> </p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/View/" rel="tag">#View</a>
+          
+            <a href="/tags/事件分发/" rel="tag">#事件分发</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" rel="prev">源码探索系列13---Window的PhoneWindow与WindowManager</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/27/源码探索系列11---关于View的绘制/" rel="next">源码探索系列11---关于View的绘制</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/"
+     data-title="源码探索系列12---关于事件分发机制"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/27/源码探索系列12---关于事件分发机制/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/"
+                   data-title="源码探索系列12---关于事件分发机制" data-url="http://yoursite.com/2015/12/27/源码探索系列12---关于事件分发机制/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进-——-View的事件处理"><span class="nav-number">2.</span> <span class="nav-text">前进 —— View的事件处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,设计模式,pattern,装饰," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(Decorator)。 按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。 应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。">
+<meta name="keywords" content="android,设计模式,pattern,装饰">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式系列6---分隔与包装的装饰模式">
+<meta property="og:url" content="http://yoursite.com/2016/01/01/设计模式系列6---分隔的装饰模式/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(Decorator)。 按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。 应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%BF%84%E7%BD%97%E6%96%AF%E5%A5%97%E5%A8%83.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%9E%8B.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.740Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式系列6---分隔与包装的装饰模式">
+<meta name="twitter:description" content="在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(Decorator)。 按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。 应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%BF%84%E7%BD%97%E6%96%AF%E5%A5%97%E5%A8%83.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 设计模式系列6---分隔与包装的装饰模式 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              设计模式系列6---分隔与包装的装饰模式
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-01T00:15:00+08:00" content="2016-01-01">
+            2016-01-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/01/设计模式系列6---分隔的装饰模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/01/设计模式系列6---分隔的装饰模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%BF%84%E7%BD%97%E6%96%AF%E5%A5%97%E5%A8%83.jpg" alt="enter image description here"></p>
+<p>在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(<strong>Decorator</strong>)。</p>
+<p>按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。</p>
+<p>应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。<br>不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….<br>打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。</p>
+<a id="more"></a>
+<h1 id="代码模拟"><a href="#代码模拟" class="headerlink" title="代码模拟"></a>代码模拟</h1><p>好了，假设我们现在有一个套娃在手上，我们该怎么模拟这个打开的过程呢？<br>模拟为 先拆开大的，再拆开中的，再拆开小的。总共三层，四个娃。<br>现在我们抽象出这个基本的操作。</p>
+<pre><code>public abstract class Doll {
+
+    public abstract void openDoll();
+}
+</code></pre><p>好了，这样我们就有一个娃娃类，里面有一个操作，叫打开套娃。</p>
+<pre><code>public class RussianDoll extends Doll {
+
+    private void OpenBigDoll() {
+        System.out.print(&quot;打开了最大的套娃&quot;);
+    }
+
+    @Override
+    public void openDoll() {
+        OpenBigDoll();
+        OpenMediumDoll();
+        OpenMiniDoll();
+    }
+
+
+    private void OpenMediumDoll() {
+        System.out.print(&quot;打开了中号套娃&quot;);
+    }
+
+    private void OpenMiniDoll() {
+        System.out.print(&quot;打开了小号套娃&quot;);
+    }
+
+}
+</code></pre><p>好了，我们还设置了一个俄罗斯套娃类，    实现了我们的Doll类，同时里面有打开大，中，小的三个套娃的过程。<br>这样我们就可以静静的调用它啦像下面这样的：</p>
+<pre><code>public static void main(String[] args) {
+
+    Doll doll = new RussianDoll();
+    doll.openDoll();
+}
+</code></pre><p>嗯，很好，到这里我们就可以愉快的拆开我们的套娃了。<br>不过有一个小问题，好像不是每次这个套娃都是这样的，有可能有六层呢？四层的呢？这时候怎么办，难道我们要去修改我们的RussianDoll的openDoll方法？这个好像不好吧，毕竟我们是希望最好是对修改关闭的啊。那这样就用继承咯，分别写开六层，五层~~~~一层的。<br>嗯，听起来也很有道理，不过还有一种情况啊。<br>那个，我们的套娃里面到底套的大小是多大的娃我们不知道啊。<br>假设我们最多有七层的，那就是有八个娃，我们分别编号1~8。<br>那么我们七层的套娃理论上可能的组合出来的套娃模式还真不少啊。<br>例如：<br>8-1，最大的8号里面直接只有一个最小的1号娃。<br>8-2-1,最大的8号里面有个2号的，2号里面是1号娃。<br>。。。。<br>面对这种情况，我们好像是可以穷尽所有的可能，不过我想没有一个程序员打算把这些类都写出来吧。</p>
+<p>那么到底该怎么办那？我们的装饰模式这时候站出来，告诉你这不是绝症，只需要服用下他给的一帖装饰药就好了。<br>下面我们看下他给出的良方</p>
+<h1 id="装饰药"><a href="#装饰药" class="headerlink" title="装饰药"></a>装饰药</h1><p>面对这个时候，他提出下面的解法.<br>你有很多套娃嘛，7层是吧？ 那我就用7个杀手分别去搞定。<br>首先我们先抽象出一个基本的装饰套娃杀手，就像下面这样。</p>
+<pre><code> public abstract class DecoratorDollKiller extends Doll {
+
+    private Doll doll;
+
+    public DecoratorDollKiller(Doll doll) {
+
+        this.doll = doll;
+    }
+
+    public void openDoll() {
+        doll.openDoll();
+    }
+}
+</code></pre><p>接着我们再来派出7号到1好的杀手。不过为了方便，不可能真的都写出来，只写三个：大，中，小号的，表达意思就好了 ^_^<br>现在我们先写<code>装饰大号套娃杀手</code></p>
+<pre><code>public class DecoratorBigDollKiller extends DecoratorDollKiller {
+
+    public DecoratorBigDollKiller(Doll doll) {
+        super(doll); 
+    }
+
+    public void openDoll() {
+        OpenBigDoll();
+        super.openDoll();
+    }
+
+    private void OpenBigDoll() {
+        System.out.print(&quot;打开了最大的套娃&quot;);
+    }
+}
+</code></pre><p>接着是我们的中号杀手</p>
+<pre><code>public class DecoratorMediumDollKiller extends DecoratorDollKiller {
+
+    public DecoratorMediumDollKiller(Doll doll) {
+        super(doll);
+    }
+
+    public void openDoll() {
+        OpenMediumDoll();
+        super.openDoll();
+    }
+
+    private void OpenMediumDoll() {
+        System.out.print(&quot;打开了中号的套娃&quot;);
+    }
+}
+</code></pre><p>基本和我们的大号类似的套路，最后的小号也是一样的</p>
+<pre><code>public class DecoratorMiniDollKiller extends DecoratorDollKiller {
+
+    public DecoratorMiniDollKiller(Doll doll) {
+        super(doll);
+    }
+
+    public void openDoll() {
+        OpenMiniDoll();
+        super.openDoll();
+    }
+
+    private void OpenMiniDoll() {
+        System.out.print(&quot;打开了小号的套娃&quot;);
+    }
+}
+</code></pre><p>好了，我们的三个杀手准备好了。<br>现在是时候派出去给我们解决难题去了，消灭套娃难题。</p>
+<p>假设现在有一个日本套娃，他被设置成了大套中，中套小的模式，那么我们就这样调用</p>
+<pre><code>public static void main(String[] args) {
+
+    Doll doll = new JapanDoll();
+    doll = new DecoratorMiniDollKiller(doll);
+    doll = new DecoratorMediumDollKiller(doll);
+    doll = new DecoratorBigDollKiller(doll); 
+    doll.openDoll();
+}
+</code></pre><p>注意顺序哦。<br>如果这个套娃是大套小，我们只需要这么写        </p>
+<pre><code>    public static void main(String[] args) {
+    Doll doll = new JapanDoll();
+    doll = new DecoratorMiniDollKiller(doll);
+    doll = new DecoratorBigDollKiller(doll);  
+    doll.openDoll();
+}
+</code></pre><p>如果这个套娃是中套小，我们这么写</p>
+<pre><code>public static void main(String[] args) {
+
+    Doll doll = new JapanDoll();
+    doll = new DecoratorMiniDollKiller(doll);
+    doll = new DecoratorMediumDollKiller(doll);     
+    doll.openDoll();
+}
+</code></pre><p>是不是感觉挺好的？</p>
+<h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%9E%8B.jpg" alt="enter image description here"><br>我们看下这个UML类图<br><code>Component</code> 是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象，比<br>如上面的套娃<code>Doll</code>，记住在装饰模式中，必然有一个被提取出来最基本的<strong>接口</strong>或<strong>抽象类</strong>，就是 <code>Component</code>。</p>
+<p><code>ConcreteComponent</code> 这个是最基本的接口或抽象类的实现，你要装饰的就是他。<br>例如我们举得例子，我们把日本套娃<code>JapanDoll</code>赋值给doll，然后我们对他进行了装饰。</p>
+<pre><code>Doll doll = new JapanDoll();
+doll = new DecoratorMiniDollKiller(doll);
+</code></pre><p>Decorator 一般是一个抽象类，实现接口或者抽象方法，它里面可不一定有抽象的方法，在它的属性里必然有一个 <code>private</code> 变量指向 <code>Component</code>，而且有调用的情况，所以你看到<code>Decorator</code>上有一个箭头指向<code>Component</code>。</p>
+<p><code>ConcreteDecoratorA</code> 和 <code>ConcreteDecoratorB</code> 是两个具体的装饰类，你要把你最基本的东西装饰成你需要的东西。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>这个例子好像看起来不是符合装饰的样子<br>例如应该是公关公司对某个凤姐进行包装，从笑点到成为部分人敬仰，拿了绿卡，做了天使投资人！<br>例如我们买了一份礼物，但我们不会直接送给别人，还是会装饰下，用彩纸包装，加彩带装饰下。<br>这样的案例听起来更符合装饰的名字啊。</p>
+<p>但只要核心思想能够领会到也算挺好的，把关键的易变的部分提出来成一个单独的类。然后层层的打包，成为最终我们想要的。</p>
+<p>嗯，感觉应该给每个模式配套个口诀才对。哈哈<br>这个装饰模式我们就配个： 割变化类，叠包成果。怎样？</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/设计模式/" rel="tag">#设计模式</a>
+          
+            <a href="/tags/pattern/" rel="tag">#pattern</a>
+          
+            <a href="/tags/装饰/" rel="tag">#装饰</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/02/设计模式系列7---金点子多多的策略模式/" rel="prev">设计模式系列7---金点子多多的策略模式</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/31/设计模式系列5---多变灵活的桥接/" rel="next">设计模式系列5---多变灵活的桥接</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/01/设计模式系列6---分隔的装饰模式/"
+     data-title="设计模式系列6---分隔与包装的装饰模式"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/01/设计模式系列6---分隔的装饰模式/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/01/设计模式系列6---分隔的装饰模式/"
+                   data-title="设计模式系列6---分隔与包装的装饰模式" data-url="http://yoursite.com/2016/01/01/设计模式系列6---分隔的装饰模式/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#代码模拟"><span class="nav-number">1.</span> <span class="nav-text">代码模拟</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#装饰药"><span class="nav-number">2.</span> <span class="nav-text">装饰药</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#定义"><span class="nav-number">3.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

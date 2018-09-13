@@ -1,0 +1,1115 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Handler,HandlerLeak," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。 现在那个Handler被挂上了泄漏的名字！最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。">
+<meta name="keywords" content="android,源码,Handler,HandlerLeak">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列1---Handler与HandlerLeak的那些事">
+<meta property="og:url" content="http://yoursite.com/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。 现在那个Handler被挂上了泄漏的名字！最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://pic002.cnblogs.com/images/2012/328668/2012060815460614.jpg">
+<meta property="og:image" content="http://img.blog.csdn.net/20151208214652271">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.707Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列1---Handler与HandlerLeak的那些事">
+<meta name="twitter:description" content="开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。 现在那个Handler被挂上了泄漏的名字！最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。">
+<meta name="twitter:image" content="http://pic002.cnblogs.com/images/2012/328668/2012060815460614.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列1---Handler与HandlerLeak的那些事 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列1---Handler与HandlerLeak的那些事
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-08T23:55:00+08:00" content="2015-12-08">
+            2015-12-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。</p>
+<p>现在那个Handler被挂上了泄漏的名字！<br>最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。</p>
+<a id="more"></a>
+<p>一开始我调用Handler像下面这样，对这种，系统提示会导致泄漏，为人懒惰，<br>就直接加了这个<code>@SuppressLint(&quot;HandlerLeak&quot;)</code>，然后忽略掉它。</p>
+<pre><code>public class MainActivity extends Activity {
+
+    private Handler mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                if (msg.what == 0x12345) {
+                    Log.e(TAG, &quot; log&quot;);
+                }
+            }
+        };
+
+     @Override
+      protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mHandler.postDelayed(new Runnable() {
+          @Override
+          public void run() { /* ... */ }
+            }, 60 * 1000); //延迟一分钟发送这个消息
+
+        finish();
+      } 
+}
+</code></pre><p>后来遇到多了，就还是乖乖根据提示写成一个静态内部类的形式来</p>
+<pre><code>public class MainActivity extends Activity {
+
+
+    static class MyHandler extends Handler {         
+        private WeakReference&lt;MainActivity&gt; mOuter;
+
+        public MyHandler(MainActivity activity) {
+            mOuter = new WeakReference&lt;MainActivity&gt;(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity outer = mOuter.get();
+            if (outer != null) {
+                //// TODO: 2015/12/8  
+            }
+        }
+    }
+}
+</code></pre><p><strong>那么问题来了，是什么导致写内部类就没事呢？</strong></p>
+<p>看下官方的解释:</p>
+<blockquote>
+<p>Since this Handler is declared as an inner class,<br> it may prevent the outer class from being garbage collected. </p>
+<p>If the Handler is using a Looper or MessageQueue for a thread other than the main thread,<br>then  there is no issue.</p>
+<p>If the Handler is using the Looper or MessageQueue of the main thread,<br>you need to fix your Handler declaration, as  follows:<br>Declare the Handler as a static class; In the outer class,<br>instantiate a WeakReference to the outer class and pass this object to  your Handler<br>when you instantiate the Handler;<br>Make all references to members of the outer class using the WeakReference object.</p>
+</blockquote>
+<p>结合下面这个例子来说下原因</p>
+<pre><code>mHandler.postDelayed(new Runnable() {
+              @Override
+              public void run() { /* ... */ }
+            }, 60 * 1000); 
+
+            finish();
+</code></pre><p>当finish后，延时消息会继续存在主线程消息队列中1分钟，然后处理消息。<br>而该消息引用了<code>Activity</code>的<code>Handler</code>对象，然后这个<code>Handler</code>又引用了这个<code>Activity</code>。<br>这些引用对象会保持到该消息被处理完，这样就导致该Activity对象<strong>无法被回收</strong>，<br>从而导致了上面说的 Activity泄露。<br>所以他说如果Handler是使用主线程的<code>Looper</code>或者<code>MessageQueue</code>，那么就需要注意咯 。</p>
+<p>嗯，主线程的Looper或MessageQueue，可我没看到有用到啊，怎么回事？</p>
+<p>好了，还是让我们开始看下Handler的实现吧，肯定可以找到答案。</p>
+<h1 id="看下Hanlder的源码"><a href="#看下Hanlder的源码" class="headerlink" title="看下Hanlder的源码"></a>看下Hanlder的源码</h1><p> 让我们从调用的第一句，无参构造器看起吧</p>
+<pre><code>public Handler() {
+    this(null, false);
+}
+
+//上面那个无参构造器调用了下面这个
+public Handler(Callback callback, boolean async) {
+
+         ....
+
+        mLooper = Looper.myLooper();
+        if (mLooper == null) {
+            throw new RuntimeException(
+                &quot;Can&apos;t create handler inside thread that has not called Looper.prepare()&quot;);
+        }
+        mQueue = mLooper.mQueue;
+        mCallback = callback;  //处理消息的回调，后面用到
+        mAsynchronous = async;
+    }
+</code></pre><p>很好，瞬间我们就看到了<code>Looper</code>和<code>Queue</code>这两个关键的字眼东西啦，<br>既然我们说引用了主线程的Looper和MessageQueue，那理论上这两句<br><code>mLooper = Looper.myLooper();</code>和 <code>mQueue = mLooper.mQueue;</code><br>返回的结果就很可能就是了。我们继续深入看下</p>
+<pre><code>public static @Nullable Looper myLooper() {
+        return sThreadLocal.get();
+    }
+</code></pre><p>一个神奇的东西上场了<code>sThreadLocal</code>，这家伙很有故事，后面有时间细说，先看下Looper里面初始化这个sThreadLocal的代码。</p>
+<pre><code>public final class Looper {
+
+    static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();
+
+    public static void prepare() {
+            prepare(true);
+    }
+
+    private static void prepare(boolean quitAllowed) {
+             ...
+        sThreadLocal.set(new Looper(quitAllowed));
+    }
+
+    private Looper(boolean quitAllowed) {
+        mQueue = new MessageQueue(quitAllowed);
+        mThread = Thread.currentThread();
+    }
+
+}
+</code></pre><p>看到这里，那个sThreadLocal确实保存了一个<code>Thread.currentThread();</code>，<br>如果我们就是在主线程调用的，那会保存主线程的引用。</p>
+<p>看到这里，可以确认handler底层是用到了主线程的Looper和MessageQueue</p>
+<hr>
+<h1 id="进一步的看下"><a href="#进一步的看下" class="headerlink" title="进一步的看下"></a>进一步的看下</h1><pre><code>mHandler.postDelayed(new Runnable() {    
+          @Override
+          public void run() { 
+            //do something...
+          }}, 60 * 1000);   //延迟一分钟发送这个消息 
+</code></pre><p>我们先来看下我们从发送消息<code>mHandler.sendMessage(msg)</code>，<br>到返回<code>handleMessage(Message msg)</code>  的流程在底层的具体实现，<br>然后结合的来分析 。</p>
+<pre><code>public final boolean postDelayed(Runnable r, long delayMillis){
+    return sendMessageDelayed(getPostMessage(r), delayMillis);
+}
+
+private static Message getPostMessage(Runnable r) {
+   Message m = Message.obtain();
+   m.callback = r;//把我们的回调设置到了callback。后面分发消息时候用到
+   return m;
+}
+
+public final boolean sendMessageDelayed(Message msg, long delayMillis){
+    if (delayMillis &lt; 0) {
+        delayMillis = 0;
+    }
+    return sendMessageAtTime(msg, SystemClock.uptimeMillis() + delayMillis);
+}
+
+public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
+    MessageQueue queue = mQueue;
+    if (queue == null) {
+        RuntimeException e = new RuntimeException(
+                this + &quot; sendMessageAtTime() called with no mQueue&quot;);
+        Log.w(&quot;Looper&quot;, e.getMessage(), e);
+        return false;
+    }
+    return enqueueMessage(queue, msg, uptimeMillis);
+}
+
+private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+    msg.target = this;
+    if (mAsynchronous) {
+        msg.setAsynchronous(true);
+    }
+    return queue.enqueueMessage(msg, uptimeMillis);
+}
+</code></pre><p>我们看到，我们发送的Runnable被打包成Message，然后层层调用，<br>最后调用<code>queue.enqueueMessage(msg, uptimeMillis);</code>,<br>把我们的消息扔到一个队列里面去了，那我们来看下队里里面具体做了什么</p>
+<pre><code>boolean enqueueMessage(Message msg, long when) {
+
+         ...
+
+        synchronized (this) {                 
+            ...
+
+            msg.markInUse();
+            msg.when = when; //设定时间
+            Message p = mMessages;
+            boolean needWake;
+
+            if (p == null || when == 0 || when &lt; p.when) {
+                // New head, wake up the event queue if blocked.
+                msg.next = p;
+                mMessages = msg;
+                needWake = mBlocked;
+            } else {
+                // Inserted within the middle of the queue.  Usually we don&apos;t have to wake
+                // up the event queue unless there is a barrier at the head of the queue
+                // and the message is the earliest asynchronous message in the queue.
+                needWake = mBlocked &amp;&amp; p.target == null &amp;&amp; msg.isAsynchronous();
+                Message prev;
+                for (;;) {
+                    prev = p;
+                    p = p.next;
+                    if (p == null || when &lt; p.when) {
+                        break;
+                    }
+                    if (needWake &amp;&amp; p.isAsynchronous()) {
+                        needWake = false;
+                    }
+                }
+                msg.next = p; // invariant: p == prev.next
+                prev.next = msg;
+            }
+
+            // We can assume mPtr != 0 because mQuitting is false.
+            if (needWake) {
+                nativeWake(mPtr);
+            }
+        }
+        return true;
+    }
+</code></pre><p>看了这么长，就是根据这个msg的时间，把这个消息插入到队伍的合适的位置里面去。<br>好了，这样好像线索就断了，我们没有看到哪里在消耗这些消息。<br>很可能在这个过程我们错过了什么，跳回去看下整个过程。</p>
+<p>好吧，原来我们的系统会调用<code>Looper.loop()</code>方法。<br>这点的具体使用的地方还没看到，先就这么确认了，我们看下loop（）里面都做了什么</p>
+<pre><code>public static void loop() {
+        final Looper me = myLooper(); //又一个获取myLooper的方法
+        if (me == null) {
+            throw new RuntimeException(
+            &quot;No Looper; Looper.prepare() wasn&apos;t called on this thread.&quot;); 
+             //这个错误信息，应该有遇到过吧，我们在子线程没有调用Looper.prepare()的时候。
+        }
+
+       //重要的一句来了，获取队列
+        final MessageQueue queue = me.mQueue;
+
+        Binder.clearCallingIdentity();
+        final long ident = Binder.clearCallingIdentity();
+
+        for (;;) {
+
+            Message msg = queue.next(); // might block
+
+            if (msg == null) {
+                // 没有消息表示队列停止了,滚回去等待下个消息
+                return;
+            }
+
+            // This must be in a local variable, in case a UI event sets the logger
+            Printer logging = me.mLogging;
+            if (logging != null) {
+                logging.println(&quot;&gt;&gt;&gt;&gt;&gt; Dispatching to &quot; + msg.target + &quot; &quot; +
+                        msg.callback + &quot;: &quot; + msg.what);
+            }
+
+            //来了，分发消息的一句，看到这个就有我们自定义View时候的分发event的即视感
+            msg.target.dispatchMessage(msg);
+
+            if (logging != null) {
+                logging.println(&quot;&lt;&lt;&lt;&lt;&lt; Finished to &quot; + msg.target + &quot; &quot; + msg.callback);
+            }     
+
+            ...    
+
+            msg.recycleUnchecked();
+        }
+    }
+</code></pre><h4 id="小插曲"><a href="#小插曲" class="headerlink" title="小插曲"></a>小插曲</h4><p>看到这一部分代码，应该可以理解我们开一个新线程的时候的代码要先这么写了吧.</p>
+<pre><code>new Thread(){          
+            @Override
+            public  void run(){
+                Looper.prepare();                
+                Handler handler=new Handler();                
+                Looper.loop();                    
+                  ....
+
+            }
+}.start();
+</code></pre><p> 当然这样写需要记得的一件事情是，我们结束完工作后，记得调用<code>quit();</code>来结束。</p>
+<p>现在我们来看下这个<code>Message msg = queue.next();</code>获取队列的一个Message里面都发生了什么，<br>才让他说了句 <code>// might block</code></p>
+<pre><code>Message next() {
+
+        ...
+
+        int pendingIdleHandlerCount = -1; // -1 only during first iteration
+        int nextPollTimeoutMillis = 0;
+        for (;;) {  //居然又有一个死循环
+
+            if (nextPollTimeoutMillis != 0) {
+                Binder.flushPendingCommands();
+            }
+
+            nativePollOnce(ptr, nextPollTimeoutMillis);
+
+            synchronized (this) {
+                // Try to retrieve the next message.  Return if found.
+                final long now = SystemClock.uptimeMillis();
+                Message prevMsg = null;
+                Message msg = mMessages;
+                if (msg != null &amp;&amp; msg.target == null) {
+                    // Stalled by a barrier.  Find the next asynchronous message in the queue.
+                    do {
+                        prevMsg = msg;
+                        msg = msg.next;
+                    } while (msg != null &amp;&amp; !msg.isAsynchronous());
+                }
+                if (msg != null) {
+                    if (now &lt; msg.when) {
+                        // Next message is not ready.  Set a timeout to wake up when it is ready.
+                        nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
+                    } else {
+                        // Got a message.
+                        mBlocked = false;
+                        if (prevMsg != null) {
+                            prevMsg.next = msg.next;
+                        } else {
+                            mMessages = msg.next;
+                        }
+                        msg.next = null;
+                        if (DEBUG) Log.v(TAG, &quot;Returning message: &quot; + msg);
+                        msg.markInUse();
+                        return msg;
+                    }
+                } else {
+                    // No more messages.
+                    nextPollTimeoutMillis = -1;
+                }
+
+                ....
+        }
+    }
+</code></pre><p>好了，节选了一部分代码，我们可以看到，这个next方法就是一个无限循环的方法，如果消息队列有消息，而且时间到了，那么就返回，如果时间还没到，那就等待下一次的唤醒。如果没有消息，那么就一直堵塞在哪里。</p>
+<blockquote>
+<p>那么为何这个死循环没有卡死程序呢？</p>
+</blockquote>
+<p>我们的安卓是基于Linux的，其中有<code>pipe/epoll</code>机制，所以在主线程的MessageQueue没有消息时，便<strong>阻塞</strong><code>queue.next()</code>中的<code>nativePollOnce()</code>方法。此时主线程会释放CPU资源进入<code>休眠状态</code>，直到下个消息到达或者有事务<strong>发生</strong>，通过往pipe管道写端写入数据来唤醒主线程工作。<br>所以可以简单的理解epoll机制是一种 <strong>观察者模型</strong>，（背后是一种IO多路复用机制，可以同时监控多个描述符，当描述符就绪，则通知相应 <strong>消费者</strong>进行特定操作。<br>所以实质上，主线程其实基本是<strong>休眠状态</strong>，并不会消耗大量CPU资源。从而卡死程度！</p>
+<hr>
+<pre><code>if (now &lt; msg.when) {
+  // Next message is not ready.  Set a timeout to wake up when it is ready.
+   nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
+} else {
+   // Got a message. 
+   ...
+    msg.markInUse();
+   return msg;
+}
+</code></pre><p>好了，我们来看下我们的消息分发<code>msg.target.dispatchMessage(msg);</code>通过这句话，就成功把代码逻辑切换到指定的线程中去执行。</p>
+<pre><code>public void dispatchMessage(Message msg) {
+        if (msg.callback != null) {
+            handleCallback(msg);
+        } else {
+            if (mCallback != null) {
+                if (mCallback.handleMessage(msg)) {
+                    return;
+                }
+            }
+            handleMessage(msg);
+        }
+    }
+</code></pre><p>还记得我们前面在发送消息时候，我们把Runnable封装成Message的时候，设置了callback吗？就是下面这个。</p>
+<pre><code> private static Message getPostMessage(Runnable r) {
+           Message m = Message.obtain();
+           m.callback = r;
+           return m;
+}
+</code></pre><p>好了，我们继续看下<code>handleCallback(msg);</code></p>
+<pre><code>private static void handleCallback(Message message) {
+        message.callback.run();
+    }
+</code></pre><p>很直接的就是直接运行这个run方法啦！</p>
+<p>接着对于那些没有callback的Message，如果一开始没有设置<code>callback</code>的，<br>就会落入到hendleMessage里面去，这个就是我们重写的方法啦。<br> 好啦，整个的发送到消费，再回到我们的Activity里面的整个过程，基本的就到这里了。</p>
+<pre><code>public Handler(Callback callback, boolean async) {     
+         ...                 
+        mLooper = Looper.myLooper(); 
+        mQueue = mLooper.mQueue;
+
+        mCallback = callback;//就是这个
+}
+</code></pre><p>额外补充的一句就是，我们平时遇到的代码比较少用到这个callback，因为我们一般都是派生出一个子类来，但有时候我们其实并不需要一个子类，重写handleMessage()方法，我们完全可以直接传个Callback就可以了。    </p>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><ul>
+<li><p>这个过程，其实有很多细节是忽略没有提及的，例如我们的MessageQueue里面涉及到的<code>nativeInit();</code>,这个的背后是什么，有兴趣的可以看下面参考地址的第二篇，他有对此做进一步的介绍。</p>
+<pre><code>private Looper(boolean quitAllowed) {
+    mQueue = new MessageQueue(quitAllowed);
+    mThread = Thread.currentThread();
+}
+
+MessageQueue(boolean quitAllowed) {
+        mQuitAllowed = quitAllowed;
+        mPtr = nativeInit();
+  }
+</code></pre></li>
+<li><p>msg.target.dispatchMessage(msg);<br>这个Message的tartget即Handle是什么时候设置的。</p>
+</li>
+<li><p><del>我们的Activity里面的Loop等方法是什么时候调用的，这些都没有近一步探索。</del></p>
+</li>
+<li><p>ThreadLocal这个神奇的东西，也没有做进一步介绍</p>
+</li>
+<li><p>另外那个MessageQueue也有不少内容可以说，下次有空再继续介绍吧</p>
+</li>
+</ul>
+<p>好吧，虽然还有很多细节没说，但大抵的关系我们都知道啦，就像下面这张</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/328668/2012060815460614.jpg" alt="这里写图片描述"></p>
+<hr>
+<h1 id="更新补充内充"><a href="#更新补充内充" class="headerlink" title="更新补充内充"></a>更新补充内充</h1><ol>
+<li><p><strong>我们的Activity里面的Loop等方法是什么时候调用的。</strong></p>
+<p>好了，这个通过查阅点资料，我们找到了点内容啦，我们的Activity继承于android.app.Activity这个类，这个类里面有一样东西叫ActivityThread，有图有真相的。<br><img src="http://img.blog.csdn.net/20151208214652271" alt="这里写图片描述"><br>这个就是传送中的Android的<strong>主线程</strong>啦，我们到他的入口方法<strong>main</strong>里面看到了我们想要的答案。</p>
+</li>
+</ol>
+<pre><code>  public static void main(String[] args) {    
+      ...
+
+    AndroidKeyStoreProvider.install();
+
+    Looper.prepareMainLooper();
+
+    ActivityThread thread = new ActivityThread();
+    thread.attach(false);
+
+    if (sMainThreadHandler == null) {
+        sMainThreadHandler = thread.getHandler();
+    }
+
+    if (false) {
+        Looper.myLooper().setMessageLogging(new
+                LogPrinter(Log.DEBUG, &quot;ActivityThread&quot;));
+    }
+
+    // End of event ActivityThreadMain.
+    Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
+    Looper.loop();
+
+
+}
+</code></pre><p>这个ActivityThread来头不小，5421行代码，呵呵</p>
+<hr>
+<p>参考资料：</p>
+<ol>
+<li><p><a href="http://blog.chengyunfeng.com/?p=468#ixzz3tiWUgbOW%20http://blog.chengyunfeng.com/?p=468" target="_blank" rel="noopener">内部Handler类引起内存泄露</a></p>
+</li>
+<li><p><a href="http://www.cnblogs.com/angeldevil/p/3340644.html" target="_blank" rel="noopener">Android消息处理机制(Handler、Looper、MessageQueue与Message)</a></p>
+</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Handler/" rel="tag">#Handler</a>
+          
+            <a href="/tags/HandlerLeak/" rel="tag">#HandlerLeak</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/09/源码探索系列2---深入解析AsyncTask/" rel="prev">源码探索系列2---深入解析AsyncTask</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/" rel="next">Android测试教程13--模拟服务器MockServer之Moco详细介绍</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/"
+     data-title="源码探索系列1---Handler与HandlerLeak的那些事"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/"
+                   data-title="源码探索系列1---Handler与HandlerLeak的那些事" data-url="http://yoursite.com/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#看下Hanlder的源码"><span class="nav-number">1.</span> <span class="nav-text">看下Hanlder的源码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进一步的看下"><span class="nav-number">2.</span> <span class="nav-text">进一步的看下</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#小插曲"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">小插曲</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更新补充内充"><span class="nav-number">4.</span> <span class="nav-text">更新补充内充</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

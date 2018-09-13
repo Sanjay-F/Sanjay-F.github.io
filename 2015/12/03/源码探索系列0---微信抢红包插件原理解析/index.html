@@ -1,0 +1,798 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,微信,红包," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="好程序员，序号都是从0开始的。哈哈 微信抢红包插件不知道你们还记不记得小米发布会的时候，把不服跑个分改成抢红包了，同时演示了一遍。现在这个是基于他的修改版本，地址在这里 ,如果你想看下小米抢红包的源代码，就点击这里  接下来讲解其中一种实现 ，但这个是dev版，不是百分百，要百分百好用的，点这里： 下面的讲解仅针对该伙伴分享的dev分支。">
+<meta name="keywords" content="android,源码,微信,红包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列0---微信抢红包插件原理解析">
+<meta property="og:url" content="http://yoursite.com/2015/12/03/源码探索系列0---微信抢红包插件原理解析/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="好程序员，序号都是从0开始的。哈哈 微信抢红包插件不知道你们还记不记得小米发布会的时候，把不服跑个分改成抢红包了，同时演示了一遍。现在这个是基于他的修改版本，地址在这里 ,如果你想看下小米抢红包的源代码，就点击这里  接下来讲解其中一种实现 ，但这个是dev版，不是百分百，要百分百好用的，点这里： 下面的讲解仅针对该伙伴分享的dev分支。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.706Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列0---微信抢红包插件原理解析">
+<meta name="twitter:description" content="好程序员，序号都是从0开始的。哈哈 微信抢红包插件不知道你们还记不记得小米发布会的时候，把不服跑个分改成抢红包了，同时演示了一遍。现在这个是基于他的修改版本，地址在这里 ,如果你想看下小米抢红包的源代码，就点击这里  接下来讲解其中一种实现 ，但这个是dev版，不是百分百，要百分百好用的，点这里： 下面的讲解仅针对该伙伴分享的dev分支。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列0---微信抢红包插件原理解析 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列0---微信抢红包插件原理解析
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-03T11:23:00+08:00" content="2015-12-03">
+            2015-12-03
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/03/源码探索系列0---微信抢红包插件原理解析/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/03/源码探索系列0---微信抢红包插件原理解析/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>好程序员，序号都是从0开始的。哈哈</p>
+<h1 id="微信抢红包插件"><a href="#微信抢红包插件" class="headerlink" title="微信抢红包插件"></a>微信抢红包插件</h1><p>不知道你们还记不记得小米发布会的时候，把不服跑个分改成抢红包了，同时演示了一遍。<br>现在这个是基于他的修改版本，<a href="https://github.com/geeeeeeeeek/WeChatLuckyMoney" target="_blank" rel="noopener">地址在这里</a></p>
+<p>,如果你想看下小米抢红包的源代码，<a href="https://github.com/XiaoMi/LuckyMoneyTool" target="_blank" rel="noopener">就点击这里</a></p>
+<p> 接下来讲解其中一种实现 ，但这个是dev版，不是百分百，要百分百好用的，<a href="https://github.com/geeeeeeeeek/WeChatLuckyMoney/tree/stable" target="_blank" rel="noopener">点这里</a>：</p>
+<p>下面的讲解仅针对该伙伴分享的<strong>dev分支</strong>。</p>
+<a id="more"></a>
+<h2 id="预期特性"><a href="#预期特性" class="headerlink" title="预期特性"></a>预期特性</h2><ol>
+<li>可以抢屏幕上显示的所有红包，同类插件往往只能获取最新的一个红包。</li>
+<li>智能跳过已经戳过的红包，避免频繁点击影响正常使用。</li>
+<li>红包日志 (默认未开启)，方便查看抢过的红包内容。</li>
+<li>性能优化，感受不到插件的存在，可一直后台开启，不影响日常聊天。</li>
+<li>由于这是一份教学代码，项目的文档和注释都比较完整，代码适合阅读。</li>
+</ol>
+<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><h2 id="1-屏幕内容检测和自动化点击的实现"><a href="#1-屏幕内容检测和自动化点击的实现" class="headerlink" title="1. 屏幕内容检测和自动化点击的实现"></a>1. 屏幕内容检测和自动化点击的实现</h2><p>和其他插件一样，这里使用的是Android API提供的<code>AccessibilityService</code>。<br>这个类位于android.accessibilityservice包内，该包中的类用于开发<code>无障碍服务</code>，提供代替或增强的用户反馈。</p>
+<p>这个无障碍服务，现在还被人拿来做很多  <strong>别</strong> 的事情，<br>例如免ROOT得安装，想了解就点击下面<br><a href="http://www.infoq.com/cn/articles/android-accessibility-installing?utm_campaign=infoq_content&amp;utm_source=infoq&amp;utm_medium=feed&amp;utm_term=global" target="_blank" rel="noopener">使用Android Accessibility实现免Root自动批量安装功能</a></p>
+<p> <strong>那么用这个包怎么做到抢红包呢？</strong><br>  <strong>那么用这个包怎么做到抢红包呢？</strong><br>   <strong>那么用这个包怎么做到抢红包呢？</strong></p>
+<blockquote>
+<p>标题就写了，屏幕内容检测和自动化点击的实现。</p>
+</blockquote>
+<p>AccessibilityService 服务会在后台运行，<br>我们要做的就是<strong>静静的</strong>等待系统在发生 AccessibilityEvent 事件时回调，<br>然后根据对调的内容，判断是不是红包，然后抢抢抢！！！</p>
+<p>这些事件指的就是用户界面上发生的状态变化，<br>比如焦点变更（如有新的红包出现了）、按钮按下等等。<br>当然也可以请求“查询当前窗口中内容”的能力。 </p>
+<h3 id="1-1-配置AccessibilityService"><a href="#1-1-配置AccessibilityService" class="headerlink" title="1.1 配置AccessibilityService"></a>1.1 配置AccessibilityService</h3><p>我们需要<strong>监听的事件</strong><br>当红包来或者滑动屏幕时引起的屏幕内容变化，<br>和点开红包时窗体状态的变化，<br>因此我们需要在配置XML的accessibility-service标签中加入一条<br><code>android:accessibilityEventTypes=&quot;typeWindowStateChanged|typeWindowContentChanged&quot;</code><br>或在onAccessibilityEvent回调函数中对事件进行一次类型判断</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">final int eventType = event.getEventType<span class="params">()</span>;</span><br><span class="line"><span class="keyword">if</span> <span class="params">(<span class="attr">eventType</span> == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED</span></span><br><span class="line"><span class="params">     || <span class="attr">eventType</span> == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED)</span> &#123;</span><br><span class="line">	     <span class="string">//</span> <span class="string">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 除此之外，由于我们只监听微信，还需要指定微信的包名</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android:packageNames="com.tencent.mm"</span><br></pre></td></tr></table></figure>
+<p>为了获取窗口内容，我们还需要指定</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">android:</span>canRetrieveWindowContent=<span class="string">"true"</span></span><br></pre></td></tr></table></figure>
+<p>其他配置请看代码。</p>
+<h3 id="1-2-获取红包所在的节点-找到红包"><a href="#1-2-获取红包所在的节点-找到红包" class="headerlink" title="1.2 获取红包所在的节点 - - 找到红包"></a>1.2 获取红包所在的节点 - - 找到红包</h3><p>配置好后，首先，我们要获取当前屏幕的 <code>根节点</code>，然后判断下是不是  红包<br>下面两种方式效果是相同的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AccessibilityNodeInfo nodeInfo = event.getSource();</span><br><span class="line"></span><br><span class="line">AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();</span><br></pre></td></tr></table></figure>
+<p>这里返回的AccessibilityNodeInfo是<strong>窗体内容</strong>的节点，包含节点在屏幕上的位置、文本描述、子节点id、能否点击等信息。从AccessibilityService的角度来看，窗体上的内容表示为辅助节点树，虽然和视图的结构不一定一一对应。换句话说，自定义的视图可以自己描述上面的辅助节点信息。当辅助节点传递给AccessibilityService之后就不可更改了，如果强行调用引起状态变化的方法会报错。</p>
+<p><strong>在聊天页面，每个红包上面都有“领取红包”这几个字，我们把它作为识别红包的依据。</strong><br><strong>在聊天页面，每个红包上面都有“领取红包”这几个字，我们把它作为识别红包的依据。</strong><br><strong>在聊天页面，每个红包上面都有“领取红包”这几个字，我们把它作为识别红包的依据。</strong></p>
+<p>如果你收到了这四个字的文本消息，可能其他的插件会做出误判。<br>因为我们加入了阶段的概念，不会出现这个问题。</p>
+<p>AccessibilityNodeInfo的API中有一个<code>findAccessibilityNodeInfosByText</code>方法，<br>允许我们通过文本来搜索界面中的节点。<br>匹配是<strong>大小写敏感</strong>的，它会从遍历树的根节点开始查找。<br>API文档中特别指出，为了防止创建大量实例，节点回收是调用者的责任，<br>这一点会在接下来的部分中讲到。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;AccessibilityNodeInfo&gt; node1 = nodeInfo.findAccessibilityNodeInfosByText(<span class="string">"领取红包"</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="1-3-对节点进行操作-开包"><a href="#1-3-对节点进行操作-开包" class="headerlink" title="1.3 对节点进行操作 - - 开包"></a>1.3 对节点进行操作 - - 开包</h3><p>AccessibilityNodeInfo同样暴露了一个API——<code>performAction</code>来对节点进行点击或者其他操作。<br>出于安全性考虑，只有这个操作来自AccessibilityService时才会被执行。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);</span><br></pre></td></tr></table></figure>
+<p>不过，我们在调试时发现”领取红包”的mClickable属性为false，说明点击的监听加在它父辈的节点上。通过getParent获取父节点，这个节点是可以点击的。</p>
+<p>我们还需要全局的返回操作，最方便的办法就是performGlobalAction，不过注意这个方法是API 16后才有的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">performGlobalAction(GLOBAL_ACTION_BACK);</span><br></pre></td></tr></table></figure>
+<h2 id="2-获取屏幕上的所有红包"><a href="#2-获取屏幕上的所有红包" class="headerlink" title="2. 获取屏幕上的所有红包"></a>2. 获取屏幕上的所有红包</h2><p>和其他插件最大的区别是，这个插件的逻辑是获取屏幕上所有的红包节点，去掉已经获取过的之后，将待抢红包加入队列，再将队列中的红包一个个打开。</p>
+<h3 id="2-1-判断红包节点是否已被抢过"><a href="#2-1-判断红包节点是否已被抢过" class="headerlink" title="2.1 判断红包节点是否已被抢过"></a>2.1 判断红包节点是否已被抢过</h3><p>实现这一点是编写时最大的障碍。对于一般的Java对象实例来说，除非被GC回收，实例的Id都不会变化。我最初的想法是通过正则表达式匹配下面的十六进制对象id来表示一个红包。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">android</span><span class="selector-class">.view</span><span class="selector-class">.accessibility</span><span class="selector-class">.AccessibilityNodeInfo</span>@<span class="keyword">2a5a7c</span>; .......</span><br></pre></td></tr></table></figure>
+<p>但在测试中，队列中的部分红包没有被戳开。<br>进一步观察发现，新的红包节点和旧的红包节点id出现了重复，且出现概率较大。<br>由于GC日志正常，我推测AccessibilityNode可能有一个实例池的设计。<br>获取当前窗体节点树的时候，从一个可重用的实例池中获取一个辅助节点信息 (AccessibilityNodeInfo)实例。在接下来的获取时，仍然从实例池中获取节点实例，这时可能会重用之前的实例。<br>这样的设计是有好处的，可以防止每次返回都创建大量的实例，影响性能。AccessibilityNodeProvider的源码表明了这样的设计。</p>
+<p>也就是说，为了标识一个唯一的红包，只用实例id是不充分的。这个插件采用的是红包内容+节点实例id的hash来标记。因为同一屏下，同一个节点树下的节点id是一定不会重复的，滑动屏幕后新红包的内容和节点id同时重复的概率已经大大减小。</p>
+<p><strong>更改标识策略后，实测中几乎没有出现误判</strong>。</p>
+<h3 id="2-2-将新出现的红包加入待抢队列"><a href="#2-2-将新出现的红包加入待抢队列" class="headerlink" title="2.2 将新出现的红包加入待抢队列"></a>2.2 将新出现的红包加入待抢队列</h3><p>我们维护了两个列表，分别记录待抢红包和抢过的红包标识。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> List&lt;AccessibilityNodeInfo&gt; nodesToFetch = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> List&lt;String&gt; fetchedIdentifiers = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br></pre></td></tr></table></figure>
+<p>在每次读取聊天屏幕的时候，会检查这个红包是否在fetchedIdentifiers队列中，如果没有，则加入nodesToFetch队列。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (AccessibilityNodeInfo cellNode : fetchNodes) &#123;</span><br><span class="line">    String id = getHongbaoHash(cellNode);</span><br><span class="line">    <span class="comment">/* 如果节点没有被回收且该红包没有抢过 */</span></span><br><span class="line">    <span class="keyword">if</span> (id != <span class="keyword">null</span> &amp;&amp; !fetchedIdentifiers.contains(id)) &#123;</span><br><span class="line">        nodesToFetch.add(cellNode);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3-打开队列中的红包"><a href="#3-打开队列中的红包" class="headerlink" title="3. 打开队列中的红包"></a>3. 打开队列中的红包</h2><p>通过红包打开后显示的文本判断这个红包是否可以抢，进行接下来的操作。</p>
+<h3 id="3-1-判断红包节点是否被重用"><a href="#3-1-判断红包节点是否被重用" class="headerlink" title="3.1 判断红包节点是否被重用"></a>3.1 判断红包节点是否被重用</h3><p>这也是实现时的一个坑。前面提到了实例池的设计，当我们把红包们加入待抢队列，戳完一个红包再回来时，队列中的其他红包节点可能已被回收重用，如果再去点击这个节点，显然没有什么卵用。</p>
+<p>为了解决这个问题，我们只能退而求其次，在点开前做一次检查。如果发现被重用了，就舍弃这个节点，在下一轮fetch的阶段重新加入待抢队列。确认没有重用立即打开，并把节点hash加入fetchedIdentifiers队列。这里如果node失效getHongbaoHash会返回null。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">AccessibilityNodeInfo node = nodesToFetch.remove(nodesToFetch.size() - <span class="number">1</span>);</span><br><span class="line"><span class="keyword">if</span> (node.getParent() != <span class="keyword">null</span>) &#123;</span><br><span class="line">    String id = getHongbaoHash(node);</span><br><span class="line">    <span class="keyword">if</span> (id == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    fetchedIdentifiers.add(id);</span><br><span class="line">    Stage.getInstance().entering(Stage.OPENING_STAGE);</span><br><span class="line">    node.getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出这并不是很有效率的解决方案。<br>在实测中，有时队列中中红包失效后被舍弃，但没有新的AccessibilityEvent发生，接下来的操作都被挂起了。在戳过较多红包之后，这种情况表现得尤为明显，必须要显式地改变窗体内容才能解决。</p>
+<h3 id="3-2-根据红包类型选择操作"><a href="#3-2-根据红包类型选择操作" class="headerlink" title="3.2 根据红包类型选择操作"></a>3.2 根据红包类型选择操作</h3><p>红包被戳开前会进行<strong>查重</strong>。</p>
+<p>戳开后如果界面上出现了<strong>“拆红包”</strong>几个字，说明红包还没有被别人抢走，立刻点击“拆红包”并将stage标记为OPENED_STAGE。</p>
+<p>此时，另三种情况表明抢红包失败了，直接返回，接下来状态会被标记为FETCHED_STAGE。</p>
+<ol>
+<li>“过期”，说明红包超过有效时间</li>
+<li>“手慢了”，说明红包发完但没抢到</li>
+<li>“红包详情”，说明你已经抢到过</li>
+</ol>
+<h3 id="3-3-防止加载红包时返回"><a href="#3-3-防止加载红包时返回" class="headerlink" title="3.3 防止加载红包时返回"></a>3.3 防止加载红包时返回</h3><p>戳开红包和红包加载完之间有一个“正在加载”的过渡动画，会触发onAccessibilityEvent回调方法。如果在加载完之前判断，上述文本还没出现，会被默认标记为FETCHED_STAGE并触发返回。因此，我们要在返回前特殊判定这种情形。</p>
+<p>我们引入了TTL来记录尝试次数，并返回错误值-1。如果到达MAX_TTL时红包还没有加载出来就舍弃这个红包。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Stage.getInstance().entering(Stage.OPENING_STAGE);</span><br><span class="line">ttl += <span class="number">1</span>;</span><br><span class="line"><span class="keyword">return</span> -<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<hr>
+<p>上面的就这样的基本流程说完了，那么现在是一些附加的介绍 </p>
+<h2 id="4-抢红包流程的逻辑控制"><a href="#4-抢红包流程的逻辑控制" class="headerlink" title="4. 抢红包流程的逻辑控制"></a>4. 抢红包流程的逻辑控制</h2><p>这个插件通过一个Stage类来记录当前对应的阶段。<br>Stage类被设计成单例并惰性实例化，因为一个Service不需要也不应该处在不同的阶段。<br>对外暴露阶段常量和entering和getCurrentStage两个方法，分别记录和获取当前的阶段。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Stage</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Stage stageInstance;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> FETCHING_STAGE = <span class="number">0</span>, OPENING_STAGE = <span class="number">1</span>, FETCHED_STAGE = <span class="number">2</span>, OPENED_STAGE = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> currentStage = FETCHED_STAGE;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Stage</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Stage <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (stageInstance == <span class="keyword">null</span>) stageInstance = <span class="keyword">new</span> Stage();</span><br><span class="line">        <span class="keyword">return</span> stageInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">entering</span><span class="params">(<span class="keyword">int</span> _stage)</span> </span>&#123;</span><br><span class="line">        stageInstance.currentStage = _stage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCurrentStage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> stageInstance.currentStage;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-1-阶段说明"><a href="#4-1-阶段说明" class="headerlink" title="4.1 阶段说明"></a>4.1 阶段说明</h3><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FETCHING_STAGE</td>
+<td>正在读取屏幕上的红包，此时不应有别的操作</td>
+</tr>
+<tr>
+<td>FETCHED_STAGE</td>
+<td>已经结束一个FETCH阶段，屏幕上的红包都已加入待抢队列</td>
+</tr>
+<tr>
+<td>OPENING_STAGE</td>
+<td>正在拆红包，此时不应有别的操作</td>
+</tr>
+<tr>
+<td>OPENED_STAGE</td>
+<td>红包成功抢到，进入红包详情页面</td>
+</tr>
+</tbody>
+</table>
+<p>1.程序以FETCHED_STAGE 开始，将屏幕上的红包加入待抢队列：</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">FETCHED_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">FETCHING_STAGE</span>  <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">FETCHED_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>2.处理待抢队列中的红包：</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">-</span><span class="literal">-</span>&gt; <span class="title">[</span><span class="comment">CLICK</span><span class="title">]</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">OPENING_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="title">[</span><span class="comment">CLICK</span><span class="title">]</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">OPENED_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="title">[</span><span class="comment">BACK</span><span class="title">]</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">FETCHED_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">（抢到）</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"></span><span class="literal">-</span><span class="literal">-</span>&gt; <span class="title">[</span><span class="comment">CLICK</span><span class="title">]</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">OPENING_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="title">[</span><span class="comment">BACK</span><span class="title">]</span> <span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">FETCHED_STAGE</span> <span class="literal">-</span><span class="literal">-</span>&gt;<span class="comment">（没抢到）</span></span><br></pre></td></tr></table></figure>
+<p>3.不断重复流程1和2</p>
+<h3 id="4-2-根据阶段选择不同的入口"><a href="#4-2-根据阶段选择不同的入口" class="headerlink" title="4.2 根据阶段选择不同的入口"></a>4.2 根据阶段选择不同的入口</h3><p>在每次窗体状态发生变化后，根据当前所在的阶段选择入口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (Stage.getInstance().getCurrentStage()) &#123;</span><br><span class="line">    <span class="keyword">case</span> Stage.OPENING_STAGE:</span><br><span class="line">        <span class="comment">// .......</span></span><br><span class="line">        Stage.getInstance().entering(Stage.FETCHED_STAGE);</span><br><span class="line">        performGlobalAction(GLOBAL_ACTION_BACK);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> Stage.OPENED_STAGE:</span><br><span class="line">        Stage.getInstance().entering(Stage.FETCHED_STAGE);</span><br><span class="line">        performGlobalAction(GLOBAL_ACTION_BACK);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> Stage.FETCHED_STAGE:</span><br><span class="line">        <span class="keyword">if</span> (nodesToFetch.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            AccessibilityNodeInfo node = nodesToFetch.remove(nodesToFetch.size() - <span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span> (node.getParent() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// .......</span></span><br><span class="line">                Stage.getInstance().entering(Stage.OPENING_STAGE);</span><br><span class="line">                node.getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Stage.getInstance().entering(Stage.FETCHING_STAGE);</span><br><span class="line">        fetchHongbao(nodeInfo);</span><br><span class="line">        Stage.getInstance().entering(Stage.FETCHED_STAGE);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/微信/" rel="tag">#微信</a>
+          
+            <a href="/tags/红包/" rel="tag">#红包</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/" rel="prev">Android测试教程9--聊聊配置测试环境的一些问题</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/27/Android测试教程8--测试我们的Activity/" rel="next">Android测试教程8--测试我们的Activity</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/03/源码探索系列0---微信抢红包插件原理解析/"
+     data-title="源码探索系列0---微信抢红包插件原理解析"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/03/源码探索系列0---微信抢红包插件原理解析/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/03/源码探索系列0---微信抢红包插件原理解析/"
+                   data-title="源码探索系列0---微信抢红包插件原理解析" data-url="http://yoursite.com/2015/12/03/源码探索系列0---微信抢红包插件原理解析/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#微信抢红包插件"><span class="nav-number">1.</span> <span class="nav-text">微信抢红包插件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预期特性"><span class="nav-number">1.1.</span> <span class="nav-text">预期特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现原理"><span class="nav-number">2.</span> <span class="nav-text">实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-屏幕内容检测和自动化点击的实现"><span class="nav-number">2.1.</span> <span class="nav-text">1. 屏幕内容检测和自动化点击的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-配置AccessibilityService"><span class="nav-number">2.1.1.</span> <span class="nav-text">1.1 配置AccessibilityService</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-获取红包所在的节点-找到红包"><span class="nav-number">2.1.2.</span> <span class="nav-text">1.2 获取红包所在的节点 - - 找到红包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-对节点进行操作-开包"><span class="nav-number">2.1.3.</span> <span class="nav-text">1.3 对节点进行操作 - - 开包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-获取屏幕上的所有红包"><span class="nav-number">2.2.</span> <span class="nav-text">2. 获取屏幕上的所有红包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-判断红包节点是否已被抢过"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.1 判断红包节点是否已被抢过</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-将新出现的红包加入待抢队列"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2 将新出现的红包加入待抢队列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-打开队列中的红包"><span class="nav-number">2.3.</span> <span class="nav-text">3. 打开队列中的红包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-判断红包节点是否被重用"><span class="nav-number">2.3.1.</span> <span class="nav-text">3.1 判断红包节点是否被重用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-根据红包类型选择操作"><span class="nav-number">2.3.2.</span> <span class="nav-text">3.2 根据红包类型选择操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-防止加载红包时返回"><span class="nav-number">2.3.3.</span> <span class="nav-text">3.3 防止加载红包时返回</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-抢红包流程的逻辑控制"><span class="nav-number">2.4.</span> <span class="nav-text">4. 抢红包流程的逻辑控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-阶段说明"><span class="nav-number">2.4.1.</span> <span class="nav-text">4.1 阶段说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-根据阶段选择不同的入口"><span class="nav-number">2.4.2.</span> <span class="nav-text">4.2 根据阶段选择不同的入口</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

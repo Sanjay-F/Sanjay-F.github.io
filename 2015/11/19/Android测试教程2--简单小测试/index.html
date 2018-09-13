@@ -1,0 +1,825 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,测试," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在教程1，我们知道了怎么运行起我们的测试，现在，我们是时候对我们的界面进行一些操作了，让我们来做一个小的简单测试吧。">
+<meta name="keywords" content="android,测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android测试教程2--简单小测试">
+<meta property="og:url" content="http://yoursite.com/2015/11/19/Android测试教程2--简单小测试/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在教程1，我们知道了怎么运行起我们的测试，现在，我们是时候对我们的界面进行一些操作了，让我们来做一个小的简单测试吧。">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.695Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android测试教程2--简单小测试">
+<meta name="twitter:description" content="在教程1，我们知道了怎么运行起我们的测试，现在，我们是时候对我们的界面进行一些操作了，让我们来做一个小的简单测试吧。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Android测试教程2--简单小测试 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Android测试教程2--简单小测试
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-11-19T00:41:00+08:00" content="2015-11-19">
+            2015-11-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/11/19/Android测试教程2--简单小测试/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/19/Android测试教程2--简单小测试/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在教程1，我们知道了怎么运行起我们的测试，现在，我们是时候对我们的界面进行一些操作了，让我们来做一个小的简单测试吧。</p>
+<a id="more"></a>
+<h1 id="MainActivity"><a href="#MainActivity" class="headerlink" title="MainActivity"></a>MainActivity</h1><p>我把代码都粘贴上来了，这个主要就做了两件事，绑定界面，然后点击了button后，就设置tvResult内容为result.</p>
+<pre><code>public class MainActivity extends AppCompatActivity {
+
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private TextView tvResult;
+
+    private int number = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Log.e(TAG, &quot;onCreate() &quot;);
+        tvResult = (TextView) findViewById(R.id.am_result_tv);
+
+        FloatingActionButton button = (FloatingActionButton) findViewById(R.id.fab);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvResult.setText(&quot;result&quot;);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e(TAG, &quot;onDestroy() &quot;);
+        super.onDestroy();
+    }
+
+    public void addNumber() {
+        number++;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+}
+</code></pre><p>那么我们该怎么测试，我们点击了按钮后，某些事情确实发生了？<br>例如我的textview的内容改变了呢？<br>看看下面的案例把</p>
+<p>#MainActivityTest </p>
+<pre><code>public class MainActivityTest extends InstrumentationTestCase {
+
+
+    private String TAG = MainActivityTest.class.getSimpleName();
+
+    private Instrumentation mInstrumentation;
+    private MainActivity mMainActivity;
+    private TextView tvResult;
+    private FloatingActionButton mButton;
+
+
+    public void setUp() throws Exception {
+        super.setUp();
+        mInstrumentation = getInstrumentation();
+        Intent intent = new Intent();
+        intent.setClassName(MainActivity.class.getPackage().getName(), MainActivity.class.getName());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+        mMainActivity = (MainActivity) mInstrumentation.startActivitySync(intent);
+        Log.e(TAG, &quot; setUP&quot;);
+    }
+
+    public void testPreconditions() {
+        assertNotNull(tvResult);
+        assertNotNull(mButton);
+    }
+
+    public void testOnCreate() throws Exception {
+        Log.e(TAG, &quot; test on create&quot;);
+        tvResult = (TextView) mMainActivity.findViewById(R.id.am_result_tv);
+        mButton = (FloatingActionButton) mMainActivity.findViewById(R.id.fab);
+
+        //在主线程执行，要不然报错！    
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mButton.performClick();
+                assertTrue(tvResult.getText().toString().equals(&quot;result&quot;));
+            }
+        });
+         //    案例2
+        mMainActivity.addNumber();
+        assertEquals(1, mMainActivity.getNumber());
+    }
+
+
+    public void tearDown() throws Exception {
+        Log.e(TAG, &quot; tear down&quot;);
+        testOnDestroy();
+    }
+
+
+    public void testOnDestroy() throws Exception {
+        Log.e(TAG, &quot; test on destroy&quot;);
+        mMainActivity.finish();
+    }
+}
+</code></pre><p>上面的代码简单的展示了，如何测试结果的，用到的方法其实很简单粗暴！<br>绑定界面，执行方法，然后读取textview的内容。</p>
+<p>这里关于这个InstrumentationTestCase，需要简单的描述下，<br>不知道你有没注意到在每个生命周期，都有一个打印的log。<br>根据这个，我们可以知道一个大概的调用顺序的前后。</p>
+<h2 id="一些简介："><a href="#一些简介：" class="headerlink" title="一些简介："></a>一些简介：</h2><ol>
+<li><p><code>setUp（）</code><br>在每个测试案例前，程序都回自动调用<code>setUp（）</code>函数，用于做一些初始化等操作，确保每个测试是独立互不影响的，因为在一些测试案例中我们可能对一些变量进行一些操作，如弄成null等，导致在另外一个测试有问题啊。</p>
+</li>
+<li><p><code>tearDown()</code><br>这个和setup是配对的，每次的测试案例跑完就会回调这个函数，用于删除一些垃圾，会收下内测的样子。</p>
+</li>
+<li><p><code>test的约定</code><br>每个函数我们以test为开头，这个是默认的约定，只要是一test开头的，系统都回认为这是一个测试用例，运行的时候就会调用他。以前我们写测试看到最多是有<code>@test</code>这样的注解。</p>
+</li>
+<li><code>testPreconditions()</code><br>很有意思的是，这个函数的名字叫“前提条件”，不知道你是否记得，我们以前写AsyncTask的时候，也会有一个<code>onPreExecute（）</code>的方法，他是运行在主线程，且在我们的<code>doInBackground（）</code>前执行的，这个也是类似的意思，在我们的<code>testXXX（）</code>函数执行前执行，但说有意思的地方，不在这，他有意思的地方是，<strong>系统不保证他在这些测试被执行前执行</strong>，<strong>系统不保证他在这些测试被执行前执行</strong>，<strong>系统不保证他在这些测试被执行前执行</strong>。呵呵，就是这样啦！</li>
+</ol>
+<hr>
+<h1 id="介绍InstrumentationTestCase"><a href="#介绍InstrumentationTestCase" class="headerlink" title="介绍InstrumentationTestCase"></a>介绍InstrumentationTestCase</h1><p>继承自JUnit TestCase类，并可以使用Instrumentation框架，用于测试Activity。<br>使用Instrumentation，Android可 以向程序发送事件来自动进行UI测试，并可以精确控制Activity的启动，监测Activity生命周期的状态。你可以看到他拥有一系列的callActivityOnXXX（）的函数。</p>
+<pre><code>Instrumentation.callActivityOnCreate();
+Instrumentation.callActivityOnPause();
+Instrumentation.callActivityOnXXX();
+</code></pre><p>基类是InstrumentationTestCase。<br>它的所有子类都能发送按键或触摸事件给UI。<br>子类还可以注入一个模拟的Intent。</p>
+<p>子类有：</p>
+<ul>
+<li><p>ActivityTestCase——Activity测试类的基类。</p>
+</li>
+<li><p>SingleLaunchActivityTestCase——测试单个Activity的类。它能触发一次setup()和tearDown()，而不是每个方法调用时都触发。如果你的测试方法都是针对同一个Activity的话，那就使用它吧。</p>
+</li>
+<li><p>SyncBaseInstrumentation——测试Content Provider同步性的类。它使用Instrumentation在启动测试同步性之前取消已经存在的同步对象。</p>
+</li>
+<li><p>ActivityUnitTestCase——对单个Activity进行单一测试的类。使用它，你可以注入模拟的Context或 Application，或者两者。它用于对Activity进行单元测试。不同于其它的Instrumentation类，这个测试类不能注入模拟的 Intent。</p>
+</li>
+<li><p>ActivityInstrumentationTestCase2——在正常的系统环境中测试单个Activity的类。你不能注入一 个模拟的Context，但你可以注入一个模拟的Intent。另外，你还可以在UI线程（应用程序的主线程）运行测试方法，并且可以给应用程序UI发送 按键及触摸事件。</p>
+</li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/测试/" rel="tag">#测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/11/19/Android测试教程3--用Robotium来生自动生成操作/" rel="prev">Android测试教程3--用Robotium来生自动生成操作</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/18/Android测试教程1--跑起来/" rel="next">Android测试教程1--跑起来</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/11/19/Android测试教程2--简单小测试/"
+     data-title="Android测试教程2--简单小测试"
+     data-content=""
+     data-url="http://yoursite.com/2015/11/19/Android测试教程2--简单小测试/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/11/19/Android测试教程2--简单小测试/"
+                   data-title="Android测试教程2--简单小测试" data-url="http://yoursite.com/2015/11/19/Android测试教程2--简单小测试/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#MainActivity"><span class="nav-number">1.</span> <span class="nav-text">MainActivity</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一些简介："><span class="nav-number">1.1.</span> <span class="nav-text">一些简介：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍InstrumentationTestCase"><span class="nav-number">2.</span> <span class="nav-text">介绍InstrumentationTestCase</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

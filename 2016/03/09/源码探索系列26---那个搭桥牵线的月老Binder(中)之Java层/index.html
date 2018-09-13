@@ -1,0 +1,850 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Binder," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="上一篇文章，我们对Binder做了一个简单的介绍。现在想从Binder机制的Java层来说下。  安卓本身在natvie层搭建了整套机制的基础，然后在Java层也重新包装了下，方便我们使用。因此本篇想尝试就只剖析Java层的架构为主，对于natvie层只是简单掠过，虽然在native层我们可以看到他加载虚拟Binder设备，打开Binder驱动，注册service的具体内容。不过我们还是一步一步">
+<meta name="keywords" content="android,源码,Binder">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层">
+<meta property="og:url" content="http://yoursite.com/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="上一篇文章，我们对Binder做了一个简单的介绍。现在想从Binder机制的Java层来说下。  安卓本身在natvie层搭建了整套机制的基础，然后在Java层也重新包装了下，方便我们使用。因此本篇想尝试就只剖析Java层的架构为主，对于natvie层只是简单掠过，虽然在native层我们可以看到他加载虚拟Binder设备，打开Binder驱动，注册service的具体内容。不过我们还是一步一步">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A1%86%E6%9E%B6.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder_%E6%A1%86%E6%9E%B6%E7%9A%84%E8%A1%8D%E7%94%9F%20%283%29.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层">
+<meta name="twitter:description" content="上一篇文章，我们对Binder做了一个简单的介绍。现在想从Binder机制的Java层来说下。  安卓本身在natvie层搭建了整套机制的基础，然后在Java层也重新包装了下，方便我们使用。因此本篇想尝试就只剖析Java层的架构为主，对于natvie层只是简单掠过，虽然在native层我们可以看到他加载虚拟Binder设备，打开Binder驱动，注册service的具体内容。不过我们还是一步一步">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A1%86%E6%9E%B6.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-09T13:30:46+08:00" content="2016-03-09">
+            2016-03-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p> 上一篇文章，我们对Binder做了一个简单的介绍。现在想从Binder机制的Java层来说下。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A1%86%E6%9E%B6.png" alt="Java层的Binder框架"></p>
+<p>安卓本身在<code>natvie层</code>搭建了整套机制的基础，然后在<code>Java层</code>也重新包装了下，方便我们使用。<br>因此本篇想尝试就只剖析Java层的架构为主，对于natvie层只是简单掠过，虽然在native层我们可以看到他加载虚拟Binder设备，打开Binder驱动，注册service的具体内容。不过我们还是一步一步来。有兴趣的伙伴可以自己去看下。</p>
+<p>那么，就让我们开始探索之旅吧。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>我们按照通讯模型，先从向ServiceManager添加服务作为探索的起点ServiceManager.addService()。</p>
+<pre><code>public static void addService(String name, IBinder service) {
+    try {
+        getIServiceManager().addService(name, service, false);
+    } catch (RemoteException e) {
+        Log.e(TAG, &quot;error in addService&quot;, e);
+    }
+}
+
+
+private static IServiceManager getIServiceManager() {
+    if (sServiceManager != null) {
+        return sServiceManager;
+    }
+
+    // Find the service manager
+    sServiceManager = ServiceManagerNative.asInterface(
+                        BinderInternal.getContextObject());
+    return sServiceManager;
+}
+</code></pre><p>这个BinderInternal是仅供Binder框架使用的类，内部有一个static final 的GcWatcher类，负责垃圾回收工作。他的getContextObject()是一个native方法，他会创建一个BinderProxy对象，然后通过JNI把它和一个Native的BpProxy对象挂钩。替我们去和Binder驱动通讯（可以看一开始的图）。</p>
+<p>接着我们看下asInterface的内容</p>
+<pre><code>static public IServiceManager asInterface(IBinder obj)
+{
+    if (obj == null) {
+        return null;
+    }
+    IServiceManager in =
+        (IServiceManager)obj.queryLocalInterface(descriptor);
+    if (in != null) {
+        return in;
+    }        
+    return new ServiceManagerProxy(obj);
+}
+</code></pre><p>他把我们的 BinderProxy用SMP包成一个IServiceManager返回。这个SMP是一个内部类，实现IServiceManager 接口，主要的是打包请求数据，然后交给BinderProxy对象去处理。例如下面的片段代码一样</p>
+<pre><code>class ServiceManagerProxy implements IServiceManager {
+    public ServiceManagerProxy(IBinder remote) {
+        mRemote = remote;
+    } 
+
+    public void addService(String name, IBinder service, boolean allowIsolated)
+            throws RemoteException {
+        Parcel data = Parcel.obtain();
+        Parcel reply = Parcel.obtain();
+        mRemote.transact(ADD_SERVICE_TRANSACTION, data, reply, 0);
+        data.writeInterfaceToken(IServiceManager.descriptor);
+        //打包请求数据，然后交给BinderProxy对象去处理,
+        //后者再转个BpBinder，然后和Binder驱动通讯
+        data.writeString(name);
+        data.writeStrongBinder(service);
+        data.writeInt(allowIsolated ? 1 : 0);
+        mRemote.transact(ADD_SERVICE_TRANSACTION, data, reply, 0);
+        reply.recycle();
+        data.recycle();
+    }
+
+        ...
+}
+</code></pre><p>这样我们就看完注册流程了。背后的native代码。我们下次再深入的看。</p>
+<hr>
+<p>接下来，我们需要去看下我们的客户端的流程<br>我们再客户端调用返回的proxy代理对象的方法</p>
+<pre><code>IDemoAidlInterface demoAidlInterface = IDemoAidlInterface.Stub.
+                asInterface(service);
+            boolean relation=demoAidlInterface.beMyGirlFriend(666666, true);
+</code></pre><p>接着在我们的内部类Proxy里面(这段是在系统自动为我们生成的文件的内容)</p>
+<pre><code>@Override
+       public boolean beMyGirlFriend(int FaceScore, boolean isCurSingle) throws android.os.RemoteException {
+           android.os.Parcel _data = android.os.Parcel.obtain();
+           android.os.Parcel _reply = android.os.Parcel.obtain();
+           boolean _result;
+           try {
+               _data.writeInterfaceToken(DESCRIPTOR);
+               _data.writeInt(FaceScore);
+               _data.writeInt(((isCurSingle) ? (1) : (0)));
+               mRemote.transact(Stub.TRANSACTION_beMyGirlFriend, _data, _reply, 0);
+               _reply.readException();
+               _result = (0 != _reply.readInt());
+           } finally {
+               _reply.recycle();
+               _data.recycle();
+           }
+           return _result;
+       }
+   }
+</code></pre><p> 背后是由binder的transact函数去执行的。在开头的图片已经有指出，这个Binder的具体实现是BinderProxy类，他就在Binder.java里面。</p>
+<pre><code>public boolean transact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+    Binder.checkParcel(this, code, data, &quot;Unreasonably large binder buffer&quot;);
+    return transactNative(code, data, reply, flags);
+}
+</code></pre><p>他会去调用native的<code>transactNative(code, data, reply, flags);</code>背后实现我们就不深究，直接到结果：</p>
+<p>下面代码在在Binder.java类文件里面，是被调用的类的Binder实现。</p>
+<pre><code>// Entry point from android_util_Binder.cpp&apos;s onTransact 
+private boolean execTransact(int code, long dataObj, long replyObj,
+        int flags) {
+    Parcel data = Parcel.obtain(dataObj);
+    Parcel reply = Parcel.obtain(replyObj);
+    // theoretically, we should call transact, which will call onTransact,
+    // but all that does is rewind it, and we just got these from an IPC,
+    // so we&apos;ll just call it directly.
+    boolean res;
+    // Log any exceptions as warnings, don&apos;t silently suppress them.
+    // If the call was FLAG_ONEWAY then these exceptions disappear into the ether.
+    res = onTransact(code, data, reply, flags); // &lt;-重要的一句
+
+    ....
+
+    checkParcel(this, code, reply, &quot;Unreasonably large binder reply buffer&quot;);
+    reply.recycle();
+    data.recycle();
+
+    // Just in case -- we are done with the IPC, so there should be no more strict
+    // mode violations that have gathered for this thread.  Either they have been
+    // parceled and are now in transport off to the caller, or we are returning back
+    // to the main transaction loop to wait for another incoming transaction.  Either
+    // way, strict mode begone!
+    StrictMode.clearGatheredViolations();
+
+    return res;
+}
+</code></pre><p>上面的onTransact函数，会跳到我们自己实现的接口的内容去，具体在我们的电脑会自动帮我们生成的类文件里面。这样就回到了我们<strong>Server</strong>的onTransact()里面去调用我们的方法。 </p>
+<pre><code>@Override
+    public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException {
+        switch (code) {
+            case INTERFACE_TRANSACTION: {
+                reply.writeString(DESCRIPTOR);
+                return true;
+            }
+            case TRANSACTION_beMyGirlFriend: {
+                data.enforceInterface(DESCRIPTOR);
+                int _arg0;
+                _arg0 = data.readInt();
+                boolean _arg1;
+                _arg1 = (0 != data.readInt());
+                boolean _result = this.beMyGirlFriend(_arg0, _arg1);
+                reply.writeNoException();
+                reply.writeInt(((_result) ? (1) : (0)));
+                return true;
+            }
+        }
+        return super.onTransact(code, data, reply, flags);
+    }
+</code></pre><p>最后通过保存结果到reply中去。这里的replay“等同于”我们Client里面调用的那个reply。这个Parcel类就是前篇文章提到的保存调用信息的工具。</p>
+<p>关于bindeService()的调用，我们在介绍<a href="http://sanjay-f.github.io/2015/12/18/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%977---%E5%9B%9B%E5%A4%A7%E9%87%91%E5%88%9A%E4%B9%8BService/" target="_blank" rel="noopener">四大金刚之Service</a>的时候有提到过。就不再细看了。我们直接看结果吧。</p>
+<h1 id="框架的学习"><a href="#框架的学习" class="headerlink" title="框架的学习"></a>框架的学习</h1><p>其实，说实在的，真的意义可能不是很大，完全只是知道一个流程，一时半会也无法做些什么实践。<br>也不能基于此做些修改，突破性能之类的。可能下次你要比较性能时候，你清楚如果背后是Binder，那么性能可能稍微弱些，毕竟人家跨进程通讯，一般比不上本地通讯，就像出国游和去隔壁城市一样。或者说类似本地广播和BroadCast。</p>
+<p>但还有一个堂而皇之的理由，就是本节的标题，框架的学习…一个案例就是用在搭建网络框架部分。<br>大致意思如下图</p>
+<p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder_%E6%A1%86%E6%9E%B6%E7%9A%84%E8%A1%8D%E7%94%9F%20%283%29.png" alt="enter image description here"></p>
+<p>我们定义了一个代理的请求<code>ProxyRequest</code>，他是我们调用的对象，由这个对象来保存我们所有的请求信息。之后这个对象跑到我们的<code>RequestManager</code>去，它根据这些请求信息，来装换成实际的请求类（如Volley的 JsonRequest ），再发给我们实际处理请求的类(如HttpClient，Volley，OkHttp)去处理。</p>
+<p>通过这样的在实际的网络框架上加多一层<code>包装层</code>，我们可以让我们的调用者不知道背后的<code>干活人</code>，达到某种程度的解耦，以后当我们需要换一个网络请求框架的时候，只需要修改下在RequestManager层的转换函数，而且我们对所有的请求也可以做统一的管理，这是很重要的！控制性能，对请求结果的统一处理等。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>大致的写了java层的Binder框架，感觉写得很不够到位，在深入底层和得其意上没做到好的平衡，不过也还好，还可以持续改，先起个头，后面也能继续优化，这就是开发的一些好处吧，可以持续的改进，而且没太高的成本。不像一些科学实验，想再重现，改进的成本太高了。例如Musk的飞天火箭，每次的实验成功都是天文数字。<br>我给自己个台阶下了   ( — . —  ) “</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Binder/" rel="tag">#Binder</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" rel="prev">源码探索系列27---插件化基础之类加载器DexClassLoader</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/" rel="next">源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/"
+     data-title="源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层"
+     data-content=""
+     data-url="http://yoursite.com/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/"
+                   data-title="源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层" data-url="http://yoursite.com/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#框架的学习"><span class="nav-number">2.</span> <span class="nav-text">框架的学习</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

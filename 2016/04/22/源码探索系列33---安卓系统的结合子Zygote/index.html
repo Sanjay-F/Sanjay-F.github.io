@@ -1,0 +1,1236 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Zygote," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="Last time，we hava talk about SystemServer,which is fork by zygote.Today, we will do some research on  Zygote.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote">
+<meta name="keywords" content="android,源码,Zygote">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列33---安卓系统的结合子Zygote">
+<meta property="og:url" content="http://yoursite.com/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="Last time，we hava talk about SystemServer,which is fork by zygote.Today, we will do some research on  Zygote.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/33_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160423004450.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/33-%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160422144521.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.723Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列33---安卓系统的结合子Zygote">
+<meta name="twitter:description" content="Last time，we hava talk about SystemServer,which is fork by zygote.Today, we will do some research on  Zygote.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/33_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160423004450.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列33---安卓系统的结合子Zygote | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列33---安卓系统的结合子Zygote
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-22T19:56:46+08:00" content="2016-04-22">
+            2016-04-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>Last time，we hava talk about <code>SystemServer</code>,which is fork by <code>zygote</code>.<br>Today, we will do some research on  <code>Zygote</code>.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote handled. All the Application Process &amp; the most important class <code>SystemServer</code> are all fork by him.This paper will introduction the hole startUp process of zygote.class</p>
+<p>Title: StartUp Zygote </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/33_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160423004450.jpg" alt="startUp Zygote "></p>
+<a id="more"></a>
+<h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><p>we all know in Linux,any kind of  process is fork by  <code>The Init Process</code>. android is based on Linux,so the zygote must be fork by init directly or indirectly.In face ,the process is fork use init process to  decode <code>init.zygote.rc</code> (\system\core\rootdir\init.zygote64.rc)</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">service zygote /system/bin/app_process64 -Xzygote /system/bin --zygote  --start-system-server</span><br><span class="line"></span><br><span class="line">	class main</span><br><span class="line">	socket zygote stream 660 root system</span><br><span class="line">	onrestart write /sys/android_power/request_state wake</span><br><span class="line">	onrestart write /sys/power/state on</span><br><span class="line">	onrestart restart media</span><br><span class="line">	onrestart restart netd</span><br></pre></td></tr></table></figure>
+<p>this command tell  the init to create a process call zygote  and execute the program  <code>app_process64</code> with name:<code>-Xzygote</code>  pathname:<code>/system/bin</code>   arguments:<code>--zygote --start-system-server</code>. </p>
+<p><code>socket zygote stream 660 root system</code> means the Zygote process wil create a socket call “zygote”. so that we will have a file on  <code>&quot;/dev/socket/zygote&quot;</code> </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/33-%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160422144521.png" alt="enter image description here"></p>
+<p>this socket is very important. <code>ActivityManagerService</code> use this socket to communication with zygote  for fork a new application process.</p>
+<pre><code>onrestart write /sys/android_power/request_state wake
+onrestart write /sys/power/state on
+onrestart restart media
+onrestart restart netd
+</code></pre><p>means what to restart when zygote service process is restarts.<br>(more info about those command -&gt; <code>system/core/init/readme.txt</code>)</p>
+<p>according to the command ,we know the face that the service path is<br>system/bin/app_process/app_process/app_main.cpp .ok,let’s have a look!</p>
+<h1 id="app-main"><a href="#app-main" class="headerlink" title="app_main"></a>app_main</h1><pre><code>int main(int argc, char* const argv[]){     
+
+    if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) &lt; 0) {
+        // Older kernels don&apos;t understand PR_SET_NO_NEW_PRIVS and return
+        // EINVAL. Don&apos;t die on such kernels.
+        if (errno != EINVAL) {
+            LOG_ALWAYS_FATAL(&quot;PR_SET_NO_NEW_PRIVS failed: %s&quot;, strerror(errno));
+            return 12; //magic number!!!.
+        }
+    }
+
+
+    //we have send arguments:`--zygote --start-system-server`
+
+    AppRuntime runtime(argv[0], computeArgBlockSize(argc, argv));
+    // Process command line arguments
+    // ignore argv[0]
+    argc--;
+    argv++;
+
+    // Everything up to &apos;--&apos; or first non &apos;-&apos; arg goes to the vm.
+    //
+    // The first argument after the VM args is the &quot;parent dir&quot;, which
+    // is currently unused.
+    //
+    // After the parent dir, we expect one or more the following internal
+    // arguments :
+    //
+
+    // --zygote : Start in zygote mode  《== one of the argus
+    // --start-system-server : Start the system server.⇐ The second args
+
+    // --application : Start in application (stand alone, non zygote) mode.
+    // --nice-name : The nice name for this process.
+    //
+    // For non zygote starts, these arguments will be followed by
+    // the main class name. All remaining arguments are passed to
+    // the main method of this class.
+    //
+    // For zygote starts, all remaining arguments are passed to the zygote.
+    // main function.
+    //
+    // Note that we must copy argument string values since we will rewrite the
+    // entire argument block when we apply the nice name to argv0.
+
+    int i;
+    for (i = 0; i &lt; argc; i++) {
+        if (argv[i][0] != &apos;-&apos;) {
+            break;
+        }
+        if (argv[i][1] == &apos;-&apos; &amp;&amp; argv[i][2] == 0) {
+            ++i; // Skip --.
+            break;
+        }
+        runtime.addOption(strdup(argv[i]));
+    }
+    //主要为把存储保存到runtiem里去
+
+    // Parse runtime arguments.  Stop at first unrecognized option.
+    bool zygote = false;
+    bool startSystemServer = false;
+    bool application = false;
+    String8 niceName;
+    String8 className;
+
+    ++i;  // Skip unused &quot;parent dir&quot; argument.
+    while (i &lt; argc) {
+        const char* arg = argv[i++];
+        if (strcmp(arg, &quot;--zygote&quot;) == 0) {
+            zygote = true;
+            niceName = ZYGOTE_NICE_NAME;
+        } else if (strcmp(arg, &quot;--start-system-server&quot;) == 0) {
+            startSystemServer = true;
+        } else if (strcmp(arg, &quot;--application&quot;) == 0) {
+            application = true;
+        } else if (strncmp(arg, &quot;--nice-name=&quot;, 12) == 0) {
+            niceName.setTo(arg + 12);
+        } else if (strncmp(arg, &quot;--&quot;, 2) != 0) {
+            className.setTo(arg);
+            break;
+        } else {
+            --i;
+            break;
+        }
+    }
+
+    Vector&lt;String8&gt; args;
+    if (!className.isEmpty()) {
+        // We&apos;re not in zygote mode, the only argument we need to pass
+        // to RuntimeInit is the application argument.
+        //
+        // The Remainder of args get passed to startup class main(). Make
+        // copies of them before we overwrite them with the process name.
+        args.add(application ? String8(&quot;application&quot;) : String8(&quot;tool&quot;));
+        runtime.setClassNameAndArgs(className, argc - i, argv + i);
+    } else {
+        // We&apos;re in zygote mode.
+        maybeCreateDalvikCache();
+
+        if (startSystemServer) {
+            args.add(String8(&quot;start-system-server&quot;));
+        }
+
+        char prop[PROP_VALUE_MAX];
+        if (property_get(ABI_LIST_PROPERTY, prop, NULL) == 0) {
+            LOG_ALWAYS_FATAL(&quot;app_process: Unable to determine ABI list from property %s.&quot;,
+                ABI_LIST_PROPERTY);
+            return 11;
+        }
+
+        String8 abiFlag(&quot;--abi-list=&quot;);
+        abiFlag.append(prop);
+        args.add(abiFlag);
+
+        // In zygote mode, pass all remaining arguments to the zygote
+        // main() method.
+        for (; i &lt; argc; ++i) {
+            args.add(String8(argv[i]));
+        }
+    }
+
+    if (!niceName.isEmpty()) {
+        runtime.setArgv0(niceName.string());
+        set_process_name(niceName.string());
+    }
+
+    if (zygote) {
+        runtime.start(&quot;com.android.internal.os.ZygoteInit&quot;, args, zygote); //&lt;-- invoke this func
+    } else if (className) {
+        runtime.start(&quot;com.android.internal.os.RuntimeInit&quot;, args, zygote);
+    } else {
+        fprintf(stderr, &quot;Error: no class name or --zygote supplied.\n&quot;);
+        app_usage();
+        LOG_ALWAYS_FATAL(&quot;app_process: no class name or --zygote supplied.&quot;);
+        return 10;
+    }
+}
+</code></pre><p>the whole process just collect the info and  call <code>runtime.start()</code> function.the RunTime is the subclass of AndroidRuntime.</p>
+<pre><code>class AppRuntime : public AndroidRuntime{
+
+public:
+    AppRuntime(char* argBlockStart, const size_t argBlockLength)
+        : AndroidRuntime(argBlockStart, argBlockLength)
+        , mClass(NULL){
+
+    }
+
+  void setClassNameAndArgs(const String8&amp; className, int argc, char * const *argv) {
+        mClassName = className;
+        for (int i = 0; i &lt; argc; ++i) {
+             mArgs.add(String8(argv[i]));
+        }
+    }
+
+    ...  
+};
+</code></pre><h1 id="AndroidRuntime-start"><a href="#AndroidRuntime-start" class="headerlink" title="AndroidRuntime.start"></a>AndroidRuntime.start</h1><pre><code>/*
+ * Start the Android runtime.  This involves starting the virtual machine
+ * and calling the &quot;static void main(String[] args)&quot; method in the class
+ * named by &quot;className&quot;.
+ *
+ * Passes the main function two arguments, the class name and the specified
+ * options string.
+ */
+void AndroidRuntime::start(const char* className, const Vector&lt;String8&gt;&amp; options, bool zygote){
+
+     ...             
+
+    //const char* kernelHack = getenv(&quot;LD_ASSUME_KERNEL&quot;);
+    //ALOGD(&quot;Found LD_ASSUME_KERNEL=&apos;%s&apos;\n&quot;, kernelHack);
+
+
+    JniInvocation jni_invocation;
+    jni_invocation.Init(NULL);
+    JNIEnv* env;
+      // 1. start the virtual machine ,this func is pretty llll...long,neary 415 line!
+    if (startVm(&amp;mJavaVM, &amp;env, zygote) != 0) {
+        return;
+    }             
+    onVmCreated(env);
+
+
+
+     //2.  Register android functions.             
+    if (startReg(env) &lt; 0) {
+        ALOGE(&quot;Unable to register all android natives\n&quot;);
+        return;
+    }
+
+    /*
+     * We want to call main() with a String array with arguments in it.
+     * At present we have two arguments, the class name and an option 
+     * string.Create an array to hold them.
+     */
+    jclass stringClass;
+    jobjectArray strArray;
+    jstring classNameStr;
+
+    stringClass = env-&gt;FindClass(&quot;java/lang/String&quot;);
+    assert(stringClass != NULL);
+    strArray = env-&gt;NewObjectArray(options.size() + 1, stringClass, NULL);
+    assert(strArray != NULL);
+    classNameStr = env-&gt;NewStringUTF(className);
+    assert(classNameStr != NULL);
+    env-&gt;SetObjectArrayElement(strArray, 0, classNameStr);
+
+    for (size_t i = 0; i &lt; options.size(); ++i) {
+        jstring optionsStr = env-&gt;NewStringUTF(options.itemAt(i).string());
+        assert(optionsStr != NULL);
+        env-&gt;SetObjectArrayElement(strArray, i + 1, optionsStr);
+    }
+
+
+    /* 3. call ZygoteInit.main()
+     *
+    *  args: className=com.android.internal.os.ZygoteInit.  
+     * 这个是前面调用时候就传过来的参数
+     * Start VM.  This thread becomes the main thread of the VM, and will
+     * not return until the VM exits.
+     * 
+     *  
+     */
+    char* slashClassName = toSlashClassName(className);
+    jclass startClass = env-&gt;FindClass(slashClassName);
+    if (startClass == NULL) {
+        ALOGE(&quot;JavaVM unable to locate class &apos;%s&apos;\n&quot;, slashClassName);
+        /* keep going */
+    } else {
+        jmethodID startMeth = env-&gt;GetStaticMethodID(startClass, &quot;main&quot;,
+            &quot;([Ljava/lang/String;)V&quot;);
+        if (startMeth == NULL) {
+            ALOGE(&quot;JavaVM unable to find main() in &apos;%s&apos;\n&quot;, className);
+            /* keep going */
+        } else {
+            env-&gt;CallStaticVoidMethod(startClass, startMeth, strArray);
+
+#if 0
+            if (env-&gt;ExceptionCheck())
+                threadExitUncaughtException(env);
+#endif
+        }
+    }
+    free(slashClassName);
+
+    ...
+}
+</code></pre><p> the start() contain 3 steps. </p>
+<ul>
+<li><ol>
+<li>startVm ,start up virtual machine</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>startReg ,register jni function</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>Invoke ZygoteInit.main()</li>
+</ol>
+</li>
+</ul>
+<h2 id="startVm"><a href="#startVm" class="headerlink" title="startVm"></a>startVm</h2><pre><code>int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv, bool zygote){
+
+   ... 
+
+  /*
+    * The default starting and maximum size of the heap.  Larger
+    * values should be specified in a product property override.
+    */        
+   parseRuntimeOption(&quot;dalvik.vm.heapstartsize&quot;, heapstartsizeOptsBuf, &quot;-Xms&quot;, &quot;4m&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.heapsize&quot;, heapsizeOptsBuf, &quot;-Xmx&quot;, &quot;16m&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.heapgrowthlimit&quot;, heapgrowthlimitOptsBuf, &quot;-XX:HeapGrowthLimit=&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.heapminfree&quot;, heapminfreeOptsBuf, &quot;-XX:HeapMinFree=&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.heapmaxfree&quot;, heapmaxfreeOptsBuf, &quot;-XX:HeapMaxFree=&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.heaptargetutilization&quot;,
+                      heaptargetutilizationOptsBuf, &quot;-XX:HeapTargetUtilization=&quot;);
+
+   /*
+    * JIT related options.
+    */
+   parseRuntimeOption(&quot;dalvik.vm.usejit&quot;, usejitOptsBuf, &quot;-Xusejit:&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.jitcodecachesize&quot;, jitcodecachesizeOptsBuf, &quot;-Xjitcodecachesize:&quot;);
+   parseRuntimeOption(&quot;dalvik.vm.jitthreshold&quot;, jitthresholdOptsBuf, &quot;-Xjitthreshold:&quot;);
+
+   property_get(&quot;ro.config.low_ram&quot;, propBuf, &quot;&quot;);
+   if (strcmp(propBuf, &quot;true&quot;) == 0) {
+     addOption(&quot;-XX:LowMemoryMode&quot;);
+   }
+    ...
+
+    //craete jvm!!!
+   if (JNI_CreateJavaVM(pJavaVM, pEnv, &amp;initArgs) &lt; 0) {
+       ALOGE(&quot;JNI_CreateJavaVM failed\n&quot;);
+       return -1;
+   }
+
+}
+</code></pre><p>well, sometimes in our gradle ,we’ll use  like  <code>javaMaxHeapSize &quot;2g&quot;</code> to opt the performence!</p>
+<pre><code>android {  
+   dexOptions {
+       javaMaxHeapSize &quot;2g&quot;
+   }
+}
+</code></pre><h1 id="ZygoteInit-main"><a href="#ZygoteInit-main" class="headerlink" title="ZygoteInit.main"></a>ZygoteInit.main</h1><p>wow.  we have see this main function before when talk about the  System Server. so .make long story short </p>
+<pre><code>public static void main(String argv[]) {
+
+   ...        
+   boolean startSystemServer = false;
+   String socketName = &quot;zygote&quot;;
+   String abiList = null;
+   for (int i = 1; i &lt; argv.length; i++) {
+       if (&quot;start-system-server&quot;.equals(argv[i])) {
+           startSystemServer = true;
+       } else if (argv[i].startsWith(ABI_LIST_ARG)) {
+           abiList = argv[i].substring(ABI_LIST_ARG.length());
+       }  ...
+   }
+
+   if (abiList == null) {
+       //刚才好像没注意到哪里有加多这个abiList的内容,但应该不为空
+       throw new RuntimeException(&quot;No ABI list supplied.&quot;);
+    }
+
+   //1. register socket, commutation with AMS
+   registerZygoteSocket(socketName); 
+   //2.pre load resource
+   preload();
+
+   //3. start system server  
+   if (startSystemServer) {
+       startSystemServer(abiList, socketName);
+
+   } 
+   //4.  loop ,waiting for the msg from AMS
+   runSelectLoop(abiList);
+
+   closeServerSocket();
+    ...
+}
+</code></pre><h2 id="registerZygoteSocket"><a href="#registerZygoteSocket" class="headerlink" title="registerZygoteSocket"></a>registerZygoteSocket</h2><pre><code>private static void registerZygoteSocket(String socketName) {
+    if (sServerSocket == null) {
+        int fileDesc;
+        final String fullSocketName = ANDROID_SOCKET_PREFIX + socketName;
+        try {
+            String env = System.getenv(fullSocketName);
+            fileDesc = Integer.parseInt(env);
+        } catch (RuntimeException ex) {
+            throw new RuntimeException(fullSocketName + &quot; unset or invalid&quot;, ex);
+        }
+
+        try {
+            FileDescriptor fd = new FileDescriptor();
+            fd.setInt$(fileDesc);
+
+            // create local Socket service
+            sServerSocket = new LocalServerSocket(fd);
+        } catch (IOException ex) {
+            throw new RuntimeException(
+                    &quot;Error binding to local socket &apos;&quot; + fileDesc + &quot;&apos;&quot;, ex);
+        }
+    }
+}
+</code></pre><h2 id="preload"><a href="#preload" class="headerlink" title="preload()"></a>preload()</h2><pre><code>static void preload() {
+       Log.d(TAG, &quot;begin preload&quot;);
+       //load the class on /system/etc/preloaded-classes
+       preloadClasses();
+       // pre load resource drawable &amp; color
+       //R.array.preloaded_drawables
+       //R.array.preloaded_color_state_lists
+       preloadResources();
+
+       preloadOpenGL();
+       preloadSharedLibraries();
+       preloadTextResources();
+       // Ask the WebViewFactory to do any initialization that must run in the zygote process,
+       // for memory sharing purposes.
+       WebViewFactory.prepareWebViewInZygote();
+       Log.d(TAG, &quot;end preload&quot;);
+   }
+</code></pre><h2 id="startSystemServer"><a href="#startSystemServer" class="headerlink" title="startSystemServer"></a>startSystemServer</h2><p>create system server process ,uid=1000,gid=1000</p>
+<pre><code>private static boolean startSystemServer(String abiList, String socketName)
+        throws MethodAndArgsCaller, RuntimeException {
+
+    long capabilities = posixCapabilitiesAsBits(
+        OsConstants.CAP_BLOCK_SUSPEND,
+        OsConstants.CAP_KILL,
+        OsConstants.CAP_NET_ADMIN,
+        OsConstants.CAP_NET_BIND_SERVICE,
+        OsConstants.CAP_NET_BROADCAST,
+        OsConstants.CAP_NET_RAW,
+        OsConstants.CAP_SYS_MODULE,
+        OsConstants.CAP_SYS_NICE,
+        OsConstants.CAP_SYS_RESOURCE,
+        OsConstants.CAP_SYS_TIME,
+        OsConstants.CAP_SYS_TTY_CONFIG
+    );
+    /* Hardcoded command line to start the system server */
+    String args[] = {
+        &quot;--setuid=1000&quot;,
+        &quot;--setgid=1000&quot;,
+        &quot;--setgroups=1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1018,1021,1032,3001,3002,3003,3006,3007&quot;,
+        &quot;--capabilities=&quot; + capabilities + &quot;,&quot; + capabilities,
+        &quot;--nice-name=system_server&quot;,
+        &quot;--runtime-args&quot;,
+        &quot;com.android.server.SystemServer&quot;,
+    };
+    ZygoteConnection.Arguments parsedArgs = null;
+
+    int pid;
+
+    try {
+        parsedArgs = new ZygoteConnection.Arguments(args);
+        ZygoteConnection.applyDebuggerSystemProperty(parsedArgs);
+        ZygoteConnection.applyInvokeWithSystemProperty(parsedArgs);
+
+        /* Request to fork the system server process */
+        pid = Zygote.forkSystemServer(
+                parsedArgs.uid, parsedArgs.gid,
+                parsedArgs.gids,
+                parsedArgs.debugFlags,
+                null,
+                parsedArgs.permittedCapabilities,
+                parsedArgs.effectiveCapabilities);
+    } catch (IllegalArgumentException ex) {
+        throw new RuntimeException(ex);
+    }
+
+    /* For child process */
+    if (pid == 0) {
+        if (hasSecondZygote(abiList)) {
+            waitForSecondaryZygote(socketName);
+        }
+
+        handleSystemServerProcess(parsedArgs);//&lt;-- IMPORTANT
+    }
+
+    return true;
+}
+</code></pre><p>link:  <a href="http://sanjay-f.github.io/2016/04/21/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9732---%E4%B8%87%E7%89%A9%E5%88%9D%E7%94%9F/" target="_blank" rel="noopener">源码探索系列32—万物初生System Servers</a></p>
+<h2 id="runSelectLoop"><a href="#runSelectLoop" class="headerlink" title="runSelectLoop"></a>runSelectLoop</h2><pre><code>/**
+ * Runs the zygote process&apos;s select loop. Accepts new connections as
+ * they happen, and reads commands from connections one spawn-request&apos;s
+ * worth at a time.
+ *
+ * @throws MethodAndArgsCaller in a child process when a main() should
+ * be executed.
+ */
+private static void runSelectLoop(String abiList) throws MethodAndArgsCaller {
+
+    ArrayList&lt;FileDescriptor&gt; fds = new ArrayList&lt;FileDescriptor&gt;();
+    ArrayList&lt;ZygoteConnection&gt; peers = new ArrayList&lt;ZygoteConnection&gt;();
+
+    fds.add(sServerSocket.getFileDescriptor());
+    peers.add(null);
+
+    while (true) {
+        StructPollfd[] pollFds = new StructPollfd[fds.size()];
+        for (int i = 0; i &lt; pollFds.length; ++i) {
+            pollFds[i] = new StructPollfd();
+            pollFds[i].fd = fds.get(i);
+            pollFds[i].events = (short) POLLIN;
+        }
+        try {
+            Os.poll(pollFds, -1);
+        } catch (ErrnoException ex) {
+            throw new RuntimeException(&quot;poll failed&quot;, ex);
+        }
+        for (int i = pollFds.length - 1; i &gt;= 0; --i) {
+            if ((pollFds[i].revents &amp; POLLIN) == 0) {
+                continue;
+            }
+            if (i == 0) {
+                ZygoteConnection newPeer = acceptCommandPeer(abiList);
+                peers.add(newPeer);
+                fds.add(newPeer.getFileDesciptor());
+            } else {
+                boolean done = peers.get(i).runOnce();
+                if (done) {
+                    peers.remove(i);
+                    fds.remove(i);
+                }
+            }
+        }
+    }
+}
+</code></pre><p> selected, poll, epoll。The scalable I/O event notification mechanism<br> <a href="https://en.wikipedia.org/wiki/Epoll" target="_blank" rel="noopener">more detail</a> </p>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>强行用英文写了一篇，感觉实在是丢了太多英语知识了.看能继续坚持写多久。<br>查看整个启动过程，还是发现不少知识上的不足的地方，顺便也学习了下！<br>感觉又有新的突破感！继续加油</p>
+<p>hexo 原生不支持时序图，搞了半天没弄好。明天起床有空再搞吧</p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p>information from many places to put this article together.</p>
+<p><a href="http://elinux.org/Android_Zygote_Startup" target="_blank" rel="noopener">Android Zygote Startup</a>  </p>
+<p><a href="http://blog.csdn.net/luoshengyang/article/details/6768304" target="_blank" rel="noopener">Android系统进程Zygote启动过程的源代码分析</a></p>
+<p><strong>detail about services command in the init.rc file</strong></p>
+<pre><code>Services
+--------
+Services are programs which init launches and (optionally) restarts
+when they exit.  Services take the form of:
+
+service &lt;name&gt; &lt;pathname&gt; [ &lt;argument&gt; ]*
+   &lt;option&gt;
+   &lt;option&gt;
+   ...
+
+
+Options
+-------
+Options are modifiers to services.  They affect how and when init
+runs the service.
+
+class &lt;name&gt;
+  Specify a class name for the service.  All services in a
+  named class may be started or stopped together.  A service
+  is in the class &quot;default&quot; if one is not specified via the
+  class option.
+
+socket &lt;name&gt; &lt;type&gt; &lt;perm&gt; [ &lt;user&gt; [ &lt;group&gt; [ &lt;seclabel&gt; ] ] ]
+  Create a unix domain socket named /dev/socket/&lt;name&gt; and pass
+  its fd to the launched process.  &lt;type&gt; must be &quot;dgram&quot;, &quot;stream&quot; or &quot;seqpacket&quot;.
+  User and group default to 0.
+  &apos;seclabel&apos; is the SELinux security context for the socket.
+  It defaults to the service security context, as specified by seclabel or
+  computed based on the service executable file security context.
+
+onrestart
+  Execute a Command (see below) when service restarts.
+</code></pre></span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Zygote/" rel="tag">#Zygote</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/" rel="prev">源码探索系列34---Android Garbage Collection/dalvik GC</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/21/源码探索系列32---万物初生/" rel="next">源码探索系列32---万物初生System Servers</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/22/源码探索系列33---安卓系统的结合子Zygote/"
+     data-title="源码探索系列33---安卓系统的结合子Zygote"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/22/源码探索系列33---安卓系统的结合子Zygote/"
+                   data-title="源码探索系列33---安卓系统的结合子Zygote" data-url="http://yoursite.com/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#start"><span class="nav-number">1.</span> <span class="nav-text">start</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#app-main"><span class="nav-number">2.</span> <span class="nav-text">app_main</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AndroidRuntime-start"><span class="nav-number">3.</span> <span class="nav-text">AndroidRuntime.start</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#startVm"><span class="nav-number">3.1.</span> <span class="nav-text">startVm</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ZygoteInit-main"><span class="nav-number">4.</span> <span class="nav-text">ZygoteInit.main</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#registerZygoteSocket"><span class="nav-number">4.1.</span> <span class="nav-text">registerZygoteSocket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#preload"><span class="nav-number">4.2.</span> <span class="nav-text">preload()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#startSystemServer"><span class="nav-number">4.3.</span> <span class="nav-text">startSystemServer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#runSelectLoop"><span class="nav-number">4.4.</span> <span class="nav-text">runSelectLoop</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ref"><span class="nav-number">6.</span> <span class="nav-text">Ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

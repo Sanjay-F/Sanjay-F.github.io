@@ -1,0 +1,832 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,设计模式,pattern,命令," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="好了，我们还是开一个故事吧。我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈 而且我们的美工同学也有这样的经历吧！ 这种混乱的需求来源，导致了下面这种情况。  所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有正所谓集体阵亡，不如死一个好。">
+<meta name="keywords" content="android,设计模式,pattern,命令">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式系列8---发号施令的命令模式">
+<meta property="og:url" content="http://yoursite.com/2016/01/02/设计模式系列8---发号施令的命令模式/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="好了，我们还是开一个故事吧。我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈 而且我们的美工同学也有这样的经历吧！ 这种混乱的需求来源，导致了下面这种情况。  所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有正所谓集体阵亡，不如死一个好。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/75d0dc88d43f8794d129179bd31b0ef419d53ac2.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_qP1k.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_1RXA.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/pm.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2011.46.34.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.741Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式系列8---发号施令的命令模式">
+<meta name="twitter:description" content="好了，我们还是开一个故事吧。我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈 而且我们的美工同学也有这样的经历吧！ 这种混乱的需求来源，导致了下面这种情况。  所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有正所谓集体阵亡，不如死一个好。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/75d0dc88d43f8794d129179bd31b0ef419d53ac2.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 设计模式系列8---发号施令的命令模式 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              设计模式系列8---发号施令的命令模式
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-02T12:05:00+08:00" content="2016-01-02">
+            2016-01-02
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/02/设计模式系列8---发号施令的命令模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列8---发号施令的命令模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p> 好了，我们还是开一个故事吧。<br>我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/75d0dc88d43f8794d129179bd31b0ef419d53ac2.jpg" alt="enter image description here"></p>
+<p>而且我们的美工同学也有这样的经历吧！<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_qP1k.jpg" alt="enter image description here"></p>
+<p>这种混乱的需求来源，导致了下面这种情况。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_1RXA.jpg" alt="enter image description here"></p>
+<p>所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有<br>正所谓集体阵亡，不如死一个好。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/pm.jpg" alt="enter image description here"></p>
+<a id="more"></a>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>对于这些问题，我们把我们的产品经理推到了风头浪尖，由他去面对风雨，接收各种提出来的命令，然后团队人员再接收他的调度，这很有IOC的味道，不适吗？把原本紧密耦合的几个类，拆开来，让我们的pm独自面对。<br>现在我们先写出我们的Pm。</p>
+<pre><code>    public class PmInvoker {
+
+    private Command command;
+
+    public void setCommand(Command command){
+        this.command = command;
+    }
+
+    public void action(){
+        this.command.execute();
+    }
+}
+</code></pre><p>他做的事情很简单，就是接受上门发的命令<code>Command()</code>，然后去执行<code>action()</code>。<br>接着我们抽象下我们的命令，我们的命令里面包含着我们的美工和码农们。</p>
+<pre><code> public abstract class Command {
+    protected PageEmployee mArtistEmployee = new PageEmployee(); //美工
+    protected CodeEmployee mCoder = new CodeEmployee(); //码农
+
+    //只要一个方法，你要我做什么事情
+    public abstract void execute();
+}
+</code></pre><p>   我们的命令类还是挺简单的，那就是被执行，哈哈。</p>
+<p>接着我们来写下几个具体的命令</p>
+<pre><code>public class DeletePageCommand extends Command {
+    //执行删除一个页面的命令
+    public void execute() {
+        mCoder.delete(); 
+    }
+}
+</code></pre><p>首先是最苦逼的删除也没的质量，辛辛苦苦做出来的页面，老板说不要，不要就得不要删除啊，那么删咯。</p>
+<p>接着我们来看下一个增加需求的命令</p>
+<pre><code>public class AddRequirementCommand extends Command {
+
+    public void execute() {
+        mArtistEmployee.add();
+        mArtistEmployee.plan();
+
+        mCoder.add();
+        mCoder.plan();
+    }
+}
+</code></pre><p>没看错，这个就是这样，我们需要我们的美工去出界面稿，然后说下这个需要多少天的时间，给个计划，接着通知下我们的码农同学，叫他过来，通知他需要加代码啦，然后也给个进度计划吧。<br>其余的命令类似，这里就不重复累赘了。</p>
+<p>接着我们来充当下老板，来看下我们是怎么发号施令的</p>
+<pre><code>public static void main(String[] args) {
+
+    Command command=new AddRequirementCommand();
+    PmInvoker pmInvoker=new PmInvoker();
+    pmInvoker.setCommand(command);
+    pmInvoker.action();
+
+}
+</code></pre><p>首先我们先头脑发热了一下，突然有了灵光，然后就了新的需求，接着我们找来了PM，同他说这个需求，接着叫她去干活。</p>
+<p>很一气呵成的过程，是吧！<br>如果我们脑子一热，也可以要求他删掉这个页面。哈哈</p>
+<pre><code>public static void main(String[] args) {
+
+    Command command=new DeletePageCommand();
+    PmInvoker pmInvoker=new PmInvoker();
+    pmInvoker.setCommand(command);
+    pmInvoker.action();
+
+}
+</code></pre><p>这样基本就演示完了，我们每次脑热的时候都之需要求改下我们的具体命令就好了，如果有新的命令，也是继承然后写多一个就好了。是不是很好？而且我们每次不需要关心背后到底做了什么，但却有很多类在背后默默工作着。我们的幕后工作人员啊，辛苦你们了。<br>很高內聚的，是不是？</p>
+<p>最后给出我们的员工类代码</p>
+<pre><code>public class CodeEmployee extends Employee {
+
+    public void add() {
+        System.out.println(&quot;客户要求增加一项功能...&quot;);
+    }
+
+    public void change() {
+        System.out.println(&quot;客户要求修改一项功能...&quot;);
+    }
+
+    public void delete() {
+        System.out.println(&quot;客户要求删除一项功能...&quot;);
+    }
+
+    public void plan() {
+        System.out.println(&quot;客户要求代码变更计划...&quot;);
+    }
+}
+
+public class PageEmployee extends Employee {
+
+    @Override
+    public void add() {
+        System.out.println(&quot;客户要求增加一个页面...&quot;);
+    }
+
+    @Override
+    public void change() {
+        System.out.println(&quot;客户要求修改一个页面...&quot;);
+    }
+
+    @Override
+    public void delete() {
+        System.out.println(&quot;客户要求删除一个页面...&quot;);
+    }
+
+    @Override
+    public void plan() {
+        System.out.println(&quot;客户要求页面变更计划...&quot;);
+    }
+}
+
+
+public abstract class Employee {
+
+    public abstract void add();
+
+    public abstract void delete();
+
+    public abstract void change();
+
+    public abstract void plan();
+}
+</code></pre><p>好了，我们的代码演示就到之类结束了。</p>
+<h1 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h1><p>我们来看下uml</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2011.46.34.png" alt="enter image description here"></p>
+<p>这里的<code>invoker</code>，就是我们的PM去执行我们的<code>Command</code>，然后我们的背后实际干活的<code>ConcrateCommand</code>就去找对应的负责人<code>Receiver</code>去做事，就是我们的个个<code>employee</code>，美术，码农啊。</p>
+<p>可能小伙伴觉得那个桥街和策略的不像，但感觉这次我们命令模式就像了，为何像呢，因为它们都是分在行为模式组里面。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>我们的命令模式提供了很好的封装，把Invoker和具体的Receiver分开，高内聚，扩展性很好。<br>而且我们的所有成员都在我们的命令里面有一个实例，因为这可以给我们的具体命令们调用，不要让每个命令都去生成一次。</p>
+<p>但使用我们的命令是需要慎重的，因为如果当命令很多的时候，这些类的膨胀速度还是挺快的。<br>另外一个是Do&amp;Undo，我们不可避免的是需要撤销上一次的操作。<br>这需要我们做对应的配套支持，当然对于一些特点的类型，我们可以加多一个undo的命令，但对于一些需要案例，需要配套一些状态的变量，纪录一些参数信息等。</p>
+<p>写的过程一直在提示强调他们很像，一方面是为了温故旧的知识，同事也是为了清楚各个模式之间的不一样。从而加强我们对每个类的了解。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/设计模式/" rel="tag">#设计模式</a>
+          
+            <a href="/tags/pattern/" rel="tag">#pattern</a>
+          
+            <a href="/tags/命令/" rel="tag">#命令</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/02/设计模式系列9---和而不同的工厂方法模式/" rel="prev">设计模式系列9---和而不同的工厂模式</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/02/设计模式系列7---金点子多多的策略模式/" rel="next">设计模式系列7---金点子多多的策略模式</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/02/设计模式系列8---发号施令的命令模式/"
+     data-title="设计模式系列8---发号施令的命令模式"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/02/设计模式系列8---发号施令的命令模式/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/02/设计模式系列8---发号施令的命令模式/"
+                   data-title="设计模式系列8---发号施令的命令模式" data-url="http://yoursite.com/2016/01/02/设计模式系列8---发号施令的命令模式/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">1.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#定义"><span class="nav-number">2.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

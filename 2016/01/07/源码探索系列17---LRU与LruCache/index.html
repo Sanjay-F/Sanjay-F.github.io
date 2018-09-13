@@ -1,0 +1,987 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Lru," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈 今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现LruCache。 在开始讲它之前，我们来看下他的基本使用。">
+<meta name="keywords" content="android,源码,Lru">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列17---LRU与LruCache">
+<meta property="og:url" content="http://yoursite.com/2016/01/07/源码探索系列17---LRU与LruCache/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈 今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现LruCache。 在开始讲它之前，我们来看下他的基本使用。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/a08b87d6277f9e2fe1bb18c01e30e924b999f368.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.710Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列17---LRU与LruCache">
+<meta name="twitter:description" content="前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈 今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现LruCache。 在开始讲它之前，我们来看下他的基本使用。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/a08b87d6277f9e2fe1bb18c01e30e924b999f368.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列17---LRU与LruCache | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列17---LRU与LruCache
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-07T19:06:00+08:00" content="2016-01-07">
+            2016-01-07
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/07/源码探索系列17---LRU与LruCache/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/a08b87d6277f9e2fe1bb18c01e30e924b999f368.jpg" alt="enter image description here"><br>前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈</p>
+<p>今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现<code>LruCache</code>。</p>
+<p>在开始讲它之前，我们来看下他的基本使用。</p>
+<a id="more"></a>
+<pre><code>class CacheEngineLruCache {
+
+    private static final String TAG = &quot;CacheEngineLruCache&quot;;    
+    LruCache&lt;String, Object&gt; mMemoryCache = null;    
+    static final int MAX_CACHE_NUM = 2000;
+
+    protected CacheEngineLruCache() {
+        mMemoryCache = new LruCache&lt;String, Object&gt;(MAX_CACHE_NUM);
+    }
+
+    public Object get(String key) {
+        return mMemoryCache.get(key);
+    }
+
+    public Object set(Object object, String key) {
+        return mMemoryCache.put(key, object);
+    }
+
+    public boolean delete(String key) {
+        mMemoryCache.remove(key);
+        return true;
+    }
+
+    public void clear() {
+        mMemoryCache.evictAll();
+    }      
+
+}
+</code></pre><p>使用起来和我们的<code>Redis</code>一样，用一个<code>get</code>和<code>set</code>函数来保存和缓存数据。<br>他的运用场景也类似Redis，主要就是<code>缓存数据</code>，提高数据获取速度，例如来自数据库的数据。<br>突然觉得下次有空应该写多一个库，像<code>Spring</code>的<code>@Cache</code>那样，基于注解的使用这个缓存机制！<br>感觉挺酷酷的，不知道有没人写过了。加个todo </p>
+<pre><code>// TODO 写个基于注解的缓存库
+</code></pre><h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>看了这个基本的使用案例，我们也很熟悉的感觉到一件事情，我们常用的Universal-Image-Loader库好像也有这个的实现版本，我们使用它的时候的配置选项，里面有一个<code>LruMemoryCache</code></p>
+<pre><code>ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .threadPoolSize(3) // default 3
+                .threadPriority(Thread.NORM_PRIORITY - 1)
+                .memoryCache(new LruMemoryCache(3 * 1024 * 1024)) // &lt;-看这里
+                .memoryCacheSizePercentage(13)     
+                .build();
+</code></pre><p>这是机会，我们去看下他写的内容！当然他还有很多个版本的缓存配置，有兴趣慢慢都看完他<br>路径是：</p>
+<pre><code>package com.nostra13.universalimageloader.cache.memory.impl;
+</code></pre><p>整个类就一百多行，我们直接粘贴上来，有个整体的印象，再做细看</p>
+<pre><code>public class LruMemoryCache implements MemoryCache {
+
+    private final LinkedHashMap&lt;String, Bitmap&gt; map;
+
+    private final int maxSize;
+    /** Size of this cache in bytes */
+    private int size;
+
+    public LruMemoryCache(int maxSize) {
+        if (maxSize &lt;= 0) {
+            throw new IllegalArgumentException(&quot;maxSize &lt;= 0&quot;);
+        }
+        this.maxSize = maxSize;
+        this.map = new LinkedHashMap&lt;String, Bitmap&gt;(0, 0.75f, true);
+    }
+
+    @Override
+    public final Bitmap get(String key) {
+        if (key == null) {
+            throw new NullPointerException(&quot;key == null&quot;);
+        }    
+        synchronized (this) {
+            return map.get(key);
+        }
+    }
+
+    @Override
+    public final boolean put(String key, Bitmap value) {
+        if (key == null || value == null) {
+            throw new NullPointerException(&quot;key == null || value == null&quot;);
+        }
+
+        synchronized (this) {
+            size += sizeOf(key, value);
+            Bitmap previous = map.put(key, value);
+            if (previous != null) {
+                size -= sizeOf(key, previous);
+            }
+        }
+
+        trimToSize(maxSize);
+        return true;
+    }
+
+    private void trimToSize(int maxSize) {
+        while (true) {
+            String key;
+            Bitmap value;
+            synchronized (this) {
+                if (size &lt; 0 || (map.isEmpty() &amp;&amp; size != 0)) {
+                    ...
+                }
+
+                if (size &lt;= maxSize || map.isEmpty()) {
+                    break;
+                }
+
+                Map.Entry&lt;String, Bitmap&gt; toEvict = map.entrySet().iterator().next();
+                if (toEvict == null) {
+                    break;
+                }
+                key = toEvict.getKey();
+                value = toEvict.getValue();
+                map.remove(key);
+                size -= sizeOf(key, value);
+            }
+        }
+    }
+
+    @Override
+    public final Bitmap remove(String key) {
+        if (key == null) {
+            throw new NullPointerException(&quot;key == null&quot;);
+        }
+
+        synchronized (this) {
+            Bitmap previous = map.remove(key);
+            if (previous != null) {
+                size -= sizeOf(key, previous);
+            }
+            return previous;
+        }
+    }
+
+    @Override
+    public Collection&lt;String&gt; keys() {
+        synchronized (this) {
+            return new HashSet&lt;String&gt;(map.keySet());
+        }
+    }
+
+    @Override
+    public void clear() {
+        trimToSize(-1); // -1 will evict 0-sized elements
+    }
+
+    private int sizeOf(String key, Bitmap value) {
+        return value.getRowBytes() * value.getHeight();
+    }
+
+    @Override
+    public synchronized final String toString() {
+        return String.format(&quot;LruCache[maxSize=%d]&quot;, maxSize);
+    }
+}
+</code></pre><h1 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h1><p>看下构造函数</p>
+<pre><code>public LruMemoryCache(int maxSize) {
+    if (maxSize &lt;= 0) {
+        throw new IllegalArgumentException(&quot;maxSize &lt;= 0&quot;);
+    }
+    this.maxSize = maxSize;
+    this.map = new LinkedHashMap&lt;String, Bitmap&gt;(0, 0.75f, true);
+}
+</code></pre><p>我们看到他是怎么保存数据的</p>
+<pre><code>this.map = new LinkedHashMap&lt;String, Bitmap&gt;(0, 0.75f, true);
+</code></pre><p>用的是<code>LinkedHashMap&lt;String, Bitmap&gt;</code> ，而且<code>initialCapacity</code>居然是0，作者看来为了节约空间，一开始都初始化为0，不想浪费空间啊。不过需提一下的是，虽然扩展容量时，用<code>初始容量*加载因子</code>来确定下次的容量，而我们的初始容量为<strong>0</strong>，加载因子为<strong>0.75</strong>，不过我们的HashMap的底层实现上还是会初始化为<code>1</code>作为最小值的。</p>
+<p>关于这个结构的一个特点就是  <strong>链表中元素的顺序可以按访问顺序(调用get方法)排列</strong>，如果我们的第三个参数是<code>TURE</code>的话。</p>
+<blockquote>
+<p>rue if the ordering should be done based on the last access<br>(from  least-recently accessed to most-recently accessed),<br>and false if the ordering should be the order in which the entries were inserted.</p>
+</blockquote>
+<p>所以我们可以感觉就像优先队列那样，那个被掉调用了，就让他排前面。<br>感觉这些数据结构应该下次有空也温习下，因为有些结构是线程安全适合高并发的环境，在一般的安卓开发用得也不算多了，都生疏了，不像当年写后台那样要求那么高（其实就是懒了，不求性能最优）。</p>
+<p>获取数据的方式也很直接，直接拿</p>
+<pre><code>public final Bitmap get(String key) {
+       ...
+         synchronized (this) {
+            return map.get(key);
+        }
+    }
+</code></pre><p>对于put函数，放进去后，不管如何都去执行下压缩函数，感觉可以加多个判断避免调用啊，我们看下trimToSize里面的内容。  </p>
+<pre><code>public final boolean put(String key, Bitmap value) {
+    if (key == null || value == null) {
+        throw new NullPointerException(&quot;key == null || value == null&quot;);
+    }
+
+    synchronized (this) {
+        size += sizeOf(key, value);
+        Bitmap previous = map.put(key, value);
+        if (previous != null) {
+            size -= sizeOf(key, previous);
+        }
+    }
+
+    trimToSize(maxSize);
+    return true;
+}
+
+private int sizeOf(String key, Bitmap value) {
+    return value.getRowBytes() * value.getHeight();
+}
+</code></pre><p>这个函数主要执行的就是看下有没超过限制的最大大小，超了的就拿最少使用的那个开刀，也就是排在最后面那个。感觉平时也应该混个脸熟啊，要不然像这样，成为了被T的沉默羔羊。</p>
+<pre><code>private void trimToSize(int maxSize) {
+    while (true) {
+        String key;
+        Bitmap value;
+        synchronized (this) {
+            if (size &lt; 0 || (map.isEmpty() &amp;&amp; size != 0)) {
+                throw new IllegalStateException(getClass().getName() + &quot;.sizeOf() is reporting inconsistent results!&quot;);
+            }
+
+            if (size &lt;= maxSize || map.isEmpty()) {
+                break;
+            }
+
+            Map.Entry&lt;String, Bitmap&gt; toEvict = map.entrySet().iterator().next();
+            if (toEvict == null) {
+                break;
+            }
+            key = toEvict.getKey();
+            value = toEvict.getValue();
+            map.remove(key);
+            size -= sizeOf(key, value);
+        }
+    }
+}
+</code></pre><p>好了，其余的没什么好看的了。<br>我们转去看下安卓的实现版本是怎样的</p>
+<h1 id="安卓的实现版本"><a href="#安卓的实现版本" class="headerlink" title="安卓的实现版本"></a>安卓的实现版本</h1><p>很开心的告诉你，他们两者高度雷同，用的也是这个<code>LinkedHashMap</code>，不过有一点不一样的是一些细节上的。<br>我们来看下他的get函数</p>
+<pre><code>public final V get(K key) {
+        if(key == null) {
+            throw new NullPointerException(&quot;key == null&quot;);
+        } else {
+            Object mapValue;
+            synchronized(this) {
+                mapValue = this.map.get(key);
+                if(mapValue != null) {
+                    ++this.hitCount;
+                    return mapValue;
+                }
+
+                ++this.missCount;
+            }
+
+            Object createdValue = this.create(key);
+            if(createdValue == null) {
+                return null;
+            } else {
+                synchronized(this) {
+                    ++this.createCount;
+                    mapValue = this.map.put(key, createdValue);
+                    if(mapValue != null) {
+                        this.map.put(key, mapValue);
+                    } else {
+                        this.size += this.safeSizeOf(key, createdValue);
+                    }
+                }
+
+                if(mapValue != null) {
+                    this.entryRemoved(false, key, createdValue, mapValue);
+                    return mapValue;
+                } else {
+                    this.trimToSize(this.maxSize);
+                    return createdValue;
+                }
+            }
+        }
+    }
+
+
+protected V create(K key) {
+        return null;
+    }
+</code></pre><p>但没有命中的时候，他会去调用哪个<code>create</code>函数，不过默认的返回的是空。</p>
+<p>接着我们来看下，我们的put函数</p>
+<pre><code>public final V put(K key, V value) {
+        if(key != null &amp;&amp; value != null) {
+            Object previous;
+            synchronized(this) {
+                ++this.putCount;
+                this.size += this.safeSizeOf(key, value);
+                previous = this.map.put(key, value);
+                if(previous != null) {
+                    this.size -= this.safeSizeOf(key, previous);
+                }
+            }
+
+            if(previous != null) {
+                this.entryRemoved(false, key, previous, value);
+            }
+
+            this.trimToSize(this.maxSize);
+            return previous;
+        } else {
+            throw new NullPointerException(&quot;key == null || value == null&quot;);
+        }
+    }
+</code></pre><p>这里要说的是哪个<code>entryRemoved</code>是空的，我们可以重写做点什么？</p>
+<pre><code>protected void entryRemoved(boolean evicted, K key, V oldValue, V newValue) {
+}
+</code></pre><h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>没什么好说的</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Lru/" rel="tag">#Lru</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" rel="prev">源码探索系列18---关于资源的加载与匹配的资源机制</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/06/源码探索系列---中篇开题/" rel="next">源码探索系列---中篇开题</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/07/源码探索系列17---LRU与LruCache/"
+     data-title="源码探索系列17---LRU与LruCache"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/07/源码探索系列17---LRU与LruCache/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/07/源码探索系列17---LRU与LruCache/"
+                   data-title="源码探索系列17---LRU与LruCache" data-url="http://yoursite.com/2016/01/07/源码探索系列17---LRU与LruCache/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#详解"><span class="nav-number">2.</span> <span class="nav-text">详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安卓的实现版本"><span class="nav-number">3.</span> <span class="nav-text">安卓的实现版本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1108 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,DexClassLoader," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="Java有个概念叫做类加载器（ClassLoader），它的作用就是动态的装载Class文件。借助ClassLoader这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。 像下面这样： Class.forName(&amp;quot;OurClassName&amp;quot;); 啊！这是反射，嗯！应该是下面这样 ClassLoader.loadClass(&amp;quot;OurClassName">
+<meta name="keywords" content="android,源码,DexClassLoader">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列27---插件化基础之类加载器DexClassLoader">
+<meta property="og:url" content="http://yoursite.com/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="Java有个概念叫做类加载器（ClassLoader），它的作用就是动态的装载Class文件。借助ClassLoader这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。 像下面这样： Class.forName(&amp;quot;OurClassName&amp;quot;); 啊！这是反射，嗯！应该是下面这样 ClassLoader.loadClass(&amp;quot;OurClassName">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg">
+<meta property="og:image" content="http://img.my.csdn.net/uploads/201301/03/1357199754_4251.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.719Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列27---插件化基础之类加载器DexClassLoader">
+<meta name="twitter:description" content="Java有个概念叫做类加载器（ClassLoader），它的作用就是动态的装载Class文件。借助ClassLoader这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。 像下面这样： Class.forName(&amp;quot;OurClassName&amp;quot;); 啊！这是反射，嗯！应该是下面这样 ClassLoader.loadClass(&amp;quot;OurClassName">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列27---插件化基础之类加载器DexClassLoader | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列27---插件化基础之类加载器DexClassLoader
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-16T20:50:46+08:00" content="2016-03-16">
+            2016-03-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg" alt="enter image description here"></p>
+<p>Java有个概念叫做<code>类加载器</code>（ClassLoader），它的作用就是<code>动态的装载Class文件</code>。借助<code>ClassLoader</code>这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。</p>
+<p>像下面这样：</p>
+<pre><code>Class.forName(&quot;OurClassName&quot;);
+</code></pre><p>啊！这是反射，嗯！应该是下面这样</p>
+<pre><code>ClassLoader.loadClass(&quot;OurClassName&quot;)
+</code></pre><p>等等！<br>这Java不是可以import就可以了吗，为何还要这个类加载器？<br>因为用import的话得类文件必须在本地且编译的时候必须有这个类文件，否则报错。若想让程序在运行的时候<strong>动态调用</strong>怎么办呢？显然import不合要求，他已经写死的了，所以我们需要ClassLoader来做这件事。<br>利用它来加载Class文件到JVM，以供程序使用。<br>这也是我们能够通过加载补丁包来修复紧急的bug的一个基础</p>
+<p>反射和这个类加载有什么关系嘛？后面再讲<br><a id="more"></a></p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><h2 id="ClassLoader本身是如何被加载呢？"><a href="#ClassLoader本身是如何被加载呢？" class="headerlink" title="ClassLoader本身是如何被加载呢？"></a>ClassLoader本身是如何被加载呢？</h2><p>这是一个有趣的先有鸡，还是先有蛋的问题。</p>
+<p>BootStrapClassloader(启动类加载器)是JVM实现的一部分(是C++写的二进制代码，非JAVA)，嵌套在Java虚拟机内核里面，在JVM运行的时候会加载Java核心的API以满足Java程序最基本的需求，包括用户定义的ClassLoader，所谓的用户定义是指通过Java程序实现的ClassLoader：<br>一个是<strong>ExtClassLoader</strong>，这个ClassLoader是用来加载java的扩展API的，也就是/lib/ext中的类，<br>一个是<strong>AppClassLoader</strong>，这个ClassLoader是用来加载用户机器上CLASSPATH设置目录中的Class的，通常在没有指定ClassLoader的情况下，程序员自定义的类就由该ClassLoader进行加载。 </p>
+<p> <img src="http://img.my.csdn.net/uploads/201301/03/1357199754_4251.png" alt="类加载器默认委派关系图"></p>
+<p>对于Android虽然使用标准的Java编译器编译出Class文件，不过和普通的Java开发不同的是它把Class文件再重新打包成dex类型的文件，这种重新打包会对Class文件内部的各种函数表、变量表等进行<strong>优化</strong>，最终产生了dex文件。dex文件是一种经过android打包工具优化后的Class文件，因此加载这样特殊的Class文件就需要特殊的类装载器，所以android中提供了<code>DexClassLoader</code>类。</p>
+<h2 id="DexClassLoader"><a href="#DexClassLoader" class="headerlink" title="DexClassLoader"></a>DexClassLoader</h2><p>SDK:23</p>
+<p>安卓的动态加载基础是这个dexClassLoader，他的一般调用形式如下</p>
+<pre><code>DexClassLoader calssLoader = new DexClassLoader(dexPath, optimizedDirectory, libraryPath,  classLoader);  
+
+Class&lt;?&gt; clazz = calssLoader.loadClass(pacageName+&quot;.Plugin1&quot;);  
+</code></pre><p> 那么我们就以下面的接口为切入点来看下背后的实现 </p>
+<pre><code>public class DexClassLoader extends BaseDexClassLoader {
+
+    public DexClassLoader(String dexPath, String optimizedDirectory,
+            String libraryPath, ClassLoader parent) {
+        super(dexPath, new File(optimizedDirectory), libraryPath, parent);
+    }
+}
+</code></pre><p>他背后是BaseDexClassLoader，我们来看下</p>
+<pre><code> public BaseDexClassLoader(String dexPath, File optimizedDirectory,
+        String libraryPath, ClassLoader parent) {
+    super(parent);//  &lt;-重要的一句
+    this.pathList = new DexPathList(this, dexPath, libraryPath, optimizedDirectory);
+    //这个新new出来的DexPathList，简单的说是负责管理我们想要加载的包的
+}
+
+
+public abstract class ClassLoader {
+
+    protected ClassLoader(ClassLoader parentLoader) {
+        this(parentLoader, false);
+    }
+
+    ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
+        if (parentLoader == null &amp;&amp; !nullAllowed) {
+            throw new NullPointerException(&quot;parentLoader == null &amp;&amp; !nullAllowed&quot;);
+        }
+        parent = parentLoader;
+    }
+}
+</code></pre><p>我们看到在构造函数，他传递了一个叫parent的ClassLoader过去。这里涉及到一个概念叫双亲委托，简单说就是我们在调用<code>calssLoader.loadClass()</code> 去加载的时候，会先调用这个parent去加载下，没有才轮到自己去加载。<br>详细的内容会在后面解释，我们继续主线。</p>
+<p>我们去看下那个DexPathList</p>
+<pre><code>public DexPathList(ClassLoader definingContext, String dexPath,
+        String libraryPath, File optimizedDirectory) {
+
+    ...
+    this.definingContext = definingContext;
+    ArrayList&lt;IOException&gt; suppressedExceptions = new ArrayList&lt;IOException&gt;();
+    // save dexPath for BaseDexClassLoader
+    this.dexElements = makePathElements(splitDexPath(dexPath), optimizedDirectory,
+                                        suppressedExceptions);
+    //这个函数去加载dex文件，后面我们loadClass就是在从dexElements里面找我们的class，而他的类型Element是静态内部类
+
+    // Native libraries may exist in both the system and
+    //application library paths,and we use this search order:
+    //
+    //   1. This class loader&apos;s library path for application libraries 
+            (libraryPath):
+    //   1.1. Native library directories
+    //   1.2. Path to libraries in apk-files
+    //   2. The VM&apos;s library path from the system property for system libraries
+    //      also known as java.library.path
+    //
+    // This order was reversed prior to Gingerbread; see http://b/2933456.
+    this.nativeLibraryDirectories = splitPaths(libraryPath, false);
+    this.systemNativeLibraryDirectories =
+            splitPaths(System.getProperty(&quot;java.library.path&quot;), true);
+    List&lt;File&gt; allNativeLibraryDirectories = new ArrayList&lt;&gt;(nativeLibraryDirectories);
+    allNativeLibraryDirectories.addAll(systemNativeLibraryDirectories);
+
+    this.nativeLibraryPathElements = makePathElements(allNativeLibraryDirectories, 
+    null,suppressedExceptions);
+
+
+    if (suppressedExceptions.size() &gt; 0) {
+        this.dexElementsSuppressedExceptions =
+            suppressedExceptions.toArray(new IOException[suppressedExceptions.size()]);
+    } else {
+        dexElementsSuppressedExceptions = null;
+    }
+}
+</code></pre><p>我们稍微的去看下那个makePathElements</p>
+<pre><code>private static Element[] makePathElements(List&lt;File&gt; files, File optimizedDirectory,
+                                          List&lt;IOException&gt; suppressedExceptions) {
+    List&lt;Element&gt; elements = new ArrayList&lt;&gt;();
+    /*
+     * Open all files and load the (direct or contained) dex files
+     * up front.
+     */
+    for (File file : files) {
+        File zip = null;
+        File dir = new File(&quot;&quot;);
+        DexFile dex = null;
+        String path = file.getPath();
+        String name = file.getName();
+        //这判断看起来像支持ZIP，DEX，
+        if (path.contains(zipSeparator)) {
+            String split[] = path.split(zipSeparator, 2);
+            zip = new File(split[0]);
+            dir = new File(split[1]);
+        } else if (file.isDirectory()) {
+            // We support directories for looking up resources and native libraries.
+            // Looking up resources in directories is useful for running libcore tests.
+            elements.add(new Element(file, true, null, null));
+        } else if (file.isFile()) {
+            if (name.endsWith(DEX_SUFFIX)) {
+                // Raw dex file (not inside a zip/jar).
+                try {
+                    dex = loadDexFile(file, optimizedDirectory);
+                } catch (IOException ex) {
+                    System.logE(&quot;Unable to load dex file: &quot; + file, ex);
+                }
+            } else {
+                zip = file;
+
+                try {
+                    dex = loadDexFile(file, optimizedDirectory);
+                } catch (IOException suppressed) {
+                   ...
+                    suppressedExceptions.add(suppressed);
+                }
+            }
+        } else {
+            System.logW(&quot;ClassLoader referenced unknown path: &quot; + file);
+        }
+
+        if ((zip != null) || (dex != null)) {
+            elements.add(new Element(dir, false, zip, dex));
+        }
+    }
+
+    return elements.toArray(new Element[elements.size()]);
+}
+
+private static DexFile loadDexFile(File file, File optimizedDirectory)
+        throws IOException {
+    if (optimizedDirectory == null) {
+        return new DexFile(file);
+    } else {
+        // 我们的非空，所以看下面这个
+        String optimizedPath = optimizedPathFor(file, optimizedDirectory);
+        return DexFile.loadDex(file.getPath(), optimizedPath, 0);
+    }
+}
+</code></pre><p>我们来看下这个optimizedPathFor()的内容</p>
+<pre><code> /**
+ * Converts a dex/jar file path and an output directory to an
+ * output file path for an associated optimized dex file.
+ */
+private static String optimizedPathFor(File path,
+        File optimizedDirectory) {
+    /*
+     * Get the filename component of the path, and replace the
+     * suffix with &quot;.dex&quot; if that&apos;s not already the suffix.
+     *
+     * We don&apos;t want to use &quot;.odex&quot;, because the build system uses
+     * that for files that are paired with resource-only jar
+     * files. If the VM can assume that there&apos;s no classes.dex in
+     * the matching jar, it doesn&apos;t need to open the jar to check
+     * for updated dependencies, providing a slight performance
+     * boost at startup. The use of &quot;.dex&quot; here matches the use on
+     * files in /data/dalvik-cache.
+     */
+    String fileName = path.getName();
+    if (!fileName.endsWith(DEX_SUFFIX)) {
+        int lastDot = fileName.lastIndexOf(&quot;.&quot;);
+        if (lastDot &lt; 0) {
+            fileName += DEX_SUFFIX;
+        } else {
+            StringBuilder sb = new StringBuilder(lastDot + 4);
+            sb.append(fileName, 0, lastDot);
+            sb.append(DEX_SUFFIX);
+            fileName = sb.toString();
+        }
+    }
+
+    File result = new File(optimizedDirectory, fileName);
+    return result.getPath();
+}
+</code></pre><p>把odex后缀改成了dex.第一次听说odex，查了下，发现是ROM上的优化，把apk中的dex文件抽出来，有加快软件加载速度和开机速度的功效！同时某种程序来防止盗程序。嗯！感觉又有一个优化性能的馊主意出现了。</p>
+<p>我们继续回主线，看下那个loadDex（）背后的内容</p>
+<pre><code>static public DexFile loadDex(String sourcePathName, String outputPathName,
+    int flags) throws IOException {
+
+        /*
+         * TODO: we may want to cache previously-opened DexFile objects.
+         * The cache would be synchronized with close().  This would help
+         * us avoid mapping the same DEX more than once when an app
+         * decided to open it multiple times.  In practice this may not
+         * be a real issue.
+         */
+        return new DexFile(sourcePathName, outputPathName, flags);
+    }
+</code></pre><p>看到这里略微有点被骗的感觉，这静态方法背后就是去new一个，还load…..<br>这哥们注释写着想缓存Dex，不过还没做.</p>
+<pre><code>private DexFile(String sourceName, String outputName, int flags) 
+throws IOException {
+
+        if (outputName != null) {
+            try {
+                String parent = new File(outputName).getParent();
+                if (Libcore.os.getuid() != Libcore.os.stat(parent).st_uid) {
+                    //对比这个UID的值，不如不给执行，避免注入攻击！
+                    //我们在共享数据时候有用到UID，在manifest里面
+                    //android:sharedUserId=&quot;yourId&quot;
+                    throw new IllegalArgumentException(&quot;Optimized data directory &quot; + 
+                    parent+ &quot; is not owned by the current user. Shared storage 
+                cannot protect&quot;+&quot;your application from code injection attacks.&quot;);
+
+                }
+            } catch (ErrnoException ignored) {
+                // assume we&apos;ll fail with a more contextual error later
+                //哈哈，连个打印都不给
+            }
+        }
+
+        mCookie = openDexFile(sourceName, outputName, flags);
+        mFileName = sourceName;
+        guard.open(&quot;close&quot;);
+        //System.out.println(&quot;DEX FILE cookie is &quot; + mCookie);
+ }
+
+/*
+ * Open a DEX file.  The value returned is a magic VM cookie.  
+ *  On failure, an IOException is thrown.
+ */
+ private static int openDexFile(String sourceName, String outputName,
+    int flags) throws IOException {
+
+    return openDexFileNative(new File(sourceName).getCanonicalPath(),
+                             (outputName == null) ?null :
+                              new File(outputName).getCanonicalPath(),flags);
+}
+
+native private static int openDexFileNative(String sourceName, String outputName,
+   int flags) throws IOException;
+   //背后是一个native，我们就不深究了，理论上只是加载文件，到这吧-.-
+</code></pre><p>看到这里我们看完一半的加载过程，另外在native代码的加载就跳过。<br>回主线的加载类流程可好。接下来我们看下<code>calssLoader.loadClass（）</code>的内容。</p>
+<p>这个方法只在ClassLoader有，我们去看下</p>
+<pre><code> @Override
+protected Class&lt;?&gt; loadClass(String className, boolean resolve)
+       throws ClassNotFoundException {
+    Class&lt;?&gt; clazz = findLoadedClass(className);
+    //查缓存
+    if (clazz == null) {
+        clazz = findClass(className);
+    }
+
+    return clazz;
+}
+
+ /**
+ * Overridden by subclasses, throws a {@code ClassNotFoundException} by
+ * default. This method is called by {@code loadClass} after the parent
+ * {@code ClassLoader} has failed to find a loaded class of the same name.
+ */
+  protected Class&lt;?&gt; findClass(String className) throws ClassNotFoundException {
+    throw new ClassNotFoundException(className);
+
+    //我们的子类必须实现他！所以我们就去看下我们的BaseDexClassLoder
+    //不要问我为何他不设置抽象,尽管这个类就是抽象类!
+}
+</code></pre><p>我们去看下他的subClasses之BaseDexClass</p>
+<pre><code>@Override
+protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+    List&lt;Throwable&gt; suppressedExceptions = new ArrayList&lt;Throwable&gt;();
+    Class c = pathList.findClass(name, suppressedExceptions);
+    //我们的pathList又出场啦，在构造函数哪里提到过，别忘了哟
+    ...
+    return c;
+}
+</code></pre><p>我们去DexPathList类看下</p>
+<pre><code>public Class findClass(String name, List&lt;Throwable&gt; suppressed) {
+
+    for (Element element : dexElements) {
+        DexFile dex = element.dexFile;
+
+        if (dex != null) {
+            Class clazz = dex.loadClassBinaryName(name, definingContext, suppressed);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
+    }
+    if (dexElementsSuppressedExceptions != null) {
+        suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));
+    }
+    return null;
+}
+</code></pre><p>前面在它构造函数有这么句：</p>
+<pre><code>this.dexElements = makePathElements(splitDexPath(dexPath), optimizedDirectory,
+                                    suppressedExceptions);
+//这个函数去加载dex文件，后面我们loadClass就是在从dexElements里面找我们的class，而他的类型Element是静态内部类
+</code></pre><p>我在注释就说了我们的loadClass就是在dexElements里面找我们的class，没骗你吧，因为我看了才写这文章的嘛！哈哈哈哈</p>
+<p>我们去DexFile里面看下他的内容</p>
+<pre><code>public Class loadClassBinaryName(String name, ClassLoader loader, List&lt;Throwable&gt; suppressed) {
+    return defineClass(name, loader, mCookie, suppressed);
+}
+
+private static Class defineClass(String name, ClassLoader loader, int cookie,
+                                 List&lt;Throwable&gt; suppressed) {
+    Class result = null;         
+
+    result = defineClassNative(name, loader, cookie);
+   ...
+    return result;
+}
+
+private static native Class defineClassNative(String name, ClassLoader loader, int cookie) throws ClassNotFoundException, NoClassDefFoundError;
+</code></pre><p>我们看到参数里面有一个有趣的变量名叫mCookie，嗯，很可能这个人以前是写网站的啊，才以这个做标识符。<br>到这里，我们继续不去看native的代码，知道流程了。今晚回家再继续看下。哈哈,去吃饭了</p>
+<h1 id="双亲委托"><a href="#双亲委托" class="headerlink" title="双亲委托"></a>双亲委托</h1><p>每一个自定义XXXClassLoader都必须继承ClassLoader这个抽象类</p>
+<pre><code>public abstract class ClassLoader {
+
+    private ClassLoader parent; //&lt;- 重要的一个变量
+
+    protected ClassLoader() {
+        this(getSystemClassLoader(), false);
+    }
+
+    protected ClassLoader(ClassLoader parentLoader) {
+        this(parentLoader, false);
+    }
+
+    ClassLoader(ClassLoader parentLoader, boolean nullAllowed) {
+        if (parentLoader == null &amp;&amp; !nullAllowed) {
+            throw new NullPointerException(&quot;parentLoader == null &amp;&amp; !nullAllowed&quot;);
+        }
+        parent = parentLoader;
+    }        
+    ....
+} 
+</code></pre><p>每个ClassLoader都会有一个叫<code>parent</code>的ClassLoader变量，这个parent不是<strong>被继承的类</strong>，而是在实例化该ClassLoader时指定的一个ClassLoader，如果这个parent为null，那么就默认是<code>BootClassLoader</code>（上面的getSystemClassLoader()返回的就是这个）。</p>
+<p><strong>那么，这个parent有什么用呢？</strong> </p>
+<p>假设我们弄了一个叫<code>MyClassLoader</code>的，现在想加载<code>java.lang.String</code>这个类，那么背后实际是靠他的parent ClassLoader去加载的。让我们来一段代码 </p>
+<pre><code>protected Class&lt;?&gt; loadClass(String className, boolean resolve) throws ClassNotFoundException {
+
+    Class&lt;?&gt; clazz = findLoadedClass(className);     
+    if (clazz == null) {
+        try {
+            clazz = parent.loadClass(className, false);
+            //找parent帮忙加
+        } catch (ClassNotFoundException e) {
+             ...
+        }
+
+        if (clazz == null) {
+            clazz = findClass(className);
+            //加不出来才靠自己加
+        }
+    }
+    ...     
+    return clazz;
+}
+
+protected final Class&lt;?&gt; findLoadedClass(String className) {
+    ClassLoader loader;
+    if (this == BootClassLoader.getInstance())
+        loader = null;
+    else
+        loader = this;
+    return VMClassLoader.findLoadedClass(loader, className);
+}
+
+native static Class findLoadedClass(ClassLoader cl, String name);
+</code></pre><p>因为在任何一个自定义ClassLoader加载一个类之前，都会先委托它的<strong>父亲</strong><code>ClassLoader</code>进行加载，只有当父亲ClassLoader无法加载成功后，才会由自己加载。 例如我们的<code>java.lang.String</code>是属于Java核心API的一个类，所以当使用MyClassLoader加载它的时候，该ClassLoader会先委托它的父亲ClassLoader进行加载，上面讲过，当ClassLoader的parent为null时，ClassLoader的parent就是<code>BootStrapClassloader</code>，所以在ClassLoader的<strong>最顶层</strong>就是BootStrapClassloader，因此最终委托到bootstrap classloader的时候，bootstrap classloader就会返回String的Class。<br>每个被ClassLoader加载的class文件，最终都会以Class类的实例被程序员引用，我们可以把Class类当作是普通类的一个模板，JVM根据这个模板生成对应的实例，最终被程序员所使用。  </p>
+<p>简单的说：    </p>
+<blockquote>
+<p>LoadClass 会先看这类是否被加载过，没有则去他的<strong>parent</strong>去找，如此递归，因此称之为双亲委托。</p>
+</blockquote>
+<h2 id="为什么要使用这种双亲委托模式呢？"><a href="#为什么要使用这种双亲委托模式呢？" class="headerlink" title="为什么要使用这种双亲委托模式呢？"></a>为什么要使用这种双亲委托模式呢？</h2><ol>
+<li>避免重复加载<br>当父亲已经加载了该类的时候，就没有必要让子ClassLoader再加一次。 </li>
+<li>安全因素的考虑<br>我们试想一下，如果不使用这种<strong>委托模式</strong>，那我们就可以随时使用自定义的<strong>String</strong>来<strong>动态替代</strong>Java核心API中定义DE 类型，这样会存在非常大的安全隐患，而双亲委托的方式可以避免这种情况，因为String已经在启动时被加载，所以用户自定义类是无法加载一个自定义的ClassLoader。 </li>
+</ol>
+<h1 id="ClassLoader和-反射Class-forName"><a href="#ClassLoader和-反射Class-forName" class="headerlink" title="ClassLoader和 反射Class.forName()"></a>ClassLoader和 反射Class.forName()</h1><p>Class类中有个静态方法forName，这个方法和ClassLoader中的loadClass方法的目的一样，都是用来加载class，但是两者在作用上却有所区别。 </p>
+<pre><code>Class&lt;?&gt; loadClass(String name) 
+Class&lt;?&gt; loadClass(String name, boolean resolve) 
+</code></pre><p>我们看到上面两个方法声明，第二个方法的第二个参数是用于设置加载类的时候是否<strong>连接该类</strong>，true就连接，否则就不连接。 我们知道在JVM加载类时候，需经过三个步骤，<strong>装载、连接、初始化</strong>。</p>
+<p>根据上面loadClass方法的第二个参数来判定是否需要解释，所谓的解释根据就是根据类中的符号引用查找相应的<strong>实体</strong>，再把符号引用替换成一个<strong>直接引用</strong>的过程。（有点绕口）  </p>
+<p>我们通过loadClass加载类实际上就是加载的时候并不对该类进行解释，一般调用的反射默认是会的，虽然我们也可以调用另外一个函数设置为不初始化(即调用类的静态块的语句及初始化静态成员变量。)，这也是为何我们需要主动的去调用<code>class.NewInstance()</code>的原因。</p>
+<pre><code>public static Class&lt;?&gt; forName(String className) throws ClassNotFoundException {
+    return forName(className, true, VMStack.getCallingClassLoader());
+}
+public static Class&lt;?&gt; forName(String className, boolean shouldInitialize,
+        ClassLoader classLoader)
+</code></pre><p> 我们来看下那个BootClassLoader的代码，它最终的找类代码就是用反射的false配置。</p>
+<pre><code>class BootClassLoader extends ClassLoader {     
+    ...
+
+    @Override
+    protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+        return Class.classForName(name, false, null);// &lt;-默认为false
+    }
+
+    ....
+}
+</code></pre><h1 id="ClassLoader-隔离问题"><a href="#ClassLoader-隔离问题" class="headerlink" title="ClassLoader 隔离问题"></a>ClassLoader 隔离问题</h1><p>大家觉得一个运行程序中有没有可能同时存在两个包名和类名完全一致的类？<br>这是有可能做到的，因为JVM和Dalvik对类唯一的识别的判断依据是<br><code>ClassLoaderID</code> +<code>PackageName</code>+ <code>ClassName</code>，所以一个运行程序中是有可能存在两个包名和类名完全一致的类的。并且如果这两个”类”不是由一个 ClassLoader加载，是无法将一个类的示例强转为另外一个类的，这就是 ClassLoader 隔离。</p>
+<pre><code>所以像能不能自己写个类叫java.lang.System？是可以做到的
+</code></pre><p> System类是Bootstrap加载器加载的，就算自己重写，也总是使用Java系统提供的System，自己写的System类根本没有机会得到加载。</p>
+<p>但是，我们可以自己定义一个类加载器来达到这个目的，为了避免双亲委托机制，这个类加载器也必须是特殊的。由于系统自带的三个类加载器都加载特定目录下的类，如果我们自己的类加载器放在一个特殊的目录，那么系统的加载器就无法加载，也就是最终还是由我们自己的加载器加载。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>前面看那些插件化/热补丁的时候有些不清楚的地方，所以对涉及到的知识点在这里做些笔记，希望帮助自己更好的掌握相关的内容，改好前面几篇文章，再打算写下Binder的native层的内容和对他们的更深入解析文章</p>
+<h1 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h1><p><a href="http://www.trinea.cn/android/java-loader-common-class/" target="_blank" rel="noopener">Java ClassLoader基础及加载不同依赖 Jar 中的公共类</a>，Trinea的一篇文章</p>
+<p><a href="http://daojin.iteye.com/blog/1847093" target="_blank" rel="noopener">安卓高手之路之ClassLoader</a></p>
+<p> <a href="http://blog.csdn.net/vernonzheng/article/details/8461380" target="_blank" rel="noopener">深入JVM系列（三）之类加载、类加载器、双亲委派机制与常见问题</a></p>
+<p><a href="https://segmentfault.com/a/1190000004062880" target="_blank" rel="noopener">Android动态加载基础 ClassLoader工作机制</a></p>
+<p><a href="http://www.iteye.com/topic/83978" target="_blank" rel="noopener">解读ClassLoader</a></p>
+<p><a href="http://androidxref.com/6.0.1_r10" target="_blank" rel="noopener">在线的系统源码查看网站</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/DexClassLoader/" rel="tag">#DexClassLoader</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/" rel="prev">源码探索系列28---插件化基础之代理Hook</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" rel="next">源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/"
+     data-title="源码探索系列27---插件化基础之类加载器DexClassLoader"
+     data-content=""
+     data-url="http://yoursite.com/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/"
+                   data-title="源码探索系列27---插件化基础之类加载器DexClassLoader" data-url="http://yoursite.com/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ClassLoader本身是如何被加载呢？"><span class="nav-number">1.1.</span> <span class="nav-text">ClassLoader本身是如何被加载呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DexClassLoader"><span class="nav-number">1.2.</span> <span class="nav-text">DexClassLoader</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#双亲委托"><span class="nav-number">2.</span> <span class="nav-text">双亲委托</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要使用这种双亲委托模式呢？"><span class="nav-number">2.1.</span> <span class="nav-text">为什么要使用这种双亲委托模式呢？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClassLoader和-反射Class-forName"><span class="nav-number">3.</span> <span class="nav-text">ClassLoader和 反射Class.forName()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClassLoader-隔离问题"><span class="nav-number">4.</span> <span class="nav-text">ClassLoader 隔离问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料："><span class="nav-number">6.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,838 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,context," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?Context、Activity 和 Application这三个又是怎么个关系，为何有些时候都可以替着用？带着这些问题，我们来探索下，看下背后的实现是怎样的。">
+<meta name="keywords" content="android,源码,context">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列35---关于Context">
+<meta property="og:url" content="http://yoursite.com/2016/05/05/源码探索系列35---关于Context/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?Context、Activity 和 Application这三个又是怎么个关系，为何有些时候都可以替着用？带着这些问题，我们来探索下，看下背后的实现是怎样的。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/35_b1cf36a5-d134-390c-b7a3-4212369a2fcf.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/35_context_20160505135516.png">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/35_QQ%E6%88%AA%E5%9B%BE20160505135931.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.724Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列35---关于Context">
+<meta name="twitter:description" content="对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?Context、Activity 和 Application这三个又是怎么个关系，为何有些时候都可以替着用？带着这些问题，我们来探索下，看下背后的实现是怎样的。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/35_b1cf36a5-d134-390c-b7a3-4212369a2fcf.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列35---关于Context | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列35---关于Context
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-05-05T17:13:46+08:00" content="2016-05-05">
+            2016-05-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/05/源码探索系列35---关于Context/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/05/源码探索系列35---关于Context/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。<br>那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?<br><code>Context</code>、<code>Activity</code> 和 <code>Application</code>这三个又是怎么个关系，为何有些时候都可以替着用？<br>带着这些问题，我们来探索下，看下背后的实现是怎样的。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>api:23</p>
+<p>我们需要说下，每个Activity是对应着一个Context对象的。这个关系在前面我们看Activity的启动流程就有看到对应的代码段，现在我们就从哪里开始看起把。</p>
+<h2 id="performLaunchActivity（）"><a href="#performLaunchActivity（）" class="headerlink" title="performLaunchActivity（）"></a>performLaunchActivity（）</h2><p>在启动Activity的流程最后面环节，我们会到ActivityThread里面这个函数去，创建Activity，并创建Context，绑定两者的关系。</p>
+<pre><code>private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent){
+
+   ...
+
+
+  Context appContext = createBaseContextForActivity(r, activity);
+   CharSequence title = r.activityInfo.loadLabel(appContext.getPackageManager());
+   Configuration config = new Configuration(mCompatConfiguration);
+
+   //attach
+   activity.attach(appContext, this, getInstrumentation(), r.token,
+           r.ident, app, r.intent, r.activityInfo, title, r.parent,
+           r.embeddedID, r.lastNonConfigurationInstances, config,
+           r.referrer, r.voiceInteractor);
+
+   if (customIntent != null) {
+       activity.mIntent = customIntent;
+   }  
+
+   ... 
+}
+</code></pre><p>我们看下这个函数内容，主要就是创建context，然后attach到我们的activity去，从而建立对应关系<br>对此我们可以先来看下这个Context怎么创建的</p>
+<h3 id="createBaseContextForActivity"><a href="#createBaseContextForActivity" class="headerlink" title="createBaseContextForActivity"></a>createBaseContextForActivity</h3><pre><code>private Context createBaseContextForActivity(ActivityClientRecord r, final Activity activity) {
+
+
+    int displayId = Display.DEFAULT_DISPLAY;  
+    displayId = ActivityManagerNative.getDefault().getActivityDisplayId(r.token); 
+
+    ContextImpl appContext = ContextImpl.createActivityContext(
+            this, r.packageInfo, displayId, r.overrideConfig);
+    appContext.setOuterContext(activity);
+    Context baseContext = appContext;
+
+    //下面这大段是留下的“测试代码”，我们某天也可以利用这个来做点什么哈
+    final DisplayManagerGlobal dm = DisplayManagerGlobal.getInstance();
+    // For debugging purposes, if the activity&apos;s package name contains the value of
+    // the &quot;debug.use-second-display&quot; system property as a substring, then show
+    // its content on a secondary display if there is one.
+    String pkgName = SystemProperties.get(&quot;debug.second-display.pkg&quot;);
+    if (pkgName != null &amp;&amp; !pkgName.isEmpty()
+            &amp;&amp; r.packageInfo.mPackageName.contains(pkgName)) {
+        for (int id : dm.getDisplayIds()) {
+            if (id != Display.DEFAULT_DISPLAY) {
+                Display display =dm.getCompatibleDisplay(id, 
+                            appContext.getDisplayAdjustments(id));
+
+                baseContext = appContext.createDisplayContext(display);
+
+                break;
+            }
+        }
+    }
+    return baseContext;
+}
+</code></pre><p>在创建的时候，根据ActivityClientRecord对象的token去AMS拿<code>displayId</code>，<br>然后传ActivityThread，一个LoadedApk类的packageInfo还有多一个配置信息Configuration类。对于这个LoadedApk我们在了解插件化的时候有接触过，我们会需要修改里面的classLoader等信息，这个类就类似于我们的apk本身。</p>
+<p>构造一个后，然后他设置了OuterContext这个属性，将关联的Activity实例保存在它的内部，这样当有时候需要用到它所关联到的Activity组件的属性或者方法等的时候，以后就可以访问了。 </p>
+<p> 看完这个，我们继续<code>performLaunchActivity</code>后续步骤<code>activity.attach（）</code></p>
+<h3 id="attach"><a href="#attach" class="headerlink" title="attach()"></a>attach()</h3><pre><code>final void attach(Context context, ActivityThread aThread,
+        Instrumentation instr, IBinder token, int ident,
+        Application application, Intent intent, ActivityInfo info,
+        CharSequence title, Activity parent, String id,
+        NonConfigurationInstances lastNonConfigurationInstances,
+        Configuration config, String referrer, IVoiceInteractor voiceInteractor) {
+
+     //Set the base context for this ContextWrapper.All calls will then be delegated
+     //to the base context. Throws IllegalStateException if a base context has 
+     //already been set.
+     //就是调用父类的这个函数设置context
+    attachBaseContext(context);
+
+    mFragments.attachHost(null /*parent*/);
+     //重要的一个变量
+    mWindow = new PhoneWindow(this); 
+    mWindow.setCallback(this);
+    mWindow.setOnWindowDismissedCallback(this);
+    mWindow.getLayoutInflater().setPrivateFactory(this);
+    //做过一些EditText的都知道这个属性把？在配置文件调整这个字段的。
+    if (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) {
+        mWindow.setSoftInputMode(info.softInputMode);
+    }        
+    if (info.uiOptions != 0) {
+        mWindow.setUiOptions(info.uiOptions);
+    }
+
+    mUiThread = Thread.currentThread();
+    mMainThread = aThread; 
+    ...
+
+    mWindow.setWindowManager(
+            (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),
+            mToken, mComponent.flattenToString(),
+            (info.flags &amp; ActivityInfo.FLAG_HARDWARE_ACCELERATED) != 0);
+
+    if (mParent != null) {
+        mWindow.setContainer(mParent.getWindow());
+    }
+
+    mWindowManager = mWindow.getWindowManager();
+    mCurrentConfig = config;
+}
+</code></pre><p> 通过这环节，基本就建立了对应关系了，把我们创建的一些contextImpl，applicationd，config等信息给存起来了。</p>
+<h4 id="mBase"><a href="#mBase" class="headerlink" title="mBase"></a>mBase</h4><p>需要稍微提下的是，这个attachBaseContext()最后是去设置mBase这个变量</p>
+<pre><code>//在他的父类ContextThemeWrapper
+@Override
+protected void attachBaseContext(Context newBase) {
+    super.attachBaseContext(newBase);
+}
+//ContextThemeWrapper父类ContextWrapper
+protected void attachBaseContext(Context base) {
+    if (mBase != null) {
+        throw new IllegalStateException(&quot;Base context already set&quot;);
+    }
+    mBase = base;
+}
+</code></pre><p>ContextThemeWrapper主要是维护一个应用程序窗口的<strong>主题(Theme)</strong>，而实际用来描述我们应用程序窗口的运行上下文环境的是<code>ContextImpl</code>对象，他就是那个在<code>ContextWrapper</code>的<code>attachBaseContext()</code>函数设置的这个<code>mBase</code>变量。至于这个<code>ContextWrapper</code>就是个代理类，只是简单地封装了对其mBase的操作。后面我们在Activity用的很多时候都是调用这个去给我们干活的!具体有哪些可以去看下 ContextWrapper的内容，我们在分析service，广播等时候已经看过不少了，就不在这里展开。</p>
+<h4 id="事件分发"><a href="#事件分发" class="headerlink" title="事件分发"></a>事件分发</h4><p>然后是关于<code>mWindow.setCallback(this);</code>这句话，背后还是有点故事的哈。<br>平时我们聊事件分发流程，都会说从Activity一级一级下沉到View去，那么这个事件一开始是谁给Activity的呢？<br>答案就是这个window的<code>setCallback()</code>函数，我们的Activity是实现了Window.Callback接口的，这接口有十多个回调，其中包括我们比较熟悉的<code>dispatchKeyEvent</code>，<code>dispatchTouchEvent</code>，<code>onMenuItemSelected</code>等函数。</p>
+<h4 id="Window"><a href="#Window" class="headerlink" title="Window"></a>Window</h4><p>这Activity里有一个很有趣的一个类，就是这个PhoneWindow，在很久以前看setContentView背后的代码过程就有接触过，关于他曾经有一个问题，就是Activity和window是个什么数量关系，一个Activity对一个Window吗？还是怎样呢？<br>另外我们以前设置全屏的时候，也用到下面这行代码：</p>
+<pre><code>this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN); 
+</code></pre><p>这个getWidnow获取的变量就是这个mWindow变量。</p>
+<hr>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><p>关于对比使用上的区别,有一张流传的图</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/35_b1cf36a5-d134-390c-b7a3-4212369a2fcf.png" alt="enter image description here"></p>
+<h2 id="Activity和context-是什么关系呢？"><a href="#Activity和context-是什么关系呢？" class="headerlink" title="Activity和context 是什么关系呢？"></a>Activity和context 是什么关系呢？</h2><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/35_context_20160505135516.png" alt="enter image description here"></p>
+<p>一图说明所有内容，<code>Context</code>是一个抽线接口，<code>Activity</code>继承<code>ContextThemeWrapper</code>,后者又继承<code>ContextWrapper</code>,这样其实<code>Activity</code>是<code>Context</code>的子类来的！所以很多时候可以拿<code>Activity</code>来替代<code>Context</code>用。</p>
+<h2 id="Application-与Context关系"><a href="#Application-与Context关系" class="headerlink" title="Application 与Context关系"></a>Application 与Context关系</h2><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/35_QQ%E6%88%AA%E5%9B%BE20160505135931.png" alt="enter image description here"></p>
+<p><code>Application</code>也是<code>ContextWrapper</code>子类。 </p>
+<hr>
+<p>因此，<code>Activity</code>和<code>Application</code>都是<code>Context</code>的子类。这点我们确认无疑。</p>
+<ol>
+<li><p>生命周期不一样：是的，一句废话，它们的生命周期不一样，Activity短些，Application长久。存在的时间长就，会带来了一些不一样的内容。例如有时候会带来泄漏问题，应为application的这个Context活得久一些，利用他创建的东西一般也是”长寿”些的，所以需要小心使用，避免一些泄漏问题！</p>
+</li>
+<li><p>偏向性不同：Actvity偏其对应的Context也只能访问该activity内的各种资源，后者偏向于Application的生命周期方面内容。你去查看这个application类，里面的代码也不多，大部分代码是关于ActivityLifecycleCallbacks的内容。</p>
+</li>
+</ol>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>到这里，整个的上下文环境的创建过程就结束啦！整个还是相对比较简单的流程的。<br>至于context的实现ContextImpl，我们就不细入介绍了，两千多行，而且功能都还挺分割的。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/context/" rel="tag">#context</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/11/源码探索系列中篇结题/" rel="prev">关于探索系列中篇结题</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/" rel="next">源码探索系列34---Android Garbage Collection/dalvik GC</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/05/05/源码探索系列35---关于Context/"
+     data-title="源码探索系列35---关于Context"
+     data-content=""
+     data-url="http://yoursite.com/2016/05/05/源码探索系列35---关于Context/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/05/05/源码探索系列35---关于Context/"
+                   data-title="源码探索系列35---关于Context" data-url="http://yoursite.com/2016/05/05/源码探索系列35---关于Context/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#performLaunchActivity（）"><span class="nav-number">1.1.</span> <span class="nav-text">performLaunchActivity（）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#createBaseContextForActivity"><span class="nav-number">1.1.1.</span> <span class="nav-text">createBaseContextForActivity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#attach"><span class="nav-number">1.1.2.</span> <span class="nav-text">attach()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#mBase"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">mBase</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事件分发"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">事件分发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Window"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">Window</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#比较"><span class="nav-number">2.</span> <span class="nav-text">比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity和context-是什么关系呢？"><span class="nav-number">2.1.</span> <span class="nav-text">Activity和context 是什么关系呢？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Application-与Context关系"><span class="nav-number">2.2.</span> <span class="nav-text">Application 与Context关系</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

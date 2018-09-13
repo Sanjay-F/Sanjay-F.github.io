@@ -1,0 +1,1249 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,PMS,DroidPlugin," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="PMS主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。 做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！">
+<meta name="keywords" content="android,源码,PMS,DroidPlugin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列30---插件包PackageManagerService&#x2F;PMS">
+<meta property="og:url" content="http://yoursite.com/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="PMS主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。 做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20131022154703437?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbmV3X2FiYw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.721Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列30---插件包PackageManagerService&#x2F;PMS">
+<meta name="twitter:description" content="PMS主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。 做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20131022154703437?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbmV3X2FiYw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列30---插件包PackageManagerService/PMS | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列30---插件包PackageManagerService/PMS
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-14T19:53:46+08:00" content="2016-04-14">
+            2016-04-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><strong>PMS</strong>主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。</p>
+<p>做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23</p>
+<p>在这前，我们看下大致关系，当调用Context.getPackageManager()时,背后代码如下：</p>
+<pre><code>@Override
+public PackageManager getPackageManager() {
+    if (mPackageManager != null) {
+        return mPackageManager;
+    }
+
+    IPackageManager pm = ActivityThread.getPackageManager();
+    if (pm != null) {
+        // Doesn&apos;t matter if we make more than one instance. why?
+        return (mPackageManager = new ApplicationPackageManager(this, pm));
+    }
+
+    return null;
+}
+</code></pre><p>基于此，我们知道抽象类PM的实现是APM，而这个APM有个Binder的对象，IpackageManger，这个就是PMS啦，我们的安装等都是靠它PMS去搞定的。大致如下：</p>
+<p><img src="http://img.blog.csdn.net/20131022154703437?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbmV3X2FiYw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="enter image description here"></p>
+<p>基于上面这个关系，我们感觉是看到了一个不错的HOOK点，因为这个我们前面的AMS就是HOOK掉了ActivityThread的，这里应该类似，我们去看下</p>
+<pre><code>public final class ActivityThread {
+    static IPackageManager sPackageManager;
+    ...
+    public static IPackageManager getPackageManager() {
+        if (sPackageManager != null) {                 
+            return sPackageManager;
+        }
+        IBinder b = ServiceManager.getService(&quot;package&quot;);         
+        sPackageManager = IPackageManager.Stub.asInterface(b);
+
+        return sPackageManager;
+    }
+ }
+</code></pre><p>是啊，看到曙光了，静态的sPackageManager变量。这样我们可以确定这是一个可以的Hook点了。<br>因此我们可以确定</p>
+<ol>
+<li>除了要HOOK掉ActivtyThread的sPackageManger外</li>
+<li><p>还需要的是替换下构造APM时候传进去的参数对应的变量mPM.</p>
+<p> ApplicationPackageManager(ContextImpl context,</p>
+<pre><code>                      IPackageManager pm) {
+mContext = context;
+mPM = pm;
+</code></pre><p> }</p>
+</li>
+</ol>
+<p>这样我们就可以来看下DroidPlugin里面的IpackageMangerHook的内容了，在他的onInstall里面</p>
+<pre><code> @Override
+protected void onInstall(ClassLoader classLoader) throws Throwable {
+    Object currentActivityThread = ActivityThreadCompat.currentActivityThread();
+    setOldObj(FieldUtils.readField(currentActivityThread, &quot;sPackageManager&quot;));
+    Class&lt;?&gt; iPmClass = mOldObj.getClass();
+    List&lt;Class&lt;?&gt;&gt; interfaces = Utils.getAllInterfaces(iPmClass);
+    Class[] ifs = interfaces != null &amp;&amp; interfaces.size() &gt; 0 ? interfaces.toArray(new Class[interfaces.size()]) : new Class[0];
+    Object newPm = MyProxy.newProxyInstance(iPmClass.getClassLoader(), ifs, this);
+    FieldUtils.writeField(currentActivityThread, &quot;sPackageManager&quot;, newPm);
+    //1. hook了ActivityThread里面的变量   
+
+    PackageManager pm = mHostContext.getPackageManager();
+    Object mPM = FieldUtils.readField(pm, &quot;mPM&quot;);
+    if (mPM != newPm) {
+        FieldUtils.writeField(pm, &quot;mPM&quot;, newPm);
+    }
+    // 2. hook掉了APM里面的mPm变量
+}
+</code></pre><h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>根据前面的介绍，我们基本完成了HOOK的工作。做好了一些准备工作啦！<br>在这样的基础上，我们可以开始尝试做安装APK插件的事情。让我们来看下<code>DroidPlugin</code>的内容<br>看他是如何做插件安装部分的内容的,截取自<code>IPluginManagerImpl</code> 的内容</p>
+<pre><code> @Override
+public int installPackage(String filepath, int flags) {
+    //install plugin
+    String apkfile = null;
+    　
+   　PackageManager pm = mContext.getPackageManager();
+    PackageInfo info = pm.getPackageArchiveInfo(filepath, 0);
+    if (info == null) {
+            return PackageManagerCompat.INSTALL_FAILED_INVALID_APK;
+    } 
+    apkfile = PluginDirHelper.getPluginApkFile(mContext, info.packageName);
+
+    ...
+    new File(apkfile).delete();
+    Utils.copyFile(filepath, apkfile);
+    //在确保这个包是一个有效的APK后，用自己的PackageeParser去做解析
+    PluginPackageParser parser = new PluginPackageParser(mContext, new 
+                                    File(apkfile));                                 
+    parser.collectCertificates(0);
+    PackageInfo pkgInfo = parser.getPackageInfo(
+               PackageManager.GET_PERMISSIONS | 
+            　　PackageManager.GET_SIGNATURES);
+            　　
+    if (pkgInfo != null &amp;&amp; pkgInfo.requestedPermissions != null &amp;&amp; 　　　　         
+    　　　　　            pkgInfo.requestedPermissions.length &gt; 0) {        　　　　　            
+
+        for (String requestedPermission : pkgInfo.requestedPermissions) {
+            boolean b = false;　
+            b = pm.getPermissionInfo(requestedPermission, 0) != null;                        
+            if (!mHostRequestedPermission.contains(requestedPermission)&amp;&amp;b) {
+               //为了插件化，会先在HOST里先申请一堆的权限，插件的权限需要看下是否在HOST有，
+               //不支持的就say goodbye咯。
+                new File(apkfile).delete();
+                return PluginManager.INSTALL_FAILED_NO_REQUESTEDPERMISSION;
+            }
+        }
+    }
+
+   saveSignatures(pkgInfo); 
+ 　copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0));
+   dexOpt(mContext, apkfile, parser);
+
+   //缓存信息，后面各种判断是否为插件内容时候都要用到的。
+   mPluginCache.put(parser.getPackageName(), parser);       
+   //这函数什么也没做，不知道为何
+   mActivityManagerService.onPkgInstalled(mPluginCache, parser, 
+                                parser.getPackageName());                                     
+   //发送广播通知插件添加成功                                    
+   sendInstalledBroadcast(info.packageName);
+   return PackageManagerCompat.INSTALL_SUCCEEDED;    
+   ...
+}
+</code></pre><p>因为安装的内容最终很大部分是由我们自己来管理的，因此我们需要存储一些插件APK的信息，然后在用到的时候我们做一些额外的工作。例如在获取<code>PackageUid</code>，<code>getPackageInfo</code>的时候，如果传过来的<code>packageName</code>是我们插件包名，那么我们需要偷换成Host的包名。</p>
+<p>在这个安装过程很依赖这个<code>PluginPackageParser</code> 类去解析插件APK，这个类非常值得一提，为了支持这个解析工作，作者手动适配了不同的版本，包括：15/16/20/21/22/22Preview1。<br>我们来简单的看下</p>
+<pre><code> public PluginPackageParser(Context hostContext, File pluginFile) throws Exception {
+
+    mHostContext = hostContext;
+    mPluginFile = pluginFile;
+
+    //解析工作承担者
+    mParser = PackageParser.newPluginParser(hostContext);//&lt;--主角
+    mParser.parsePackage(pluginFile, 0);
+    mPackageName = mParser.getPackageName();
+    mHostPackageInfo = mHostContext.getPackageManager().
+                getPackageInfo(mHostContext.getPackageName(), 0);
+
+    List datas = mParser.getActivities();
+    for (Object data : datas) {
+        ComponentName componentName = new ComponentName(mPackageName, 
+                                    mParser.readNameFromComponent(data));
+        synchronized (mActivityObjCache) {
+            mActivityObjCache.put(componentName, data);
+        }
+        synchronized (mActivityInfoCache) {
+            ActivityInfo value = mParser.generateActivityInfo(data, 0);
+            fixApplicationInfo(value.applicationInfo);
+            if (TextUtils.isEmpty(value.processName)) {
+                value.processName = value.packageName;
+            }
+            mActivityInfoCache.put(componentName, value);
+        }
+
+        List&lt;IntentFilter&gt; filters = mParser.readIntentFilterFromComponent(data);
+        synchronized (mActivityIntentFilterCache) {
+            mActivityIntentFilterCache.remove(componentName);
+            mActivityIntentFilterCache.put(componentName, new 
+                            ArrayList&lt;IntentFilter&gt;(filters));
+        }
+    }
+
+    datas = mParser.getServices();
+
+      ...
+      ...各种mParser.getXXX()的处理工作;
+
+    List&lt;String&gt; requestedPermissions = mParser.getRequestedPermissions();
+    if (requestedPermissions != null &amp;&amp; requestedPermissions.size() &gt; 0) {
+        synchronized (mRequestedPermissionsCache) {
+            mRequestedPermissionsCache.addAll(requestedPermissions);
+        }
+    }
+}
+</code></pre><p>好了，我们再来看下这个解析的构造函数内容</p>
+<pre><code>abstract class PackageParser {
+
+    protected Context mContext;    
+    protected Object mPackageParser;
+
+    PackageParser(Context context) {
+        mContext = context;
+    } 
+
+    public static PackageParser newPluginParser(Context context) throws Exception {
+        if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP_MR1) {
+            if (&quot;1&quot;.equals(SystemPropertiesCompat.get(
+                &quot;ro.build.version.preview_sdk&quot;, &quot;&quot;))) {
+
+                return new PackageParserApi22Preview1(context);
+            } else {
+                return new PackageParserApi22(context);//API 20
+            }
+        } else if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP) {
+
+            return new PackageParserApi21(context);//API 21
+        } else if (VERSION.SDK_INT &gt;= VERSION_CODES.JELLY_BEAN_MR1 &amp;&amp; 
+            VERSION.SDK_INT&lt;= VERSION_CODES.KITKAT_WATCH) {
+
+            return new PackageParserApi20(context);//API 17,18,19,20
+        } else if (VERSION.SDK_INT == VERSION_CODES.JELLY_BEAN) {
+            return new PackageParserApi16(context); //API 16
+        } else if (VERSION.SDK_INT &gt;= VERSION_CODES.ICE_CREAM_SANDWICH &amp;&amp;             
+            VERSION.SDK_INT &lt;= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+
+            return new PackageParserApi15(context); //API 14,15
+        } else if (VERSION.SDK_INT &gt;= VERSION_CODES.HONEYCOMB &amp;&amp;
+                 VERSION.SDK_INT &lt;= VERSION_CODES.HONEYCOMB_MR2) {
+
+            return new PackageParserApi15(context); //API 11,12,13
+        } else if (VERSION.SDK_INT &gt;= VERSION_CODES.GINGERBREAD &amp;&amp; 
+                   VERSION.SDK_INT &lt;= VERSION_CODES.GINGERBREAD_MR1) {
+
+            return new PackageParserApi15(context); //API 9，10
+
+        } else {
+            return new PackageParserApi15(context); //API 9，10
+        }
+    }
+}
+</code></pre><p>我感受到了满满的安卓坑，作者在写的时候估计调试了不少<br><strong>在这里推荐一个网站</strong>：<a href="http://grepcode.com/" target="_blank" rel="noopener">http://grepcode.com/</a>，他可以在线查看代码，直接比较各版本的差异。我想这比自己下载到本地，然后用各类<code>compare</code>软件来比较便捷多了。想想下载那么多个版本光空间就足够挤爆你的SSD了！</p>
+<h1 id="额外的解释"><a href="#额外的解释" class="headerlink" title="额外的解释:"></a>额外的解释:</h1><p>为何要这样做？</p>
+<p>我们看下我们的整个Activity过程，启动过程前需要弄一个真的host的Activity去检测，然后HOOK在<strong>h</strong>变量的<strong>callback</strong>。最后处理LAUNCH_ACTIVITY消息，加载我们的<code>targetActivity</code>。</p>
+<ol>
+<li>我们得判断这个要启动的Activity是否为插件的</li>
+<li>在检测完，回Handle时也判断一下</li>
+<li><p>加载插件Activty。如果是插件的Activty，我们的启动需要一些额外的信息。具体如下（在ActivityThread的performLaunchActivity函数里面）：</p>
+<pre><code>java.lang.ClassLoader cl = r.packageInfo.getClassLoader();
+activity = mInstrumentation.newActivity(cl, component.getClassName(), r.intent);
+StrictMode.incrementExpectedActivityCount(activity.getClass()); 
+r.intent.setExtrasClassLoader(cl);
+</code></pre></li>
+</ol>
+<p>在上篇文章介绍Activity启动过程的时候我们的TragetActivity是处在同一个包下的，这是有意回避一些问题的，因为我们默认拿到的ClassLoader是没法加载插件的内容的。我们需要造一个自己的ClassLoader出来。<br>这样，根据这个启动函数，我们需要一个特定的ClassLoader，用来加载我们插件的类。</p>
+<p>这样我们来看下DroidPlug的源码，在<code>PluginCallback</code>的里面，这个就是处理<code>h</code>的回调消息的。</p>
+<pre><code>private boolean handleLaunchActivity(Message msg) {
+
+     Object obj = msg.obj;
+     Intent stubIntent = (Intent) FieldUtils.readField(obj, &quot;intent&quot;); 
+     stubIntent.setExtrasClassLoader(mHostContext.getClassLoader());
+     Intent targetIntent = stubIntent.getParcelableExtra(
+                Env.EXTRA_TARGET_INTENT);
+
+     // 这里多加一个isNotShortcutProxyActivity的判断，因为ShortcutProxyActivity的很特殊，
+     //启动它的时候，也会带上一个EXTRA_TARGET_INTENT的数据，就会导致这里误以为是启动插件
+     //Activity，所以这里要先做一个判断。之前ShortcutProxyActivity错误复用了key，但是为了兼
+     //容，所以这里就先这么判断吧。
+
+     /** 上面这段是作者原话，没删掉是想说，要做好一个项目，确实不容易**/
+
+     if (targetIntent != null &amp;&amp; !isShortcutProxyActivity(stubIntent)) {
+
+
+         ComponentName targetComponentName = targetIntent.resolveActivity(
+                                            mHostContext.getPackageManager());
+
+         ActivityInfo targetActivityInfo = PluginManager.getInstance().
+                                           getActivityInfo(targetComponentName, 0);
+
+         if (targetActivityInfo != null) {
+             if (targetComponentName != null &amp;&amp; 
+               targetComponentName.getClassName().startsWith(&quot;.&quot;)) {
+
+                 targetIntent.setClassName(targetComponentName.getPackageName(), 
+                 targetComponentName.getPackageName() + 
+                 targetComponentName.getClassName());
+             }
+
+             ResolveInfo resolveInfo = mHostContext.getPackageManager().
+                    resolveActivity(stubIntent, 0);
+             ActivityInfo stubActivityInfo = resolveInfo != null ? 
+                    resolveInfo.activityInfo : null;
+             if (stubActivityInfo != null) {
+                 PluginManager.getInstance().reportMyProcessName(
+                 stubActivityInfo.processName, targetActivityInfo.processName, 
+                 targetActivityInfo.packageName);
+             }
+
+              //这句话背后会去生成一个classLoader。      
+             PluginProcessManager.preLoadApk(mHostContext, targetActivityInfo);
+
+             //获取刚才生成的classLoader
+             ClassLoader pluginClassLoader =PluginProcessManager.
+                        getPluginClassLoader(targetComponentName.getPackageName());
+
+             setIntentClassLoader(targetIntent, pluginClassLoader);
+             setIntentClassLoader(stubIntent, pluginClassLoader);
+
+             boolean success = false;
+
+            targetIntent.putExtra(Env.EXTRA_TARGET_INFO,targetActivityInfo);
+            if (stubActivityInfo != null) {
+                targetIntent.putExtra(Env.EXTRA_STUB_INFO, stubActivityInfo);
+            }
+            success = true;
+        }
+             ...
+    }
+
+      //最后调用工作
+      if (mCallback != null) {
+           return mCallback.handleMessage(msg);
+      } else {
+           return false;
+      }
+
+}
+</code></pre><p>我们看下preLoad</p>
+<pre><code> public static void preLoadApk(Context hostContext, ComponentInfo pluginInfo) {
+
+    /*添加插件的LoadedApk对象到ActivityThread.mPackages*/
+    boolean found = false;
+
+    synchronized (sPluginLoadedApkCache) {
+        Object object = ActivityThreadCompat.currentActivityThread();
+        if (object != null) {
+
+            Object mPackagesObj = FieldUtils.readField(object, &quot;mPackages&quot;);
+            Object containsKeyObj = MethodUtils.invokeMethod(mPackagesObj, 
+                                    &quot;containsKey&quot;, pluginInfo.packageName);
+
+            //判断是否有存在pluginInfo.packageName这个字段了，没有就重新构造，有就跳过
+            if (containsKeyObj instanceof Boolean &amp;&amp; !(Boolean) containsKeyObj) {
+
+                final Object loadedApk;
+
+                // 又有一个版本不一样的地方，其实，如果你不做这件事情，
+                // 我觉得很难掌握完各个SDK版本的差异.做了也难以记得全，都是需要的时候查啊.                    
+                if (VERSION.SDK_INT &gt;= VERSION_CODES.HONEYCOMB) {
+                    loadedApk = MethodUtils.invokeMethod(object, 
+                          &quot;getPackageInfoNoCheck&quot;, pluginInfo.applicationInfo,                                                   
+                         CompatibilityInfoCompat.DEFAULT_COMPATIBILITY_INFO());                                                                                           
+                } else {
+                    loadedApk = MethodUtils.invokeMethod(object, 
+                               &quot;getPackageInfoNoCheck&quot;, pluginInfo.applicationInfo);
+                }
+
+                sPluginLoadedApkCache.put(pluginInfo.packageName, loadedApk);
+
+                /*添加ClassLoader LoadedApk.mClassLoader*/
+                String optimizedDirectory = PluginDirHelper.getPluginDalvikCacheDir(
+                                        hostContext, pluginInfo.packageName);
+                String libraryPath = PluginDirHelper.getPluginNativeLibraryDir(
+                                    hostContext, pluginInfo.packageName);
+
+                String apk = pluginInfo.applicationInfo.publicSourceDir;
+
+                if (TextUtils.isEmpty(apk)) {
+                    pluginInfo.applicationInfo.publicSourceDir = 
+                            PluginDirHelper.getPluginApkFile(hostContext, 
+                            pluginInfo.packageName);
+
+                    apk = pluginInfo.applicationInfo.publicSourceDir;
+                }
+
+                if (apk != null) {
+                    ClassLoader classloader = null;
+                    classloader = new PluginClassLoader(apk, optimizedDirectory, 
+                                 libraryPath, ClassLoader.getSystemClassLoader());                                      
+
+                    if(classloader==null){
+                        PluginDirHelper.cleanOptimizedDirectory(optimizedDirectory);
+                        classloader = new PluginClassLoader(apk, optimizedDirectory, 
+                                  libraryPath, ClassLoader.getSystemClassLoader());
+                    }
+
+                    synchronized (loadedApk) {
+                        FieldUtils.writeDeclaredField(loadedApk, &quot;mClassLoader&quot;, 
+                                                                classloader);
+                    }
+                    sPluginClassLoaderCache.put(pluginInfo.packageName, 
+                                                classloader);
+
+
+                    Thread.currentThread().setContextClassLoader(classloader);
+                    found = true;
+                }
+                ProcessCompat.setArgV0(pluginInfo.processName);
+            }
+        }
+    }
+
+    if (found) {
+        PluginProcessManager.preMakeApplication(hostContext, pluginInfo);
+    }
+}
+</code></pre><p>上面的内容可能看起来让你觉得奇怪，取mPackages和构造loadedApk是什么意思？<br>我们重新看下我们的启动Activity的那几句话</p>
+<pre><code>java.lang.ClassLoader cl = r.packageInfo.getClassLoader();
+activity = mInstrumentation.newActivity(cl, component.getClassName(), r.intent);
+StrictMode.incrementExpectedActivityCount(activity.getClass());
+r.intent.setExtrasClassLoader(cl);
+</code></pre><p>系统通过<code>r.packageInfo</code>获得<code>cl</code>的。而这个<code>r.packageInfo()</code>返回的是一个<code>LoadedApk</code>对象。而这个<code>LoadedApk</code>对象就是APK文件在内存中的表示！如各种库JNI的，Res和DataDir都通过此对象获取的,当然包括classLoader<br>因此有比较对他做些操作。而这个packageInfo是在H的handleMessage赋值的</p>
+<pre><code>case LAUNCH_ACTIVITY: {
+
+  final ActivityClientRecord r = (ActivityClientRecord) msg.obj;
+  r.packageInfo = getPackageInfoNoCheck(
+          r.activityInfo.applicationInfo, r.compatInfo);
+  handleLaunchActivity(r, null);
+
+} break;
+</code></pre><p>（其实我挺好奇，为何这个case有一对<code>{ }</code>，而别的case都没有。）<br>因此你看到上面对的<code>preLoadAPK</code>函数对<code>getPackageInfoNoCheck</code>做了处理，我们继续看下函数背后的内容</p>
+<pre><code>public final LoadedApk getPackageInfoNoCheck(ApplicationInfo ai,
+        CompatibilityInfo compatInfo) {
+    return getPackageInfo(ai, compatInfo, null, false, true, false);
+}
+
+private LoadedApk getPackageInfo(ApplicationInfo aInfo,CompatibilityInfo compatInfo,
+        ClassLoader baseLoader, boolean securityViolation, boolean includeCode,
+        boolean registerPackage) {
+
+    final boolean differentUser = (UserHandle.myUserId() != 
+                                   UserHandle.getUserId(aInfo.uid));
+
+
+    synchronized (mResourcesManager) {
+        WeakReference&lt;LoadedApk&gt; ref;
+        //检测是否为同个user的，显然我们是同个            
+        if (differentUser) {
+            // Caching not supported across users
+            ref = null;
+        } else if (includeCode) {//调用函数传过来的为true
+            ref = mPackages.get(aInfo.packageName);
+        } else {
+            ref = mResourcePackages.get(aInfo.packageName);
+        }
+         //这样我们通过mPackages得到的缓存内容获取引用
+        LoadedApk packageInfo = ref != null ? ref.get() : null;
+
+        //如果没有，显然下面的内容估计就是新建一个，然后放到mPackages里去
+        if (packageInfo == null || (packageInfo.mResources != null
+                &amp;&amp; !packageInfo.mResources.getAssets().isUpToDate())) {
+
+             packageInfo =new LoadedApk(this, aInfo, compatInfo, baseLoader,                    
+                        securityViolation, includeCode &amp;&amp;
+                        (aInfo.flags&amp;ApplicationInfo.FLAG_HAS_CODE) != 0, 
+                        registerPackage);
+            ....
+
+            if (differentUser) {
+                // Caching not supported across users
+            } else if (includeCode) {
+                //缓存新建的!如我们预测的那样
+                mPackages.put(aInfo.packageName,
+                        new WeakReference&lt;LoadedApk&gt;(packageInfo)); 
+
+            } else {
+                mResourcePackages.put(aInfo.packageName,
+                        new WeakReference&lt;LoadedApk&gt;(packageInfo));
+            }
+
+        }
+        return packageInfo;
+    }
+}
+</code></pre><p>看到这部分内容，想必对于为何preLoadAPK的内容也明白个大概了吧？<br>花大力气去用自己的<code>PluginClassLoader</code>替代<code>loadApk</code>的<code>mClassLoader</code>变量！至于这个 PluginClassLoader啊，背后隐藏着一个和<code>奇酷手机青春版兼容</code>的故事。哈哈哈哈，有兴趣去看下作者的注释！</p>
+<p>另外一件事就是在生产这个LoadedApk对象的时候，他不知直接调用构造函数，而是通过<code>getPackageInfoNoCheck</code>函数去生成一个回来的，而且分了两个版本！<br>我们传进去的参数有两个：<code>ApplicationInfo</code> 和<code>CompatibilityInfo</code> 。<br>前者<code>ApplicationInfo</code>表示我们的<code>AndroidManifes</code>的<code>application</code>这个<strong>Tag</strong></p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;com.example.ApiTest&quot;
+    android:versionCode=&quot;1&quot;
+    android:versionName=&quot;1.0&quot; &gt;
+
+    &lt;uses-permission android:name=&quot;android.permission.READ_PHONE_STATE&quot; /&gt;
+
+    &lt;application   //&lt;--就是这个
+    android:icon=&quot;@drawable/ic_launcher&quot;
+    android:label=&quot;@string/app_name&quot;
+    android:theme=&quot;@style/AppTheme&quot;
+    android:persistent=&quot;true&quot;&gt;
+         ...
+    &lt;/application&gt;
+
+&lt;/manifest&gt;
+</code></pre><p>因此我在开头有提到那个PackageParser类！他兼容很多版本，因为没办法，谷歌一直改来改去。关于这个类是如何生成这个信息我们就不深究了。背后也涉及不少内容，但现在不是我们关系的重点。</p>
+<p>这样，一个基本的启动插件Activity的流程主要核心内容就大致结束了！</p>
+<h1 id="小坑"><a href="#小坑" class="headerlink" title="小坑"></a>小坑</h1><p>在上面过程，还有一个小细节没提到，就是我们还需对PMS做一些小手脚 ！<br>为啥呢？让我们再来看下<code>ActivityThread</code>的<code>performLaunchActivity</code>函数</p>
+<pre><code>private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent){
+
+    ...
+
+    Activity activity = null;  
+     java.lang.ClassLoader cl = r.packageInfo.getClassLoader();
+     activity = mInstrumentation.newActivity(
+             cl, component.getClassName(), r.intent);
+     StrictMode.incrementExpectedActivityCount(activity.getClass());
+     r.intent.setExtrasClassLoader(cl);
+     r.intent.prepareToEnterProcess();
+     if (r.state != null) {
+         r.state.setClassLoader(cl);
+     } 
+
+     //重要的一句
+     Application app = r.packageInfo.makeApplication(false, mInstrumentation);
+
+      ...
+      activity.attach(appContext, this, getInstrumentation(), r.token,
+                    r.ident, app, r.intent, r.activityInfo, title, r.parent,
+                    r.embeddedID, r.lastNonConfigurationInstances, config,
+                    r.referrer, r.voiceInteractor);
+
+      mInstrumentation.callActivityOnCreate(activity, r.state);                 
+      ....          
+    return activity;
+}
+</code></pre><p>在启动Activity前，会有一句调用我们的<code>loadApk</code>的<code>makeApplication()</code>方法！在这个方法最后</p>
+<pre><code>private void initializeJavaContextClassLoader() {
+    IPackageManager pm = ActivityThread.getPackageManager();
+    android.content.pm.PackageInfo pi;
+    try {
+        pi = pm.getPackageInfo(mPackageName, 0, UserHandle.myUserId());
+    } catch (RemoteException e) {
+        throw new IllegalStateException(&quot;Unable to get package info for &quot;
+                + mPackageName + &quot;; is system dying?&quot;, e);
+    }
+    if (pi == null) {
+        throw new IllegalStateException(&quot;Unable to get package info for &quot;
+                + mPackageName + &quot;; is package not installed?&quot;);
+    }
+}
+</code></pre><p>这个方法之后回去调用 PM的<code>pm.getPackageInfo(mPackageName, 0, UserHandle.myUserId());</code>方法，这个方法需要我们需HOOK掉，替换信息，因为我们APK是真的没有安装在系统上，是不可能获取到的！<br>导致了PI==null，然后就崩溃咯！也亏他们一开始就想到这个pi可能为空。他们自己在写系统的时候是遇到什么坑，才会加多这个判断呢？</p>
+<p>所以我们看到在插件的<code>IPackageManagerHookHandle</code>类，里面有对<code>getPackageInfo</code>函数做处理。让他返回了我们parse后的内容</p>
+<pre><code>private class getPackageInfo extends HookedMethodHandler { 
+
+    @Override
+    protected boolean beforeInvoke(Object receiver, Method method, Object[] args){
+
+       final int index0 = 0, index1 = 1;
+       String packageName = null;
+       if (args.length &gt; index0) {
+           if (args[index0] != null &amp;&amp; args[index0] instanceof String) {
+               packageName = (String) args[index0];
+           }
+       }
+
+       int flags = 0;
+       if (args.length &gt; index1) {
+           if (args[index1] != null &amp;&amp; args[index1] instanceof Integer) {
+               flags = (Integer) args[index1];
+           }
+       }
+
+       if (packageName != null) {
+          PackageInfo packageInfo = null;
+          packageInfo = PluginManager.getInstance().
+          getPackageInfo(packageName, flags);//就是这句啦
+          if (packageInfo != null) {
+             setFakedResult(packageInfo);
+             return true;
+          }
+       } 
+
+       return super.beforeInvoke(receiver, method, args);
+   }
+}
+</code></pre><p>到这里！我们成功的解析了大致的内容！这样这篇也可以收尾了！</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>最近忙完手头一些重构工作，从五号起稿到今天终于完成这篇文章了！！！！可以开心去吃饭了！！<br>虽然都八点了，但感觉全身愉快了好多，中午写到现在，也只是把前进段后面的补上去。感觉也没什么内容就耗费了我八个多小时，不得说…真的挖来挖去真的不容易，熟悉了一遍快捷键…</p>
+<p>看完这部分，星罗密布的各种版本差异的坑啊，再次觉得作者的功力深厚，确实得花不少时间才能做好。</p>
+<p>LBE有开一个平行空间的概念，某酷的手机也是出类似的功能，对于系统底层的探索和性能的压榨真是不容易啊。得抽空回去修改自己的PMS解析文章才行，现在看下好多内容没在里面写到，解析不到位啊。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/PMS/" rel="tag">#PMS</a>
+          
+            <a href="/tags/DroidPlugin/" rel="tag">#DroidPlugin</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/" rel="prev">源码探索系列31---插件化基础之Service组件管理</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" rel="next">源码探索系列29---插件化基础之启动插件的Activity</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/"
+     data-title="源码探索系列30---插件包PackageManagerService/PMS"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/"
+                   data-title="源码探索系列30---插件包PackageManagerService/PMS" data-url="http://yoursite.com/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">2.</span> <span class="nav-text">前进</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#额外的解释"><span class="nav-number">3.</span> <span class="nav-text">额外的解释:</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小坑"><span class="nav-number">4.</span> <span class="nav-text">小坑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

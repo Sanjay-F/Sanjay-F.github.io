@@ -1,0 +1,993 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,AseetManger,Resources," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="今天我们来聊聊那个我们加载系统资源的问题。 说的就是我们放在res目录下的内容，系统是如何获取的。 getResources().getString(R.string.app_name);">
+<meta name="keywords" content="android,源码,AseetManger,Resources">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列18---关于资源的加载与匹配的资源机制">
+<meta property="og:url" content="http://yoursite.com/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="今天我们来聊聊那个我们加载系统资源的问题。 说的就是我们放在res目录下的内容，系统是如何获取的。 getResources().getString(R.string.app_name);">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.712Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列18---关于资源的加载与匹配的资源机制">
+<meta name="twitter:description" content="今天我们来聊聊那个我们加载系统资源的问题。 说的就是我们放在res目录下的内容，系统是如何获取的。 getResources().getString(R.string.app_name);">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列18---关于资源的加载与匹配的资源机制 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列18---关于资源的加载与匹配的资源机制
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-08T23:41:46+08:00" content="2016-01-08">
+            2016-01-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg" alt="enter image description here"></p>
+<p>今天我们来聊聊那个我们加载系统资源的问题。</p>
+<p>说的就是我们放在<code>res</code>目录下的内容，系统是如何获取的。</p>
+<pre><code>getResources().getString(R.string.app_name);
+</code></pre><a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p><strong>API:23</strong></p>
+<p>我们先从这个getResource（）函数开始说起</p>
+<pre><code>@Override
+public Resources getResources() {
+    if (mResources != null) {
+        return mResources;
+    }
+    if (mOverrideConfiguration == null) {
+        mResources = super.getResources();
+        return mResources;
+    } else {
+        Context resc = createConfigurationContext(mOverrideConfiguration);
+        mResources = resc.getResources();
+        return mResources;
+    }
+}
+</code></pre><p>这里一般情况下是返回<code>mResource</code>的，因为这个变量在创建我们的Activity的时候会配套一个<code>Context</code>，在这个context里面，<code>mResource</code>会跟着被初始化。<br>如果没有下面的也会去创建一个<code>createConfigurationContext(mOverrideConfiguration);</code>，两者最后到会调用到同一个函数去。<br>不过，不知道你对前面的文章介绍<code>Activity的启动过程</code>有没映像，里面就有提到，这里我们回忆下。在<code>ActivityThread</code>的<code>performLaunchActivity()</code>里面</p>
+<pre><code>private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) {
+    ...
+    try {
+        Application app = r.packageInfo.makeApplication(false, mInstrumentation);
+
+        if (activity != null) {
+               //下面这句重要
+            Context appContext = createBaseContextForActivity(r, activity);
+          ...
+    return activity;
+}
+</code></pre><p>压缩到上面重点的一句</p>
+<pre><code>private Context createBaseContextForActivity(ActivityClientRecord r, final Activity activity) {
+        int displayId = Display.DEFAULT_DISPLAY;
+        try {
+            displayId = ActivityManagerNative.getDefault().getActivityDisplayId(r.token);
+        } catch (RemoteException e) {
+        }
+        //下面这句重要
+        ContextImpl appContext = ContextImpl.createActivityContext(
+                this, r.packageInfo, displayId, r.overrideConfig);
+        appContext.setOuterContext(activity);
+        Context baseContext = appContext;
+
+        ...
+        return baseContext;
+    }
+
+
+static ContextImpl createActivityContext(ActivityThread mainThread,
+            LoadedApk packageInfo, int displayId, Configuration overrideConfiguration) {
+
+        if (packageInfo == null) throw new IllegalArgumentException(&quot;packageInfo&quot;);
+
+        return new ContextImpl(null, mainThread, packageInfo, null, null, false,
+                null, overrideConfiguration, displayId);
+    }
+</code></pre><p>重要内容来了，他去new一个context，前面我们已经知道这个<code>Context</code>的具体实现是<code>contextImpl</code></p>
+<pre><code>private ContextImpl(ContextImpl container, ActivityThread mainThread,
+        LoadedApk packageInfo, IBinder activityToken, UserHandle user, boolean restricted,
+        Display display, Configuration overrideConfiguration, int createDisplayWithId) {
+    mOuterContext = this;
+
+    mMainThread = mainThread;
+    ...
+    mPackageInfo = packageInfo;
+    mResourcesManager = ResourcesManager.getInstance();
+
+    ...
+    //   重要的一句
+    Resources resources = packageInfo.getResources(mainThread);
+    if (resources != null) {
+        if (displayId != Display.DEFAULT_DISPLAY
+                || overrideConfiguration != null
+                || (compatInfo != null &amp;&amp; compatInfo.applicationScale
+                        != resources.getCompatibilityInfo().applicationScale)) {
+            resources = mResourcesManager.getTopLevelResources(packageInfo.getResDir(),
+                    packageInfo.getSplitResDirs(), packageInfo.getOverlayDirs(),
+                    packageInfo.getApplicationInfo().sharedLibraryFiles, displayId,
+                    overrideConfiguration, compatInfo);
+        }
+    }
+    mResources = resources;
+
+    ...
+}
+</code></pre><p>是吧，我们看到了。</p>
+<p>我们继续看生成的具体内容</p>
+<pre><code>public Resources getResources(ActivityThread mainThread) {
+    if (mResources == null) {
+
+        mResources = mainThread.getTopLevelResources(mResDir, mSplitResDirs, mOverlayDirs,mApplicationInfo.sharedLibraryFiles, Display.DEFAULT_DISPLAY, null, this);            
+    }
+    return mResources;
+}
+</code></pre><p>跑到了那个ActivitThread来了，但通过这里我们可以看到一些信息，他会配置一些资源位置，包信息，屏幕配置信息等。所以我们的resource可以根据配置的信息获取特定的内容。</p>
+<pre><code>Resources getTopLevelResources(String resDir, String[] splitResDirs, String[] overlayDirs,
+        String[] libDirs, int displayId, Configuration overrideConfiguration,
+        LoadedApk pkgInfo) {
+    return mResourcesManager.getTopLevelResources(resDir, splitResDirs, overlayDirs, libDirs,
+            displayId, overrideConfiguration, pkgInfo.getCompatibilityInfo());
+}
+</code></pre><p>然后我们去ResourcesManager里面看看。</p>
+<pre><code>Resources getTopLevelResources(String resDir, String[] splitResDirs,
+        String[] overlayDirs, String[] libDirs, int displayId,
+        Configuration overrideConfiguration, CompatibilityInfo compatInfo) {
+
+    final float scale = compatInfo.applicationScale;
+    Configuration overrideConfigCopy = (overrideConfiguration != null)
+            ? new Configuration(overrideConfiguration) : null;
+    ResourcesKey key = new ResourcesKey(resDir, displayId, overrideConfigCopy, scale);
+
+
+    Resources r;        
+     //判断是否存在了
+    synchronized (this) { 
+        ...
+        WeakReference&lt;Resources&gt; wr = mActiveResources.get(key);
+        r = wr != null ? wr.get() : null;
+        ...
+        if (r != null &amp;&amp; r.getAssets().isUpToDate()) {                
+            return r;
+        }
+    }
+    ...
+    AssetManager assets = new AssetManager();
+
+    //添加了我们的资源的路径啦！
+    if (resDir != null) {
+        if (assets.addAssetPath(resDir) == 0) {  
+            return null;
+        }
+    }
+
+    //添加我们的Asset路径
+    if (splitResDirs != null) {
+        for (String splitResDir : splitResDirs) {
+            if (assets.addAssetPath(splitResDir) == 0) { 
+                return null;
+            }
+        }
+    }
+
+     //这个是关于系统资源的         
+    /**
+     * Add a set of assets to overlay an already added set of assets. 
+     * This is only intended for application resources. System wide resources
+     * are handled before any Java code is executed. 
+     */
+    if (overlayDirs != null) {
+        for (String idmapPath : overlayDirs) {
+            assets.addOverlayPath(idmapPath);
+        }
+    }
+    //这个是我们的库文件
+    if (libDirs != null) {
+        for (String libDir : libDirs) {
+            if (libDir.endsWith(&quot;.apk&quot;)) {
+                // Avoid opening files we know do not have resources,
+                // like code-only .jar files.
+                if (assets.addAssetPath(libDir) == 0) {
+                    Log.w(TAG, &quot;Asset path &apos;&quot; + libDir +
+                            &quot;&apos; does not exist or contains no resources.&quot;);
+                }
+            }
+        }
+    }
+     //哎呀，这个就贼熟悉了，每次获取屏幕大小都靠他了。
+    DisplayMetrics dm = getDisplayMetricsLocked(displayId);
+    Configuration config; //这个负责保存我们的设备配置信息
+    final boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
+    final boolean hasOverrideConfig = key.hasOverrideConfiguration();
+    if (!isDefaultDisplay || hasOverrideConfig) {
+        config = new Configuration(getConfiguration());
+        if (!isDefaultDisplay) {
+            applyNonDefaultDisplayMetricsToConfigurationLocked(dm, config);
+        }
+        if (hasOverrideConfig) {
+            config.updateFrom(key.mOverrideConfiguration);
+            if (DEBUG) Slog.v(TAG, &quot;Applied overrideConfig=&quot; + key.mOverrideConfiguration);
+        }
+    } else {
+        config = getConfiguration();
+    }
+        //最压轴的一句来了
+    r = new Resources(assets, dm, config, compatInfo);
+
+     // 保存下，配合我们开头的获取，为何是用弱引用呢？
+    synchronized (this) {
+        WeakReference&lt;Resources&gt; wr = mActiveResources.get(key);
+        Resources existing = wr != null ? wr.get() : null;
+        if (existing != null &amp;&amp; existing.getAssets().isUpToDate()) { 
+            ...
+            r.getAssets().close();
+            return existing;
+        }
+
+        // XXX need to remove entries when weak references go away
+        mActiveResources.put(key, new WeakReference&lt;&gt;(r));
+        ...          
+        return r;
+    }
+   }
+</code></pre><p>好了，我们简单的看完了这个获取resource的过程，不过其中那个<code>AssetManager</code>里面是关于Native层的，就不深入看了。<br>我们继续去看下<code>Resources</code>的构造函数</p>
+<pre><code>public Resources(AssetManager assets, DisplayMetrics metrics, Configuration config){
+
+    this(assets, metrics, config, CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
+}
+
+public Resources(AssetManager assets, DisplayMetrics metrics, Configuration config,
+        CompatibilityInfo compatInfo) {
+    mAssets = assets;
+    mMetrics.setToDefaults();
+    if (compatInfo != null) {
+        mCompatibilityInfo = compatInfo;
+    }
+    updateConfiguration(config, metrics);
+    assets.ensureStringBlocks();
+}
+</code></pre><p>我们看下那个更新配置函数里面的内容</p>
+<pre><code>public void updateConfiguration(Configuration config,
+        DisplayMetrics metrics) {
+    updateConfiguration(config, metrics, null);
+}
+
+
+public void updateConfiguration(Configuration config,
+        DisplayMetrics metrics, CompatibilityInfo compat) {
+    synchronized (mAccessLock) {
+        ...
+        if (compat != null) {
+            mCompatibilityInfo = compat;
+        }
+        //我们的屏幕信息在这里设置的
+        if (metrics != null) {
+            mMetrics.setTo(metrics); 
+        }            
+        mCompatibilityInfo.applyToDisplayMetrics(mMetrics);
+        ...
+
+        //我们的dpi信息！还有当初转换格式时候用到的density。
+        if (mConfiguration.densityDpi != Configuration.DENSITY_DPI_UNDEFINED) {
+            mMetrics.densityDpi = mConfiguration.densityDpi;
+            mMetrics.density = mConfiguration.densityDpi * DisplayMetrics.DENSITY_DEFAULT_SCALE;
+        }
+        mMetrics.scaledDensity = mMetrics.density * mConfiguration.fontScale;
+
+        // 我们的语言设置
+        String locale = null;
+        if (mConfiguration.locale != null) {
+            locale = adjustLanguageTag(mConfiguration.locale.toLanguageTag());
+        }
+
+        //计算屏幕高宽，时常用到啊，
+        final int width, height;
+        if (mMetrics.widthPixels &gt;= mMetrics.heightPixels) {
+            width = mMetrics.widthPixels;
+            height = mMetrics.heightPixels;
+        } else {
+            //noinspection SuspiciousNameCombination
+            width = mMetrics.heightPixels;
+            //noinspection SuspiciousNameCombination
+            height = mMetrics.widthPixels;
+        }
+        ...
+        // 这个配置的参数看起来还挺多的啊...
+        mAssets.setConfiguration(mConfiguration.mcc, mConfiguration.mnc,
+                locale, mConfiguration.orientation,
+                mConfiguration.touchscreen,
+                mConfiguration.densityDpi, mConfiguration.keyboard,
+                keyboardHidden, mConfiguration.navigation, width, height,
+                mConfiguration.smallestScreenWidthDp,
+                mConfiguration.screenWidthDp, mConfiguration.screenHeightDp,
+                mConfiguration.screenLayout, mConfiguration.uiMode,
+                Build.VERSION.RESOURCES_SDK_INT);
+
+        }
+
+        mDrawableCache.onConfigurationChange(configChanges);
+        mColorDrawableCache.onConfigurationChange(configChanges);
+        mColorStateListCache.onConfigurationChange(configChanges);
+        mAnimatorCache.onConfigurationChange(configChanges);
+        mStateListAnimatorCache.onConfigurationChange(configChanges);
+
+    }
+    ...
+}
+</code></pre><p>好啦，这样这个就这么结束啦！<br>另外需要说的是这个后面的AssetManger的一堆配置参数的作用，他会跑去和底层C++部分中去，这样我们要获取资源的时候，Native层就会根据这个配置信息寻找最合适的资源返回给我们。</p>
+<p>通过上面这些步骤，我们有一点需要特别说的是，我们可以靠<code>AssetManger</code>的<code>addAssetPath</code>的方法来添加APK路径，从而达到一些<code>资源替换</code>或者<code>换皮肤</code>的效果。这个就是为什么很多程序通过他来快速的换皮肤的原因！</p>
+<p>当然他的效果远不止这个，看到有人利用他来实现插件化，<strong>动态加载</strong>！</p>
+<p>例如主席写的<a href="https://github.com/singwhatiwanna/dynamic-load-apk" target="_blank" rel="noopener"><code>DynamicLoadApk</code></a></p>
+<p>他的原理就用是 DexClassLoader 加 Activity 代理的方案。<br>即在容器中注册代理的Activity，启动插件的Activity时实际启动的都是代理的 Activity，这样来绕过Activity必须注册的问题。<br>我相信在看我们的Activity启动的过程已经知道没注册会报什么错误了把？不过目前这个框架还不完美，还有些问题需要解决。</p>
+<p>现在12点多了了，前段时间熬夜写得尽情，现在觉得很累！<br>早点休息，明天有空再写点内容！再写估计又到两点多！</p>
+<p>好咯，晚安！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/AseetManger/" rel="tag">#AseetManger</a>
+          
+            <a href="/tags/Resources/" rel="tag">#Resources</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/" rel="prev">源码探索系列19---加载布局的LayoutInflater</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/07/源码探索系列17---LRU与LruCache/" rel="next">源码探索系列17---LRU与LruCache</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/"
+     data-title="源码探索系列18---关于资源的加载与匹配的资源机制"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/"
+                   data-title="源码探索系列18---关于资源的加载与匹配的资源机制" data-url="http://yoursite.com/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

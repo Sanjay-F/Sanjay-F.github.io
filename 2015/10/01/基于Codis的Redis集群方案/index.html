@@ -1,0 +1,868 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="集群,redis,codis,cluster,cache," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="安装go首先按照golang，下载地址： https://golang.org/dl/，最新的1.4.2版本。如果被墙使用golang中国下载： http://golangtc.com/download。有mac版的apk，直接安装完事。  设置环境变量打开终端，输入sudo su ,化身炒鸡管理员，输入下面命令。 export GOROOT=/usr/local/go export PATH=$">
+<meta name="keywords" content="集群,redis,codis,cluster,cache">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Codis的Redis集群方案">
+<meta property="og:url" content="http://yoursite.com/2015/10/01/基于Codis的Redis集群方案/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="安装go首先按照golang，下载地址： https://golang.org/dl/，最新的1.4.2版本。如果被墙使用golang中国下载： http://golangtc.com/download。有mac版的apk，直接安装完事。  设置环境变量打开终端，输入sudo su ,化身炒鸡管理员，输入下面命令。 export GOROOT=/usr/local/go export PATH=$">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20150905185418142">
+<meta property="og:image" content="http://img.blog.csdn.net/20150905191432922">
+<meta property="og:image" content="http://img.blog.csdn.net/20150923074205332">
+<meta property="og:image" content="http://img.blog.csdn.net/20150923074937402">
+<meta property="og:image" content="http://img.blog.csdn.net/20150923075617026">
+<meta property="og:image" content="http://img.blog.csdn.net/20151001170323914">
+<meta property="og:image" content="http://img.blog.csdn.net/20151001165831553">
+<meta property="og:image" content="http://img.blog.csdn.net/20151001170128509">
+<meta property="og:image" content="http://img.blog.csdn.net/20151001170018516">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于Codis的Redis集群方案">
+<meta name="twitter:description" content="安装go首先按照golang，下载地址： https://golang.org/dl/，最新的1.4.2版本。如果被墙使用golang中国下载： http://golangtc.com/download。有mac版的apk，直接安装完事。  设置环境变量打开终端，输入sudo su ,化身炒鸡管理员，输入下面命令。 export GOROOT=/usr/local/go export PATH=$">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20150905185418142">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 基于Codis的Redis集群方案 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              基于Codis的Redis集群方案
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-10-01T17:55:46+08:00" content="2015-10-01">
+            2015-10-01
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/01/基于Codis的Redis集群方案/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/01/基于Codis的Redis集群方案/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="安装go"><a href="#安装go" class="headerlink" title="安装go"></a>安装go</h2><p>首先按照golang，下载地址： <a href="https://golang.org/dl/，最新的1.4.2版本。" target="_blank" rel="noopener">https://golang.org/dl/，最新的1.4.2版本。</a><br>如果被墙使用golang中国下载： <a href="http://golangtc.com/download。" target="_blank" rel="noopener">http://golangtc.com/download。</a><br>有mac版的apk，直接安装完事。 </p>
+<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><p>打开终端，输入<code>sudo su</code> ,化身炒鸡管理员，输入下面命令。</p>
+<pre><code>export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=/usr/local/codis 
+</code></pre><p>然后再输入下<code>go env</code> .查看下打印的内容里面的GOPATH对不对。    </p>
+<h2 id="下载codis-安装codis"><a href="#下载codis-安装codis" class="headerlink" title="下载codis,安装codis"></a>下载codis,安装codis</h2><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="meta-keyword">/usr/</span>local</span><br><span class="line">go get -u -d github.com<span class="meta-keyword">/wandoulabs/</span>codis</span><br><span class="line"></span><br><span class="line">cp -R <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>pkg/ <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>cmd/ <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>src/github.com<span class="meta-keyword">/wandoulabs/</span>codis </span><br><span class="line"></span><br><span class="line">cd $GOPATH<span class="meta-keyword">/src/</span>github.com<span class="meta-keyword">/wandoulabs/</span>codis</span><br><span class="line"> </span><br><span class="line">sh bootstrap.sh </span><br><span class="line"><span class="meta">#然后顺着安装完的提示，运行下测试</span></span><br><span class="line">make gotest</span><br></pre></td></tr></table></figure>
+<p>建议只通过go get命令来下载codis，除非你非常熟悉go语言的目录引用形式从而不会导致代码放错地方。该命令会下载master分支的最新版，我们会确保master分支的稳定。<br>当然你也可以去下载Release版本的，然后解压到<code>$GOPATH/src/github.com/wandoulabs/codis</code></p>
+<p>安装codis，需要下载依赖包。比较慢 然后就等一下，安装过程还是挺久了，大概有十多分钟,不要以为死机，然后取消。。。<br><a id="more"></a></p>
+<p><img src="http://img.blog.csdn.net/20150905185418142" alt="这里写图片描述"></p>
+<p>执行全部指令后，会在<code>$GOPATH/src/github.com/wandoulabs/codis/bin</code> 文件夹生成 codis-config, codis-proxy 两个可执行文件, (另外, bin/assets 文件夹是 codis-config 的 dashboard http 服务需要的前端资源, 需要和 codis-config 放置在同一文件夹下)</p>
+<p><img src="http://img.blog.csdn.net/20150905191432922" alt="这里写图片描述"></p>
+<p>－－－－－－－－－－－－－－－－－</p>
+<p>安装测试成功，就可以配置了。<br>编译后的二进制文件在/usr/local/codis/bin目录下面。 </p>
+<h2 id="zookeeper"><a href="#zookeeper" class="headerlink" title="zookeeper"></a>zookeeper</h2><p>启动codis之前需要安装zookeeper。<br>下载地址：<a href="http://zookeeper.apache.org/releases.html#download" target="_blank" rel="noopener">http://zookeeper.apache.org/releases.html#download</a><br>安装到目录/usr/local/zookeeper</p>
+<pre><code>mkdir /usr/local/zookeeper/logs
+</code></pre><p>修改下配置文件</p>
+<pre><code>vi /usr/local/zookeeper/conf/zoo.cfg配置文件
+</code></pre><p>修改连接的端口为2181</p>
+<pre><code>tickTime=2000
+clientPort=2181
+dataDir=/usr/local/zookeeper/data
+dataLogDir=/usr/local/zookeeper/logs
+</code></pre><p> 我的版本是3.4.6，在该目录下自带了zoo_sample.cfg的文件，已经把我们需要的写好，你偷懒也可以直接复制，然后改下名字的。</p>
+<h3 id="启动zookeeper"><a href="#启动zookeeper" class="headerlink" title="启动zookeeper"></a>启动zookeeper</h3><pre><code>sh /usr/local/zookeeper/bin/zkServer.sh start
+</code></pre><h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><p>启动Codis服务，之前必须启动zookeeper，为什么呢？</p>
+<p>因为在上一段的codis-config 和 codis-proxy 在不加 -c 参数的时候,<br>默认会读取当前目录下的 <a href="https://github.com/wandoulabs/codis/blob/master/config.ini" target="_blank" rel="noopener">config.ini 文件.关于该文件的配置，请点击这里</a><br>在这个文件的最前面的两行，标记了zk的地址是<code>192.168.0.123</code>，端口为<code>2181</code>, 具体内容如下</p>
+<pre><code># zookeeper or etcd
+coordinator=zookeeper
+
+# Use comma &quot;,&quot; for multiple instances. If you use etcd, you should also use this property.
+zk=192.168.0.123:2181
+</code></pre><p>如果不先启动，会一直显示连接不上的。如果你启动了也连接不上，那就改下地址为<code>localhost</code>吧</p>
+<hr>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><p>有的新版本没有这个目录。。。<br>那么请 跳过这个看下面的一步步手动的启动方式2吧。</p>
+<p>sample目录有简单的集群配置。<br>startall.sh脚本会同时将redis启动。</p>
+<p>启动之后就可以看到zookeeper里面的数据了。</p>
+<pre><code>[zk: localhost:2181(CONNECTED) 8] ls /zk/codis/db_test 
+[migrate_manager, fence, migrate_tasks, LOCK, slots, actions, servers, proxy]
+</code></pre><h2 id="2-启动流程"><a href="#2-启动流程" class="headerlink" title="2.启动流程"></a>2.启动流程</h2><p>手动启动方式，如果你没有上面提到的sample这个目录的话。。。</p>
+<ol start="0">
+<li><p>启动 dashboard, 执行<code>bin/codis-config dashboard</code>, 该命令会启动 dashboard<br><img src="http://img.blog.csdn.net/20150923074205332" alt="这里写图片描述"><br>如果显示连接不上192.168.0.123之类的信息，那么回到config里面修改这个为localhost:2181吧。<br>或者需要确定你是否按我上面说的，改了zookeeper的配置接口了，同时启动了。</p>
+<p><strong>这里有一些重要的点需要说的，请看结尾后记3。</strong></p>
+</li>
+<li><p>初始化 slots , 执行 <code>bin/codis-config slot init</code>,该命令会在zookeeper上创建slot相关信息<br><img src="http://img.blog.csdn.net/20150923074937402" alt="这里写图片描述"><br>还是那句话，启动不了就改下ip地址为localhost</p>
+</li>
+<li><p>启动 Codis Redis , 和官方的Redis Server参数一样,<br>e.g: <code>bin/codis-server XXX.conf</code><br>在这里有个小坑，请在配置文件里面设置maxmemory为某个GB大小，如果是独立一台服务器可以设置为内存的3/4大小。我的8g，还开4台，所以就设置了1GB。<br>为何要这么做呢，看最后面的<code>后记5</code>。</p>
+</li>
+<li><p>添加 Redis Server Group , 每一个 Server Group 作为一个 Redis 服务器组存在, 只允许有一个 master, 可以有多个 slave, group id 仅支持大于等于1的整数</p>
+<p><strong>不过你也可以跳过步骤4和5,在启动dashboard后配置redis的。</strong><br><strong>不过你也可以跳过步骤4和5,在启动dashboard后配置redis的。</strong><br> <strong>不过你也可以跳过步骤4和5,在启动dashboard后配置redis的。</strong><br> 说了三遍了。</p>
+<pre><code>$ bin/codis-config server -h                                                                                                                                                                                                                   usage:
+        codis-config server list
+        codis-config server add &lt;group_id&gt; &lt;redis_addr&gt; &lt;role&gt;
+        codis-config server remove &lt;group_id&gt; &lt;redis_addr&gt;
+        codis-config server promote &lt;group_id&gt; &lt;redis_addr&gt;
+        codis-config server add-group &lt;group_id&gt;
+        codis-config server remove-group &lt;group_id&gt;
+</code></pre><p>如: 添加两个 server group, 每个 group 有两个 redis 实例，group的id分别为1和2， redis实例为一主一从。</p>
+<p>添加一个group，group的id为1， 并添加一个redis master到该group</p>
+<pre><code>$ bin/codis-config server add 1 localhost:6379 master
+</code></pre><p>添加一个redis slave到该group</p>
+<pre><code>$ bin/codis-config server add 1 localhost:6380 slave
+</code></pre><p>类似的，再添加group，group的id为2</p>
+<pre><code>$ bin/codis-config server add 2 localhost:6479 master
+
+$ bin/codis-config server add 2 localhost:6480 slave
+</code></pre></li>
+<li><p>设置 server group 服务的 slot 范围 Codis 采用 Pre-sharding 的技术来实现数据的分片, 默认分成 1024 个 slots (0-1023), 对于每个key来说, 通过以下公式确定所属的 Slot Id : SlotId = crc32(key) % 1024 每一个 slot 都会有一个且必须有一个特定的 server group id 来表示这个 slot 的数据由哪个 server group 来提供.</p>
+<pre><code>$ bin/codis-config slot -h                                                                                                                                                                                                                     
+usage:
+    codis-config slot init
+    codis-config slot info &lt;slot_id&gt;
+    codis-config slot set &lt;slot_id&gt; &lt;group_id&gt; &lt;status&gt;
+    codis-config slot range-set &lt;slot_from&gt; &lt;slot_to&gt; &lt;group_id&gt; &lt;status&gt;
+    codis-config slot migrate &lt;slot_from&gt; &lt;slot_to&gt; &lt;group_id&gt; [--delay=&lt;delay_time_in_ms&gt;]
+</code></pre><p>如:</p>
+<p>设置编号为[0, 511]的 slot 由 server group 1 提供服务, 编号 [512, 1023] 的 slot 由 server group 2 提供服务</p>
+<pre><code>$ bin/codis-config slot range-set 0 511 1 online
+$ bin/codis-config slot range-set 512 1023 2 online
+</code></pre></li>
+<li><p>启动 codis-proxy</p>
+<pre><code>bin/codis-proxy -c config.ini -L ./log/proxy.log  --cpu=8 --addr=0.0.0.0:19000 --http-addr=0.0.0.0:11000
+</code></pre><p>刚启动的 codis-proxy 默认是处于 offline状态的, 然后设置 proxy 为 online 状态, 只有处于 online 状态的 proxy 才会对外提供服务</p>
+<pre><code>bin/codis-config -c config.ini proxy online &lt;proxy_name&gt;  &lt;---- proxy的id, 如 proxy_1
+</code></pre><p>这里的proxy_1是配置文件config.ini里面的默认配置名字，你可以打开里面拉到最下面看下id，或者用<code>bin/codis-config proxy list</code>,查看下。</p>
+<p> <img src="http://img.blog.csdn.net/20150923075617026" alt="这里写图片描述"><br> 终于可以运行啦！！</p>
+<p><strong>备注：</strong>这时候到dashboard去看下最下面的Proxy Status 那栏是否有内容，如果只显示No proxies，那么请打开到你在<code>启动5. codes—proxy</code>的时候配置的log的地方，查看下显示什么。我遇到的是ulimit大小不够1024的问题。</p>
+</li>
+<li><p>开启主从自动切换</p>
+<pre><code>/usr/local/codis/codis-ha/codis-ha --codis-config=localhost:18087 --productName=proxy_1   &lt; --productName 为config.ini中product &gt;
+</code></pre></li>
+<li><p>打开浏览器 <a href="http://localhost:18087/admin" target="_blank" rel="noopener">http://localhost:18087/admin</a></p>
+<p> 现在可以在浏览器里面完成各种操作了， 玩得开心</p>
+<p>  <img src="http://img.blog.csdn.net/20151001170323914" alt="这里写图片描述"></p>
+</li>
+</ol>
+<hr>
+<h2 id="3，管理界面显示"><a href="#3，管理界面显示" class="headerlink" title="3，管理界面显示"></a>3，管理界面显示</h2><p>启动之后就可以访问admin页面了。<br> <img src="http://img.blog.csdn.net/20151001165831553" alt="这里写图片描述"></p>
+<p>数据迁移界面<br><img src="http://img.blog.csdn.net/20151001170128509" alt="这里写图片描述"><br>整个桶结构<br><img src="http://img.blog.csdn.net/20151001170018516" alt="这里写图片描述"></p>
+<h1 id="4，总结"><a href="#4，总结" class="headerlink" title="4，总结"></a>4，总结</h1><p>Codis可以完美的解决Redis集群问题，在目前Redis 3.0版本还不是很稳定的情况下，是非常不错的解决方案。支持数据扩展。<br>但是并不是所有的redis命令都支持。</p>
+<p>如果你使用以下命令:</p>
+<pre><code>KEYS, MOVE, OBJECT, RENAME, RENAMENX, SORT, SCAN, BITOP,MSETNX, BLPOP, BRPOP, BRPOPLPUSH, PSUBSCRIBE，PUBLISH, PUNSUBSCRIBE, SUBSCRIBE, UNSUBSCRIBE, DISCARD, EXEC, MULTI, UNWATCH, WATCH, SCRIPT EXISTS, SCRIPT FLUSH, SCRIPT KILL, SCRIPT LOAD, AUTH, ECHO, SELECT, BGREWRITEAOF, BGSAVE, CLIENT KILL, CLIENT LIST, CONFIG GET, CONFIG SET, CONFIG RESETSTAT, DBSIZE, DEBUG OBJECT, DEBUG SEGFAULT, FLUSHALL, FLUSHDB, INFO, LASTSAVE, MONITOR, SAVE, SHUTDOWN, SLAVEOF, SLOWLOG, SYNC, TIME
+</code></pre><p>是无法直接迁移到 Codis 上的. 你需要修改你的代码, 用其他的方式实现.这点确实有点点遗憾</p>
+<hr>
+<p>资料来源：</p>
+<ol>
+<li><a href="https://github.com/wandoulabs/codis/blob/master/doc/tutorial_zh.md#build-codis-proxy–codis-config" target="_blank" rel="noopener">本文一部分参考自官方的Codis引导文档</a></li>
+<li><a href="http://blog.csdn.net/freewebsys/article/details/44100919" target="_blank" rel="noopener">Redis集群方案，Codis安装测试</a></li>
+<li><a href="http://blog.csdn.net/dc_726/article/details/47052607" target="_blank" rel="noopener">Redis解决方案Codis安装使用</a> </li>
+<li><a href="http://www.cenhq.com/2015/09/15/codis集群搭建/" target="_blank" rel="noopener">codis集群搭建</a></li>
+<li><a href="http://navyaijm.blog.51cto.com/4647068/1637688?utm_source=tuicool" target="_blank" rel="noopener">codis其中一个作者自己写的配置</a><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2></li>
+</ol>
+<ol>
+<li><p>这个过程如果你遇到没找到$GOPATH的问题的话，我找到的解决方案是这条命令    </p>
+<pre><code>sudo env GOPATH=/usr/local/codis  sh ./bootstrap.sh 
+</code></pre><p>就是在前面加多<code>env GOPATH=/usr/local/codis</code>这么一个参数</p>
+</li>
+<li><p>真的觉得安装在／usr/local这样的位置很麻烦！！！一堆的权限问题！！！</p>
+</li>
+<li><p><strong>关于dashboard的关闭。</strong>，我们在启动了dashboard后，他打印了一堆内容，如下：</p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">160</span>: [INFO] dashboard listening on addr: :<span class="number">18087</span></span><br><span class="line"><span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">143</span>: [INFO] dashboard node created: /zk/codis/db_test/dashboard, &#123;<span class="string">"addr"</span>: <span class="string">"localhost:18087"</span>, <span class="string">"pid"</span>: <span class="number">1701</span>&#125;</span><br><span class="line"><span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">144</span>: [WARN] ********** Attention **********</span><br><span class="line"><span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">145</span>: [WARN] You should use `<span class="built_in">kill</span> &#123;pid&#125;` rather than `<span class="built_in">kill</span> -<span class="number">9</span> &#123;pid&#125;` to stop me,</span><br><span class="line"><span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">146</span>: [WARN] <span class="keyword">or</span> the node resisted on zk will <span class="keyword">not</span> be cleaned when I'm quiting <span class="keyword">and</span> you must <span class="built_in">remove</span> it manually</span><br><span class="line"><span class="number">2015</span>/<span class="number">09</span>/<span class="number">26</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">41</span> dashboard.<span class="built_in">go</span>:<span class="number">147</span>: [WARN] *******************************</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>   是的，如内容说说的，如果要关闭，记得要<code>kill -{pid}</code>,要不然突然电脑没电之类的bug，导致异常退出的时候，就得手动关闭，要不然在下次启动的时候，就会遇到下面的内容：<br>    <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">bin/codis-config dashboard</span><br><span class="line"><span class="number">2015</span><span class="regexp">/09/</span><span class="number">26</span> <span class="number">11</span>:<span class="number">14</span>:<span class="number">10</span> dashboard.<span class="string">go:</span><span class="number">160</span>: [INFO] dashboard listening on <span class="string">addr:</span> :<span class="number">18087</span></span><br><span class="line"><span class="number">2015</span><span class="regexp">/09/</span><span class="number">26</span> <span class="number">11</span>:<span class="number">14</span>:<span class="number">10</span> dashboard.<span class="string">go:</span><span class="number">234</span>: [PANIC] create zk node failed</span><br><span class="line">[error]: dashboard already <span class="string">exists:</span> &#123;<span class="string">"addr"</span>: <span class="string">"192.168.0.123:18087"</span>, <span class="string">"pid"</span>: <span class="number">30155</span>&#125;</span><br><span class="line">[stack]: </span><br><span class="line">    <span class="number">3</span>   <span class="regexp">/usr/</span>local<span class="regexp">/codis/</span>src<span class="regexp">/github.com/</span>wandoulabs<span class="regexp">/codis/</span>cmd<span class="regexp">/cconfig/</span>dashboard.<span class="string">go:</span><span class="number">234</span></span><br><span class="line">            main.runDashboard</span><br><span class="line">    <span class="number">2</span>   <span class="regexp">/usr/</span>local<span class="regexp">/codis/</span>src<span class="regexp">/github.com/</span>wandoulabs<span class="regexp">/codis/</span>cmd<span class="regexp">/cconfig/</span>dashboard.<span class="string">go:</span><span class="number">54</span></span><br><span class="line">            main.cmdDashboard</span><br><span class="line">    <span class="number">1</span>   <span class="regexp">/usr/</span>local<span class="regexp">/codis/</span>src<span class="regexp">/github.com/</span>wandoulabs<span class="regexp">/codis/</span>cmd<span class="regexp">/cconfig/</span>main.<span class="string">go:</span><span class="number">84</span></span><br><span class="line">            main.runCommand</span><br><span class="line">    <span class="number">0</span>   <span class="regexp">/usr/</span>local<span class="regexp">/codis/</span>src<span class="regexp">/github.com/</span>wandoulabs<span class="regexp">/codis/</span>cmd<span class="regexp">/cconfig/</span>main.<span class="string">go:</span><span class="number">151</span></span><br><span class="line">            main.main</span><br><span class="line">        ... ...</span><br></pre></td></tr></table></figure></p>
+<p><a href="https://github.com/wandoulabs/codis/issues/314" target="_blank" rel="noopener">手动关闭的办法如下</a>:<br>跳到安装<code>zookpeer</code>的目录下，然后连接到服务器，关闭dashboard。</p>
+<pre><code>$ ./bin/zkCli.sh -server 127.0.0.1:2181
+[zk: 127.0.0.1:2181(CONNECTED) 10] ls /zk/codis/db_test
+[slots, migrate_tasks, actions, ActionResponse, dashboard]
+[zk: 127.0.0.1:2181(CONNECTED) 7] rmr /zk/codis/db_test/dashboard 
+删除后再启动就能启动了\
+</code></pre><ol start="4">
+<li><p><a href="http://unix.stackexchange.com/questions/108174/how-to-persist-ulimit-settings-in-osx-mavericks" target="_blank" rel="noopener">Ulimit 的大小问题</a></p>
+<p> 启动proxy的时候</p>
+<p> bin/codis-proxy -c config.ini -L ./log/proxy.log  –cpu=8 –addr=0.0.0.0:19000 –http-addr=0.0.0.0:11000<br>   打印的log显示了下面的问题：    </p>
+<pre><code>2015/09/28 23:39:13 main.go:102: [PANIC] ulimit too small: 256, should be at  least 1024
+[stack]: 
+1   /usr/local/codis/src/github.com/wandoulabs/codis/cmd/proxy/main.go:102
+                    main.checkUlimit
+0   /usr/local/codis/src/github.com/wandoulabs/codis/cmd/proxy/main.go:166
+                    main.main
+                ... ...
+</code></pre><p>  这时候需要我们调大一下ulimit：</p>
+<pre><code>$ ulimit -n 1024
+</code></pre></li>
+<li><p>关于redis的配置maxmemory</p>
+<pre><code>为何要设置这个maxmemory呢，因为codes在做主从切换的时候，用的是codis-ha;
+</code></pre><p> codis-ha实现codis-server的主从切换，codis-server主库挂了会提升一个从库为主库，从库挂了会设置这个从库从集群下线。 而这个codes－ha需要我们明确每个redis可以使用的最大内存。不能是NAN GB，所以需要我们配置这个属性。拉到redis自带的配置文件的中间地方，有下面这段，我们取消maxmemory 的注释就好了。</p>
+<pre><code># Don&apos;t use more memory than the specified amount of bytes.
+# When the memory limit is reached Redis will try to remove keys
+# according to the eviction policy selected (see maxmemory-policy).
+#
+# If Redis can&apos;t remove keys according to the policy, or if the policy is
+# set to &apos;noeviction&apos;, Redis will start to reply with errors to commands
+# that would use more memory, like SET, LPUSH, and so on, and will continue
+# to reply to read-only commands like GET.
+#
+# This option is usually useful when using Redis as an LRU cache, or to set
+# a hard memory limit for an instance (using the &apos;noeviction&apos; policy).
+#
+# WARNING: If you have slaves attached to an instance with maxmemory on,
+# the size of the output buffers needed to feed the slaves are subtracted
+# from the used memory count, so that network problems / resyncs will
+# not trigger a loop where keys are evicted, and in turn the output
+# buffer of slaves is full with DELs of keys evicted triggering the deletion
+# of more keys, and so forth until the database is completely emptied.
+#
+# In short... if you have slaves attached it is suggested that you set a lower
+# limit for maxmemory so that there is some free RAM on the system for slave
+# output buffers (but this is not needed if the policy is &apos;noeviction&apos;).
+#
+maxmemory 1GB
+</code></pre></li>
+<li><p><a href="https://github.com/wandoulabs/codis/issues/463" target="_blank" rel="noopener">数据迁移migrate的问题</a></p>
+<p>人在江湖飘，哪能不会有迁移数据的一天，因为填错了组，所以导致这个迁移任务一致显示出错，reblance卡住不能动，对此的解决方法是，到zk下面的migrate_task里面删掉任务</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sh <span class="regexp">/usr/</span>local<span class="regexp">/zookeeper/</span>bin/zkCli.sh</span><br><span class="line">ls <span class="regexp">/zk/</span>codis<span class="regexp">/db_test/</span>migrate_tasks</span><br><span class="line">＃在显示的里面最小的那个任务号码。放到下面这一个去</span><br><span class="line">delete <span class="regexp">/zk/</span>codis<span class="regexp">/db_test/</span>migrate_tasks/XXXXX任务号码XXXX</span><br></pre></td></tr></table></figure></li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/集群/" rel="tag">#集群</a>
+          
+            <a href="/tags/redis/" rel="tag">#redis</a>
+          
+            <a href="/tags/codis/" rel="tag">#codis</a>
+          
+            <a href="/tags/cluster/" rel="tag">#cluster</a>
+          
+            <a href="/tags/cache/" rel="tag">#cache</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/05/MySql实现主从热备和读写分离/" rel="prev">MySql实现主从热备和读写分离</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/29/基于ApacheServer-SpringMvc-Tomcat-JK搭建的简单集群教程/" rel="next">基于ApacheServer+SpringMvc+Tomcat+JK搭建的简单集群教程</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/10/01/基于Codis的Redis集群方案/"
+     data-title="基于Codis的Redis集群方案"
+     data-content=""
+     data-url="http://yoursite.com/2015/10/01/基于Codis的Redis集群方案/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/10/01/基于Codis的Redis集群方案/"
+                   data-title="基于Codis的Redis集群方案" data-url="http://yoursite.com/2015/10/01/基于Codis的Redis集群方案/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装go"><span class="nav-number">1.</span> <span class="nav-text">安装go</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置环境变量"><span class="nav-number">2.</span> <span class="nav-text">设置环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下载codis-安装codis"><span class="nav-number">3.</span> <span class="nav-text">下载codis,安装codis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zookeeper"><span class="nav-number">4.</span> <span class="nav-text">zookeeper</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动zookeeper"><span class="nav-number">4.1.</span> <span class="nav-text">启动zookeeper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原因"><span class="nav-number">4.2.</span> <span class="nav-text">原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动"><span class="nav-number">5.</span> <span class="nav-text">启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-启动流程"><span class="nav-number">6.</span> <span class="nav-text">2.启动流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3，管理界面显示"><span class="nav-number">7.</span> <span class="nav-text">3，管理界面显示</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4，总结"><span class="nav-number"></span> <span class="nav-text">4，总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">1.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

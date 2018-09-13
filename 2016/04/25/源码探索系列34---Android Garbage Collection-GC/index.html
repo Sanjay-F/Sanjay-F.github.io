@@ -1,0 +1,1085 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,gc," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="when we saw the startup process of Zygote last time , we have come across a familiar words—GCThe Android Garbage Collection is quite strange to me,so i decided to record down something about it.this i">
+<meta name="keywords" content="android,源码,gc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列34---Android Garbage Collection&#x2F;dalvik GC">
+<meta property="og:url" content="http://yoursite.com/2016/04/25/源码探索系列34---Android Garbage Collection-GC/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="when we saw the startup process of Zygote last time , we have come across a familiar words—GCThe Android Garbage Collection is quite strange to me,so i decided to record down something about it.this i">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/34-4519811.jpg">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111951-a62f397ce02443d3ad6c7d79d28f5a0a.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111951-4184d3205adb4f7ea7e1abb83344cfd4.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111951-a791b1ba05b04ed4a6dd6e8fd816f654.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111952-2441543b673242fe870b7d4ef37bd393.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111952-68b161d6d30a479aad702181b907382a.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111953-9a444864854a4cd09775770d0316beec.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111953-031642565a5e470d89eaf3435e6676db.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111954-00a3795a8d7e43db84108313c4a64f23.png">
+<meta property="og:image" content="http://images.cnitblog.com/blog/49788/201306/12111954-34d7a5cd727a4021a3c60d7203f00c1c.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.724Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列34---Android Garbage Collection&#x2F;dalvik GC">
+<meta name="twitter:description" content="when we saw the startup process of Zygote last time , we have come across a familiar words—GCThe Android Garbage Collection is quite strange to me,so i decided to record down something about it.this i">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/34-4519811.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列34---Android Garbage Collection/dalvik GC | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列34---Android Garbage Collection/dalvik GC
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-04-25T15:54:46+08:00" content="2016-04-25">
+            2016-04-25
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/25/源码探索系列34---Android Garbage Collection-GC/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/34-4519811.jpg" alt="enter image description here"><br>when we saw the startup process of Zygote last time , we have come across a familiar words—<strong>GC</strong><br>The Android Garbage Collection is quite strange to me,so i decided to record down something about it.<br>this is the reason why i write this page.<br> <a id="more"></a></p>
+<h1 id="Garbage-Collection-Algorithm"><a href="#Garbage-Collection-Algorithm" class="headerlink" title="Garbage Collection Algorithm"></a>Garbage Collection Algorithm</h1><p>API: 17/4.2 —  </p>
+<p>general , we have  <code>Reference Counting</code>、<code>Mark and Sweep GC</code>、<code>Copying GC</code>  And <code>Generational GC</code>。every Algorithm has it’s strength and weakness  , so in order to make a better performance ,.In Android, it use <code>Mark and Sweep GC</code>、<code>Copying GC</code> instead of  Generational GC ,which is JVM used .</p>
+<h2 id="Mark-and-Sweep-GC"><a href="#Mark-and-Sweep-GC" class="headerlink" title="Mark and Sweep GC"></a>Mark and Sweep GC</h2><p> when the available memory is used out , system will suspend all threads and  the GC  thread is trigger   start to collection the garbage . the basic theory is simple. from the GC Roots , iterator all and preserver the objects which is refer directly or indirectly by the GC Roots and the rest of the object will be treat as garbage to be collection  ,so that we can release the memory.</p>
+<p>Pseudocode:</p>
+<pre><code>void GC(){
+
+    SuspendAllThreads(); 
+    List&lt;Object&gt; roots = GetRoots();        
+    foreach ( Object root : roots ) {        
+        Mark(root);        
+    } 
+    Sweep(); 
+    ResumeAllThreads();        
+}
+</code></pre><p>Basicly , the algorithm is divede into two step. Mark and Sweep</p>
+<ul>
+<li><p>Mark step , mark all elements which can be find from GC roots.</p>
+<pre><code>void Mark(Object* pObj) {
+
+    if ( !pObj-&gt;IsMarked() ) {
+         // 修改对象头的Marked标志
+         pObj-&gt;Mark();
+         // 深度优先遍历对象引用到的所有对象
+         List&lt;Object *&gt; fields = pObj-&gt;GetFields();
+         foreach ( Object* field : fields ) {
+         Make(field); // 递归处理引用到的对象
+         }
+     }
+}
+</code></pre><p>before GC, the whole graphic look like that ,<br><img src="http://images.cnitblog.com/blog/49788/201306/12111951-a62f397ce02443d3ad6c7d79d28f5a0a.png" alt="回收内存垃圾之前的对象引用关系"><br>after <code>mark()</code> the highlight blue one  means marked, and the white one means garbage,which isn’t refer by the GC Roots.<br><img src="http://images.cnitblog.com/blog/49788/201306/12111951-4184d3205adb4f7ea7e1abb83344cfd4.png" alt="enter image description here"></p>
+</li>
+<li><p>Sweep step. executor the garbage collect process. only the useful objects can survival.</p>
+<pre><code>void Sweep() {
+    Object *pIter = GetHeapBegin();
+
+    while ( pIter &lt; GetHeapEnd() ) {
+     if ( !pIter-&gt;IsMarked() )
+         Free(pIter);
+     else
+         pIter-&gt;UnMark();
+
+      pIter = MoveNext(pIter);
+    }
+}
+</code></pre><p><img src="http://images.cnitblog.com/blog/49788/201306/12111951-a791b1ba05b04ed4a6dd6e8fd816f654.png" alt="enter image description here"><br>when the memory is enough , this algorithm is very memory friendly , only malloc very tiny space，but the most fatal features is that it will <strong>suspend all threads</strong>!</p>
+</li>
+</ul>
+<h2 id="Copying-GC-Algorithms"><a href="#Copying-GC-Algorithms" class="headerlink" title="Copying GC Algorithms"></a>Copying GC Algorithms</h2><p>in fact ,this algorithms is other king of  Mark algorithms , use two heap call ping &amp; pong。at the beginning ,all the memory malloc is assign to ping, he will manage <code>the Next Object Pointer</code>，all we need to do just to move the position of the pointer . when the ping memory is nearly used out. we  use Mark algorithms to identify all the available objects . which will be copy to pong heap. and the following memory malloc job will continue in the pong heap.<br><img src="http://images.cnitblog.com/blog/49788/201306/12111952-2441543b673242fe870b7d4ef37bd393.png" alt="enter image description here"></p>
+<p><img src="http://images.cnitblog.com/blog/49788/201306/12111952-68b161d6d30a479aad702181b907382a.png" alt="enter image description here"><code>enter code here</code><br>in verse , when the pong space is out .change the process  </p>
+<p> this algorithm is very fast on memory allocation and lower interruption . because during  the gc procession , when we copy one available objects to another head, we can also meet the need to allocation of the memory at the same time，but as we see, it takes double space at all. </p>
+<h1 id="Android-Garbage-Collection"><a href="#Android-Garbage-Collection" class="headerlink" title="Android Garbage Collection"></a>Android Garbage Collection</h1><p>In Android ，it use  Mark and Sweep  and Copying GC，but indeed,use which one is  decide on compile stage . it can’t change dynamic when the system is running 。</p>
+<p>on the source code of dalvik  machine’s .(dalvik/vm/Dvm.mk ) , there is some piece of code of the Dvm.mk file.</p>
+<pre><code>WITH_COPYING_GC := $(strip $(WITH_COPYING_GC))
+
+ifeq ($(WITH_COPYING_GC),true)
+  LOCAL_CFLAGS += -DWITH_COPYING_GC
+  LOCAL_SRC_FILES += \
+    alloc/Copying.cpp.arm
+else
+  LOCAL_SRC_FILES += \
+    alloc/DlMalloc.cpp \
+    alloc/HeapSource.cpp \
+    alloc/MarkSweep.cpp.arm
+endif
+</code></pre><p>if we have setup  <code>WITH_COPYING_GC=true</code>,android will use copying GC algorithm or mark&amp;Sweep algorithm.</p>
+<h2 id="dvmStartup"><a href="#dvmStartup" class="headerlink" title="dvmStartup"></a>dvmStartup</h2><p>we all know,object are assign on Java Heap,when  </p>
+<pre><code>/*
+ * VM initialization.  Pass in any options provided on the command line.
+ * Do not pass in the class name or the options for the class.
+ *
+ * Returns 0 on success.
+ */
+
+std::string dvmStartup(int argc, const char* const argv[],
+        bool ignoreUnrecognized, JNIEnv* pEnv){
+
+    ...         
+    // init the default config 
+    setCommandLineDefaults(); 
+    // Initialize components.
+
+    dvmQuasiAtomicsStartup();
+    if (!dvmAllocTrackerStartup()) {
+        return &quot;dvmAllocTrackerStartup failed&quot;;
+    }
+    if (!dvmGcStartup()) {
+        return &quot;dvmGcStartup failed&quot;;
+    }
+    if (!dvmThreadStartup()) {
+        return &quot;dvmThreadStartup failed&quot;;
+    }
+
+    if (!dvmInstanceofStartup()) {
+        return &quot;dvmInstanceofStartup failed&quot;;
+    }         
+     ...
+}
+</code></pre><p>this function has do many job, one of the most important thing is call dvmGcStartUP()(/dalvik/vm/alloc/Alloc.cpp) to init the gc componnets</p>
+<h3 id="setCommandLineDefaults"><a href="#setCommandLineDefaults" class="headerlink" title="setCommandLineDefaults()"></a>setCommandLineDefaults()</h3><pre><code>static void setCommandLineDefaults(){
+    const char* envStr = getenv(&quot;CLASSPATH&quot;);
+    if (envStr != NULL) {
+        gDvm.classPathStr = strdup(envStr);
+    } else {
+        gDvm.classPathStr = strdup(&quot;.&quot;);
+    }
+    envStr = getenv(&quot;BOOTCLASSPATH&quot;);
+    if (envStr != NULL) {
+        gDvm.bootClassPathStr = strdup(envStr);
+    } else {
+        gDvm.bootClassPathStr = strdup(&quot;.&quot;);
+    }
+
+    gDvm.properties = new std::vector&lt;std::string&gt;();
+
+    /* Defaults overridden by -Xms and -Xmx.
+     * TODO: base these on a system or application-specific default
+     */
+    gDvm.heapStartingSize = 2 * 1024 * 1024;  // Spec says 16MB; too big for us.
+    gDvm.heapMaximumSize = 16 * 1024 * 1024;  // Spec says 75% physical mem
+    gDvm.heapGrowthLimit = 0;  // 0 means no growth limit
+    gDvm.stackSize = kDefaultStackSize;
+    gDvm.mainThreadStackSize = kDefaultStackSize;
+
+    ...
+}
+</code></pre><h2 id="dvmGcStartup"><a href="#dvmGcStartup" class="headerlink" title="dvmGcStartup()"></a>dvmGcStartup()</h2><pre><code>/* Initialize the GC universe. 
+ * We&apos;re currently using a memory-mapped arena to keep things off of the
+ * main heap.  This needs to be replaced with something real.
+ */
+ bool dvmGcStartup(){
+    dvmInitMutex(&amp;gDvm.gcHeapLock);
+    pthread_cond_init(&amp;gDvm.gcHeapCond, NULL);
+    return dvmHeapStartup();
+}
+</code></pre><h2 id="dvmHeapStartup"><a href="#dvmHeapStartup" class="headerlink" title="dvmHeapStartup()"></a>dvmHeapStartup()</h2><pre><code>/* Initialize the GC heap.     
+*Returns true if successful, false otherwise.
+*/
+bool dvmHeapStartup(){
+
+    GcHeap *gcHeap;
+
+    if (gDvm.heapGrowthLimit == 0) {
+        gDvm.heapGrowthLimit = gDvm.heapMaximumSize;
+    }
+    //1. allocate a contiguous region of virtual memory
+    gcHeap = dvmHeapSourceStartup(gDvm.heapStartingSize,
+                                  gDvm.heapMaximumSize,
+                                  gDvm.heapGrowthLimit);
+    if (gcHeap == NULL) {
+        return false;
+    }
+    gcHeap-&gt;ddmHpifWhen = 0;
+    gcHeap-&gt;ddmHpsgWhen = 0;
+    gcHeap-&gt;ddmHpsgWhat = 0;
+    gcHeap-&gt;ddmNhsgWhen = 0;
+    gcHeap-&gt;ddmNhsgWhat = 0;
+    gDvm.gcHeap = gcHeap;
+
+    //2. SetUp the lists we&apos;ll use for cleared reference objects.
+    // this will save  the Finalizable objects &amp; execute it on another thread !
+
+    gcHeap-&gt;clearedReferences = NULL;
+
+    //3. init the card table!dalvik/vm/alloc/Heap.cpp:100
+    if (!dvmCardTableStartup(gDvm.heapMaximumSize, gDvm.heapGrowthLimit)) {
+        LOGE_HEAP(&quot;card table startup failed.&quot;);
+        return false;
+    }    
+    return true;
+}
+</code></pre><p>Allocate a contiguous region of virtual memory to subdivided among the heaps managed by the garbage collector.<br>when this function call dvmHeapSourceStartup(), it’ll  allocate a contiguous region of virtual memory  which will auto growth when needed. the <code>heapGrowthLimit</code> mean the max available memory. ( 0 mean there is no limit ,we can allocate as we want )heapStartSize=16MB mean current available memory space 。<br><img src="http://images.cnitblog.com/blog/49788/201306/12111953-9a444864854a4cd09775770d0316beec.png" alt="enter image description here"><br>in <code>setCommandLineDefaults()</code>， we have see the argus value,<br>gDvm.heapStartingSize  is 16MB, if spend out this 16MB memory space , cause OOM.</p>
+<h2 id="dvmHeapSourceStartup"><a href="#dvmHeapSourceStartup" class="headerlink" title="dvmHeapSourceStartup()"></a>dvmHeapSourceStartup()</h2><pre><code>    /*
+ * Initializes the heap source; must be called before any other
+ * dvmHeapSource*() functions.  Returns a GcHeap structure
+ * allocated from the heap source.
+ */
+GcHeap* dvmHeapSourceStartup(size_t startSize, size_t maximumSize,
+                             size_t growthLimit)
+{
+    GcHeap *gcHeap;
+    HeapSource *hs;
+    mspace msp;
+    size_t length;
+    void *base;
+    ...
+
+    /*  
+     * 1. first Step!, Allocate a contiguous region of virtual memory to 
+     * subdivided among the heaps managed by the garbage collector.
+     *  dvmAllocRegion() on /dalvik/vm/Misc.cpp 
+     */
+    length = ALIGN_UP_TO_PAGE_SIZE(maximumSize); 
+    base = dvmAllocRegion(length, PROT_NONE, &quot;dalvik-heap&quot;);
+    if (base == NULL) {
+        return NULL;
+    }
+
+   ...
+
+    hs-&gt;targetUtilization = gDvm.heapTargetUtilization * HEAP_UTILIZATION_MAX;
+    hs-&gt;minFree = gDvm.heapMinFree;
+    hs-&gt;maxFree = gDvm.heapMaxFree;
+    hs-&gt;startSize = startSize;
+    hs-&gt;maximumSize = maximumSize;
+    hs-&gt;growthLimit = growthLimit;
+    hs-&gt;idealSize = startSize;
+    hs-&gt;softLimit = SIZE_MAX;    // no soft limit at first
+    hs-&gt;numHeaps = 0;
+    hs-&gt;sawZygote = gDvm.zygote;
+    hs-&gt;hasGcThread = false;
+    hs-&gt;heapBase = (char *)base;
+    hs-&gt;heapLength = length;
+
+    if (hs-&gt;maxFree &gt; hs-&gt;maximumSize) {
+      hs-&gt;maxFree = hs-&gt;maximumSize;
+    }
+    if (hs-&gt;minFree &lt; CONCURRENT_START) {
+      hs-&gt;minFree = CONCURRENT_START;
+    } else if (hs-&gt;minFree &gt; hs-&gt;maxFree) {
+      hs-&gt;minFree = hs-&gt;maxFree;
+    }
+
+   //2. int three additional  Heap : livebits /markbits /Mark Stack
+    if (!addInitialHeap(hs, msp, growthLimit)) {
+        LOGE_HEAP(&quot;Can&apos;t add initial heap&quot;);
+        goto fail;
+    }
+    if (!dvmHeapBitmapInit(&amp;hs-&gt;liveBits, base, length, &quot;dalvik-bitmap-1&quot;)) {
+        LOGE_HEAP(&quot;Can&apos;t create liveBits&quot;);
+        goto fail;
+    }
+    if (!dvmHeapBitmapInit(&amp;hs-&gt;markBits, base, length, &quot;dalvik-bitmap-2&quot;)) {
+        LOGE_HEAP(&quot;Can&apos;t create markBits&quot;);
+        dvmHeapBitmapDelete(&amp;hs-&gt;liveBits);
+        goto fail;
+    }
+    if (!allocMarkStack(&amp;gcHeap-&gt;markContext.stack, hs-&gt;maximumSize)) {
+        ALOGE(&quot;Can&apos;t create markStack&quot;);
+        dvmHeapBitmapDelete(&amp;hs-&gt;markBits);
+        dvmHeapBitmapDelete(&amp;hs-&gt;liveBits);
+        goto fail;
+    }
+    gcHeap-&gt;markContext.bitmap = &amp;hs-&gt;markBits;
+    gcHeap-&gt;heapSource = hs;
+
+    gHs = hs;
+    return gcHeap;
+
+fail:
+    munmap(base, length);
+    return NULL;
+}
+</code></pre><h3 id="dvmAllocRegion"><a href="#dvmAllocRegion" class="headerlink" title="dvmAllocRegion()"></a>dvmAllocRegion()</h3><pre><code>void *dvmAllocRegion(size_t byteCount, int prot, const char *name) {
+    void *base;
+    int fd, ret;
+
+    byteCount = ALIGN_UP_TO_PAGE_SIZE(byteCount);
+    //1 . allocate a contiguous region by ashmem
+    fd = ashmem_create_region(name, byteCount);
+    if (fd == -1) {
+        return NULL;
+    }
+      //2 . allocate a contiguous region by mmap
+    base = mmap(NULL, byteCount, prot, MAP_PRIVATE, fd, 0);
+    ret = close(fd);
+    if (base == MAP_FAILED) {
+        return NULL;
+    }
+    if (ret == -1) {
+        return NULL;
+    }
+    return base;
+}
+</code></pre><p>As we have see,Allocates a memory region using ashmem( i remember facebook’s glide use ashmem memory) and mmap, initialized to zero.  Actual allocation rounded up to page multiple.  Returns  NULL on failure. </p>
+<p>just like this picture ,when we finish  start up dvm heap source. whole big picture like this one!</p>
+<p><img src="http://images.cnitblog.com/blog/49788/201306/12111953-031642565a5e470d89eaf3435e6676db.png" alt="enter image description here">     </p>
+<h1 id="start-to-collect-garbage"><a href="#start-to-collect-garbage" class="headerlink" title="start to collect garbage"></a>start to collect garbage</h1><h2 id="dvmCollectGarbageInternal"><a href="#dvmCollectGarbageInternal" class="headerlink" title="dvmCollectGarbageInternal()"></a>dvmCollectGarbageInternal()</h2><pre><code> void dvmCollectGarbageInternal(const GcSpec* spec){
+
+    ... 
+    //1. suspend all threads        
+    dvmSuspendAllThreads(SUSPEND_FOR_GC);
+
+
+    // 2. raise the priority of gc thread.
+    / /If we are not marking concurrently raise the priority 
+     // of the thread performing the garbage collection.                
+    if (!spec-&gt;isConcurrent) {
+        oldThreadPriority = os_raiseThreadPriority();
+    }
+    ...
+
+     //Begin GC
+    dvmMethodTraceGCBegin();
+
+    /* Set up the marking context.
+     */
+    if (!dvmHeapBeginMarkStep(spec-&gt;isPartial)) {
+        LOGE_HEAP(&quot;dvmHeapBeginMarkStep failed; aborting&quot;);
+        dvmAbort();
+    }
+
+    //3. start Marking
+    //Mark the set of objects that are strongly reachable 
+    //from the roots.  
+    dvmHeapMarkRootSet();
+
+   ... 
+    /*
+     * All strongly-reachable objects have now been marked.  Process
+     * weakly-reachable objects discovered while tracing.
+     */
+    dvmHeapProcessReferences(&amp;gcHeap-&gt;softReferences,
+                             spec-&gt;doPreserve == false,
+                             &amp;gcHeap-&gt;weakReferences,
+                             &amp;gcHeap-&gt;finalizerReferences,
+                             &amp;gcHeap-&gt;phantomReferences);
+
+
+    //  4. start sweeping.. 
+    dvmHeapSweepSystemWeaks();
+
+    /*
+     * Live objects have a bit set in the mark bitmap, swap the mark
+     * and live bitmaps.  The sweep can proceed concurrently viewing
+     * the new live bitmap as the old mark bitmap, and vice versa.
+     */
+    dvmHeapSourceSwapBitmaps();
+
+    ....
+    //5.  resume all thread 
+   if (spec-&gt;isConcurrent) {
+        dvmUnlockHeap();
+        dvmResumeAllThreads(SUSPEND_FOR_GC);
+        dirtyEnd = dvmGetRelativeTimeMsec();
+    }
+    dvmHeapSweepUnmarkedObjects(spec-&gt;isPartial, spec-&gt;isConcurrent,
+                                &amp;numObjectsFreed, &amp;numBytesFreed);
+
+    //6. Cleaning up... 
+    dvmHeapFinishMarkStep();
+
+    /* Now&apos;s a good time to adjust the heap size, since
+     * we know what our utilization is.
+     *
+     * This doesn&apos;t actually resize any memory;
+     * it just lets the heap grow more when necessary.
+     */         
+    dvmHeapSourceGrowForUtilization();    
+    currAllocated = dvmHeapSourceGetValue(HS_BYTES_ALLOCATED, NULL, 0);
+    currFootprint = dvmHeapSourceGetValue(HS_FOOTPRINT, NULL, 0);
+    ...    
+
+    //GC finished
+    dvmMethodTraceGCEnd();
+
+    //7. Move queue of pending references back into Java. 
+    dvmEnqueueClearedReferences(&amp;gDvm.gcHeap-&gt;clearedReferences);    
+      ...
+}
+</code></pre><p>at firts ,  hold gDvm.threadListLock, if not , it’s possible for a thread to be added to the thread list while we work.  The thread should NOT start executing, so this is only interesting when we start chasing thread stacks.  (Before we do so, grab the lock.)<br>We are not allowed to GC when the debugger has suspended the VM, which is awkward because debugger requests can cause allocations.  The easiest way to enforce this is to refuse to GC on an allocation made by the<br> JDWP thread – we have to expand the heap or fail.<br>[ after mark ]<br><img src="http://images.cnitblog.com/blog/49788/201306/12111954-00a3795a8d7e43db84108313c4a64f23.png" alt="enter image description here"></p>
+<p> [ after clean ]<br> <img src="http://images.cnitblog.com/blog/49788/201306/12111954-34d7a5cd727a4021a3c60d7203f00c1c.png" alt="enter image description here"></p>
+<p>#summary </p>
+<p>谷歌对这个dalvik的改动还是挺大的，从4.+-现在的6+版本,取代为art。<br>整个目录树都变化不小，一时间都让我找不到北,这篇文章主要看的就是dalvik，后面再学习下art的内容。 不得不说整个过程前面的原理部分相对好理解，看源码部分就看得很吃力，全部是没看过的内容。查了些资料补充了不少知识点，感觉有收获，虽然短时间内没办法在实战中运用起来的感觉，不过会好的，就像看Activity和service的启动过程一样，在后面的看插件化内容帮助不小，最少技多不压身嘛。</p>
+<p>关于标记和清晰的部分还是没去详细的贴上来，对于finalizable对象的处理也没细看。但现在有大局，对整体有个先对好点的把握了,后面有空可以细看</p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><ol>
+<li><p><a href="https://people.apache.org/~xli/papers/npc11-improve-Android-UX-with-regional-GC.pdf" target="_blank" rel="noopener">npc11-improve-Android-UX-with-regional-GC.pdf</a></p>
+</li>
+<li><p><a href="http://www.cnblogs.com/killmyday/archive/2013/06/12/3132518.html" target="_blank" rel="noopener">Android内存管理原理</a></p>
+</li>
+<li><p><a href="http://www.phonesdevelopers.com/1708168/" target="_blank" rel="noopener">Android DVM memory management research and analysis</a></p>
+</li>
+<li><p><a href="http://mp.weixin.qq.com/s?__biz=MzI1MTA1MzM2Nw==&amp;mid=400021278&amp;idx=1&amp;sn=0e971807eb0e9dcc1a81853189a092f3&amp;scene=5&amp;srcid=1019lhTQRdJKb9HCqUHPntbT#rd&amp;utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">Android GC 那点事–QQ空间终端开发团队</a> </p>
+</li>
+<li><p><a href="http://www.importnew.com/2433.html" target="_blank" rel="noopener">Android 内存剖析 – 发现潜在问题</a></p>
+</li>
+<li><p><a href="https://www.youtube.com/watch?v=_CruQY55HOk" target="_blank" rel="noopener">Google I/O 2011: Memory management for Android Apps</a> </p>
+</li>
+<li><p>用到的两个在线源码查看网站 :<br> <a href="http://androidxref.com/source/xref/" target="_blank" rel="noopener">http://androidxref.com/source/xref/</a><br><a href="https://android.googlesource.com/platform/dalvik/+/android-4.2.1_r1.1" target="_blank" rel="noopener">https://android.googlesource.com/platform/dalvik/+/android-4.2.1_r1.1</a></p>
+</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/gc/" rel="tag">#gc</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/05/源码探索系列35---关于Context/" rel="prev">源码探索系列35---关于Context</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" rel="next">源码探索系列33---安卓系统的结合子Zygote</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/04/25/源码探索系列34---Android Garbage Collection-GC/"
+     data-title="源码探索系列34---Android Garbage Collection/dalvik GC"
+     data-content=""
+     data-url="http://yoursite.com/2016/04/25/源码探索系列34---Android Garbage Collection-GC/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/04/25/源码探索系列34---Android Garbage Collection-GC/"
+                   data-title="源码探索系列34---Android Garbage Collection/dalvik GC" data-url="http://yoursite.com/2016/04/25/源码探索系列34---Android Garbage Collection-GC/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Garbage-Collection-Algorithm"><span class="nav-number">1.</span> <span class="nav-text">Garbage Collection Algorithm</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mark-and-Sweep-GC"><span class="nav-number">1.1.</span> <span class="nav-text">Mark and Sweep GC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Copying-GC-Algorithms"><span class="nav-number">1.2.</span> <span class="nav-text">Copying GC Algorithms</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-Garbage-Collection"><span class="nav-number">2.</span> <span class="nav-text">Android Garbage Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dvmStartup"><span class="nav-number">2.1.</span> <span class="nav-text">dvmStartup</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#setCommandLineDefaults"><span class="nav-number">2.1.1.</span> <span class="nav-text">setCommandLineDefaults()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dvmGcStartup"><span class="nav-number">2.2.</span> <span class="nav-text">dvmGcStartup()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dvmHeapStartup"><span class="nav-number">2.3.</span> <span class="nav-text">dvmHeapStartup()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dvmHeapSourceStartup"><span class="nav-number">2.4.</span> <span class="nav-text">dvmHeapSourceStartup()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmAllocRegion"><span class="nav-number">2.4.1.</span> <span class="nav-text">dvmAllocRegion()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#start-to-collect-garbage"><span class="nav-number">3.</span> <span class="nav-text">start to collect garbage</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dvmCollectGarbageInternal"><span class="nav-number">3.1.</span> <span class="nav-text">dvmCollectGarbageInternal()</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ref"><span class="nav-number">4.</span> <span class="nav-text">Ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

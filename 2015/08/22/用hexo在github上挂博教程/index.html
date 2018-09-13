@@ -1,0 +1,759 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="hexo,github," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="1.下载 msysgit ，并安装https://git-for-windows.github.io/ 2.安装Node.js在 Windows 环境下安装 Node.js 非常简单，仅须下载安装文件并执行即可完成安装。下载地址：https://nodejs.org/download因为我用的Windows的64位，所以下载地址在这：https://nodejs.org/dist/v0.12.7">
+<meta name="keywords" content="hexo,github">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用hexo在github上挂博教程">
+<meta property="og:url" content="http://yoursite.com/2015/08/22/用hexo在github上挂博教程/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="1.下载 msysgit ，并安装https://git-for-windows.github.io/ 2.安装Node.js在 Windows 环境下安装 Node.js 非常简单，仅须下载安装文件并执行即可完成安装。下载地址：https://nodejs.org/download因为我用的Windows的64位，所以下载地址在这：https://nodejs.org/dist/v0.12.7">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/ic_hexo.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20150821161739705">
+<meta property="og:image" content="http://zipperary.com/img/repo.png">
+<meta property="og:image" content="http://img.blog.csdn.net/20150820185826259">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.733Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用hexo在github上挂博教程">
+<meta name="twitter:description" content="1.下载 msysgit ，并安装https://git-for-windows.github.io/ 2.安装Node.js在 Windows 环境下安装 Node.js 非常简单，仅须下载安装文件并执行即可完成安装。下载地址：https://nodejs.org/download因为我用的Windows的64位，所以下载地址在这：https://nodejs.org/dist/v0.12.7">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/ic_hexo.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 用hexo在github上挂博教程 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              用hexo在github上挂博教程
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-08-22T13:36:14+08:00" content="2015-08-22">
+            2015-08-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/hexoSerial/" itemprop="url" rel="index">
+                  <span itemprop="name">hexoSerial</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/08/22/用hexo在github上挂博教程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/08/22/用hexo在github上挂博教程/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/ic_hexo.png" alt="这里写图片描述"></p>
+<h2 id="1-下载-msysgit-，并安装"><a href="#1-下载-msysgit-，并安装" class="headerlink" title="1.下载 msysgit ，并安装"></a>1.下载 msysgit ，并安装</h2><p><a href="https://git-for-windows.github.io/" target="_blank" rel="noopener">https://git-for-windows.github.io/</a></p>
+<h2 id="2-安装Node-js"><a href="#2-安装Node-js" class="headerlink" title="2.安装Node.js"></a>2.安装Node.js</h2><p>在 Windows 环境下安装 Node.js 非常简单，仅须下载安装文件并执行即可完成安装。<br>下载地址：<a href="https://nodejs.org/download" target="_blank" rel="noopener">https://nodejs.org/download</a><br>因为我用的Windows的64位，所以下载地址在这：<br><a href="https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi" target="_blank" rel="noopener">https://nodejs.org/dist/v0.12.7/x64/node-v0.12.7-x64.msi</a></p>
+<p>安装好后，打开cmd，输入下面命令，看下是否正常<br><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">node</span> <span class="title">-v</span> </span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure></p>
+<p>正常的话，效果如下，不行就百度下原因吧。<br><img src="http://img.blog.csdn.net/20150821161739705" alt="这里写图片描述"></p>
+<h2 id="3-安装hexo"><a href="#3-安装hexo" class="headerlink" title="3.安装hexo"></a>3.安装hexo</h2><p>利用 npm 命令即可安装。（<strong>先在任意位置点击鼠标右键，选择Git bash</strong>）<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm <span class="keyword">install</span> -g hexo</span><br></pre></td></tr></table></figure></p>
+<p>在打印的日志里面，请记下安装的hexo的位置，然后再系统的环境变量<code>PATH</code>里面加多这个库的lib地址；</p>
+<a id="more"></a>
+<h2 id="4-创建hexo文件夹"><a href="#4-创建hexo文件夹" class="headerlink" title="4.创建hexo文件夹"></a>4.创建hexo文件夹</h2><p>安装完成后，在你喜爱的文件夹下（如H:\hexo），执行以下指令(在H:\hexo内点击鼠标右键，选择Git bash)，Hexo 即会自动在目标文件夹建立网站所需要的所有文件。<br><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">hexo init</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="5-安装依赖包"><a href="#5-安装依赖包" class="headerlink" title="5.安装依赖包"></a>5.安装依赖包</h2><pre><code>npm install
+</code></pre><h2 id="6-本地查看"><a href="#6-本地查看" class="headerlink" title="6.本地查看"></a>6.本地查看</h2><p>现在我们已经搭建起本地的hexo博客了，执行以下命令(在H:\hexo)，然后到浏览器输入ocalhost:4000看看。</p>
+<pre><code>hexo generate
+hexo server
+</code></pre><p>好了，至此，本地博客已经搭建起来了，只是本地哦，别人看不到的。下面，我们要部署到Github。</p>
+<h2 id="7-Github账号"><a href="#7-Github账号" class="headerlink" title="7.Github账号"></a>7.Github账号</h2><p>已有账号可以跳过，没有的，请自行注册，很简单，这里就不介绍了。<br><img src="http://zipperary.com/img/repo.png" alt="这里写图片描述"></p>
+<h2 id="创建repository"><a href="#创建repository" class="headerlink" title="创建repository"></a>创建repository</h2><p>在自己Github主页右下角，创建一个<br><code>New repository</code>。比如我的Github账号是Sanjay，那么我应该创建的repository名字应该是<code>Sanjay.github.io</code></p>
+<blockquote>
+<p><a href="https://help.github.com/articles/user-organization-and-project-pages/" target="_blank" rel="noopener">这个是github官方规定的</a>,必须要名字和账号名保持一致！要不然到<br>后面部署完毕后，你会发现找不到这个页面的。<br>User &amp; Organization Pages live in a special repository dedicated to<br>GitHub Pages files. You will need to name  this repository with the<br>account name.</p>
+<ol>
+<li>You must use the <code>username.github.io</code> naming scheme.</li>
+<li>Content from the master branch will be used to build and<br>publish your GitHub Pages site.</li>
+</ol>
+<p>You can only use your own account name for a User or Organization Page repository. A repository like <code>joe/bob.github.io</code> will not build a User Pages site.When User Pages are built, they are available at <code>http(s)://&lt;username&gt;.github.io.</code></p>
+</blockquote>
+<h2 id="8-部署"><a href="#8-部署" class="headerlink" title="8.部署"></a>8.部署</h2><p>编辑_config.yml，拉倒<strong>最下面的一行</strong>(在H:\hexo下)。你在部署时，要把下面的<code>Sanjay</code>都换成你的账号名。</p>
+<p>编写在<code>_config.yml</code>需要的代码如下<br><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">deploy:</span></span><br><span class="line"><span class="symbol">  type:</span> git   <span class="meta">#最新版3.X把这个github缩写成git了,这句注视可以不复制的.</span></span><br><span class="line"><span class="symbol">  repository:</span> https:<span class="comment">//github.com/Sanjay/Sanjay.github.io.git</span></span><br><span class="line"><span class="symbol">  branch:</span> master</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意：</strong><br>这里使用的是http的地址，这导致每次部署的时候都要填写一次账号和密码，有点麻烦。<br>所以建议使用ssh的地址，下面就有建立SSH的教程，保存好key后，以后我们可以先建立ssh，然后再部署。</p>
+<pre><code>eval $(ssh-agent -s) #我使用的是Git-Bash建立ssh
+hexo d
+</code></pre><p>据说最新版本的hexo 中，这里的 type 要写成 git，而不是 github。<br>执行下列指令即可完成部署。</p>
+<pre><code>hexo g  #新版本支持的缩写，可以看最后面的tips了解情况 
+hexo d
+</code></pre><p>注意：有些新用户需要设置 ssh，否则上述命令会失败。ssh 的介绍和设置方法请看官方教程，不用担心，很简单。<br>连接：<br><a href="https://help.github.com/articles/generating-ssh-keys/" target="_blank" rel="noopener">https://help.github.com/articles/generating-ssh-keys/</a></p>
+<h2 id="9-记住："><a href="#9-记住：" class="headerlink" title="9.记住："></a>9.记住：</h2><p>每次修改本地文件后，需要<code>hexo g</code>才能保存。每次使用命令时，都要在H:\hexo目录下。<br>Okay,我们的博客已经完全搭建起来了，在浏览器访问Sanjay.github.io就能看到你的成就了！</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><ol>
+<li><strong>同步问题</strong>；我们可以看到，我们成功的挂博客到了github上去了，但是，需要注意的是，我们的项目是用hexo来生成，然后部署到github上面去的，这个带来的问题就是，部署的内容和我们本地的项目目录里面的内容不一样，<strong>所以</strong>，如果我们换一台电脑写，想从github上面同回来，再继续写，那是不可能的，github上面的是hexo编译过后的内容，所以我们最好也在github上面新建一个项目，把我们的整个项目也同步上去，这样就可以在不同电脑上写文章啦。</li>
+<li><p>同步的配置问题；我们想用<code>git pull</code>来同步项目的时候，我们会遇到</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fatal: No remote repository specified.  Please, specify either <span class="keyword">a</span> <span class="built_in">URL</span> <span class="keyword">or</span> <span class="keyword">a</span>  </span><br><span class="line">remote name <span class="built_in">from</span> which <span class="built_in">new</span> revisions should be fetched.</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>这个需要我们配置下从哪里取回项目，打开我们的h:\hexo目录里面的<code>.git</code>文件（这是一个隐藏文件）。然后修改里面的config文件，在屁股哪里加多这个,<code>注意</code>,请把下面的两条url改成你自己在github上对应的地址，原因我已经在上面一条说明了，我们需要同步这个项目，好换台电脑后也可以继续写。</p>
+<pre><code><figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[remote <span class="string">"origin"</span>]  </span><br><span class="line">        url = https:<span class="regexp">//gi</span>thub.com/sanjay/xxx.git  <span class="comment">#换成你自己的地址</span></span><br><span class="line">        fetch = +refs<span class="regexp">/heads/</span>*:refs<span class="regexp">/remotes/origin/</span>*  </span><br><span class="line">        pushurl = https:<span class="regexp">//gi</span>thub.com/sanjay/xxx.git <span class="comment">#换成你自己的地址 </span></span><br><span class="line">[branch <span class="string">"master"</span>]  </span><br><span class="line">        remote = origin  </span><br><span class="line">        merge = refs/heads/master</span><br></pre></td></tr></table></figure>
+</code></pre><h1 id="bugs"><a href="#bugs" class="headerlink" title="bugs"></a>bugs</h1><ol>
+<li>有网友反应右键菜单中没有git bash选项，可以进入开始菜单找到git bash，然后通过cd进入相应目录执行命令。</li>
+<li><p>在github部署完成之后，马上访问可能出现404错误，这是正常的，（最多）等待十分钟左右就可以访问了。如果还不行，那很可能是 github 发送给你的验证邮件你没有打开看，据多方反映，验证后就没问题了。</p>
+</li>
+<li><p>如果在hexo d之后出现fatal:<br><strong>‘username.github.io’ does not appear to be a git repository</strong>，一是检查 repo 的名字是否合乎规范、是否含有<code>大写字母</code>、config.yml 中的 deploy 配置是否正确，二是把 git bash 关掉，重新打开再执行命令。</p>
+</li>
+<li><p>有的同学可能不是 IT 界的，或者对shell 命令不太了解。在要求输入密码时，你输入之后密码是不显示的，这是为了安全，并非是你没输上。<br>出现乱码的，不要使用 windows 中的「记事本」打开并编辑文件，推荐使用 sublime text，很简单。如果已经在「记事本」中编辑过，需要使用 sublime text 转码为「utf8」。</p>
+</li>
+<li><p>安装 hexo 时卡在那儿不动，很可能是网络不给力，能全局 break wall 就好了。<br>遇到什么其他的问题，不妨删除.deploy 和db.json 再重新生成试一试。</p>
+</li>
+<li><p>端口被占用</p>
+</li>
+</ol>
+<pre><code>     $ hexo s
+    INFO  Hexo is running at http://0.0.0.0:4000/. Press Ctrl+C to stop.
+
+提示这句话，然后打开游览器，如果输入localhost:4000或者http://0.0.0.0:4000/这两个都没反应，很可能是端口被别的程序霸占了，不知道为什么这个不会报错误信息出来，这时候你可以去关掉端口霸占的进程，或者声明新的端口给他用，下面这条
+
+    hexo s -p 3829
+</code></pre><h1 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h1><p>hexo现在支持更加简单的命令格式了，比如：<br>hexo g == hexo generate<br>hexo d == hexo deploy<br>hexo s == hexo server<br>hexo n == hexo new</p>
+<hr>
+<p>如果觉得上面过程麻烦，你可以直接用简书这个网站写，逼格很好。<a href="http://www.jianshu.com" target="_blank" rel="noopener">http://www.jianshu.com</a><br>人家的显示效果是这样的，<img src="http://img.blog.csdn.net/20150820185826259" alt="截自简述的一张图"></p>
+<p> 参考质料: <a href="http://zipperary.com/2013/05/28/hexo-guide-2/" target="_blank" rel="noopener">http://zipperary.com/2013/05/28/hexo-guide-2/</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hexo/" rel="tag">#hexo</a>
+          
+            <a href="/tags/github/" rel="tag">#github</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/08/22/用七牛为你的文章免费添加图片/" rel="prev">用七牛为你的文章免费添加图片</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/08/22/用hexo在github上挂博教程/"
+     data-title="用hexo在github上挂博教程"
+     data-content=""
+     data-url="http://yoursite.com/2015/08/22/用hexo在github上挂博教程/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/08/22/用hexo在github上挂博教程/"
+                   data-title="用hexo在github上挂博教程" data-url="http://yoursite.com/2015/08/22/用hexo在github上挂博教程/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-下载-msysgit-，并安装"><span class="nav-number">1.</span> <span class="nav-text">1.下载 msysgit ，并安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-安装Node-js"><span class="nav-number">2.</span> <span class="nav-text">2.安装Node.js</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-安装hexo"><span class="nav-number">3.</span> <span class="nav-text">3.安装hexo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-创建hexo文件夹"><span class="nav-number">4.</span> <span class="nav-text">4.创建hexo文件夹</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-安装依赖包"><span class="nav-number">5.</span> <span class="nav-text">5.安装依赖包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-本地查看"><span class="nav-number">6.</span> <span class="nav-text">6.本地查看</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-Github账号"><span class="nav-number">7.</span> <span class="nav-text">7.Github账号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建repository"><span class="nav-number">8.</span> <span class="nav-text">创建repository</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-部署"><span class="nav-number">9.</span> <span class="nav-text">8.部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-记住："><span class="nav-number">10.</span> <span class="nav-text">9.记住：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number"></span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bugs"><span class="nav-number"></span> <span class="nav-text">bugs</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tips"><span class="nav-number"></span> <span class="nav-text">tips</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

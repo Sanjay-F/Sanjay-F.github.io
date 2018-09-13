@@ -1,0 +1,1397 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,DVM,Dalvik," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样  我们的DVM（Dalvik Virtual Machine）是怎么启动的 启动后，JAVA类是怎样的加载和初始化 初始后，我们的函数Method是怎么执行的">
+<meta name="keywords" content="android,DVM,Dalvik">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列38---关于dalvik虚拟机">
+<meta property="og:url" content="http://yoursite.com/2016/06/12/源码探索系列38---关于dalvik虚拟机/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样  我们的DVM（Dalvik Virtual Machine）是怎么启动的 启动后，JAVA类是怎样的加载和初始化 初始后，我们的函数Method是怎么执行的">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.726Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列38---关于dalvik虚拟机">
+<meta name="twitter:description" content="虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样  我们的DVM（Dalvik Virtual Machine）是怎么启动的 启动后，JAVA类是怎样的加载和初始化 初始后，我们的函数Method是怎么执行的">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列38---关于dalvik虚拟机 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列38---关于dalvik虚拟机
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-12T00:35:00+08:00" content="2016-06-12">
+            2016-06-12
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样</p>
+<ol>
+<li>我们的DVM（Dalvik Virtual Machine）是怎么启动的</li>
+<li>启动后，JAVA类是怎样的加载和初始化</li>
+<li>初始后，我们的函数Method是怎么执行的</li>
+</ol>
+<a id="more"></a>
+<p>涉及在整个过程的是，我们的申请的内存是怎样分配的，怎么个回收法，我们的类文件结构是怎样的等等问题。所以不得不说这是一个非常大的话题，每一点的深入都可以被深挖，然后写出一本大部头，叫《深入理解JAVA虚拟机—Dalvik高级特性与最佳实践》的书。<br>实际上我们并不能深入的去探索，篇幅所限，因此只可能都是适可而止的提到相关的内容即可。有需要的可以自己去看下相关材料，例如叫《深入Java虚拟机》之类的书籍，毕竟这些虚拟机都是根据标准做定制的一些虚拟机。<br>关于标准，可以看官方的这个文档材料<br><a href="https://docs.oracle.com/javase/specs/jvms/se7/html/" target="_blank" rel="noopener">The Java® Virtual Machine Specification—Java SE 7 Edition</a></p>
+<p> 关于DVM的启动内容，我们在看系统启动过程的时候，我们有遇到对虚拟机的启动部分的内容，虽然不是很细致的去看下所有内容，不过也算有个大概的印象了。因此就不在这里罗列的，有兴趣也可以看下老罗哥的这篇文章 <a href="http://blog.csdn.net/luoshengyang/article/details/8885792" target="_blank" rel="noopener">Dalvik虚拟机的启动过程分析</a>。</p>
+<p> 下面我们从我们的DVM加载我们想要调用的类开始说起。</p>
+<h2 id="Class加载"><a href="#Class加载" class="headerlink" title="Class加载"></a>Class加载</h2><p>API: Dalvik-kitkat版本</p>
+<p>假设我们已经启动好我们的DVM了，现在是时候来加载我们写好的代码了。<br> 一般我们说类的加载，都会提到下面三个步骤：</p>
+<blockquote>
+<p>装载-&gt; 连接( 验证-&gt;准备-&gt;解析 )-&gt;初始化</p>
+</blockquote>
+<p>关于前面的几个步骤，我们都不过多细说，直接看最后一步的<code>初始化步骤</code>内容。<br>DVM和JVM一样在初始化某个类的时候，会调用其类初始化方法<code>&lt;Clinit&gt;</code>函数。这个函数是由我们的Java编译器把类的static成员变量或者static语句块等收集在一起，然后挪到这个函数里面去的。</p>
+<p>我相信对于类的加载，你应该记得很有趣的一个案例：</p>
+<pre><code>public class Father {
+
+    static {
+        System.out.println(&quot;father block 1&quot;);
+    }
+
+    Father() {
+        System.out.println(&quot;father block 2&quot;);
+    }
+}
+
+public class Child extends Father {
+
+    private String name;
+    private static String staticVar = &quot;childStaticVar&quot;;
+    private static  Father father=new Father();
+
+    static {
+        System.out.println(&quot;child block1&quot; + staticVar);
+    }
+
+    public Child(String name) {
+        this.name = name;
+        System.out.println(&quot;child block3&quot;);
+    }
+
+    public static void main(String[] args) {
+        Child child = new Child(&quot;child&quot;);
+    }
+}
+</code></pre><p>然后问题就是问打印出来的是什么内容。我们知道是先父类的静态内容，然后是子类的静态块，结着是父类子类的构造函数顺序。<br>实际上他们就是被按照在类中写的位置顺序，挪到了<code>clinit</code>函数去了。<br>因此你会发现如果对调了staticVar和static{}块的顺序，那么会有一个<code>illegal forward reference</code>信息等着你。</p>
+<blockquote>
+<p><strong>TIPS:</strong> 如果没有类变量（没有初始化或者用产量初始化也一样）或静态语句块，那么也是不会有这个函数。</p>
+</blockquote>
+<p>这个<code>&lt;Clinit&gt;</code>方法只能由VM来调用，我们手动调用不了的。那么是什么时候被调用的呢？</p>
+<p>有一个说法就是在<strong>主动调用</strong>的时候。当我们首次主动使用类型时候初始化他们，在《深入理解虚拟机》P162页，里面有把主动调用列了下面这六种：</p>
+<ol>
+<li>建新实例，如New一个，用newInstance()，Clone()，IO的getOjbect()</li>
+<li>调用静态方法</li>
+<li>操作类或接口中声明的非常量静态字段</li>
+<li>调用特定的反射方法</li>
+<li>初始化其子类</li>
+<li>指定其为虚拟机启动时的初始化类</li>
+</ol>
+<p>对于一个类的加载，我们从主动加载中最常见的new一个对象做切入点来讨论这个问题，其余类似，不做累赘。</p>
+<h3 id="New-Instance"><a href="#New-Instance" class="headerlink" title="New Instance"></a>New Instance</h3><p>在/dalvik/vm/mterp/out/InterpC-portable.cpp。</p>
+<p>当我们去new一个新对象的时候，我们的DVM和JVM一样，会去调用对应的代码去给我们干活，这些内容在<code>InterpC-portable.cpp</code>中，在line413的地方，有下面一段代码</p>
+<pre><code>*
+ * Instruction framing.  For a switch-oriented implementation this is
+ * case/break, for a threaded implementation it&apos;s a goto label and an
+ * instruction fetch/computed goto.
+ *
+ * Assumes the existence of &quot;const u2* pc&quot; and (for threaded operation)
+ * &quot;u2 inst&quot;.
+ */
+# define H(_op)             &amp;&amp;op_##_op
+# define HANDLE_OPCODE(_op) op_##_op:
+# define FINISH(_offset) {                                                  \
+        ADJUST_PC(_offset);                                                 \
+        inst = FETCH(0);                                                    \
+        if (self-&gt;interpBreak.ctl.subMode) {                                \
+            dvmCheckBefore(pc, fp, self);                                   \
+        }                                                                   \
+        goto *handlerTable[INST_INST(inst)];                                \
+    }
+</code></pre><p> 在经过编译器处理后，我们的new操作是有一个对应的操作码（OperationCode）的，当DVM看到这个时候，会跳转到对应的处理函数，去做对应的操作，涉及的代码就是上面一段（HANDLE_OPCODE，处理操作码的意思，很人如其名，不过是在portable模式下时候是这样），其中由<code>FINISH</code>宏就是取出当前的操作码，然后跳转（goto）到对应的处理逻辑去处理它。</p>
+<p>那有个小问题，这个handlerTable是什么内容呢？</p>
+<h3 id="dvmInterpretPortable"><a href="#dvmInterpretPortable" class="headerlink" title="dvmInterpretPortable()"></a>dvmInterpretPortable()</h3><p>我们去看下，在这个类的line1117处，有下面的内容：</p>
+<pre><code>/* File: portable/entry.cpp */
+/*
+ * Main interpreter loop.
+ *
+ * This was written with an ARM implementation in mind.
+ */
+void dvmInterpretPortable(Thread* self){
+    ...
+
+    /* static computed goto table */
+    DEFINE_GOTO_TABLE(handlerTable);
+
+    ...
+
+    FINISH(0);    
+    /* fetch and execute first instruction */
+
+    ....下面是一堆opCode的内容，跳过
+}
+</code></pre><p>对于这个 <code>dvmInterpretPortable</code>是porttable模式下Java字节码的<strong>执行入口</strong>！。也就是当执行Java字节码的时候（比如Child.class中的main函数时）都会调用这个函数。<br>然后那个<strong>DEFINE_GOTO_TABLE</strong>则定义了操作码的标记。</p>
+<h4 id="DEFINE-GOTO-TABLE"><a href="#DEFINE-GOTO-TABLE" class="headerlink" title="DEFINE_GOTO_TABLE"></a>DEFINE_GOTO_TABLE</h4><p>在dalvik-kitkat/libdex/DexOpCode.h文件里面，我们看到下面一长串的内容功能：</p>
+<pre><code>/*
+     * Macro used to generate a computed goto table for use in 
+     * implementing an interpreter in C.
+ */
+
+#define DEFINE_GOTO_TABLE(_name) \
+    static const void* _name[kNumPackedOpcodes] = {                      \
+        /* BEGIN(libdex-goto-table); GENERATED AUTOMATICALLY BY opcode-gen */ \
+
+        H(OP_NOP),                                                            \
+        H(OP_MOVE),                                                           \
+        ...
+       H(OP_ARRAY_LENGTH),                                                   \
+        H(OP_NEW_INSTANCE),                                                   \
+        ....
+        H(OP_UNUSED_FF),                                                      \
+        /* END(libdex-goto-table) */                                          \
+    };
+</code></pre><p> 例如我们的要去new一个对象的时候，遇到的就是OP_NEW_INSTANCE这个字段。<br> 然后回到我们的InterpC-portable.cpp里面，会看回应的处理代码</p>
+<h4 id="HANDLE-OPCODE-OP-NEW-INSTANCE"><a href="#HANDLE-OPCODE-OP-NEW-INSTANCE" class="headerlink" title="HANDLE_OPCODE(OP_NEW_INSTANCE)"></a>HANDLE_OPCODE(OP_NEW_INSTANCE)</h4><p>处理我们的new对象的代码如下，line1649</p>
+<pre><code>/* File: c/OP_NEW_INSTANCE.cpp */
+HANDLE_OPCODE(OP_NEW_INSTANCE /*vAA, class@BBBB*/)
+    {
+        ClassObject* clazz;
+        Object* newObj;
+
+        EXPORT_PC();
+
+        vdst = INST_AA(inst);
+        ref = FETCH(1);
+        ILOGV(&quot;|new-instance v%d,class@0x%04x&quot;, vdst, ref);
+        clazz = dvmDexGetResolvedClass(methodClassDex, ref);
+        if (clazz == NULL) {
+            clazz = dvmResolveClass(curMethod-&gt;clazz, ref, false);
+            if (clazz == NULL)
+                GOTO_exceptionThrown();
+        }
+
+        if (!dvmIsClassInitialized(clazz) &amp;&amp; 
+            !dvmInitClass(clazz))                
+            GOTO_exceptionThrown();
+
+#if defined(WITH_JIT)
+ ...不看JIT的内容
+#endif
+...
+        newObj = dvmAllocObject(clazz, ALLOC_DONT_TRACK);
+        if (newObj == NULL)
+            GOTO_exceptionThrown();
+        SET_REGISTER(vdst, (u4) newObj);
+    }
+    FINISH(2);
+OP_END
+</code></pre><p>我们看到在这段逻辑中，先做些检验的操作，然后才是真正分配内存的操作dvmAllocObject。</p>
+<p>对于各个函数具体的内容，这里不做罗列，主要是掌握原理和大概的流程为主要目的，细节上以日后需要到再深挖。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>以上是这对portable平台的，portable模式下，操作码是一条一条解释执行的。而具体CPU平台上，则是由相关汇编代码来处理。二者实际上大同小异。但是由CPU来执行，显然处理要快，比如对于+这种操作，用portable的解释执行当然比直接转换成机器指令来执行要慢很多。</p>
+<p>别的如arm,MIPS,X86等的平台有类似处理过程。对应的代码都在dalvik/vm/mterp/out有对应的类内容。<br> 对于ARM平台，则有InterpAsm-armXXX.S和对应的InterpC-armXXX.cpp。其中.S文件是汇编文件，而.CPP文件是对应的C++文件。二者要结合起来使用。当CPU类型不属于ARM、x86或mips（也不采用纯解释方法），则通过InterpAsm-allstubs.S和interpAsm-allsubts.cpp来处理。</p>
+<p>这样，我们对DVM是怎么执行Java字节码的流程有个大概的了解。<br>到此，我们了解了Java字节码到底是怎么执行的。</p>
+<ul>
+<li>对于涉及的类的检验，和类的结构等内容，暂时不是我们关注的重心，我们先跳过，后面时间合适的时候再看。</li>
+</ul>
+<h2 id="函数的运行"><a href="#函数的运行" class="headerlink" title="函数的运行"></a>函数的运行</h2><p>看我了前面的类的加载部分，那么既然我们的类都加回来了，我们可以看下当我们调用函数的时候，我们的函数是怎么个运行起来的。<br>在<code>dalvik/VM/Thread.cpp</code>参考<code>dvmAttachCurrentThread()</code>方法.</p>
+<h3 id="创建栈帧-allocThread"><a href="#创建栈帧-allocThread" class="headerlink" title="创建栈帧 allocThread"></a>创建栈帧 allocThread</h3><p>JVM在执行一个函数之前，它会首先分配一个栈帧（JVM中叫Frame），这个Frame其实就是一块<strong>内存</strong>，里边存储了<strong>参数</strong>，还预留空间用来<strong>存储返回值</strong>等。<br>当我们的函数执行时，就会从当前<strong>栈帧</strong>（每一个函数执行之前，JVM都会为它分配一个栈帧）获取参数等<strong>信息</strong>，然后执行，然后将返回值存储到当前栈帧。</p>
+<p>当前正在执行的函数叫current Method（当前方法）<br>函数执行当然是在一个线程里运行的，栈帧则理所当然就会和某个线程相<strong>关联</strong>。函数返回后，VM回收当前栈帧。</p>
+<p>我们先来看dalvik是怎么创建线程及对应栈的。<br><strong>allocThread</strong>用于创建代表一个线程的线程对象</p>
+<pre><code>/*
+ * Alloc and initialize a Thread struct.
+ *
+ * Does not create any objects, just stuff on the system (malloc) heap.
+ */
+static Thread* allocThread(int interpStackSize)
+{   
+    Thread* thread;
+    u1* stackBottom;
+
+    thread = (Thread*) calloc(1, sizeof(Thread));
+
+    ...忽略一些assert
+
+    thread-&gt;status = THREAD_INITIALIZING;
+
+    /*
+     * Allocate and initialize the interpreted code stack.  We essentially
+     * &quot;lose&quot; the alloc pointer, which points at the bottom of the stack,
+     * but we can get it back later because we know how big the stack is.
+     * The stack must be aligned on a 4-byte boundary.
+     */     
+    ...忽略一些别的#ifdef
+
+    stackBottom = (u1*) mmap(NULL, interpStackSize, PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANON, -1, 0);
+   ...
+
+
+    thread-&gt;interpStackSize = interpStackSize;
+    thread-&gt;interpStackStart = stackBottom + interpStackSize;
+    thread-&gt;interpStackEnd = stackBottom + STACK_OVERFLOW_RESERVE;
+
+#ifndef DVM_NO_ASM_INTERP
+    thread-&gt;mainHandlerTable = dvmAsmInstructionStart;
+    thread-&gt;altHandlerTable = dvmAsmAltInstructionStart;
+    thread-&gt;interpBreak.ctl.curHandlerTable = thread-&gt;mainHandlerTable;
+#endif
+
+    /* give the thread code a chance to set things up */
+    dvmInitInterpStack(thread, interpStackSize);
+
+    /* One-time setup for interpreter/JIT state */
+    dvmInitInterpreterState(thread);
+
+    return thread;
+}
+</code></pre><p>说实在的，看惯了java的那个花括号“{”的位置后，像C++这样的写法看着是别扭的！</p>
+<p>我们大致看下上面的内容，DVM为每个线程都创建了一个线程栈。其中是调用<code>mmap</code>去创建一个内存块的，大小默认为16KB（参考Dvm.stackSize），并设置了相关的栈顶和栈底指针。</p>
+<ul>
+<li>interpStackStart为栈顶，位于内存高位值。</li>
+<li>interpStackEnd为栈底，位于内存地位。</li>
+<li>整个栈的内存起始位置为stackBottom。<br>stackBottom和interpStackEnd还有一个768字节的保护区域<strong>STACK_OVERFLOW_RESERVE</strong>。如果栈内容下压到这块区域，就认为出错了。</li>
+</ul>
+<p>另外这个申请的16KB的线程大小，是属于延迟加载或者所懒惰加载的模式，要申请了才分配多点，不申请就模式先不分配给你。既16KB只是告诉kernel，我最多用16KB，系统收到只是建立一个内存映射项。如果一直没有使用这块内存的话，那么内存并不会真正分配。所以，只有我们真正操作了这块内存，系统才会为它分配内存。 </p>
+<h3 id="dvmCallMethod"><a href="#dvmCallMethod" class="headerlink" title="dvmCallMethod"></a>dvmCallMethod</h3><p> dalvik/vm/interp/stack.cpp<br> 有了现在这个帧基础，我们调用方法时候，就可以开始做处理了</p>
+<pre><code>/*
+ * Issue a method call.
+ *
+ * Pass in NULL for &quot;obj&quot; on calls to static methods.
+ *
+ * (Note this can&apos;t be inlined because it takes a variable number of args.)
+ */
+void dvmCallMethod(Thread* self, const Method* method, Object* obj,
+    JValue* pResult, ...)
+{
+    va_list args;
+    va_start(args, pResult);
+    dvmCallMethodV(self, method, obj, false, pResult, args);
+    va_end(args);
+}
+</code></pre><p>这里的self就是当前线程    ，method就是我们的方法，obj就是这个方法所属的对象，为空表示是静态方法，然后pResult就是返回结果，后面的几个点“…”就是方法的参数<br> 我们看这个就是一个壳，背后是dvmCallMethodV方法</p>
+<h3 id="dvmCallMethodV"><a href="#dvmCallMethodV" class="headerlink" title="dvmCallMethodV"></a>dvmCallMethodV</h3><pre><code>void dvmCallMethodV(Thread* self, const Method* method, Object* obj,
+    bool fromJni, JValue* pResult, va_list args)
+{
+    const char* desc = &amp;(method-&gt;shorty[1]); // [0] is the return type.
+    int verifyCount = 0;
+    ClassObject* clazz;
+    u4* ins;
+
+    //  1.调用callPrep准备栈帧，这是函数调用的关键一步
+    clazz = callPrep(self, method, obj, false);
+    if (clazz == NULL)
+        return;
+
+    // 2. 参数入栈       
+    /* &quot;ins&quot; for new frame start at frame pointer plus locals */
+    ins = ((u4*)self-&gt;interpSave.curFrame) +
+           (method-&gt;registersSize - method-&gt;insSize);
+
+    /* put &quot;this&quot; pointer into in0 if appropriate */
+    if (!dvmIsStaticMethod(method)) {
+#ifdef WITH_EXTRA_OBJECT_VALIDATION
+        assert(obj != NULL &amp;&amp; dvmIsHeapAddress(obj));
+#endif
+        *ins++ = (u4) obj;
+        verifyCount++;
+    }
+
+    while (*desc != &apos;\0&apos;) {
+        switch (*(desc++)) {
+            case &apos;D&apos;: case &apos;J&apos;: {
+                u8 val = va_arg(args, u8);
+                memcpy(ins, &amp;val, 8);       // EABI prevents direct store
+                ins += 2;
+                verifyCount += 2;
+                break;
+            }
+            case &apos;F&apos;: {
+                /* floats were normalized to doubles; convert back */
+                float f = (float) va_arg(args, double);
+                *ins++ = dvmFloatToU4(f);
+                verifyCount++;
+                break;
+            }
+            case &apos;L&apos;: { 
+                /* &apos;shorty&apos; descr uses L for all refs, incl array */
+                void* arg = va_arg(args, void*);
+                assert(obj == NULL || dvmIsHeapAddress(obj));
+                jobject argObj = reinterpret_cast&lt;jobject&gt;(arg);
+                if (fromJni)
+                    *ins++ = (u4) dvmDecodeIndirectRef(self, argObj);
+                else
+                    *ins++ = (u4) argObj;
+                verifyCount++;
+                break;
+            }
+            default: {
+                /* Z B C S I -- all passed as 32-bit integers */
+                *ins++ = va_arg(args, u4);
+                verifyCount++;
+                break;
+            }
+        }
+    }
+
+    //3. 分情况调用，Native函数由nativeFunc处理，JAVA函数由dvmInterprent处理        
+    if (dvmIsNativeMethod(method)) {
+        TRACE_METHOD_ENTER(self, method);                
+        //Because we leave no space for local variables,
+         // &quot;curFrame&quot; points directly at the method arguments.            
+        (*method-&gt;nativeFunc)((u4*)self-&gt;interpSave.curFrame, pResult,
+                              method, self);
+        TRACE_METHOD_EXIT(self, method);
+
+    } else {
+        dvmInterpret(self, method, pResult);
+    }
+
+         dvmPopFrame(self);
+}
+</code></pre><p>我们看，这个函数主要是三部分内容，一个是做些准备工作，然后入栈，最后才是实际的分情况处理工作。<br>现在我们看下准备内容的部分，结合看下处理java函数时候的情况</p>
+<h4 id="callPrep"><a href="#callPrep" class="headerlink" title="callPrep()"></a>callPrep()</h4><pre><code>/*
+ * Common code for dvmCallMethodV/A and dvmInvokeMethod.
+ *
+ * Pushes a call frame on, advancing self-&gt;interpSave.curFrame.
+ */
+static ClassObject* callPrep(Thread* self, const Method* method, Object* obj,
+    bool checkAccess)
+{
+    ...
+
+    if (checkAccess) {    // 反射时候你遇到过这个问题吗？
+        /* needed for java.lang.reflect.Method.invoke */
+        if (!dvmCheckMethodAccess(dvmGetCaller2Class(self-&gt;interpSave.curFrame),
+                method)){
+            /* note this throws IAException, not IAError */
+            dvmThrowIllegalAccessException(&quot;access to method denied&quot;);
+            return NULL;
+        }
+    }
+
+    /*
+     * Push a call frame on.  If there isn&apos;t enough room for ins, locals,
+     * outs, and the saved state, it will throw an exception.
+     *
+     * This updates self-&gt;interpSave.curFrame.
+     */
+    if (dvmIsNativeMethod(method)) {
+        /* native code calling native code the hard way */
+        if (!dvmPushJNIFrame(self, method)) {
+            assert(dvmCheckException(self));
+            return NULL;
+        }
+    } else {
+        /* native code calling interpreted code */
+        if (!dvmPushInterpFrame(self, method)) {
+            assert(dvmCheckException(self));
+            return NULL;
+        }
+    }
+
+    return clazz;
+}
+</code></pre><p>我们看这里主要是分环境处理，<br>对于JNI的用dvmPushJNIFrame，对于我们的java代码，用dvmPushInterpFarme去处理。</p>
+<h4 id="dvmPushInterpFrame（）"><a href="#dvmPushInterpFrame（）" class="headerlink" title="dvmPushInterpFrame（）"></a>dvmPushInterpFrame（）</h4><pre><code>*
+* Push a frame for an interpreted method onto the stack.  This is only
+ * used when calling into interpreted code from native code.  (The
+ * interpreter does its own stack frame manipulation for interp--&gt;interp
+ * calls.)
+ *
+ * The size we need to reserve is the sum of parameters, local variables,
+ * saved goodies, and outbound parameters.
+ *
+ * We start by inserting a &quot;break&quot; frame, which ensures that the interpreter
+ * hands control back to us after the function we call returns or an
+ * uncaught exception is thrown.
+ */
+
+static bool dvmPushInterpFrame(Thread* self, const Method* method)
+{
+    StackSaveArea* saveBlock;
+    StackSaveArea* breakSaveBlock;
+    int stackReq;
+    u1* stackPtr;
+
+    ...
+
+    stackReq = method-&gt;registersSize * 4        // params + locals
+                + sizeof(StackSaveArea) * 2     // break frame + regular frame
+                + method-&gt;outsSize * 4;         // args to other methods
+
+    if (self-&gt;interpSave.curFrame != NULL)
+        stackPtr = (u1*) SAVEAREA_FROM_FP(self-&gt;interpSave.curFrame);
+    else
+        stackPtr = self-&gt;interpStackStart;
+
+    if (stackPtr - stackReq  &lt;   self-&gt;interpStackEnd) {
+        /* not enough space */
+        dvmHandleStackOverflow(self, method);
+        assert(dvmCheckException(self));
+        return false;
+    }
+
+    /*
+     * Shift the stack pointer down, leaving space for the function&apos;s
+     * args/registers and save area.
+     */
+    stackPtr -= sizeof(StackSaveArea);
+    breakSaveBlock = (StackSaveArea*)stackPtr;
+    stackPtr -= method-&gt;registersSize * 4 + sizeof(StackSaveArea);
+    saveBlock = (StackSaveArea*) stackPtr;
+
+#if !defined(NDEBUG) &amp;&amp; !defined(PAD_SAVE_AREA)
+    /* debug -- memset the new stack, unless we want valgrind&apos;s help */
+    memset(stackPtr - (method-&gt;outsSize*4), 0xaf, stackReq);
+#endif
+#ifdef EASY_GDB
+    breakSaveBlock-&gt;prevSave =
+       (StackSaveArea*)FP_FROM_SAVEAREA(self-&gt;interpSave.curFrame);
+    saveBlock-&gt;prevSave = breakSaveBlock;
+#endif
+
+    breakSaveBlock-&gt;prevFrame = self-&gt;interpSave.curFrame;
+    breakSaveBlock-&gt;savedPc = NULL;             // not required
+    breakSaveBlock-&gt;xtra.localRefCookie = 0;    // not required
+    breakSaveBlock-&gt;method = NULL;
+    saveBlock-&gt;prevFrame = FP_FROM_SAVEAREA(breakSaveBlock);
+    saveBlock-&gt;savedPc = NULL;                  // not required
+    saveBlock-&gt;xtra.currentPc = NULL;           // not required?
+    saveBlock-&gt;method = method;
+
+    ...
+    self-&gt;interpSave.curFrame = FP_FROM_SAVEAREA(saveBlock);
+
+    return true;
+}
+</code></pre><p> 当调用函数时，DVM需要为它弄一个新的栈帧，栈帧的大小stackReq包括2个<code>StackSaveArea</code>和输入参数及函数内部本地变量（大小为method-&gt;registersSize<em>4）所需的空间。在计算栈是否溢出的时候，会额外加上该函数内部调用其他函数时所传参数所占空间（大小为method-&gt;outsSize</em>4）</p>
+<p>这2个StackSaveArea，一个叫<code>BreakSaveBlock</code>，另外一个叫<code>SaveBlock</code>。<br>self-&gt;interpSave.curFrame指向saveBlock的高地址。紧接其上的就是参数空间</p>
+<ol>
+<li>注意：registersSize包括函数输入参数和函数内部本地变量的个数</li>
+<li>dvmPushJNIFrame，这个函数是当Java要调用JNI函数时的压栈处理，该函数和dvmPushInterpFrame几乎一样，只是在计算所需栈空间时，没有加上outsSize*4，因为native函数所需栈是由Native自己控制的。此函数代码很简单，请童鞋们自己学习</li>
+</ol>
+<p>好了，栈已经准备好了，我们会主线索，去看下JAVA函数怎么执行。</p>
+<h3 id="dvmInterpret"><a href="#dvmInterpret" class="headerlink" title="dvmInterpret"></a>dvmInterpret</h3><pre><code>void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
+{
+    InterpSaveState interpSaveState;
+    ExecutionSubModes savedSubModes;
+
+    ...
+    //1. 一些前期准备工作
+    /* Save interpreter state from previous activation, 
+              *linking new to last.
+     */
+    interpSaveState = self-&gt;interpSave;
+    self-&gt;interpSave.prev = &amp;interpSaveState;
+    /*
+     * Strip out and save any flags that should not be inherited by
+     * nested interpreter activation.
+     */
+    savedSubModes = (ExecutionSubModes)(
+              self-&gt;interpBreak.ctl.subMode &amp; LOCAL_SUBMODE);
+    if (savedSubModes != kSubModeNormal) {
+        dvmDisableSubMode(self, savedSubModes);
+    }
+
+    ...
+
+    /*
+     * Initialize working state.
+     *
+     * No need to initialize &quot;retval&quot;.
+     */
+    self-&gt;interpSave.method = method;
+    self-&gt;interpSave.curFrame = (u4*) self-&gt;interpSave.curFrame;
+    self-&gt;interpSave.pc = method-&gt;insns;
+
+    //2. 根据模式选择并执行    
+    /*
+     * Make sure the class is ready to go.  Shouldn&apos;t be possible to get
+     * here otherwise.
+     */
+    if (method-&gt;clazz-&gt;status &lt; CLASS_INITIALIZING ||
+        method-&gt;clazz-&gt;status == CLASS_ERROR)
+    {
+            method-&gt;clazz-&gt;descriptor, method-&gt;clazz-&gt;status);
+        dvmDumpThread(self, false);
+        dvmAbort();
+    }
+    typedef void (*Interpreter)(Thread*);
+    Interpreter stdInterp;
+    if (gDvm.executionMode == kExecutionModeInterpFast)
+        stdInterp = dvmMterpStd;
+    ...
+    else
+        stdInterp = dvmInterpretPortable;
+
+    // Call the interpreter
+    (*stdInterp)(self);
+
+    *pResult = self-&gt;interpSave.retval;
+    //3. 得到返回结果,并做些后续处理
+
+    /* Restore interpreter state from previous activation */
+    self-&gt;interpSave = interpSaveState;
+    ...
+    if (savedSubModes != kSubModeNormal) {
+        dvmEnableSubMode(self, savedSubModes);
+    }
+
+}
+</code></pre><p>整个就做了三步重要的内容，我把涉及的JIT内容都剔掉了。</p>
+<p>在前面的地方，有一句<code>self-&gt;interpSave.pc = method-&gt;insns;</code>，对于这里的<code>insns</code>就是我们函数对应的指令，后面的流程就是从第一条开始，一条一条的继续下去的。所以这个PC也是人如其名的。</p>
+<p> 我们执行不再kExecutionModeInterpFast模式下，所以我们的stdInterp 被赋值的是下面的 <code>dvmInterpretPortable</code>，现在让我们去看下里面的内容，看他是如何执行的。</p>
+<h3 id="dvmInterpretPortable-1"><a href="#dvmInterpretPortable-1" class="headerlink" title="dvmInterpretPortable"></a>dvmInterpretPortable</h3><p>这个函数的位置在<code>dalvik/vm/mterp/out/InterpC-portable.cpp</code>里面，前面我们在说主动加载的new instance时候就有提到过。现在我们重新去看下，同时把一些信息恢复出来，因为现在看得懂了。</p>
+<pre><code>void dvmInterpretPortable(Thread* self)
+{
+    ...
+    DvmDex* methodClassDex;  
+     // curMethod-&gt;clazz-&gt;pDvmDex
+    JValue retval;
+    /* core state */
+    const Method* curMethod;   
+     // method we&apos;re interpreting
+    const u2*  pc; // program counter
+    u4* fp;  // frame pointer
+    u2 inst; // current instruction
+
+    /* instruction decoding */
+        u4 ref;// 16 or 32-bit quantity fetched directly
+    u2 vsrc1, vsrc2, vdst;   // usually used for register indexes
+
+    /* method call setup */
+    const Method* methodToCall;
+    bool methodCallRange;
+
+    //1. 算index
+    /* static computed goto table */
+    DEFINE_GOTO_TABLE(handlerTable);
+
+    //2. 备份状态信息
+    curMethod = self-&gt;interpSave.method;
+    pc = self-&gt;interpSave.pc;
+    fp = self-&gt;interpSave.curFrame;
+    retval = self-&gt;interpSave.retval;   /* only need for kInterpEntryReturn? */
+
+    methodClassDex = curMethod-&gt;clazz-&gt;pDvmDex;           
+
+    /*
+     * Handle any ongoing profiling and prep for debugging.
+     */
+    if (self-&gt;interpBreak.ctl.subMode != 0) {
+        TRACE_METHOD_ENTER(self, curMethod);
+        self-&gt;debugIsMethodEntry = true;   // Always true on startup
+    }
+     methodToCall = (const Method*) -1;
+    ...
+    //3. 后续核心处理跳转地方    
+     FINISH(0); 
+      /* fetch and execute first instruction */
+
+   //4. 处理关于操作码opCode的内容
+/*--- start of opcodes ---*/
+
+/* File: c/OP_NOP.cpp */
+HANDLE_OPCODE(OP_NOP)
+    FINISH(1);
+OP_END
+
+/* File: c/OP_MOVE.cpp */
+HANDLE_OPCODE(OP_MOVE /*vA, vB*/)
+    vdst = INST_A(inst);
+    vsrc1 = INST_B(inst);
+
+    ...一堆opCode内容
+
+
+    //5. 关于返回的内容
+    /*
+     * General handling for return-void, return, and return-wide.  Put the
+     * return value in &quot;retval&quot; before jumping here.
+     */
+GOTO_TARGET(returnFromMethod)
+    {
+       ...// 后面谈到的时候再粘贴出来
+GOTO_TARGET_END
+
+
+        。。。
+
+self-&gt;interpSave.retval = retval;
+
+}
+</code></pre><p>前面我们知道的<code>DEFINE_GOTO_LABLE</code>的意思，<br>现在我们需要来看下前面没有细说的<code>FINISH(0)</code>内容</p>
+<h3 id="FINISH"><a href="#FINISH" class="headerlink" title="FINISH()"></a>FINISH()</h3><pre><code># define FINISH(_offset) {                      \
+        ADJUST_PC(_offset);                     \
+        inst = FETCH(0);                        \
+        if (self-&gt;interpBreak.ctl.subMode) {    \
+            dvmCheckBefore(pc, fp, self);       \
+        }                                       \
+        goto *handlerTable[INST_INST(inst)];    \
+}
+</code></pre><p>看这个函数，大致的意思，我猜是先调整偏移，接着fetch回下一条操作码，然后调用我们的handlerTable去执行对应的OpCode内容。</p>
+<p>为验证想法，我们来看下这个ADJUST_PC的内容，估计就是移动我们的PC位置吧</p>
+<pre><code># define ADJUST_PC(_offset) do {                                            \
+        pc += _offset;                                                      \
+        EXPORT_EXTRA_PC();                                                  \
+    } while (false) 
+</code></pre><p>然后就是我们的FETCH，应该是拿什么数据回来</p>
+<pre><code>/*
+ * Get 16 bits from the specified offset of the program counter.  We always
+ * want to load 16 bits at a time from the instruction stream -- it&apos;s more
+ * efficient than 8 and won&apos;t have the alignment problems that 32 might.
+ *
+ * Assumes existence of &quot;const u2* pc&quot;.
+ */
+#define FETCH(_offset)     (pc[(_offset)])
+</code></pre><p>这就是获取下一条去执行。</p>
+<p>这样让我记起以前在大学的时候，学习《计算机组成原理》的时间，开课的老师是国家的百人计划，他的博导拿诺贝尔奖的，在国外呆的职位太高，过不了所谓的国家安全因素，因为是中国人嘛，所以回来了。那时候听他课真是如醍醐灌顶，学得也很有乐趣！！！好想回去上课，听他吹水！！！说远了，继续。</p>
+<p>看完这两个宏，我们确定FINISH(0)的内容为： 移动PC，然后获取对应指令的操作码到ins。再根据ins获取该指令的操作码（注意，一条指令包含操作码和操作数，就例如我们的一般A+B一样，我们的操作码是“+”，然后操作数是A和B两个，完成两个数的相加工作！），然后goto到该操作码对应的处理label处。</p>
+<p>以上就是在portable模式下的套路，一条条的子指令。</p>
+<p>看我这部分，我们需要回到主线，看下前面第4步的内容。截取在下面</p>
+<pre><code>  //4. 处理关于操作码opCode的内容
+    /*--- start of opcodes ---*/
+
+    /* File: c/OP_NOP.cpp */
+    HANDLE_OPCODE(OP_NOP)
+        FINISH(1);
+    OP_END
+
+    /* File: c/OP_MOVE.cpp */
+    HANDLE_OPCODE(OP_MOVE /*vA, vB*/)
+        vdst = INST_A(inst);
+        vsrc1 = INST_B(inst);
+
+   ....
+}
+
+//粘贴几个会涉及到的宏
+#define INST_A(_inst)       (((_inst) &gt;&gt; 8) &amp; 0x0f)
+#define INST_B(_inst)       ((_inst) &gt;&gt; 12)
+#define INST_AA(_inst)      ((_inst) &gt;&gt; 8)
+</code></pre><p>经过前面的处理，我们的inst已经初始化过了。我们看这个第四部的内容，主要就是到对应的lable去，做对应的处理，然后移动PC，来指向下一条指令。<br>我们看这个<code>INST_A</code>宏实际就是向下移动PC，来指向新的指令。</p>
+<p>这样，我们知道了大致的一个流程，在portable模式下dalvik如何运行java指令的，没太复杂，和学计算机组成原理时候学到的理论类似。<br>我们编译器把代码处理成一堆的指令，然后我们的DVM根据碰到的对应的opCode做对应的处理。</p>
+<h3 id="函数返回-GOTO-TARGET-returnFromMethod"><a href="#函数返回-GOTO-TARGET-returnFromMethod" class="headerlink" title="函数返回      GOTO_TARGET(returnFromMethod)"></a>函数返回      GOTO_TARGET(returnFromMethod)</h3><p>处理完，当然需要返回下啊</p>
+<pre><code> /*
+     * General handling for return-void, return, and return-wide.  Put the
+     * return value in &quot;retval&quot; before jumping here.
+     */
+GOTO_TARGET(returnFromMethod)
+    {
+        StackSaveArea* saveArea;     
+        PERIODIC_CHECKS(0);
+        ...
+        saveArea = SAVEAREA_FROM_FP(fp);
+
+        /* back up to previous frame and see if we hit a break */
+        fp = (u4*)saveArea-&gt;prevFrame;
+        assert(fp != NULL);
+
+         ....
+        //恢复现场
+        /* update thread FP, and reset local variables */
+        self-&gt;interpSave.curFrame = fp;
+        curMethod = SAVEAREA_FROM_FP(fp)-&gt;method;
+        self-&gt;interpSave.method = curMethod;
+        //methodClass = curMethod-&gt;clazz;
+        methodClassDex = curMethod-&gt;clazz-&gt;pDvmDex;
+        pc = saveArea-&gt;savedPc;
+
+        /* use FINISH on the caller&apos;s invoke instruction */
+        //u2 invokeInstr = INST_INST(FETCH(0));
+        if (true /*invokeInstr &gt;= OP_INVOKE_VIRTUAL &amp;&amp;
+            invokeInstr &lt;= OP_INVOKE_INTERFACE*/)
+        {
+            FINISH(3);
+        } else {
+            //ALOGE(&quot;Unknown invoke instr %02x at %d&quot;,
+            //    invokeInstr, (int) (pc - curMethod-&gt;insns));
+            assert(false);
+        }
+    }
+GOTO_TARGET_END
+</code></pre><h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>通过上面的一个大概流程的游览，我们有了一个函数调用的印象。<br>基本套路如下：</p>
+<ol>
+<li>建立栈帧，参数入栈。</li>
+<li>跳转到对应函数的位置做处理，Java是goto_label</li>
+<li>函数返回，恢复现场，pop栈帧。</li>
+</ol>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>写VM这类文章，如果有深厚的功底，当然会更可能写出更好的文章，虽然现在对于我还有点吃力，不过会对于我成长更快！</p>
+<p>每一步都算数，这是李宗盛在给NewBalance做的一个广告的名字。<br>确实每一步都重要，一步一个脚印，记录自己成长。</p>
+<p>如果不是看了四大金刚的<strong>启动流程</strong>，对于我后面理解<strong>插件化</strong>，找<strong>HOOK点</strong>会很吃力。如果不是看了整个view的<strong>绘制流程</strong>，界面显示的Window内容和Handler的源码，那么对于我去看怎么做<strong>启动优化</strong>就很吃力 …..</p>
+<p>如果不是看了这个DVM的内容，那么以后会对我做什么有压力呢？<br>会知道的，这是我的一个脚印。</p>
+<p>虚拟机是一个对我一向很陌生的一个东西，做了3年多的Android开发，也不会说没事对Dalvik的源码内容翻个便，看下里面的具体内容，正如以前在写后台时候，不会去看JVM一样，毕竟还没到需要深入理解的时候。</p>
+<p>今天先写加载和允许的大概内容，后面在针对类的结构和内存管理部分单独的写点内容记录下。</p>
+<h1 id="REF"><a href="#REF" class="headerlink" title="REF"></a>REF</h1><ol>
+<li><a href="http://blog.csdn.net/innost/article/details/50377905" target="_blank" rel="noopener">邓凡平大牛写的深入理解Android之Java虚拟机Dalvik</a>，读过他写的深入理解几本书，不过那时候对这些都是走马观花的看，毕竟有些内容，就算背下来，以后不用到，也是还给人家。哈</li>
+<li><p><a href="http://blog.csdn.net/luoshengyang/article/details/8852432" target="_blank" rel="noopener">老罗哥关于Dalvik的学习计划</a></p>
+</li>
+<li><p>深入Java虚拟机，By Bill Venners</p>
+</li>
+<li><a href="https://github.com/android/platform_dalvik" target="_blank" rel="noopener">dalvik的源码</a></li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/DVM/" rel="tag">#DVM</a>
+          
+            <a href="/tags/Dalvik/" rel="tag">#Dalvik</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" rel="prev">源码探索系列39---关于电量统计BatteryStatsHelper</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/28/安卓性能系列2---优化内存/" rel="next">安卓性能系列2---优化内存</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/06/12/源码探索系列38---关于dalvik虚拟机/"
+     data-title="源码探索系列38---关于dalvik虚拟机"
+     data-content=""
+     data-url="http://yoursite.com/2016/06/12/源码探索系列38---关于dalvik虚拟机/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/06/12/源码探索系列38---关于dalvik虚拟机/"
+                   data-title="源码探索系列38---关于dalvik虚拟机" data-url="http://yoursite.com/2016/06/12/源码探索系列38---关于dalvik虚拟机/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Class加载"><span class="nav-number">1.</span> <span class="nav-text">Class加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#New-Instance"><span class="nav-number">1.1.</span> <span class="nav-text">New Instance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmInterpretPortable"><span class="nav-number">1.2.</span> <span class="nav-text">dvmInterpretPortable()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DEFINE-GOTO-TABLE"><span class="nav-number">1.2.1.</span> <span class="nav-text">DEFINE_GOTO_TABLE</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HANDLE-OPCODE-OP-NEW-INSTANCE"><span class="nav-number">1.2.2.</span> <span class="nav-text">HANDLE_OPCODE(OP_NEW_INSTANCE)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">1.2.3.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数的运行"><span class="nav-number">2.</span> <span class="nav-text">函数的运行</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建栈帧-allocThread"><span class="nav-number">2.1.</span> <span class="nav-text">创建栈帧 allocThread</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmCallMethod"><span class="nav-number">2.2.</span> <span class="nav-text">dvmCallMethod</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmCallMethodV"><span class="nav-number">2.3.</span> <span class="nav-text">dvmCallMethodV</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#callPrep"><span class="nav-number">2.3.1.</span> <span class="nav-text">callPrep()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dvmPushInterpFrame（）"><span class="nav-number">2.3.2.</span> <span class="nav-text">dvmPushInterpFrame（）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmInterpret"><span class="nav-number">2.4.</span> <span class="nav-text">dvmInterpret</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmInterpretPortable-1"><span class="nav-number">2.5.</span> <span class="nav-text">dvmInterpretPortable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FINISH"><span class="nav-number">2.6.</span> <span class="nav-text">FINISH()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数返回-GOTO-TARGET-returnFromMethod"><span class="nav-number">2.7.</span> <span class="nav-text">函数返回      GOTO_TARGET(returnFromMethod)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结-1"><span class="nav-number">2.8.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Summary"><span class="nav-number"></span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#REF"><span class="nav-number"></span> <span class="nav-text">REF</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

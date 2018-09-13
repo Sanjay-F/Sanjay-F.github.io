@@ -1,0 +1,958 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,ListView," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。 起航API：23 我们的Listview是继承于AbsListView 的 public class ListView extends AbsListView  而这个AbsListView里面帮我们做了">
+<meta name="keywords" content="android,源码,ListView">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview">
+<meta property="og:url" content="http://yoursite.com/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。 起航API：23 我们的Listview是继承于AbsListView 的 public class ListView extends AbsListView  而这个AbsListView里面帮我们做了">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.709Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview">
+<meta name="twitter:description" content="作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。 起航API：23 我们的Listview是继承于AbsListView 的 public class ListView extends AbsListView  而这个AbsListView里面帮我们做了">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-30T00:27:46+08:00" content="2015-12-30">
+            2015-12-30
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。<br>所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23</p>
+<p>我们的<code>Listview</code>是继承于<code>AbsListView</code> 的</p>
+<pre><code>public class ListView extends AbsListView 
+</code></pre><p>而这个AbsListView里面帮我们做了大量的工作，包括与我们的adapter相关的工作，对View的复用等。<br><a id="more"></a><br>我们就从我们的最熟悉的一句<code>setAdapter（）</code>开始吧</p>
+<pre><code>@Override
+public void setAdapter(ListAdapter adapter) {
+    if (mAdapter != null &amp;&amp; mDataSetObserver != null) {
+        mAdapter.unregisterDataSetObserver(mDataSetObserver);
+    }
+
+    resetList();
+    mRecycler.clear();
+
+    if (mHeaderViewInfos.size() &gt; 0|| mFooterViewInfos.size() &gt; 0) {
+        mAdapter = new HeaderViewListAdapter(mHeaderViewInfos, mFooterViewInfos, adapter);
+    } else {
+        mAdapter = adapter;
+    }
+
+    mOldSelectedPosition = INVALID_POSITION;
+    mOldSelectedRowId = INVALID_ROW_ID;
+
+    // AbsListView#setAdapter will update choice mode states.
+    super.setAdapter(adapter);
+
+    if (mAdapter != null) {
+        mAreAllItemsSelectable = mAdapter.areAllItemsEnabled();
+        mOldItemCount = mItemCount;
+        mItemCount = mAdapter.getCount();
+        checkFocus();
+
+        mDataSetObserver = new AdapterDataSetObserver();
+        mAdapter.registerDataSetObserver(mDataSetObserver);
+
+        mRecycler.setViewTypeCount(mAdapter.getViewTypeCount());
+
+        int position;
+        if (mStackFromBottom) {
+            position = lookForSelectablePosition(mItemCount - 1, false);
+        } else {
+            position = lookForSelectablePosition(0, true);
+        }
+        setSelectedPositionInt(position);
+        setNextSelectedPositionInt(position);
+
+        if (mItemCount == 0) {
+            // Nothing selected
+            checkSelectionChanged();
+        }
+    } else {
+        mAreAllItemsSelectable = true;
+        checkFocus();
+        // Nothing selected
+        checkSelectionChanged();
+    }
+
+    requestLayout();
+}
+</code></pre><p>看惯了几百行一个的函数，现在整个这么长贴起来都不觉得长了。<br>现在来解释下，开头的这里两句，如原来有adapter的话，就注销掉数据观察者<code>mDataSetObserver</code></p>
+<pre><code>if (mAdapter != null &amp;&amp; mDataSetObserver != null) {
+    mAdapter.unregisterDataSetObserver(mDataSetObserver);
+}
+</code></pre><p>还记得我们每次修改数据后，都去调用下面这句吗？</p>
+<pre><code>notifyDataSetChanged();
+</code></pre><p>因为底层在数据变化上使用的是<code>观察者模型</code>来进行解耦操作。</p>
+<pre><code>public void notifyDataSetChanged() {
+        mDataSetObservable.notifyChanged();
+    }
+
+public class DataSetObservable extends Observable&lt;DataSetObserver&gt; {
+
+    public void notifyChanged() {
+        synchronized(mObservers) { 
+            for (int i = mObservers.size() - 1; i &gt;= 0; i--) {
+                mObservers.get(i).onChanged();
+            }
+        }
+    }
+
+    public void notifyInvalidated() {
+        synchronized (mObservers) {
+            for (int i = mObservers.size() - 1; i &gt;= 0; i--) {
+                mObservers.get(i).onInvalidated();
+            }
+        }
+    }
+}
+</code></pre><p>在我们的AbsListview定义了这个DataSetObserver</p>
+<pre><code>class AdapterDataSetObserver extends AdapterView&lt;ListAdapter&gt;.AdapterDataSetObserver {
+    @Override
+    public void onChanged() {
+        super.onChanged();
+        if (mFastScroll != null) {
+            mFastScroll.onSectionsChanged();
+        }
+    }
+
+    @Override
+    public void onInvalidated() {
+        super.onInvalidated();
+        if (mFastScroll != null) {
+            mFastScroll.onSectionsChanged();
+        }
+    }
+}
+</code></pre><p>最后在onChange（）函数会去调用<code>requestLayout()</code> ，从而重新绘制界面。</p>
+<p>我们继续看下去</p>
+<pre><code>mRecycler.clear();
+
+if (mHeaderViewInfos.size() &gt; 0|| mFooterViewInfos.size() &gt; 0) {
+    mAdapter = new HeaderViewListAdapter(mHeaderViewInfos, mFooterViewInfos, adapter);
+} else {
+    mAdapter = adapter;
+}
+</code></pre><p>这里提下这个<code>mRecycler</code>，他和我们的界面重用有关，即他会保存我们的每个Item的View。<br>然后就是设置mAdapter这事了，如果我们原来就有设置头和脚的话，就会对我们传递过来的adapter做下修改，看来还算挺好的。<br>接着就是让父类设置下新的adapter，然后就是一堆的设置了，包括对新的额adapter设置数据观察员<code>mDataSetObserver</code>， 告诉<code>mRecycler</code>新的适配器有多少种View类型，好让他做准备，重新设置选中的item的位置。</p>
+<p>最后就是请求刷新界面的啦</p>
+<pre><code>requestLayout();
+</code></pre><p>我们去看下怎么个布局，关于View的刷新过程，可以去看下<strong>源码探索系列11—关于View的绘制</strong>，具体不说，我们直接去看下<code>layout</code>函数，下面是<code>AbsListView</code>的<code>Onlayout</code></p>
+<pre><code>@Override
+protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    super.onLayout(changed, l, t, r, b);
+    mInLayout = true;
+    final int childCount = getChildCount();
+    if (changed) {
+        for (int i = 0; i &lt; childCount; i++) {
+            getChildAt(i).forceLayout();
+        }
+        mRecycler.markChildrenDirty();
+    }
+
+    layoutChildren();
+    mInLayout = false;
+
+    ...
+}
+</code></pre><p>这里我们看到，他会去重新绘制界面，同时还去调用了 <code>layoutChildren();</code>，这个方法是空的，之类需要重写他，我们去看下Listview里面写了什么，这个方法不短，也有个三百多行的。我们截取关键的点</p>
+<pre><code>protected void layoutChildren() {
+    ...
+    try {
+        ...   
+        switch (mLayoutMode) {
+            ...
+         case LAYOUT_FORCE_BOTTOM:
+            sel = fillUp(mItemCount - 1, childrenBottom);
+            adjustViewsUpOrDown();
+            break;
+        case LAYOUT_FORCE_TOP:
+            mFirstPosition = 0;
+            sel = fillFromTop(childrenTop);
+            adjustViewsUpOrDown();
+            break;
+         ...
+         }
+      ...
+     } finally {
+       ...
+    }
+}
+</code></pre><p>这里有一个有意思的点，就是布局的时候，有两种方式一个是从下到上，另一种是从上到下的布局。平时都没去注意这个布局是从那开始的。我们看下<code>fillUp</code>，从下到上的布局过程的</p>
+<pre><code>private View fillUp(int pos, int nextBottom) {
+    View selectedView = null;
+    int end = 0; 
+    ...
+
+    while (nextBottom &gt; end &amp;&amp; pos &gt;= 0) {
+        // is this the selected item?
+        boolean selected = pos == mSelectedPosition;
+        View child = makeAndAddView(pos, nextBottom, false, mListPadding.left, selected);
+        nextBottom = child.getTop() - mDividerHeight;
+        if (selected) {
+            selectedView = child;
+        }
+        pos--;
+    }
+    mFirstPosition = pos + 1;
+    setVisibleRangeHint(mFirstPosition, mFirstPosition + getChildCount() - 1);
+    return selectedView;
+}
+</code></pre><p>这里重要的一句就是<code>makeAndAddView(）</code>函数，他返回的View就是我们的ListView中对应的每个Item。</p>
+<pre><code>private View makeAndAddView(int position, int y, boolean flow, int childrenLeft,
+        boolean selected) {
+    View child;
+    if (!mDataChanged) { 
+        child = mRecycler.getActiveView(position);
+        if (child != null) {
+             setupChild(child, position, y, flow, childrenLeft, selected, true);
+            return child;
+        }
+    }
+
+    child = obtainView(position, mIsScrap);
+
+    setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[0]);
+    return child;
+}
+</code></pre><p>这里我们又看到了<code>mRecycler</code>这家伙，前面已经有提到过他和我们的复用有关，这里的<code>getActiviView()</code>函数给了更直接的证据，很显然他保存着我们的View。如果这个Child不是空的话，就去<code>setUpChild()</code>,让我们去给我们绑定数据到View上，但这的前提当然就是我们的数据没变啊，View还可以用的情况下。</p>
+<p>如果变了的话，他就调用<code>obtainView()</code>去New一个出来，再让我们去初始化我们的View。<br>我们先去看下<code>obtainView()</code>，在看那个<code>setupChilde()</code></p>
+<pre><code>View obtainView(int position, boolean[] isScrap) {
+     ...
+    final View scrapView = mRecycler.getScrapView(position);
+    final View child = mAdapter.getView(position, scrapView, this);
+    if (scrapView != null) {
+        if (child != scrapView) {
+            // Failed to re-bind the data, return scrap to the heap.
+            mRecycler.addScrapView(scrapView, position);
+        } else {
+            isScrap[0] = true;
+            // Finish the temporary detach started in addScrapView().
+            child.dispatchFinishTemporaryDetach();
+        }
+    }
+
+     ...
+    return child;
+}
+</code></pre><p>看到这里，我们看到了熟悉的一个地方<code>mAdapter.getView(position, scrapView, this);</code><br>这句话就是我们每次写adapter时候遇到的地方</p>
+<pre><code>@Override
+public View getView(int position, View view, ViewGroup viewGroup) {
+    ViewHolder holder;
+    if (view == null) {
+        view = mInflater.inflate(R.layout.list_item_folder, viewGroup, false);
+        holder = new ViewHolder(view);
+    } else {
+        holder = (ViewHolder) view.getTag();
+    }
+    ...
+}
+</code></pre><p>对于我们的Adapter返回的View，会被保存起来<code>mRecycler.addScrapView(scrapView, position);</code><br>这样下次有人问题这个ListView是怎么做到复用的呢？<br>一定要说用一个<code>mRecycler</code>来保存的，这句话说出来就像看过源码的人。<br>通过这个mRecycler来保存我们每次infalte后的View，避免了频繁的去生成，从而提高效率的，当然我们都知道，这要求我们滚了一屏才可能，因为过了一屏，新的item的View才是复用原来的。</p>
+<p>继续回主线，我们去看下setupChild的内容（）</p>
+<pre><code>private void setupChild(View child, int position, int y, boolean flowDown, int childrenLeft,
+        boolean selected, boolean recycled) {
+
+    ...
+    p.viewType = mAdapter.getItemViewType(position);
+
+    if ((recycled &amp;&amp; !p.forceAdd) || (p.recycledHeaderFooter
+            &amp;&amp; p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) {
+        attachViewToParent(child, flowDown ? -1 : 0, p);
+    } else {
+        p.forceAdd = false;
+        if (p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
+            p.recycledHeaderFooter = true;
+        }
+        addViewInLayout(child, flowDown ? -1 : 0, p, true);
+    }
+    ... 
+}
+</code></pre><p>对于我们的child，分了两种，一种是相对特殊的头和脚，一种是正常的item。后者是直接加上去，没什么说，我们看下前者</p>
+<pre><code>protected void attachViewToParent(View child, int index, LayoutParams params) {
+    child.mLayoutParams = params;
+
+    if (index &lt; 0) {
+        index = mChildrenCount;
+    }
+
+    addInArray(child, index);
+
+    ...
+}
+</code></pre><p>这里主要是把我们的头和脚加入到数组里面去，方便在使用<code>getChildAt(int)</code>的时候可以获得这个View。 </p>
+<p>到这里基本对Listview的重要的部分就结束啦,他设计到的AdapterView下次再做详细的解析吧</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>整个的关于源码探索系列的初篇就这样结尾啦！</p>
+<p>后面有时间和想法，再写下中篇和大结局篇嘛？</p>
+<p>开始写一点设计模式的内容，我们今天的Listview就有用到观察者和适配器模型两种！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/ListView/" rel="tag">#ListView</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/" rel="prev">设计模式系列2---幕后黑手的代理模式</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/29/设计模式系列1---独当一面的单例/" rel="next">设计模式系列1---独当一面的单例</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/"
+     data-title="源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/"
+                   data-title="源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview" data-url="http://yoursite.com/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">2.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

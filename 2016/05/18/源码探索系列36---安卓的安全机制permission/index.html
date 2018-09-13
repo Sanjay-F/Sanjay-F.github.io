@@ -1,0 +1,2218 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,permission," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="本文尝试从源码的角度来对permission等机制做一个了解。另外从安装一个apk的整个流程来看与permission相关的内容。 Android 是一个权限分离的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的uid和gid，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。 与此同时，安卓">
+<meta name="keywords" content="android,源码,permission">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列36---安卓的安全机制permission">
+<meta property="og:url" content="http://yoursite.com/2016/05/18/源码探索系列36---安卓的安全机制permission/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="本文尝试从源码的角度来对permission等机制做一个了解。另外从安装一个apk的整个流程来看与permission相关的内容。 Android 是一个权限分离的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的uid和gid，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。 与此同时，安卓">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/36_QQ%E6%88%AA%E5%9B%BE20160517154926.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.725Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列36---安卓的安全机制permission">
+<meta name="twitter:description" content="本文尝试从源码的角度来对permission等机制做一个了解。另外从安装一个apk的整个流程来看与permission相关的内容。 Android 是一个权限分离的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的uid和gid，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。 与此同时，安卓">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/36_QQ%E6%88%AA%E5%9B%BE20160517154926.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列36---安卓的安全机制permission | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列36---安卓的安全机制permission
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-05-18T22:28:46+08:00" content="2016-05-18">
+            2016-05-18
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/18/源码探索系列36---安卓的安全机制permission/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/18/源码探索系列36---安卓的安全机制permission/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>本文尝试从源码的角度来对permission等机制做一个了解。<br>另外从安装一个apk的整个流程来看与permission相关的内容。</p>
+<p>Android 是一个<strong>权限分离</strong>的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的<code>uid</code>和<code>gid</code>，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。</p>
+<p>与此同时，安卓在此基础上还进行了扩展，提供了<code>permission机制</code>，它主要是用来对<code>App</code>可以执行的某些具体操作进行权限细分和访问控制，同时提供了<code>per-URI permission 机制</code>，用来提供对某些特定的数据块进行 ad-hoc 方式的访问。</p>
+<a id="more"></a>
+<h1 id="Android-系统权限定义-uid-、-gid-、-gids"><a href="#Android-系统权限定义-uid-、-gid-、-gids" class="headerlink" title="Android 系统权限定义 uid 、 gid 、 gids"></a>Android 系统权限定义 uid 、 gid 、 gids</h1><p>安卓的权限分离是在Linux已有的<code>uid</code>、<code>gid</code> 、<code>gids</code>基础上的UID。为了做到隔离，避免一些攻击等，当我们安装应用程序时，系统会为它分配一个uid(见<code>PackageManagerService</code>中<code>newUserLP</code>部分)。</p>
+<p>参考配置的id如下:        </p>
+<pre><code>// Tools for managing OS processes.     
+public class Process {    
+
+  //Defines the root UID. 
+  public static final int ROOT_UID = 0;    
+
+  //Defines the UID/GID under which system code runs. 
+  public static final int SYSTEM_UID = 1000;
+
+  //Defines the UID/GID under which the telephony code runs.      
+  public static final int PHONE_UID = 1001;    
+
+  //Defines the UID/GID for the user shell.
+  public static final int SHELL_UID = 2000;    
+
+  //Defines the UID/GID for the log group. 
+  public static final int LOG_UID = 1007; 
+
+  //Defines the UID/GID for the Bluetooth service process. 
+  public static final int BLUETOOTH_UID = 1002; 
+
+  //Defines the UID/GID for the shared RELRO file updater process. 
+  public static final int SHARED_RELRO_UID = 1037;    
+
+  //Defines the start of a range of UIDs (and GIDs), going from this
+  //number to {@link #LAST_APPLICATION_UID} that are reserved for assigning
+  //to applications. 
+  public static final int FIRST_APPLICATION_UID = 10000;    
+  //我们的起始id
+
+  ...
+
+}     
+</code></pre><ol>
+<li><strong>UID</strong> :  Android在安装一个应用程序，会为它分配一个 uid，我们普通应用程序的<code>uid</code>是从 10000 开始分配 （见 Process.FIRST_APPLICATION_UID ）。在上面的定义代码块的最后一行有写到， 0-10000系统进程的 uid 。</li>
+<li><strong>GID :</strong> 对于普通应用程序来说， gid 等于 uid 。由于每个应用程序的 uid 和 gid 都不相同， 因此不管是 native 层还是 java 层都能够达到保护私有数据的作用 。</li>
+<li><strong>GIDS:</strong> 。 gids 是由框架在 Application 安装过程中生成，与 Application 申请的具体权限相关。 如果 Application 申请的相应的 permission 被 granted ，而且 中有对应的 gid s ， 那么 这个 Application 的 gids 中将 包含这个 gids</li>
+</ol>
+<hr>
+<h1 id="Android-permission-管理机制"><a href="#Android-permission-管理机制" class="headerlink" title="Android permission 管理机制"></a>Android permission 管理机制</h1><p>API:23</p>
+<h2 id="检测apk"><a href="#检测apk" class="headerlink" title="检测apk"></a>检测apk</h2><p>在系统源码的packages/apps/PackageInstaller目录，对应系统的安装程序,就是熟悉的这个<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/36_QQ%E6%88%AA%E5%9B%BE20160517154926.png" alt="enter image description here"></p>
+<p>程序会解析包，对在AndroidManifest里面写的权限要求显示出来<br>分析包的安全的流程是这样的</p>
+<pre><code>onCreate()--&gt;initiateInstall()--&gt;startInstallConfirm()
+</code></pre><h3 id="oncreate"><a href="#oncreate" class="headerlink" title="oncreate()"></a>oncreate()</h3><p>在该oncreate内容，里面包含不少的操作。</p>
+<pre><code>@Override
+protected void onCreate(Bundle icicle) {
+
+    super.onCreate(icicle);
+
+    mPm = getPackageManager();
+    mInstaller = mPm.getPackageInstaller();
+    mUserManager = (UserManager) getSystemService(Context.USER_SERVICE);
+
+    ...
+
+    final PackageUtil.AppSnippet as;
+    if (&quot;package&quot;.equals(mPackageURI.getScheme())) {
+        mInstallFlowAnalytics.setFileUri(false); 
+        mPkgInfo = mPm.getPackageInfo(mPackageURI.getSchemeSpecificPart(),
+                    PackageManager.GET_PERMISSIONS | 
+                    PackageManager.GET_UNINSTALLED_PACKAGES);
+        ...
+
+    } else {
+
+        final File sourceFile = new File(mPackageURI.getPath());
+        PackageParser.Package parsed = PackageUtil.getPackageInfo(sourceFile);
+        ...
+        mPkgInfo = PackageParser.generatePackageInfo(parsed, null,
+                PackageManager.GET_PERMISSIONS, 0, 0, null,
+                new PackageUserState());
+        mPkgDigest = parsed.manifestDigest;
+
+        ...
+    }
+
+
+    //set view
+    setContentView(R.layout.install_start);  
+    ...
+
+    // Block the install attempt on the Unknown Sources setting if necessary.
+    if (!requestFromUnknownSource) {
+        initiateInstall();
+        return;
+    }
+
+
+    //对没在设置那里允许Unknown Sources的APP，要弹框提示，这对于安卓用户来说不陌生。        
+    // If the admin prohibits it, or we&apos;re running in a managed profile, 
+    //just show error and exit. Otherwise show an option to take the user to 
+    // Settings to change the setting.final boolean isManagedProfile = 
+    // mUserManager.isManagedProfile();
+
+    if (!unknownSourcesAllowedByAdmin
+            || (!unknownSourcesAllowedByUser &amp;&amp; isManagedProfile)) {
+        showDialogInner(DLG_ADMIN_RESTRICTS_UNKNOWN_SOURCES);
+        ...
+    } else if (!unknownSourcesAllowedByUser) {
+        // Ask user to enable setting first
+        showDialogInner(DLG_UNKNOWN_SOURCES);
+        ...
+    } else {        
+        initiateInstall();
+    }
+
+}
+</code></pre><p>在onCreate会调用getPackageInfo()去解析我们的包，生成一个package类</p>
+<pre><code>PackageParser.Package parsed = PackageUtil.getPackageInfo(sourceFile);
+</code></pre><p>之后调用generatePackageInfo()去生成我们的PackageInfo类的实例，这个是在后面解析时候需要用到的。</p>
+<pre><code>mPkgInfo = PackageParser.generatePackageInfo(parsed, null,
+                PackageManager.GET_PERMISSIONS, 0, 0, null,
+                new PackageUserState());
+</code></pre><p>上面的两步解析和在看插件化库DroidPlugin的内容有不少相似的地方，主要就是解析我们的apk文件，提取出AndroidManifest的内容等操作。在这里就不贴出来了。</p>
+<h3 id="initiateInstall"><a href="#initiateInstall" class="headerlink" title="initiateInstall()"></a>initiateInstall()</h3><pre><code>private void initiateInstall() {
+
+    String pkgName = mPkgInfo.packageName;
+    // Check if there is already a package on the device with this name
+    // but it has been renamed to something else.
+    String[] oldName = mPm.canonicalToCurrentPackageNames(new String[] { pkgName });
+    if (oldName != null &amp;&amp; oldName.length &gt; 0 &amp;&amp; oldName[0] != null) {
+        pkgName = oldName[0];
+        mPkgInfo.packageName = pkgName;
+        mPkgInfo.applicationInfo.packageName = pkgName;
+    }
+    // Check if package is already installed. 
+    //display confirmation dialog if replacing pkg
+    try {
+        // This is a little convoluted because we want to get all uninstalled
+        // apps, but this may include apps with just data, and if it is just
+        // data we still want to count it as &quot;installed&quot;.
+        mAppInfo = mPm.getApplicationInfo(pkgName,
+                PackageManager.GET_UNINSTALLED_PACKAGES);
+        if ((mAppInfo.flags&amp;ApplicationInfo.FLAG_INSTALLED) == 0) {
+            mAppInfo = null;
+        }
+    } catch (NameNotFoundException e) {
+        mAppInfo = null;
+    }
+    ...
+    startInstallConfirm();
+}
+</code></pre><p>initiateInstall()主要是做些初始化和检测的内容。</p>
+<h3 id="startInstallConfirm"><a href="#startInstallConfirm" class="headerlink" title="startInstallConfirm()"></a>startInstallConfirm()</h3><pre><code>private void startInstallConfirm() {
+
+    TabHost tabHost = (TabHost)findViewById(android.R.id.tabhost);
+    tabHost.setup();
+    ViewPager viewPager = (ViewPager)findViewById(R.id.pager);
+    TabsAdapter adapter = new TabsAdapter(this, tabHost, viewPager);
+    ...
+
+    // If the app supports runtime permissions the new permissions will
+    // be requested at runtime, hence we do not show them at install.
+    boolean supportsRuntimePermissions = mPkgInfo.applicationInfo.targetSdkVersion
+            &gt;= Build.VERSION_CODES.M; 
+
+            ...        
+
+    AppSecurityPermissions perms = new AppSecurityPermissions(this, mPkgInfo);
+    final int N = perms.getPermissionCount(AppSecurityPermissions.WHICH_ALL);
+
+    ....
+
+     if (!supportsRuntimePermissions) {
+         newPermissionsFound =
+                 (perms.getPermissionCount(AppSecurityPermissions.WHICH_NEW) &gt; 0);
+         mInstallFlowAnalytics.setNewPermissionsFound(newPermissionsFound);
+         if (newPermissionsFound) {
+             permVisible = true;
+             mScrollView.addView(perms.getPermissionsView(
+                     AppSecurityPermissions.WHICH_NEW));
+         }
+     }
+     ...
+     adapter.addTab(tabHost.newTabSpec(TAB_ID_NEW).setIndicator(
+             getText(R.string.newPerms)), mScrollView);       
+    ...
+
+    if (!supportsRuntimePermissions &amp;&amp; N &gt; 0) {
+        ...            
+        ((ViewGroup)root.findViewById(R.id.permission_list)).addView(
+                    perms.getPermissionsView(AppSecurityPermissions.WHICH_ALL));
+        adapter.addTab(tabHost.newTabSpec(TAB_ID_ALL).setIndicator(
+                getText(R.string.allPerms)), root);
+    }
+
+     ...
+}
+</code></pre><p>在startInstallConfirm函数里面，会调用<code>AppSecurityPermissions</code>类去解析安装包，然后调用它的<code>getPermissionsView()</code>获得view，把解析到的内容显示在界面上。显示用的非常原始的<code>TabHost</code> ，这个类好久没用过了，只在一开始学安卓时候用过。</p>
+<p>不知道你有没注意到，在开头的图片，是有分<code>new</code>和<code>ALL</code>两栏的，对于新安装包相对于现在安装在手机上的安装包，新的权限需求就在<code>New</code>栏。</p>
+<h4 id="AppSecurityPermissions"><a href="#AppSecurityPermissions" class="headerlink" title="AppSecurityPermissions()"></a>AppSecurityPermissions()</h4><pre><code> public AppSecurityPermissions(Context context, PackageInfo info) {
+    this(context);
+    Set&lt;MyPermissionInfo&gt; permSet = new HashSet&lt;MyPermissionInfo&gt;();
+
+    mPackageName = info.packageName;
+
+    // Convert to a PackageInfo
+    PackageInfo installedPkgInfo = null;
+    // Get requested permissions
+    if (info.requestedPermissions != null) {
+
+       installedPkgInfo = mPm.getPackageInfo(info.packageName,
+                PackageManager.GET_PERMISSIONS);
+        extractPerms(info, permSet, installedPkgInfo);
+    }
+
+    // Get permissions related to shared user if any
+    if (info.sharedUserId != null) {
+        int sharedUid;         
+        sharedUid = mPm.getUidForSharedUser(info.sharedUserId);
+        getAllUsedPermissions(sharedUid, permSet);          
+    }
+
+    // 这部分mPermsList就是所有的权限列表内容
+    //我们在getPermissionsView()函数调用回来的内容就是根据这个list内容去构造出view。 
+    mPermsList.addAll(permSet);
+    setPermissions(mPermsList);
+}
+</code></pre><p>首先，通过extractPerms函数来获取我们的权限内容，然后放到permSet里面去。在调用的时候传多了一个installedPkgInfo,这个参数是通过传我们要安装的报名去获取的，作用是查看是否已经有安装过这个包，有就返回这个包的信息回来。<br>之所以要这个参数，意思是查看下这个包以前是否安装过，对于安装过的程序，在展示权限信息的时候，会只展示这个新包要求的新的权限，相对于的原有的上一个版本已经出现过的就不再做展示啦。用户已经知道过了。</p>
+<p>如果我们在配置文件还有关于shareUserId部分的内容，那么就查下相关的权限，关于sharedUerId，目前个人的开发还真没用过，因为不像大公司的全家桶套餐，有多个app，而且app间有一定的通讯需求。现在以一个独立的为主。</p>
+<h4 id="extractPerms"><a href="#extractPerms" class="headerlink" title="extractPerms()"></a>extractPerms()</h4><pre><code>private void extractPerms(PackageInfo info, Set&lt;MyPermissionInfo&gt; permSet,
+        PackageInfo installedPkgInfo) {
+
+     //权限信息来自packageInfo类，这个类有所有的AndroidManifest的信息   
+    String[] strList = info.requestedPermissions;
+    int[] flagsList = info.requestedPermissionsFlags;
+    if ((strList == null) || (strList.length == 0)) {
+        return;
+    }
+
+    for (int i=0; i&lt;strList.length; i++) {
+        String permName = strList[i];
+        try {
+            PermissionInfo tmpPermInfo = mPm.getPermissionInfo(permName, 0);
+            if (tmpPermInfo == null) {
+                continue;
+            }
+
+            int existingIndex = -1;
+            if (installedPkgInfo != null
+                    &amp;&amp; installedPkgInfo.requestedPermissions != null) {
+                    //判断手机安装了的包，相对于现在要安装的这个包，是否已有这条权限了。
+                for (int j=0; j&lt;installedPkgInfo.requestedPermissions.length; j++) {
+                    if (permName.equals(installedPkgInfo.requestedPermissions[j])) {
+                        existingIndex = j;
+                        break;
+                    }
+                }
+            }
+
+            final int existingFlags = existingIndex &gt;= 0 ?
+                    installedPkgInfo.requestedPermissionsFlags[existingIndex] : 0;
+
+
+           if (!isDisplayablePermission(tmpPermInfo, flagsList[i], existingFlags)){
+                 //过滤用户不需要知道的权限
+                // This is not a permission that is interesting for the user
+                // to see, so skip it.
+                continue;
+            }
+
+            //我们的权限是有分组的
+            final String origGroupName = tmpPermInfo.group;
+            String groupName = origGroupName;
+            if (groupName == null) {
+                groupName = tmpPermInfo.packageName;
+                tmpPermInfo.group = groupName;
+            }
+            MyPermissionGroupInfo group = mPermGroups.get(groupName);
+            if (group == null) {
+                PermissionGroupInfo grp = null;
+                if (origGroupName != null) {
+                    grp = mPm.getPermissionGroupInfo(origGroupName, 0);
+                }
+                if (grp != null) {
+                    group = new MyPermissionGroupInfo(grp);
+                } else {
+                    // We could be here either because the permission
+                    // didn&apos;t originally specify a group or the group it
+                    // gave couldn&apos;t be found.  In either case, we consider
+                    // its group to be the permission&apos;s package name.
+                    tmpPermInfo.group = tmpPermInfo.packageName;
+                    group = mPermGroups.get(tmpPermInfo.group);
+                    if (group == null) {
+                        group = new MyPermissionGroupInfo(tmpPermInfo);
+                    }
+                    group = new MyPermissionGroupInfo(tmpPermInfo);
+                }
+                mPermGroups.put(tmpPermInfo.group, group);
+            }
+
+            final boolean newPerm = installedPkgInfo != null
+               &amp;&amp; (existingFlags&amp;PackageInfo.REQUESTED_PERMISSION_GRANTED)==0;
+
+            MyPermissionInfo myPerm = new MyPermissionInfo(tmpPermInfo);
+            myPerm.mNewReqFlags = flagsList[i];
+            myPerm.mExistingReqFlags = existingFlags;
+            // This is a new permission if the app is already installed and
+            // doesn&apos;t currently hold this permission.
+            myPerm.mNew = newPerm;
+            permSet.add(myPerm);
+        } catch (NameNotFoundException e) {
+            Log.i(TAG, &quot;Ignoring unknown permission:&quot;+permName);
+        }
+    }
+}
+</code></pre><p>在开头的那张安装包的图片可以看到，左边有一排的声音，同步，设置等等，右边有对应的申请的权限具体内容。这个结构就是分组，每个组有对应的一些权限内容。权限信息保存用<code>PermissionInfo</code>，如权限的一些<code>protectionLevel</code> ，<code>group</code> ，<code>descriptionRes</code> 等属性。对于用户自己编的权限是跳过的，因为我们看到他会对返回的tmpPermInfo做判断是否为空.</p>
+<h4 id="isDisplayablePermission"><a href="#isDisplayablePermission" class="headerlink" title="isDisplayablePermission()"></a>isDisplayablePermission()</h4><p>对于我们写在配置文件声明的权限，不全部都会展示出来的，是有一定的判断标准的，会过滤一些不需要用户知道的权限，具体的判断条件在这个函数里面。</p>
+<pre><code>private boolean isDisplayablePermission(PermissionInfo pInfo, int newReqFlags,
+        int existingReqFlags) {
+    final int base = pInfo.protectionLevel &amp; PermissionInfo.PROTECTION_MASK_BASE;
+    final boolean isNormal = (base == PermissionInfo.PROTECTION_NORMAL);
+
+    // We do not show normal permissions in the UI.
+    if (isNormal) {
+        return false;
+    }
+
+    final boolean isDangerous = (base == PermissionInfo.PROTECTION_DANGEROUS)
+            || ((pInfo.protectionLevel&amp;PermissionInfo.PROTECTION_FLAG_PRE23) != 0);
+    final boolean isRequired =
+            ((newReqFlags&amp;PackageInfo.REQUESTED_PERMISSION_REQUIRED) != 0);
+    final boolean isDevelopment =
+            ((pInfo.protectionLevel&amp;PermissionInfo.PROTECTION_FLAG_DEVELOPMENT) != 0);
+    final boolean wasGranted =
+            ((existingReqFlags&amp;PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0);
+    final boolean isGranted =
+            ((newReqFlags&amp;PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0);
+
+    // Dangerous and normal permissions are always shown to the user if the permission
+    // is required, or it was previously granted
+    if (isDangerous &amp;&amp; (isRequired || wasGranted || isGranted)) {
+        return true;
+    }
+
+    // Development permissions are only shown to the user if they are already
+    // granted to the app -- if we are installing an app and they are not
+    // already granted, they will not be granted as part of the install.
+    if (isDevelopment &amp;&amp; wasGranted) {
+        if (localLOGV) Log.i(TAG, &quot;Special perm &quot; + pInfo.name
+                + &quot;: protlevel=0x&quot; + Integer.toHexString(pInfo.protectionLevel));
+        return true;
+    }
+    return false;
+}
+</code></pre><p>对于权限等级为NORMAL，过滤。<br>对于Dangerous，是被要求展示的或者前面被授权过的都要显示。<br>对于是开发同时被授权过的，也要显示。（<strong>这条还真没配置过！</strong>） </p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>通过上面的流程，我们知道关于权限的基本信息。</p>
+<p>一个权限主要包含三个方面的信息：权限的名称，属于的权限组，保护级别。</p>
+<ol>
+<li><strong>权限的名称</strong>： 就是写在各个permission表情里面的名字，我们想申请的权限内容</li>
+<li><p><strong>权限组：</strong> 一个权限组是指把权限按照功能分成的不同的集合。 每一个权限组包含若干具体权限，<br>如在SMS组中包含 <code>android.permission.SEND_SMS</code>，<code>android.permission.READ_SMS</code>等和短信相关权限（参考：frameworks/base/core/res /AndroidManifest.xml ）。<br>我们看到安卓对权限的分组是重构过的，V23版本是依据功能来划分，因为旧版吧发短信和打电话归到了COSTS_MONEY 组。这个6.0版本确实更新不少，对底层以前的很多工作都做了调整，背后一定有不少故事，毕竟整个项目那么大。</p>
+<pre><code>&lt;permission-group android:name=&quot;android.permission-group.SMS&quot;
+android:icon=&quot;@drawable/perm_group_sms&quot;
+android:label=&quot;@string/permgrouplab_sms&quot;
+android:description=&quot;@string/permgroupdesc_sms&quot;
+android:priority=&quot;300&quot; /&gt;
+
+&lt;!-- Allows an application to send SMS messages.
+ &lt;p&gt;Protection level: dangerous
+--&gt;
+&lt;permission android:name=&quot;android.permission.SEND_SMS&quot;
+    android:permissionGroup=&quot;android.permission-group.SMS&quot;
+    android:label=&quot;@string/permlab_sendSms&quot;
+    android:description=&quot;@string/permdesc_sendSms&quot;
+    android:permissionFlags=&quot;costsMoney&quot;
+    android:protectionLevel=&quot;dangerous&quot; /&gt;
+
+&lt;!-- Allows an application to read SMS messages.
+     &lt;p&gt;Protection level: dangerous
+--&gt;
+&lt;permission android:name=&quot;android.permission.READ_SMS&quot;
+    android:permissionGroup=&quot;android.permission-group.SMS&quot;
+    android:label=&quot;@string/permlab_readSms&quot;
+    android:description=&quot;@string/permdesc_readSms&quot;
+    android:protectionLevel=&quot;dangerous&quot; /&gt;
+</code></pre></li>
+</ol>
+<ol start="2">
+<li><strong>保护等级：</strong>每个权限通过 protectionLevel 来标识保护级别：<code>normal</code>，<code>dangerous</code>，<code>signature</code> ，和额外的如 <code>system</code>，<code>development</code>，<code>appop</code> 等等(详情见android/content/pm/permissionInfo)。不同的保护级别代表了程序要使用此权限时的认证方式。对于<code>normal</code> 的权限只要申请了就可以用，而<code>dangerous</code> 的权限在安装时需用户确认才可以用； <code>signature</code>权限需要使用者的app和系统使用同一个数字证书。</li>
+</ol>
+<p>Package 的权限信息主要通过在 AndroidManifest.xml 中通过一些标签来指定。如 <code>&lt;permission&gt;</code> 标签， <code>&lt;permission-group&gt;</code> 标签 <code>&lt;permission-tree&gt;</code> 等标签。<br>如果 package 需要申请使用某个权限，那么需要使用 <code>&lt;uses-permission&gt;</code> 标签来指定。通过上面的一段XML代码片段，想说下的是<code>permission-group</code>只是我们的<code>permission</code>的一个tag而已，用于逻辑分组，通过向 <code>&lt;permission&gt;</code> 元素的 permissionGroup 属性分配组名，将权限放入组中。而且并不是所有的Permission都有Permission-group，有的可能没有分组。这些没有分组的Permission也会自己指定label，以便告知用户这个权限的作用。<code>&lt;permission-tree&gt;</code> 元素为一组将在代码中定义的权限声明命名空间。</p>
+<p>例如我们在使用JPush的时候，用到了permission表情，</p>
+<pre><code>&lt;permission
+        android:name=&quot;${applicationId}.permission.JPUSH_MESSAGE&quot;
+        android:protectionLevel=&quot;signature&quot; /&gt;
+</code></pre><p>他用到的level是signature的，所以会对用到的证书做验证，这也是我们需要申请认证注册得到KEY的原因。<br>另外当我们需要联网的时候，会加入intentn的权限，用到的是<code>uses-permission</code>标签</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;
+</code></pre><h2 id="安装APK"><a href="#安装APK" class="headerlink" title="安装APK"></a>安装APK</h2><p>通过上面的一圈内容，我们得到我们需要的界面内容，现在我们对我们得而安装后续内容做个了解。 </p>
+<pre><code>public void onClick(View v) {
+    if (v == mOk) {
+        ...
+        startInstall();
+
+     }else if(v == mCancel) {
+        // Cancel and finish
+        setResult(RESULT_CANCELED);
+        if (mSessionId != -1) {
+            mInstaller.setPermissionsResult(mSessionId, false);
+        }
+        mInstallFlowAnalytics.setFlowFinished(
+                InstallFlowAnalytics.RESULT_CANCELLED_BY_USER);
+        finish();
+    } 
+      ...
+}
+</code></pre><p> 当我们点击右下角的确定安装按钮的时候，他会去调用<code>startInstall();</code>函数去开始安装我们的APK</p>
+<h3 id="startInstall"><a href="#startInstall" class="headerlink" title="startInstall()"></a>startInstall()</h3><pre><code>private void startInstall() {
+
+    // Start subactivity to actually install the application
+    Intent newIntent = new Intent();
+    newIntent.putExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO,
+            mPkgInfo.applicationInfo);
+    newIntent.setData(mPackageURI);
+    newIntent.setClass(this, InstallAppProgress.class);
+    newIntent.putExtra(InstallAppProgress.EXTRA_MANIFEST_DIGEST, mPkgDigest);
+    newIntent.putExtra(
+            InstallAppProgress.EXTRA_INSTALL_FLOW_ANALYTICS, mInstallFlowAnalytics);
+    String installerPackageName = getIntent().getStringExtra(
+            Intent.EXTRA_INSTALLER_PACKAGE_NAME);
+    if (mOriginatingURI != null) {
+        newIntent.putExtra(Intent.EXTRA_ORIGINATING_URI, mOriginatingURI);
+    }
+    if (mReferrerURI != null) {
+        newIntent.putExtra(Intent.EXTRA_REFERRER, mReferrerURI);
+    }
+    if (mOriginatingUid != VerificationParams.NO_UID) {
+        newIntent.putExtra(Intent.EXTRA_ORIGINATING_UID, mOriginatingUid);
+    }
+    if (installerPackageName != null) {
+        newIntent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME,
+                installerPackageName);
+    }
+    if (getIntent().getBooleanExtra(Intent.EXTRA_RETURN_RESULT, false)) {
+        newIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+        newIntent.addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+    }
+
+    if(localLOGV) Log.i(TAG, &quot;downloaded app uri=&quot;+mPackageURI);
+    startActivity(newIntent);
+    finish();
+}
+</code></pre><p> 这一长串我们看到是交给InstallAppProgress这个类去处理的，我们去看下<br>在InstallAppProgress类的onCreate函数,对于scheme为<code>file</code>和<code>package</code>的是支持的。</p>
+<pre><code>@Override
+public void onCreate(Bundle icicle) {
+    super.onCreate(icicle);
+    Intent intent = getIntent();
+    mAppInfo = intent.getParcelableExtra(PackageUtil.INTENT_ATTR_APPLICATION_INFO);
+    mInstallFlowAnalytics = intent.getParcelableExtra(EXTRA_INSTALL_FLOW_ANALYTICS);
+    mInstallFlowAnalytics.setContext(this);
+    mPackageURI = intent.getData();
+
+    final String scheme = mPackageURI.getScheme();
+    if (scheme != null &amp;&amp; !&quot;file&quot;.equals(scheme) &amp;&amp; !&quot;package&quot;.equals(scheme)) {
+        mInstallFlowAnalytics.setFlowFinished(
+                InstallFlowAnalytics.RESULT_FAILED_UNSUPPORTED_SCHEME);
+        throw new IllegalArgumentException(&quot;unexpected scheme &quot; + scheme);
+    }
+
+    initView();
+}
+</code></pre><h3 id="initView"><a href="#initView" class="headerlink" title="initView()"></a>initView()</h3><pre><code> public void initView() {
+
+    PackageManager pm = getPackageManager();      
+    PackageInfo pi = pm.getPackageInfo(mAppInfo.packageName, 
+                 PackageManager.GET_UNINSTALLED_PACKAGES);
+     if(pi != null) {
+         installFlags |= PackageManager.INSTALL_REPLACE_EXISTING;
+     }
+
+    ...//省略一堆界面find和设置操作
+
+    PackageInstallObserver observer = new PackageInstallObserver();
+    ...    
+    pm.installPackageWithVerificationAndEncryption(mPackageURI, observer, 
+        installFlags,installerPackageName, verificationParams, null);        
+
+}
+</code></pre><p>这里的PackageInstallObserver就是安装的观察者，用来回调更新界面的，也是一个binder</p>
+<pre><code>class PackageInstallObserver extends IPackageInstallObserver.Stub {
+        public void packageInstalled(String packageName, int returnCode) {
+            Message msg = mHandler.obtainMessage(INSTALL_COMPLETE);
+            msg.arg1 = returnCode;
+            mHandler.sendMessage(msg);
+        }
+    }
+</code></pre><p>然后pm是通过getPackageManger()获取，我们知道具体的实现是<code>ApplicationPackageManager</code>类。</p>
+<h3 id="installPackageWithVerificationAndEncryption"><a href="#installPackageWithVerificationAndEncryption" class="headerlink" title="installPackageWithVerificationAndEncryption()"></a>installPackageWithVerificationAndEncryption()</h3><pre><code>@Override
+public void installPackageWithVerificationAndEncryption(Uri packageURI,
+        PackageInstallObserver observer, int flags, String installerPackageName,
+        VerificationParams verificationParams,
+        ContainerEncryptionParams encryptionParams) {
+
+    installCommon(packageURI, observer, flags, installerPackageName, 
+                verificationParams,encryptionParams);
+}
+</code></pre><h3 id="installCommon"><a href="#installCommon" class="headerlink" title="installCommon()"></a>installCommon()</h3><pre><code>private void installCommon(Uri packageURI,PackageInstallObserver observer, 
+            int flags, String installerPackageName,
+            VerificationParams verificationParams,
+             ContainerEncryptionParams encryptionParams) {
+
+        ...
+
+        final String originPath = packageURI.getPath();
+        try {
+            mPM.installPackage(originPath, observer.getBinder(), flags, 
+            installerPackageName,verificationParams, null);
+
+        } catch (RemoteException ignored) {
+        }
+    }    
+</code></pre><p>饶了一个大圈，之后是靠PMS去安装包.</p>
+<h3 id="PMS-installPackage"><a href="#PMS-installPackage" class="headerlink" title="PMS.installPackage()"></a>PMS.installPackage()</h3><pre><code>@Override
+public void installPackage(String originPath, IPackageInstallObserver2 observer,
+        int installFlags, String installerPackageName, 
+        VerificationParams verificationParams, String packageAbiOverride) {
+
+    installPackageAsUser(originPath, observer, installFlags, installerPackageName,
+            verificationParams, packageAbiOverride, UserHandle.getCallingUserId());
+
+}    
+
+@Override
+public void installPackageAsUser(String originPath, IPackageInstallObserver2 
+        observer,int installFlags, String installerPackageName, 
+        VerificationParams verificationParams,
+        String packageAbiOverride, int userId) {
+
+    mContext.enforceCallingOrSelfPermission(
+       android.Manifest.permission.INSTALL_PACKAGES, 
+       null);
+
+    final int callingUid = Binder.getCallingUid();
+    enforceCrossUserPermission(callingUid, userId, true, true, 
+                            &quot;installPackageAsUser&quot;);
+
+    if (isUserRestricted(userId, UserManager.DISALLOW_INSTALL_APPS)) {            
+         if (observer != null) {
+             observer.onPackageInstalled(&quot;&quot;, INSTALL_FAILED_USER_RESTRICTED, 
+             null, null);
+         }
+         return;
+    }
+
+    if ((callingUid == Process.SHELL_UID) || (callingUid == Process.ROOT_UID)) {
+        installFlags |= PackageManager.INSTALL_FROM_ADB;
+
+    } else {
+        // Caller holds INSTALL_PACKAGES permission, so we&apos;re less strict
+        // about installerPackageName.
+
+        installFlags &amp;= ~PackageManager.INSTALL_FROM_ADB;
+        installFlags &amp;= ~PackageManager.INSTALL_ALL_USERS;
+    }
+
+    UserHandle user;
+    if ((installFlags &amp; PackageManager.INSTALL_ALL_USERS) != 0) {
+        user = UserHandle.ALL;
+    } else {
+        user = new UserHandle(userId);
+    }
+
+    // Only system components can circumvent runtime permissions when installing.
+    if ((installFlags &amp; PackageManager.INSTALL_GRANT_RUNTIME_PERMISSIONS) != 0
+            &amp;&amp; mContext.checkCallingOrSelfPermission(Manifest.permission
+            .INSTALL_GRANT_RUNTIME_PERMISSIONS)==PackageManager.PERMISSION_DENIED){
+
+        throw new SecurityException(&quot;You need the &quot;
+                + &quot;android.permission.INSTALL_GRANT_RUNTIME_PERMISSIONS permission &quot;
+                + &quot;to use the PackageManager.INSTALL_GRANT_RUNTIME_PERMISSIONS 
+                + flag&quot;);
+
+    }
+
+    verificationParams.setInstallerUid(callingUid);
+
+    final File originFile = new File(originPath);
+    final OriginInfo origin = OriginInfo.fromUntrustedFile(originFile);
+
+    final Message msg = mHandler.obtainMessage(INIT_COPY);
+    msg.obj = new InstallParams(origin, null, observer, installFlags, 
+                                installerPackageName,null, verificationParams, 
+                                user, packageAbiOverride, null);
+
+    mHandler.sendMessage(msg);
+}
+</code></pre><p>这里首先做一些权限的检查，并判断当前安装APK的user是否具有相应的权限。在安装APK的时候分为程序开发人员通过ADB安装和user通过网上下载安装，当通过ADB安装时，往往不需要对程序做验证，这就是INSTALL_FROM_ADB这个flag的作用。最后构造一个INIT_COPY的cmd，并带有InstallParams的message发给<code>PackageHandler</code>处理。</p>
+<p> 然后我们去看下关于这消息的处理是怎样的</p>
+<pre><code>void doHandleMessage(Message msg) {
+      switch (msg.what) {
+            case INIT_COPY: {
+                HandlerParams params = (HandlerParams) msg.obj;
+                int idx = mPendingInstalls.size();
+                ...
+                mPendingInstalls.add(idx, params);
+                 // Already bound to the service. Just make
+                 // sure we trigger off processing the first request.
+                 if (idx == 0) {
+                     mHandler.sendEmptyMessage(MCS_BOUND);
+                 }
+                 ...
+
+            case MCS_BOUND: {                            
+                  HandlerParams params = mPendingInstalls.get(0);
+                  if (params != null) {
+                      if (params.startCopy()) { 
+                         ...
+                  }           
+</code></pre><h3 id="startCopy"><a href="#startCopy" class="headerlink" title="startCopy()"></a>startCopy()</h3><p>跑了一圈消息后，通过调用的HandlerParams的startCopy开始复制程序。</p>
+<pre><code>final boolean startCopy() {
+        boolean res;
+        try {
+            if (DEBUG_INSTALL) Slog.i(TAG, &quot;startCopy &quot; + mUser + &quot;: &quot; + this);
+
+            if (++mRetries &gt; MAX_RETRIES) {                     
+                mHandler.sendEmptyMessage(MCS_GIVE_UP);
+                handleServiceError();
+                return false;
+            } else {
+                handleStartCopy();
+                res = true;
+            }
+        } catch (RemoteException e) {
+            if (DEBUG_INSTALL) Slog.i(TAG, &quot;Posting install MCS_RECONNECT&quot;);
+            mHandler.sendEmptyMessage(MCS_RECONNECT);
+            res = false;
+        }
+        handleReturnCode();
+        return res;
+    }
+</code></pre><p>这段代码看到，程序会尝试最多MAX_RETRIES即4次的copy尝试，超过就发送错误消息，放弃安装<br>现在让我们去看下那个handleStartCopy内容</p>
+<h3 id="installParams-handleStartCopy"><a href="#installParams-handleStartCopy" class="headerlink" title="installParams.handleStartCopy()"></a>installParams.handleStartCopy()</h3><pre><code>/*
+     * Invoke remote method to get package information and install
+     * location values. Override install location based on default
+     * policy if needed and then create install arguments based
+     * on the install location.
+     */
+    public void handleStartCopy() throws RemoteException {
+        int ret = PackageManager.INSTALL_SUCCEEDED;
+
+        // If we&apos;re already staged, we&apos;ve firmly committed to an install location
+        if (origin.staged) {
+            if (origin.file != null) {
+                installFlags |= PackageManager.INSTALL_INTERNAL;
+                installFlags &amp;= ~PackageManager.INSTALL_EXTERNAL;
+            } else if (origin.cid != null) {
+                installFlags |= PackageManager.INSTALL_EXTERNAL;
+                installFlags &amp;= ~PackageManager.INSTALL_INTERNAL;
+            } else {
+                throw new IllegalStateException(&quot;Invalid stage location&quot;);
+            }
+        }
+
+        final boolean onSd = (installFlags &amp; PackageManager.INSTALL_EXTERNAL) != 0;
+        final boolean onInt = (installFlags &amp; PackageManager.INSTALL_INTERNAL) != 0;
+
+        PackageInfoLite pkgLite = null;
+        //STEP1,看安装位置标记是否要把apk同时装到内部存储和sd卡
+        //这是什么鬼意思呢？如果都要就报错，难道还有这情况？
+        if (onInt &amp;&amp; onSd) {
+            // Check if both bits are set.
+            Slog.w(TAG, &quot;Conflicting flags specified for installing on both internal and external&quot;);
+            ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
+        } else {
+
+        //STEP2. 调用MCS的getMinimalPackageInfo来得到apk的推荐安装位置，并检查是否能装。例如空间够不够，不够就清点空间，无效的apk文件等             
+            pkgLite = mContainerService.getMinimalPackageInfo(origin.resolvedPath, installFlags,
+                    packageAbiOverride);
+
+            ...                    
+                if (pkgLite.recommendedInstallLocation
+                        == PackageHelper.RECOMMEND_FAILED_INVALID_URI) {
+                    pkgLite.recommendedInstallLocation
+                        = PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE;
+                        //不够空间
+                }
+            }
+        }
+
+        if (ret == PackageManager.INSTALL_SUCCEEDED) {
+            int loc = pkgLite.recommendedInstallLocation;
+            if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_LOCATION) {
+                ret = PackageManager.INSTALL_FAILED_INVALID_INSTALL_LOCATION;
+            } else if (loc == PackageHelper.RECOMMEND_FAILED_ALREADY_EXISTS) {
+                ret = PackageManager.INSTALL_FAILED_ALREADY_EXISTS;
+            } else if (loc == PackageHelper.RECOMMEND_FAILED_INSUFFICIENT_STORAGE) {
+                ret = PackageManager.INSTALL_FAILED_INSUFFICIENT_STORAGE;
+            } else if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_APK) {
+                ret = PackageManager.INSTALL_FAILED_INVALID_APK;
+            } else if (loc == PackageHelper.RECOMMEND_FAILED_INVALID_URI) {
+                ret = PackageManager.INSTALL_FAILED_INVALID_URI;
+            } else if (loc == PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE) {
+                ret = PackageManager.INSTALL_FAILED_MEDIA_UNAVAILABLE;
+            } else {
+
+              //STEP3.如果前面过了，就开始调用这个安装
+                loc = installLocationPolicy(pkgLite);
+                if (loc == PackageHelper.RECOMMEND_FAILED_VERSION_DOWNGRADE) {
+                    ret = PackageManager.INSTALL_FAILED_VERSION_DOWNGRADE;
+                }
+               ...
+            }
+        }
+
+        final InstallArgs args = createInstallArgs(this);
+        mArgs = args;
+
+        ...
+        //STEP4.  调用copyApk方法来完成apk的复制过程
+        ret = args.copyApk(mContainerService, true);
+        ...
+    }
+</code></pre><h3 id="createInstallArgs"><a href="#createInstallArgs" class="headerlink" title="createInstallArgs()"></a>createInstallArgs()</h3><pre><code>private InstallArgs createInstallArgs(InstallParams params) {
+   if (params.move != null) {
+       return new MoveInstallArgs(params);
+   }else if(installOnExternalAsec(params.installFlags) || params.isForwardLocked()){
+       return new AsecInstallArgs(params);
+   } else {
+       return new FileInstallArgs(params);
+   }
+}
+</code></pre><p>根据安装路径的不同会建不同的InstallArgs，AsecInstallArgs就是指安装在外部存储空间上；FileInstallArgs是指安装在内部存储空间。而这个MoveInstallArgs看起来像是挪到data目录的。</p>
+<p>在第四步的时候，他调用了args.copyApk方法！我们分类看下</p>
+<h4 id="MoveInstallArgs-copyApk"><a href="#MoveInstallArgs-copyApk" class="headerlink" title="MoveInstallArgs.copyApk()"></a>MoveInstallArgs.copyApk()</h4><pre><code>int copyApk(IMediaContainerService imcs, boolean temp) {
+        if (DEBUG_INSTALL) Slog.d(TAG, &quot;Moving &quot; + move.packageName + &quot; from &quot;
+                + move.fromUuid + &quot; to &quot; + move.toUuid);
+        synchronized (mInstaller) {
+            if (mInstaller.copyCompleteApp(move.fromUuid, move.toUuid, move.packageName,
+                    move.dataAppName, move.appId, move.seinfo) != 0) {
+                return PackageManager.INSTALL_FAILED_INTERNAL_ERROR;
+            }
+        }
+
+        codeFile = new File(Environment.getDataAppDirectory(move.toUuid), move.dataAppName);
+        resourceFile = codeFile;
+        if (DEBUG_INSTALL) Slog.d(TAG, &quot;codeFile after move is &quot; + codeFile);
+
+        return PackageManager.INSTALL_SUCCEEDED;
+    }
+</code></pre><h4 id="AsecInstallArgs-copyApk"><a href="#AsecInstallArgs-copyApk" class="headerlink" title="AsecInstallArgs.copyApk"></a>AsecInstallArgs.copyApk</h4><pre><code>int copyApk(IMediaContainerService imcs, boolean temp) throws RemoteException {
+        ...
+
+        if (temp) {
+            createCopyFile();
+        }
+         ...
+
+        final String newMountPath = imcs.copyPackageToContainer(
+                origin.file.getAbsolutePath(), cid, getEncryptKey(), isExternalAsec(),
+                isFwdLocked(), deriveAbiOverride(abiOverride, null /* settings */));
+
+        if (newMountPath != null) {
+            setMountPath(newMountPath);
+            return PackageManager.INSTALL_SUCCEEDED;
+        } else {
+            return PackageManager.INSTALL_FAILED_CONTAINER_ERROR;
+        }
+    }
+
+    void createCopyFile() {
+        cid = mInstallerService.allocateExternalStageCidLegacy();
+    }
+</code></pre><p> createCopyFile()找到一个尚未被使用的目录名赋予给cid。<br>在copyApk方法中调用MCS的copyPackageToContainer方法完成真正的创建目录以及拷贝文件的操作。</p>
+<h4 id="FileInstallArgs-copyApk"><a href="#FileInstallArgs-copyApk" class="headerlink" title="FileInstallArgs.copyApk"></a>FileInstallArgs.copyApk</h4><pre><code>int copyApk(IMediaContainerService imcs, boolean temp) throws RemoteException {
+    ...
+     try {
+         final File tempDir = mInstallerService.
+            allocateStageDirLegacy(volumeUuid);
+         //最后靠Environment.getDataAppDirectory(volumeUuid);
+         //这句创建到data/app
+
+         codeFile = tempDir;
+         resourceFile = tempDir;
+     } catch (IOException e) {
+         Slog.w(TAG, &quot;Failed to create copy file: &quot; + e);
+         return PackageManager.INSTALL_FAILED_INSUFFICIENT_STORAGE;
+     }
+
+     final IParcelFileDescriptorFactory target = 
+           new IParcelFileDescriptorFactory.Stub() {                   
+
+         @Override
+         public ParcelFileDescriptor open(String name, int mode){
+
+             if (!FileUtils.isValidExtFilename(name)) {
+                 throw new IllegalArgumentException(&quot;Invalid filename: &quot; + name);
+             }
+             try {
+                 final File file = new File(codeFile, name);
+                 final FileDescriptor fd = Os.open(file.getAbsolutePath(),
+                         O_RDWR | O_CREAT, 0644);
+                 Os.chmod(file.getAbsolutePath(), 0644);
+                 return new ParcelFileDescriptor(fd);
+             } catch (ErrnoException e) {
+                 throw new RemoteException(&quot;Failed to open: &quot; + e.getMessage());
+             }
+         }
+     };
+
+    //下面是一些复制操作，包括些lib等内容
+     int ret = PackageManager.INSTALL_SUCCEEDED;
+     ret = imcs.copyPackage(origin.file.getAbsolutePath(), target);
+     if (ret != PackageManager.INSTALL_SUCCEEDED) {
+         Slog.e(TAG, &quot;Failed to copy package&quot;);
+         return ret;
+     }
+
+     final File libraryRoot = new File(codeFile, LIB_DIR_NAME);
+     NativeLibraryHelper.Handle handle = null;
+     try {
+         handle = NativeLibraryHelper.Handle.create(codeFile);
+         ret = NativeLibraryHelper.copyNativeBinariesWithOverride(
+         handle, libraryRoot,abiOverride);
+
+     } catch (IOException e) {
+         Slog.e(TAG, &quot;Copying native libraries failed&quot;, e);
+         ret = PackageManager.INSTALL_FAILED_INTERNAL_ERROR;
+     } finally {
+         IoUtils.closeQuietly(handle);
+     }
+     return ret;
+ }
+</code></pre><p>经过上面一堆的操作，我们的apk就成功的复制好了</p>
+<p>现在我们需要会主线，回到InstallParams的startCopy方法，它中会调用handleReturnCode来处理拷贝的结果</p>
+<h3 id="handleReturnCode"><a href="#handleReturnCode" class="headerlink" title="handleReturnCode()"></a>handleReturnCode()</h3><pre><code>@Override
+void handleReturnCode() { 
+    if (mArgs != null) {
+        processPendingInstall(mArgs, mRet);
+    }
+}
+</code></pre><h3 id="processPendingInstall"><a href="#processPendingInstall" class="headerlink" title="processPendingInstall()"></a>processPendingInstall()</h3><pre><code>private void processPendingInstall(final InstallArgs args, final int currentStatus){
+
+    // Queue up an async operation since the package installation may take a little while.
+    mHandler.post(new Runnable() {
+        public void run() {
+            mHandler.removeCallbacks(this);
+             // Result object to be returned
+            PackageInstalledInfo res = new PackageInstalledInfo();
+            res.returnCode = currentStatus;
+            res.uid = -1;
+            res.pkg = null;
+            res.removedInfo = new PackageRemovedInfo();
+            if (res.returnCode == PackageManager.INSTALL_SUCCEEDED) {
+                args.doPreInstall(res.returnCode);
+                synchronized (mInstallLock) {
+                    installPackageLI(args, res);
+                }
+                args.doPostInstall(res.returnCode, res.uid);
+            }
+            ...                 
+            int token;
+            if (mNextInstallToken &lt; 0) mNextInstallToken = 1;
+            token = mNextInstallToken++;
+
+            PostInstallData data = new PostInstallData(args, res);
+            mRunningInstalls.put(token, data);
+
+            ...
+
+            if (!doRestore) {
+                // No restore possible, or the Backup Manager was mysteriously not
+                // available -- just fire the post-install work request directly.
+                 Message msg = mHandler.obtainMessage(POST_INSTALL, token, 0);
+                mHandler.sendMessage(msg);
+            }
+        }
+    });
+}
+</code></pre><p>我们看到他会先调用doPreInstall函数，这个名字让我想起了在DroidPlugi的时候，他的代码在安装HOOK的时候，都有类似的preInstall和doPostInstall的调用抽象方法。这里的doPreInstall背后是去清了下缓存。</p>
+<p>然后这个installPackageLi则贼长！PMS里面的代码就是这样和AMS一个鬼，虽然重构了那么多次，还是这样，更何况还经常改</p>
+<h3 id="installPackageLI"><a href="#installPackageLI" class="headerlink" title="installPackageLI()"></a>installPackageLI()</h3><pre><code>private void installPackageLI(InstallArgs args, PackageInstalledInfo res) {
+    final int installFlags = args.installFlags;
+    final String installerPackageName = args.installerPackageName;
+    final String volumeUuid = args.volumeUuid;
+    final File tmpPackageFile = new File(args.getCodePath());
+    ...
+
+    // Retrieve PackageSettings and parse package
+    final int parseFlags = mDefParseFlags | PackageParser.PARSE_CHATTY
+            | (forwardLocked ? PackageParser.PARSE_FORWARD_LOCK : 0)
+            | (onExternal ? PackageParser.PARSE_EXTERNAL_STORAGE : 0);   
+
+    PackageParser pp = new PackageParser();
+    pp.setSeparateProcesses(mSeparateProcesses);
+    pp.setDisplayMetrics(mMetrics);
+    final PackageParser.Package pkg;
+    //1. 开始解析我们的包
+    pkg = pp.parsePackage(tmpPackageFile, parseFlags);
+
+    // Mark that we have an install time CPU ABI override.
+    pkg.cpuAbiOverride = args.abiOverride;
+
+    ...
+    //2. 收集签字信息和Manifest里面的内容
+    try {
+        pp.collectCertificates(pkg, parseFlags);
+        pp.collectManifestDigest(pkg);
+    } catch (PackageParserException e) {
+        res.setError(&quot;Failed collect during installPackageLI&quot;, e);
+        return;
+    }
+
+     ...
+
+    // Get rid of all references to package scan path via parser.
+    pp = null;
+    String oldCodePath = null;
+    boolean systemApp = false;
+    synchronized (mPackages) {
+        // Check if installing already existing package
+         ...//调过一些和如果已安装过的一些相关操作
+
+        PackageSetting ps = mSettings.mPackages.get(pkgName);
+        if (ps != null) {
+            if (DEBUG_INSTALL) Slog.d(TAG, &quot;Existing package: &quot; + ps);
+            //3.对签名信息做判断，早期很多盗版应用进程改下签名加广告的
+            // Quick sanity check that we&apos;re signed correctly if updating;
+            // we&apos;ll check this again later when scanning, but we want to
+            // bail early here before tripping over redefined permissions.                
+            if (shouldCheckUpgradeKeySetLP(ps, scanFlags)) {
+                if (!checkUpgradeKeySetLP(ps, pkg)) {
+                    res.setError(INSTALL_FAILED_UPDATE_INCOMPATIBLE, &quot;Package &quot;
+                            +pkg.packageName + &quot; upgrade keys do not match the &quot;
+                            +&quot;previously installed version&quot;);
+
+                    return;
+                }
+            } else {
+                try {
+                    verifySignaturesLP(ps, pkg);
+                } catch (PackageManagerException e) {
+                    res.setError(e.error, e.getMessage());
+                    return;
+                }
+            }
+
+            oldCodePath = mSettings.mPackages.get(pkgName).codePathString;
+            if (ps.pkg != null &amp;&amp; ps.pkg.applicationInfo != null) {
+                systemApp = (ps.pkg.applicationInfo.flags &amp;
+                        ApplicationInfo.FLAG_SYSTEM) != 0;
+            }
+            res.origUsers = ps.queryInstalledUsers(sUserManager.getUserIds(), true);
+        }
+
+        //4. 权限处理部分，为何这哥们不分开成多个函数呢？看着好累    
+         //Check whether the newly-scanned package
+         // wants to define an already-defined perm
+
+        int N = pkg.permissions.size();
+        for (int i = N-1; i &gt;= 0; i--) {
+            PackageParser.Permission perm = pkg.permissions.get(i);
+            BasePermission bp = mSettings.mPermissions.get(perm.info.name);
+            if (bp != null) {
+                // If the defining package is signed with our cert, it&apos;s okay.  This
+                // also includes the &quot;updating the same package&quot; case, of course.
+                // &quot;updating same package&quot; could also involve key-rotation.
+                final boolean sigsOk;
+                if (bp.sourcePackage.equals(pkg.packageName)
+                        &amp;&amp; (bp.packageSetting instanceof PackageSetting)
+                        &amp;&amp; (shouldCheckUpgradeKeySetLP((PackageSetting)
+                         bp.packageSetting,scanFlags))) {
+                    sigsOk = checkUpgradeKeySetLP((PackageSetting)
+                             bp.packageSetting, pkg);
+                } else {
+                    sigsOk = compareSignatures(
+                            bp.packageSetting.signatures.mSignatures,
+                            pkg.mSignatures) == PackageManager.SIGNATURE_MATCH;
+                }
+                if (!sigsOk) {
+                    // If the owning package is the system itself, we log but allow
+                    // install to proceed; we fail the install on all other                         
+                    //permission redefinitions.
+
+                    if (!bp.sourcePackage.equals(&quot;android&quot;)) {
+                        res.setError(INSTALL_FAILED_DUPLICATE_PERMISSION, &quot;Package &quot;
+                          +pkg.packageName + &quot; attempting to redeclare permission &quot;
+                       +perm.info.name + &quot; already owned by &quot; + bp.sourcePackage);
+
+                        res.origPermission = perm.info.name;
+                        res.origPackage = bp.sourcePackage;
+                        return;
+                    } else {
+                       ...      
+                        pkg.permissions.remove(i);
+                    }
+                }
+            }
+        }
+
+    }
+    //不允许升级的系统app安装到外部存储
+    if (systemApp &amp;&amp; onExternal) {
+        // Disable updates to system apps on sdcard
+        res.setError(INSTALL_FAILED_INVALID_INSTALL_LOCATION,
+                &quot;Cannot install updates to system apps on sdcard&quot;);
+        return;
+    }
+
+    //5.对包进行opt操作，调用performDexOpt，最终调用的还是Install的dexopt函数
+    ...
+    else if (!forwardLocked &amp;&amp; !pkg.applicationInfo.isExternalAsec()) {
+        // Enable SCAN_NO_DEX flag to skip dexopt at a later stage
+        scanFlags |= SCAN_NO_DEX;
+        try {
+            derivePackageAbi(pkg, new File(pkg.codePath), args.abiOverride,
+                    true /* extract libs */);
+        } catch (PackageManagerException pme) {
+            Slog.e(TAG, &quot;Error deriving application ABI&quot;, pme);
+            res.setError(INSTALL_FAILED_INTERNAL_ERROR, &quot;Error deriving application 
+                        ABI&quot;);
+            return;
+        }             
+        // Run dexopt before old package gets removed, 
+        //to minimize time when app is unavailable
+        int result = mPackageDexOptimizer
+                .performDexOpt(pkg, null /* instruction sets */, false /* forceDex */,
+                        false /* defer */, false /* inclDependencies */);
+
+        if (result == PackageDexOptimizer.DEX_OPT_FAILED) {
+            res.setError(INSTALL_FAILED_DEXOPT, &quot;Dexopt failed for &quot; + pkg.codePath);
+            return;
+        }
+    }
+
+    //6.Rename package into final resting place. All paths on the given
+    //scanned package should be updated to reflect the rename.        
+    if (!args.doRename(res.returnCode, pkg, oldCodePath)) {
+        res.setError(INSTALL_FAILED_INSUFFICIENT_STORAGE, &quot;Failed rename&quot;);
+        return;
+    }
+
+    startIntentFilterVerifications(args.user.getIdentifier(), replace, pkg);
+
+    //7.由于我们是安装，不是升级旧包。所以走下面那条路径
+    if (replace) {
+        replacePackageLI(pkg, parseFlags, scanFlags | SCAN_REPLACING, args.user,
+                installerPackageName, volumeUuid, res);
+    } else {
+        installNewPackageLI(pkg, parseFlags, scanFlags | SCAN_DELETE_DATA_ON_FAILURES,
+                args.user, installerPackageName, volumeUuid, res);
+    }
+
+    synchronized (mPackages) {
+        final PackageSetting ps = mSettings.mPackages.get(pkgName);
+        if (ps != null) {
+            res.newUsers = ps.queryInstalledUsers(sUserManager.getUserIds(), true);
+        }
+    }
+}              
+</code></pre><h4 id="PackageParse-parsePackage"><a href="#PackageParse-parsePackage" class="headerlink" title="PackageParse.parsePackage()"></a>PackageParse.parsePackage()</h4><pre><code>public Package parsePackage(File packageFile, int flags){
+    if (packageFile.isDirectory()) {
+        return parseClusterPackage(packageFile, flags);
+    } else {
+        return parseMonolithicPackage(packageFile, flags);
+    }
+}
+</code></pre><p>居然还分了一个安装包和一堆安装包的情况。还真没想过有一堆cluster的情况</p>
+<h5 id="parseMonolithicPackage"><a href="#parseMonolithicPackage" class="headerlink" title="parseMonolithicPackage"></a>parseMonolithicPackage</h5><pre><code>public Package parseMonolithicPackage(File apkFile, int flags){
+    if (mOnlyCoreApps) {
+        final PackageLite lite = parseMonolithicPackageLite(apkFile, flags);
+        if (!lite.coreApp) {
+            throw new PackageParserException(INSTALL_PARSE_FAILED_MANIFEST_MALFORMED,
+                    &quot;Not a coreApp: &quot; + apkFile);
+        }
+    }
+
+    final AssetManager assets = new AssetManager();
+    try {
+        final Package pkg = parseBaseApk(apkFile, assets, flags);
+        pkg.codePath = apkFile.getAbsolutePath();
+        return pkg;
+    } finally {
+        IoUtils.closeQuietly(assets);
+    }
+}
+</code></pre><h5 id="parseMonolithicPackageLite"><a href="#parseMonolithicPackageLite" class="headerlink" title="parseMonolithicPackageLite("></a>parseMonolithicPackageLite(</h5><pre><code>private static PackageLite parseMonolithicPackageLite(File packageFile, int flags)
+            throws PackageParserException {
+            //人如其名，很lite，轻量，只搜集一些基本信息
+            //如包名，versionCode，安装位置等 
+        final ApkLite baseApk = parseApkLite(packageFile, flags);
+
+        final String packagePath = packageFile.getAbsolutePath();
+        return new PackageLite(packagePath, baseApk, null, null, null);
+    }    
+</code></pre><h5 id="parseBaseApk"><a href="#parseBaseApk" class="headerlink" title="parseBaseApk()"></a>parseBaseApk()</h5><pre><code> private Package parseBaseApk(File apkFile, AssetManager assets, int flags)
+        throws PackageParserException {
+
+    final String apkPath = apkFile.getAbsolutePath();
+    ...
+
+    final int cookie = loadApkIntoAssetManager(assets, apkPath, flags);
+
+    Resources res = null;
+    XmlResourceParser parser = null;
+
+    res = new Resources(assets, mMetrics, null);
+     assets.setConfiguration(0, 0, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             Build.VERSION.RESOURCES_SDK_INT);
+     parser = assets.openXmlResourceParser(cookie, ANDROID_MANIFEST_FILENAME);
+
+     final String[] outError = new String[1];
+
+     final Package pkg = parseBaseApk(res, parser, flags, outError);
+     ...
+      pkg.volumeUuid = volumeUuid;
+     pkg.baseCodePath = apkPath;
+     pkg.mSignatures = null;
+
+     return pkg;
+     ...
+}
+</code></pre><p>这里最重要的一句就是parseBaseApk（）函数，他会对我们的AndroidManifest文件进行解析！<br>就不贴上来了，六百号，看着类，而且还有配套的函数做辅助，有个两千行了。<br>有不少标签是从没用过，也没见过的。</p>
+<p>至今我对<code>DroidPlugin</code>里面包含的解析内容蛮有印象，作者为了兼容写了不少解析类!<br>在文章<a href="http://sanjay-f.github.io/2016/04/14/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9730---%E6%8F%92%E4%BB%B6%E5%8C%85PackageManagerService-PMS/" target="_blank" rel="noopener">源码探索系列30—插件包PackageManagerService/PMS</a>的PackageParser 类里面，就为了不同版本写了不同解析类。</p>
+<h4 id="installNewPackageLI"><a href="#installNewPackageLI" class="headerlink" title="installNewPackageLI()"></a>installNewPackageLI()</h4><pre><code>private void installNewPackageLI(PackageParser.Package pkg, int parseFlags,
+ int scanFlags,UserHandle user, String installerPackageName, String volumeUuid,
+ PackageInstalledInfo res) {
+
+    // Remember this for later, in case we need to rollback this install
+    String pkgName = pkg.packageName;
+
+    ...
+    try {
+        PackageParser.Package newPackage = scanPackageLI(pkg, parseFlags, scanFlags,
+                System.currentTimeMillis(), user);
+        updateSettingsLI(newPackage, installerPackageName, volumeUuid, 
+                        null, null, res, user); 
+        if (res.returnCode != PackageManager.INSTALL_SUCCEEDED) {
+             //安装不成功就删除
+            deletePackageLI(pkgName, UserHandle.ALL, false, null, null,
+                    dataDirExists ? PackageManager.DELETE_KEEP_DATA : 0,
+                            res.removedInfo, true);
+        }
+    } catch (PackageManagerException e) {
+        res.setError(&quot;Package couldn&apos;t be installed in &quot; + pkg.codePath, e);
+    }
+}
+</code></pre><ol>
+<li><p><strong>scanPackageLI</strong> ,赫赫，整个scanPackageLI的长度一千两百行，看得我傻傻的，反正我看完大部分忘了。<br>主要内容为，调用该方法把新package的资源归入到<code>PMS</code>中，并创建一个<code>PackageSettings</code>对象，加入到Settings中的mPackages这个map中。<br>另外我们的</p>
+</li>
+<li><p><strong>updateSettingsLI ,</strong> 这个就短了不少，先调用Settings的writeLPr方法更新<code>packages.xml</code>文件，将新安装的package信息写到这个xml文件。接着调用下<code>updatePermissionsLPw</code>函数，它用于给当前安装的APK分配权限，并把相应的gid号保存在PackageSetting或者SharedUserSetting的gids数组中。</p>
+<p>这一部分终于和我们文章的主题有关系了，看了前面那么多的内容！！！！<br>终于看到与权限的内容啦！</p>
+</li>
+</ol>
+<h5 id="updatePermissionsLPw"><a href="#updatePermissionsLPw" class="headerlink" title="updatePermissionsLPw"></a>updatePermissionsLPw</h5><pre><code>private void updatePermissionsLPw(String changingPkg,
+        PackageParser.Package pkgInfo, int flags) {
+
+    // Make sure there are no dangling permission trees.
+    Iterator&lt;BasePermission&gt; it = mSettings.mPermissionTrees.values().iterator();
+    while (it.hasNext()) {
+        final BasePermission bp = it.next();
+        if (bp.packageSetting == null) {
+            // We may not yet have parsed the package, so just see if
+            // we still know about its settings.
+            bp.packageSetting = mSettings.mPackages.get(bp.sourcePackage);
+        }
+        if (bp.packageSetting == null) {
+            Slog.w(TAG, &quot;Removing dangling permission tree: &quot; + bp.name
+                    + &quot; from package &quot; + bp.sourcePackage);
+            it.remove();
+        } else if (changingPkg != null &amp;&amp; changingPkg.equals(bp.sourcePackage)) {
+            if (pkgInfo == null || !hasPermission(pkgInfo, bp.name)) {
+                Slog.i(TAG, &quot;Removing old permission tree: &quot; + bp.name
+                        + &quot; from package &quot; + bp.sourcePackage);
+                flags |= UPDATE_PERMISSIONS_ALL;
+                it.remove();
+            }
+        }
+    }
+
+    // Make sure all dynamic permissions have been assigned to a package,
+    // and make sure there are no dangling permissions.
+    it = mSettings.mPermissions.values().iterator();
+    while (it.hasNext()) {
+        final BasePermission bp = it.next();
+        if (bp.type == BasePermission.TYPE_DYNAMIC) {
+            if (DEBUG_SETTINGS) Log.v(TAG, &quot;Dynamic permission: name=&quot;
+                    + bp.name + &quot; pkg=&quot; + bp.sourcePackage
+                    + &quot; info=&quot; + bp.pendingInfo);
+            if (bp.packageSetting == null &amp;&amp; bp.pendingInfo != null) {
+                final BasePermission tree = findPermissionTreeLP(bp.name);
+                if (tree != null &amp;&amp; tree.perm != null) {
+                    bp.packageSetting = tree.packageSetting;
+                    bp.perm = new PackageParser.Permission(tree.perm.owner,
+                            new PermissionInfo(bp.pendingInfo));
+                    bp.perm.info.packageName = tree.perm.info.packageName;
+                    bp.perm.info.name = bp.name;
+                    bp.uid = tree.uid;
+                }
+            }
+        }
+        if (bp.packageSetting == null) {
+            // We may not yet have parsed the package, so just see if
+            // we still know about its settings.
+            bp.packageSetting = mSettings.mPackages.get(bp.sourcePackage);
+        }
+        if (bp.packageSetting == null) {
+            Slog.w(TAG, &quot;Removing dangling permission: &quot; + bp.name
+                    + &quot; from package &quot; + bp.sourcePackage);
+            it.remove();
+        } else if (changingPkg != null &amp;&amp; changingPkg.equals(bp.sourcePackage)) {
+            if (pkgInfo == null || !hasPermission(pkgInfo, bp.name)) {
+                Slog.i(TAG, &quot;Removing old permission: &quot; + bp.name
+                        + &quot; from package &quot; + bp.sourcePackage);
+                flags |= UPDATE_PERMISSIONS_ALL;
+                it.remove();
+            }
+        }
+    }
+
+    // Now update the permissions for all packages, in particular
+    // replace the granted permissions of the system packages.
+    if ((flags&amp;UPDATE_PERMISSIONS_ALL) != 0) {
+        for (PackageParser.Package pkg : mPackages.values()) {
+            if (pkg != pkgInfo) {
+                grantPermissionsLPw(pkg, (flags&amp;UPDATE_PERMISSIONS_REPLACE_ALL) != 0,
+                        changingPkg);
+            }
+        }
+    }
+
+    if (pkgInfo != null) {
+        grantPermissionsLPw(pkgInfo, (flags&amp;UPDATE_PERMISSIONS_REPLACE_PKG) != 0, changingPkg);
+    }
+}
+</code></pre><p>另外想说的是，这个grantPermissionsLPw函数也很长。几百行的样子。什么时候这个PMS可以瘦身点。</p>
+<h3 id="processPendingInstall-1"><a href="#processPendingInstall-1" class="headerlink" title="processPendingInstall()"></a>processPendingInstall()</h3><p> 看完上面的内容，我们需要回主线，回到开头的processPendingInstall()函数，继续后面的内容，为方便阅读，粘贴到这里：</p>
+<pre><code>...                 
+ int token;
+ if (mNextInstallToken &lt; 0) mNextInstallToken = 1;
+ token = mNextInstallToken++;
+
+ PostInstallData data = new PostInstallData(args, res);
+ mRunningInstalls.put(token, data);
+
+ ...
+
+ if (!doRestore) {
+     // No restore possible, or the Backup Manager was mysteriously not
+     // available -- just fire the post-install work request directly.
+      Message msg = mHandler.obtainMessage(POST_INSTALL, token, 0);
+     mHandler.sendMessage(msg);
+ }
+</code></pre><p>他最后发了一条POST_INSTALL的消息给handler。我们去看下是做了什么内容</p>
+<h3 id="POST-INSTALL"><a href="#POST-INSTALL" class="headerlink" title="POST_INSTALL"></a>POST_INSTALL</h3><pre><code>case POST_INSTALL: {
+
+    PostInstallData data = mRunningInstalls.get(msg.arg1);
+    mRunningInstalls.delete(msg.arg1);
+    boolean deleteOld = false;
+
+    if (data != null) {
+        InstallArgs args = data.args;
+        PackageInstalledInfo res = data.res;
+
+        if (res.returnCode == PackageManager.INSTALL_SUCCEEDED) {
+            final String packageName = res.pkg.applicationInfo.packageName;
+            res.removedInfo.sendBroadcast(false, true, false);
+            Bundle extras = new Bundle(1);
+            extras.putInt(Intent.EXTRA_UID, res.uid);
+
+            //在发送广播前，如果有请求运行时权限，那么就授予
+            // Now that we successfully installed the package, grant runtime
+            // permissions if requested before broadcasting the install.
+            if ((args.installFlags
+                    &amp; PackageManager.INSTALL_GRANT_RUNTIME_PERMISSIONS) != 0) {
+                grantRequestedRuntimePermissions(res.pkg, args.user.getIdentifier(),
+                        args.installGrantPermissions);
+            }
+
+            // Determine the set of users who are adding this
+            // package for the first time vs. those who are seeing
+            // an update.
+            int[] firstUsers;
+            int[] updateUsers = new int[0];
+            if (res.origUsers == null || res.origUsers.length == 0) {
+                firstUsers = res.newUsers;
+            } else {
+                firstUsers = new int[0];
+                for (int i=0; i&lt;res.newUsers.length; i++) {
+                    int user = res.newUsers[i];
+                    boolean isNew = true;
+                    for (int j=0; j&lt;res.origUsers.length; j++) {
+                        if (res.origUsers[j] == user) {
+                            isNew = false;
+                            break;
+                        }
+                    }
+                    if (isNew) {
+                        int[] newFirst = new int[firstUsers.length+1];
+                        System.arraycopy(firstUsers, 0, newFirst, 0,
+                                firstUsers.length);
+                        newFirst[firstUsers.length] = user;
+                        firstUsers = newFirst;
+                    } else {
+                        int[] newUpdate = new int[updateUsers.length+1];
+                        System.arraycopy(updateUsers, 0, newUpdate, 0,
+                                updateUsers.length);
+                        newUpdate[updateUsers.length] = user;
+                        updateUsers = newUpdate;
+                    }
+                }
+            }
+
+
+            sendPackageBroadcast(Intent.ACTION_PACKAGE_ADDED,
+                    packageName, extras, null, null, firstUsers);
+
+            final boolean update = res.removedInfo.removedPackage != null;
+            if (update) {
+                extras.putBoolean(Intent.EXTRA_REPLACING, true);
+            }
+            sendPackageBroadcast(Intent.ACTION_PACKAGE_ADDED,
+                    packageName, extras, null, null, updateUsers);
+            if (update) {
+                sendPackageBroadcast(Intent.ACTION_PACKAGE_REPLACED,
+                        packageName, extras, null, null, updateUsers);
+                sendPackageBroadcast(Intent.ACTION_MY_PACKAGE_REPLACED,
+                        null, null, packageName, null, updateUsers);
+
+                // treat asec-hosted packages like removable media on upgrade
+                if (res.pkg.isForwardLocked() || isExternal(res.pkg)) {
+                    if (DEBUG_INSTALL) {
+                        Slog.i(TAG, &quot;upgrading pkg &quot; + res.pkg
+                                + &quot; is ASEC-hosted -&gt; AVAILABLE&quot;);
+                    }
+                    int[] uidArray = new int[] { res.pkg.applicationInfo.uid };
+                    ArrayList&lt;String&gt; pkgList = new ArrayList&lt;String&gt;(1);
+                    pkgList.add(packageName);
+                    sendResourcesChangedBroadcast(true, true,
+                            pkgList,uidArray, null);
+                }
+            }
+            if (res.removedInfo.args != null) {
+                // Remove the replaced package&apos;s older resources safely now
+                deleteOld = true;
+            }
+
+            //居然为游览器单独做一些设置，清空默认配置。
+            // If this app is a browser and it&apos;s newly-installed for some
+            // users, clear any default-browser state in those users
+            if (firstUsers.length &gt; 0) { 
+                if (packageIsBrowser(packageName, firstUsers[0])) {
+                    synchronized (mPackages) {
+                        for (int userId : firstUsers) {
+                            mSettings.setDefaultBrowserPackageNameLPw(null, userId);
+                        }
+                    }
+                }
+            }
+            ...
+        }
+
+        // Force a gc to clear up things
+        Runtime.getRuntime().gc();
+        // We delete after a gc for applications  on sdcard.
+        if (deleteOld) {
+            synchronized (mInstallLock) {
+                res.removedInfo.args.doPostDeleteLI(true);
+            }
+        }
+
+        //通知观察者们
+        if (args.observer != null) {             
+             Bundle extras = extrasForInstallResult(res);
+             args.observer.onPackageInstalled(res.name, res.returnCode,
+                     res.returnMsg, extras);              
+        }
+    } 
+} break;
+</code></pre><p>整个内容就是发送广播更新，告诉别人安装了新的APP啦，或者通知APP升级更新了。<br>接着回调观察者们，告诉他们安装结束了。</p>
+<p>至此，我们整体就结束了，安装好我们的APK啦！！</p>
+<h2 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h2><p>根据前面的内容，我们可以把安装APK的过程简化为以下几步：</p>
+<ol>
+<li>复制文件到code、library和resource等文件</li>
+<li>解析待安装的APK的manifest文件，并把activity、service、provider等信息更新到PMS的全局数据结构中</li>
+<li>更新Settings中的PackageSetting等信息</li>
+<li>调用installd在/data/data和/data/dalvik-cache中新建package的文件目录，并link相应的文件</li>
+</ol>
+<h3 id="思考：监听app的卸载"><a href="#思考：监听app的卸载" class="headerlink" title="思考：监听app的卸载"></a>思考：监听app的卸载</h3><p>以前有找过一些方案，如何监听自己的app被卸载，然后跳出一张问卷出来，以收集用户的反馈。<br>那时查资料时候，一个方案就是监听data目录，还有去监听系统log的方案.。参考：<a href="https://www.zhihu.com/question/20773194" target="_blank" rel="noopener">360 手机卫士Android 版是如何做到在卸载完成后弹出一个网页的？</a><br>读log的方案似乎后来被安卓堵了，现在没有这需求，就没再跟进过这个问题了。</p>
+<h1 id="检验"><a href="#检验" class="headerlink" title="检验"></a>检验</h1><p>权限验证，一些同能可能涉及到对权限的要求，例如写文件和联网等。<br>在进行请求前，我们可以自己先检验下，对此安卓提供的一个接口是：<br>     context.checkCallingOrSelfPermission(String permission) ;<br>利用这接口，我们可以判断自己是否拥有这个权限，避免有时候被用户禁止了权限导致的一些不必要的bug问题。</p>
+<p>顺着这个入口，我们看下背后是怎么做检测的。<br>当我们再Activity直接调用这个接口的时候，背后是调用了ContextWrapper类去处理，然后对这个类我们也很熟悉了，这个mBase就是ContextImpl类。</p>
+<pre><code>@Override
+public int checkCallingOrSelfPermission(String permission) {
+    return mBase.checkCallingOrSelfPermission(permission);
+}
+</code></pre><h2 id="ContextImpl-checkCallingOrSelfPermission"><a href="#ContextImpl-checkCallingOrSelfPermission" class="headerlink" title="ContextImpl.checkCallingOrSelfPermission()"></a>ContextImpl.checkCallingOrSelfPermission()</h2><pre><code>@Override
+public int checkCallingOrSelfPermission(String permission) {
+    if (permission == null) {
+        throw new IllegalArgumentException(&quot;permission is null&quot;);
+    }
+
+    return checkPermission(permission, Binder.getCallingPid(),
+            Binder.getCallingUid());
+}
+</code></pre><h2 id="checkPermission"><a href="#checkPermission" class="headerlink" title="checkPermission()"></a>checkPermission()</h2><pre><code>@Override
+public int checkPermission(String permission, int pid, int uid) {
+    if (permission == null) {
+        throw new IllegalArgumentException(&quot;permission is null&quot;);
+    }
+
+    try {
+        return ActivityManagerNative.getDefault().checkPermission(
+                permission, pid, uid);
+    } catch (RemoteException e) {
+        return PackageManager.PERMISSION_DENIED;
+    }
+}
+</code></pre><p>在这里我们看到，他最后是通过AMS去做检测的。对于ActivityManagerNative这句话我们也是很熟悉了。<br>通过传递的pid，uid和我们想知道的permission来做判断，估计就是查下表，看对应的是否有这个权限。</p>
+<h2 id="AMS-checkPermission"><a href="#AMS-checkPermission" class="headerlink" title="AMS.checkPermission()"></a>AMS.checkPermission()</h2><pre><code>@Override
+public int checkPermission(String permission, int pid, int uid) {
+    if (permission == null) {
+        return PackageManager.PERMISSION_DENIED;
+    }
+    return checkComponentPermission(permission, pid, uid, -1, true);
+}
+</code></pre><h2 id="checkComponentPermission"><a href="#checkComponentPermission" class="headerlink" title="checkComponentPermission()"></a>checkComponentPermission()</h2><pre><code> int checkComponentPermission(String permission, int pid, int uid,
+            int owningUid, boolean exported) {
+
+    if (pid == MY_PID) {
+        return PackageManager.PERMISSION_GRANTED;
+    }
+    return ActivityManager.checkComponentPermission(permission, uid,
+            owningUid, exported);
+}
+</code></pre><p>对于PID是自身的，都直接是通过的，非本人则需要再看看。</p>
+<h2 id="ActivityManager-checkComponentPermission"><a href="#ActivityManager-checkComponentPermission" class="headerlink" title="ActivityManager.checkComponentPermission("></a>ActivityManager.checkComponentPermission(</h2><pre><code>public static int checkComponentPermission(String permission, int uid,
+        int owningUid, boolean exported) {
+
+    // Root, system server get to do everything.
+    final int appId = UserHandle.getAppId(uid);
+    if (appId == Process.ROOT_UID || appId == Process.SYSTEM_UID) {
+        return PackageManager.PERMISSION_GRANTED;
+    }
+
+     //对于隔离的进程，都没有任何权限的，这要求PID为99000--99999范围的
+    // Isolated processes don&apos;t get any permissions.
+    if (UserHandle.isIsolated(uid)) {
+        return PackageManager.PERMISSION_DENIED;
+    }
+
+    // If there is a uid that owns whatever is being accessed, it has
+    // blanket access to it regardless of the permissions it requires.
+    if (owningUid &gt;= 0 &amp;&amp; UserHandle.isSameApp(uid, owningUid)) {
+        return PackageManager.PERMISSION_GRANTED;
+    }
+
+    ...        
+
+    return AppGlobals.getPackageManager()
+            .checkUidPermission(permission, uid);
+
+    ... 
+}
+</code></pre><p>我们看开头官方的注视提到的，对于是root和systemServer的都直接通过的，所以我们常说获取系统最高权限就是那个root，至于那个systemServer，他是一个系统开机自动的进程，<strong>我们是否可以把自己的伪装成systemServer进程从而提高自己的权限,又或者通过hook等方式来修改自己传出去的uid，从而提高权限</strong> </p>
+<p>做了一些检测后，就是去PMS调用对应的检测</p>
+<h2 id="PMS-checkUidPermission"><a href="#PMS-checkUidPermission" class="headerlink" title="PMS.checkUidPermission()"></a>PMS.checkUidPermission()</h2><pre><code>@Override
+public int checkUidPermission(String permName, int uid) {
+    final int userId = UserHandle.getUserId(uid);
+
+    if (!sUserManager.exists(userId)) {
+        return PackageManager.PERMISSION_DENIED;
+    }
+
+    synchronized (mPackages) {
+
+        //STEP 1
+        Object obj = mSettings.getUserIdLPr(UserHandle.getAppId(uid));
+        if (obj != null) {
+            final SettingBase ps = (SettingBase) obj;
+            final PermissionsState permissionsState = ps.getPermissionsState();
+            if (permissionsState.hasPermission(permName, userId)) {
+                return PackageManager.PERMISSION_GRANTED;
+            }
+            // Special case: ACCESS_FINE_LOCATION permission includes ACCESS_COARSE_LOCATION
+            if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(permName) &amp;&amp; permissionsState
+                    .hasPermission(Manifest.permission.ACCESS_FINE_LOCATION, userId)) {
+                return PackageManager.PERMISSION_GRANTED;
+            }
+        } else {
+
+            //STEP 2
+            ArraySet&lt;String&gt; perms = mSystemPermissions.get(uid);
+            if (perms != null) {
+                if (perms.contains(permName)) {
+                    return PackageManager.PERMISSION_GRANTED;
+                }
+                if (Manifest.permission.ACCESS_COARSE_LOCATION.equals(permName) &amp;&amp; perms
+                        .contains(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    return PackageManager.PERMISSION_GRANTED;
+                }
+            }
+        }
+    }
+
+    return PackageManager.PERMISSION_DENIED;
+}
+</code></pre><ol>
+<li>STEP1 , 先调用getUserIdLPr，同PMS的Setting.mUserIds数组中根据<code>uid</code> 查找权限列表。找到则表示有相应的权限，接着再根据传过来的参数坐下判断，看是否有对应的，</li>
+<li>STEP2 , 如没有找到，则去PMS的mSystemPermissions 中找。<br>这些信息是启动时从 <code>/system/etc/permissions/platform.xml</code> 中读取的。<br>这里记录了一些系统级的应用的 uid 对应的 permission 。 </li>
+</ol>
+<h3 id="Setting-getUserIdLPr"><a href="#Setting-getUserIdLPr" class="headerlink" title="Setting.getUserIdLPr()"></a>Setting.getUserIdLPr()</h3><pre><code>public Object getUserIdLPr(int uid) {
+
+   if (uid &gt;= Process.FIRST_APPLICATION_UID) {
+       final int N = mUserIds.size();
+       final int index = uid - Process.FIRST_APPLICATION_UID;
+       return index &lt; N ? mUserIds.get(index) : null;
+   } else {
+       return mOtherUserIds.get(uid);
+   }
+
+}
+</code></pre><h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>不知不觉又是凌晨，每次写到深夜，都有一种感觉，那就是写完很开心，但旁边空无一人。<br>回看整篇文章内容，主要是想聊下关于权限的内容，在深挖安装过程的时候，由于过程实在冗长，看得有点迷失了！下次再润色下看怎么弄.</p>
+<h1 id="REF"><a href="#REF" class="headerlink" title="REF:"></a>REF:</h1><ol>
+<li><a href="http://www.ibm.com/developerworks/cn/opensource/os-cn-android-sec/" target="_blank" rel="noopener">Android 安全架构及权限控制机制剖析</a> </li>
+<li><a href="http://dengzhangtao.iteye.com/blog/1990138" target="_blank" rel="noopener">Android的权限机制总结</a></li>
+<li><a href="https://developer.android.com/guide/topics/manifest/permission-element.html" target="_blank" rel="noopener">谷歌官方文档关于permission等标签的说明</a></li>
+<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/19578947?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">Android内核解读-应用的安装过程</a> </li>
+<li><a href="http://blog.csdn.net/lilian0118/article/details/25792601" target="_blank" rel="noopener">http://blog.csdn.net/lilian0118/article/details/25792601</a></li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/permission/" rel="tag">#permission</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/23/源码探索系列37---Android的属性动画/" rel="prev">源码探索系列37---Android的属性动画</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/11/源码探索系列中篇结题/" rel="next">关于探索系列中篇结题</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/05/18/源码探索系列36---安卓的安全机制permission/"
+     data-title="源码探索系列36---安卓的安全机制permission"
+     data-content=""
+     data-url="http://yoursite.com/2016/05/18/源码探索系列36---安卓的安全机制permission/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/05/18/源码探索系列36---安卓的安全机制permission/"
+                   data-title="源码探索系列36---安卓的安全机制permission" data-url="http://yoursite.com/2016/05/18/源码探索系列36---安卓的安全机制permission/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-系统权限定义-uid-、-gid-、-gids"><span class="nav-number">1.</span> <span class="nav-text">Android 系统权限定义 uid 、 gid 、 gids</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android-permission-管理机制"><span class="nav-number">2.</span> <span class="nav-text">Android permission 管理机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#检测apk"><span class="nav-number">2.1.</span> <span class="nav-text">检测apk</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#oncreate"><span class="nav-number">2.1.1.</span> <span class="nav-text">oncreate()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initiateInstall"><span class="nav-number">2.1.2.</span> <span class="nav-text">initiateInstall()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#startInstallConfirm"><span class="nav-number">2.1.3.</span> <span class="nav-text">startInstallConfirm()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AppSecurityPermissions"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">AppSecurityPermissions()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#extractPerms"><span class="nav-number">2.1.3.2.</span> <span class="nav-text">extractPerms()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#isDisplayablePermission"><span class="nav-number">2.1.3.3.</span> <span class="nav-text">isDisplayablePermission()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">2.1.4.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装APK"><span class="nav-number">2.2.</span> <span class="nav-text">安装APK</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#startInstall"><span class="nav-number">2.2.1.</span> <span class="nav-text">startInstall()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initView"><span class="nav-number">2.2.2.</span> <span class="nav-text">initView()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#installPackageWithVerificationAndEncryption"><span class="nav-number">2.2.3.</span> <span class="nav-text">installPackageWithVerificationAndEncryption()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#installCommon"><span class="nav-number">2.2.4.</span> <span class="nav-text">installCommon()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PMS-installPackage"><span class="nav-number">2.2.5.</span> <span class="nav-text">PMS.installPackage()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#startCopy"><span class="nav-number">2.2.6.</span> <span class="nav-text">startCopy()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#installParams-handleStartCopy"><span class="nav-number">2.2.7.</span> <span class="nav-text">installParams.handleStartCopy()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#createInstallArgs"><span class="nav-number">2.2.8.</span> <span class="nav-text">createInstallArgs()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MoveInstallArgs-copyApk"><span class="nav-number">2.2.8.1.</span> <span class="nav-text">MoveInstallArgs.copyApk()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AsecInstallArgs-copyApk"><span class="nav-number">2.2.8.2.</span> <span class="nav-text">AsecInstallArgs.copyApk</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FileInstallArgs-copyApk"><span class="nav-number">2.2.8.3.</span> <span class="nav-text">FileInstallArgs.copyApk</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#handleReturnCode"><span class="nav-number">2.2.9.</span> <span class="nav-text">handleReturnCode()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#processPendingInstall"><span class="nav-number">2.2.10.</span> <span class="nav-text">processPendingInstall()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#installPackageLI"><span class="nav-number">2.2.11.</span> <span class="nav-text">installPackageLI()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PackageParse-parsePackage"><span class="nav-number">2.2.11.1.</span> <span class="nav-text">PackageParse.parsePackage()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#parseMonolithicPackage"><span class="nav-number">2.2.11.1.1.</span> <span class="nav-text">parseMonolithicPackage</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#parseMonolithicPackageLite"><span class="nav-number">2.2.11.1.2.</span> <span class="nav-text">parseMonolithicPackageLite(</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#parseBaseApk"><span class="nav-number">2.2.11.1.3.</span> <span class="nav-text">parseBaseApk()</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#installNewPackageLI"><span class="nav-number">2.2.11.2.</span> <span class="nav-text">installNewPackageLI()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#updatePermissionsLPw"><span class="nav-number">2.2.11.2.1.</span> <span class="nav-text">updatePermissionsLPw</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#processPendingInstall-1"><span class="nav-number">2.2.12.</span> <span class="nav-text">processPendingInstall()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POST-INSTALL"><span class="nav-number">2.2.13.</span> <span class="nav-text">POST_INSTALL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结-1"><span class="nav-number">2.3.</span> <span class="nav-text">小结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#思考：监听app的卸载"><span class="nav-number">2.3.1.</span> <span class="nav-text">思考：监听app的卸载</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#检验"><span class="nav-number">3.</span> <span class="nav-text">检验</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ContextImpl-checkCallingOrSelfPermission"><span class="nav-number">3.1.</span> <span class="nav-text">ContextImpl.checkCallingOrSelfPermission()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#checkPermission"><span class="nav-number">3.2.</span> <span class="nav-text">checkPermission()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AMS-checkPermission"><span class="nav-number">3.3.</span> <span class="nav-text">AMS.checkPermission()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#checkComponentPermission"><span class="nav-number">3.4.</span> <span class="nav-text">checkComponentPermission()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActivityManager-checkComponentPermission"><span class="nav-number">3.5.</span> <span class="nav-text">ActivityManager.checkComponentPermission(</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PMS-checkUidPermission"><span class="nav-number">3.6.</span> <span class="nav-text">PMS.checkUidPermission()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Setting-getUserIdLPr"><span class="nav-number">3.6.1.</span> <span class="nav-text">Setting.getUserIdLPr()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#REF"><span class="nav-number">5.</span> <span class="nav-text">REF:</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

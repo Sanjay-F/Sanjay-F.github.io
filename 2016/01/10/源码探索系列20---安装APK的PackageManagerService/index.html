@@ -1,0 +1,1240 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,PMS," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="我们新新苦苦的写好了程序，打好包，给用户安装。 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？">
+<meta name="keywords" content="android,源码,PMS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列20---安装APK的PackageManagerService">
+<meta property="og:url" content="http://yoursite.com/2016/01/10/源码探索系列20---安装APK的PackageManagerService/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="我们新新苦苦的写好了程序，打好包，给用户安装。 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.716Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列20---安装APK的PackageManagerService">
+<meta name="twitter:description" content="我们新新苦苦的写好了程序，打好包，给用户安装。 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列20---安装APK的PackageManagerService | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列20---安装APK的PackageManagerService
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-10T23:56:46+08:00" content="2016-01-10">
+            2016-01-10
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p> 我们新新苦苦的写好了程序，打好包，给用户安装。<br> 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？</p>
+<p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png" alt="enter image description here"></p>
+<a id="more"></a>
+<p>我们的安装程序是靠<code>PackageManagerService（应用程序管理服务，缩写PMS）</code>来完成的，他会对APK文件进行解析，得到应用程序的相关信息（其实就是解析析应用程序配置文件AndroidManifest.xml的过程，并从里面得到得到应用程序的相关信息，例如得到应用程序的组件Activity、Service、Broadcast Receiver和Content Provider等信息，有了这些信息后，通过ActivityManagerService这个服务，我们就可以在系统中正常地使用这些应用程序了），完成应用程序的安装过程。</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23</p>
+<p>PackageManagerService是由SystemServer组件启动的(SystemServer由Zygote进程负责启动)。</p>
+<p>在介绍前，需要说下我们的apk安装位置 </p>
+<pre><code>系统自带的保存在/system/app/ 。
+我们安装的保存在/data/app/包名/
+</code></pre><p>Package Manager创建数据目录/data/data/xxx/来保存数据库、shared preference、本地函数库和缓存数据。</p>
+<p>好了，我们看下他的构造函数，真的很长！</p>
+<pre><code>public PackageManagerService(Context context, Installer installer,
+        boolean factoryTest, boolean onlyCore) {
+
+    ...
+
+    File dataDir = Environment.getDataDirectory();
+    mAppDataDir = new File(dataDir, &quot;data&quot;);
+    mAppInstallDir = new File(dataDir, &quot;app&quot;);//我们的app路径
+    mUserAppDataDir = new File(dataDir, &quot;user&quot;);
+    mDrmAppPrivateInstallDir = new File(dataDir, &quot;app-private&quot;);
+
+   ...
+
+    File frameworkDir = new File(Environment.getRootDirectory(), &quot;framework&quot;); 
+    alreadyDexOpted.add(frameworkDir.getPath() + &quot;/framework-res.apk&quot;); 
+    alreadyDexOpted.add(frameworkDir.getPath() + &quot;/core-libart.jar&quot;);
+
+
+     ...
+   // Collect ordinary system packages.
+    final File systemAppDir = new File(Environment.getRootDirectory(), &quot;app&quot;);
+    scanDirLI(systemAppDir, PackageParser.PARSE_IS_SYSTEM
+            | PackageParser.PARSE_IS_SYSTEM_DIR, scanFlags, 0);
+
+    // Collect all OEM packages.
+    final File oemAppDir = new File(Environment.getOemDirectory(), &quot;app&quot;);
+    scanDirLI(oemAppDir, PackageParser.PARSE_IS_SYSTEM
+            | PackageParser.PARSE_IS_SYSTEM_DIR, scanFlags, 0);
+
+    ...
+
+        if (!mOnlyCore) {            
+            scanDirLI(mAppInstallDir, 0, scanFlags | SCAN_REQUIRE_KNOWN, 0);
+            scanDirLI(mDrmAppPrivateInstallDir, PackageParser.PARSE_FORWARD_LOCK,
+                    scanFlags | SCAN_REQUIRE_KNOWN, 0);
+             ... 
+        }            
+        ... 
+}
+</code></pre><p>不过缩小成上面主要的那几句，配置要扫码的目录，然后去扫描下，我们去看下那个扫描函数的内容</p>
+<pre><code>private void scanDirLI(File dir, int parseFlags, int scanFlags, long currentTime) {
+
+    final File[] files = dir.listFiles();
+    ...
+    for (File file : files) {
+        final boolean isPackage = (isApkFile(file) || file.isDirectory())
+                &amp;&amp; !PackageInstallerService.isStageName(file.getName());
+        if (!isPackage) {
+            // Ignore entries which are not packages
+            continue;
+        }
+        try {
+            scanPackageLI(file, parseFlags | PackageParser.PARSE_MUST_BE_APK,
+                    scanFlags, currentTime, null);
+        } catch (PackageManagerException e) {
+            ...
+         }
+    }
+}
+</code></pre><p>交给<code>scanPackageLI</code>去解析apk文件。</p>
+<pre><code>private PackageParser.Package scanPackageLI(File scanFile, int parseFlags, int scanFlags,
+        long currentTime, UserHandle user) throws PackageManagerException {
+
+    parseFlags |= mDefParseFlags;
+    PackageParser pp = new PackageParser();
+    pp.setSeparateProcesses(mSeparateProcesses);
+    pp.setOnlyCoreApps(mOnlyCore);
+    pp.setDisplayMetrics(mMetrics);
+
+    if ((scanFlags &amp; SCAN_TRUSTED_OVERLAY) != 0) {
+        parseFlags |= PackageParser.PARSE_TRUSTED_OVERLAY;
+    }
+
+    final PackageParser.Package pkg;
+    try {
+        pkg = pp.parsePackage(scanFile, parseFlags);
+    } catch (PackageParserException e) {
+        throw PackageManagerException.from(e);
+    }
+
+    ...
+
+      // Note that we invoke the following method only if we are about to unpack an application
+    PackageParser.Package scannedPkg = scanPackageLI(pkg, parseFlags, scanFlags
+            | SCAN_UPDATE_SIGNATURE, currentTime, user);
+
+     return scannedPkg;
+}
+</code></pre><p>我们看到他主要是交给了PackageParser去做的解析，然后在通过另外一个同名的函数去做进一步的解析工作。<br>我们先看在解析的内容，再看下那个同名的</p>
+<pre><code>public Package parsePackage(File packageFile, int flags) throws PackageParserException {
+    if (packageFile.isDirectory()) {
+        return parseClusterPackage(packageFile, flags);
+    } else {
+        return parseMonolithicPackage(packageFile, flags);
+    }
+}
+</code></pre><p>他根据是否为文件夹，再分开的处理，我们看下单个文件的。</p>
+<pre><code>public Package parseMonolithicPackage(File apkFile, int flags) throws PackageParserException {
+   ...
+    final AssetManager assets = new AssetManager();
+    try {
+        final Package pkg = parseBaseApk(apkFile, assets, flags);
+        pkg.codePath = apkFile.getAbsolutePath();
+        return pkg;
+    } finally {
+        IoUtils.closeQuietly(assets);
+    }
+}
+</code></pre><p> 又被打包到下面<code>parseBaseApk</code>里面去了。</p>
+<pre><code>private Package parseBaseApk(File apkFile, AssetManager assets, int flags)
+        throws PackageParserException {
+    final String apkPath = apkFile.getAbsolutePath();
+    ... 
+
+    mArchiveSourcePath = apkFile.getAbsolutePath(); 
+    final int cookie = loadApkIntoAssetManager(assets, apkPath, flags);
+
+    Resources res = null;
+    XmlResourceParser parser = null;
+    try {
+        res = new Resources(assets, mMetrics, null);
+        assets.setConfiguration(0, 0, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                Build.VERSION.RESOURCES_SDK_INT);
+
+        parser = assets.openXmlResourceParser(cookie, ANDROID_MANIFEST_FILENAME);
+
+        final String[] outError = new String[1];
+        final Package pkg = parseBaseApk(res, parser, flags, outError);
+        ... 
+        return pkg;
+
+    }  
+    ...
+}
+</code></pre><p>根据给的apk路径去把资源加到<code>AssetManger</code>里面，然后构造一个解析<code>AndroidManifest</code>文件的解析器，再交给<code>parseBaseApk()</code>去生成我们需要的pkg。我们看下这个函数的内容，挺长的</p>
+<pre><code>private Package parseBaseApk(Resources res, XmlResourceParser parser, int flags,
+        String[] outError) throws XmlPullParserException, IOException {
+    final boolean trustedOverlay = (flags &amp; PARSE_TRUSTED_OVERLAY) != 0;
+
+    AttributeSet attrs = parser;
+    //保存写在AndroidManifest里面的类
+    mParseInstrumentationArgs = null;
+    mParseActivityArgs = null;
+    mParseServiceArgs = null;
+    mParseProviderArgs = null;
+
+    final String pkgName;
+    final String splitName;
+    try {
+        Pair&lt;String, String&gt; packageSplit = parsePackageSplitNames(parser, attrs, flags);
+        pkgName = packageSplit.first;//我们的包名
+        splitName = packageSplit.second;
+    } catch (PackageParserException e) {
+        mParseError = PackageManager.INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME;
+        return null;
+    }
+
+    int type;
+
+    ...
+
+    final Package pkg = new Package(pkgName);
+    boolean foundApp = false;
+    //下面是一堆配置信息
+    TypedArray sa = res.obtainAttributes(attrs,
+            com.android.internal.R.styleable.AndroidManifest);
+    pkg.mVersionCode = pkg.applicationInfo.versionCode = sa.getInteger(
+            com.android.internal.R.styleable.AndroidManifest_versionCode, 0);
+    pkg.baseRevisionCode = sa.getInteger(
+            com.android.internal.R.styleable.AndroidManifest_revisionCode, 0);
+    pkg.mVersionName = sa.getNonConfigurationString(
+            com.android.internal.R.styleable.AndroidManifest_versionName, 0);
+    if (pkg.mVersionName != null) {
+        pkg.mVersionName = pkg.mVersionName.intern();
+    }
+    String str = sa.getNonConfigurationString(
+            com.android.internal.R.styleable.AndroidManifest_sharedUserId, 0);
+    if (str != null &amp;&amp; str.length() &gt; 0) {
+        String nameError = validateName(str, true, false);
+        if (nameError != null &amp;&amp; !&quot;android&quot;.equals(pkgName)) {
+            outError[0] = &quot;&lt;manifest&gt; specifies bad sharedUserId name \&quot;&quot;
+                + str + &quot;\&quot;: &quot; + nameError;
+            mParseError = PackageManager.INSTALL_PARSE_FAILED_BAD_SHARED_USER_ID;
+            return null;
+        }
+
+        //我们在共享时候需要到的mSharedUserId，重要重要的
+        pkg.mSharedUserId = str.intern();
+        pkg.mSharedUserLabel = sa.getResourceId(
+                com.android.internal.R.styleable.AndroidManifest_sharedUserLabel, 0);
+    }
+
+    pkg.installLocation = sa.getInteger(
+            com.android.internal.R.styleable.AndroidManifest_installLocation,
+            PARSE_DEFAULT_INSTALL_LOCATION);
+    pkg.applicationInfo.installLocation = pkg.installLocation;
+    pkg.coreApp = attrs.getAttributeBooleanValue(null, &quot;coreApp&quot;, false);
+    sa.recycle();
+    //上面是一对配置信息的内容
+
+     ...
+
+
+   //下面开始根据各种标签做解析工作，有些标签还是第一次看多。
+   //例如合并标签的eat-comment和protected-broadcast等
+   //我就不删除所有的内容，保留下标签的名字吧。看下你认识几个
+    int outerDepth = parser.getDepth();
+    while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
+            &amp;&amp; (type != XmlPullParser.END_TAG || parser.getDepth() &gt; outerDepth)) {
+        if (type == XmlPullParser.END_TAG || type == XmlPullParser.TEXT) {
+            continue;
+        }
+
+        String tagName = parser.getName();
+        if (tagName.equals(&quot;application&quot;)) {
+            if (foundApp) {
+                if (RIGID_PARSER) {
+                    outError[0] = &quot;&lt;manifest&gt; has more than one &lt;application&gt;&quot;;
+                    mParseError = PackageManager.INSTALL_PARSE_FAILED_MANIFEST_MALFORMED;
+                    return null;
+                } else {
+                    Slog.w(TAG, &quot;&lt;manifest&gt; has more than one &lt;application&gt;&quot;);
+                    XmlUtils.skipCurrentTag(parser);
+                    continue;
+                }
+            }
+
+            foundApp = true;
+            if (!parseBaseApplication(pkg, res, parser, attrs, flags, outError)) {
+                return null;
+            }
+        } else if (tagName.equals(&quot;overlay&quot;)) {
+            ... 
+        } else if (tagName.equals(&quot;key-sets&quot;)) {
+             ...
+        } else if (tagName.equals(&quot;permission-group&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;permission&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;permission-tree&quot;)) {
+             ...
+        } else if (tagName.equals(&quot;uses-permission&quot;)) {
+            if (!parseUsesPermission(pkg, res, parser, attrs)) {
+                return null;
+            }
+        } else if (tagName.equals(&quot;uses-permission-sdk-m&quot;)
+           ...
+        } else if (tagName.equals(&quot;uses-configuration&quot;)) {
+           ...
+        } else if (tagName.equals(&quot;uses-feature&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;feature-group&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;uses-sdk&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;supports-screens&quot;)) {
+            ...                
+        } else if (tagName.equals(&quot;protected-broadcast&quot;)) {
+             ...                
+        } else if (tagName.equals(&quot;instrumentation&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;original-package&quot;)) {
+            ...
+        } else if (tagName.equals(&quot;adopt-permissions&quot;)) {
+             ...
+        } else if (tagName.equals(&quot;compatible-screens&quot;)) {
+          ...
+        } else if (tagName.equals(&quot;supports-input&quot;)) {
+          ...  
+        } else if (tagName.equals(&quot;eat-comment&quot;)) {
+           ...                
+        } else if (RIGID_PARSER) {
+            ...
+        } else {
+            ...
+        }
+    }
+     ...
+    return pkg;
+}
+</code></pre><p>接着我们去看下重要的一个，就是解析<code>Application</code>里面的</p>
+<pre><code>private boolean parseBaseApplication(Package owner, Resources res,
+        XmlPullParser parser, AttributeSet attrs, int flags, String[] outError)
+    throws XmlPullParserException, IOException {
+
+    final ApplicationInfo ai = owner.applicationInfo;
+    final String pkgName = owner.applicationInfo.packageName;
+
+    //又开始获取一些配置的信息内容啦
+    TypedArray sa = res.obtainAttributes(attrs,
+            com.android.internal.R.styleable.AndroidManifestApplication);
+    String name = sa.getNonConfigurationString(
+            com.android.internal.R.styleable.AndroidManifestApplication_name, 0);         
+     ...
+     ai.icon = sa.getResourceId(
+            com.android.internal.R.styleable.AndroidManifestApplication_icon, 0);
+    ai.logo = sa.getResourceId(
+            com.android.internal.R.styleable.AndroidManifestApplication_logo, 0);
+    ai.banner = sa.getResourceId(
+            com.android.internal.R.styleable.AndroidManifestApplication_banner, 0);
+    ai.theme = sa.getResourceId(
+            com.android.internal.R.styleable.AndroidManifestApplication_theme, 0);
+    ai.descriptionRes = sa.getResourceId(
+            com.android.internal.R.styleable.AndroidManifestApplication_description, 0);
+
+     ....省略了一堆见过和没见过的flag设置
+
+    //下面是最重要的内容啦
+    final int innerDepth = parser.getDepth();
+    int type;
+    while ((type = parser.next()) != XmlPullParser.END_DOCUMENT
+            &amp;&amp; (type != XmlPullParser.END_TAG || parser.getDepth() &gt; innerDepth)) {
+        if (type == XmlPullParser.END_TAG || type == XmlPullParser.TEXT) {
+            continue;
+        }
+
+        String tagName = parser.getName();
+        if (tagName.equals(&quot;activity&quot;)) {
+            Activity a = parseActivity(owner, res, parser, attrs, flags, outError, 
+                                    false,owner.baseHardwareAccelerated);
+            if (a == null) {
+                mParseError=ackageManager.INSTALL_PARSE_FAILED_MANIFEST_MALFORMED;
+                return false;
+            } 
+            owner.activities.add(a);
+
+        } else if (tagName.equals(&quot;receiver&quot;)) {
+            Activity a = parseActivity(owner, res, parser, attrs, flags, outError, 
+                                       true, false);
+            if (a == null) {
+                mParseError=PackageManager.INSTALL_PARSE_FAILED_MANIFEST_MALFORMED;
+                return false;
+            }
+            owner.receivers.add(a);
+
+        } else if (tagName.equals(&quot;service&quot;)) {
+            Service s = parseService(owner, res, parser, attrs, flags, outError);
+            if (s == null) {
+                mParseError=PackageManager.INSTALL_PARSE_FAILED_MANIFEST_MALFORMED;
+                return false;
+            }
+            owner.services.add(s);
+
+        } else if (tagName.equals(&quot;provider&quot;)) {
+            Provider p = parseProvider(owner, res, parser, attrs, flags, outError);
+            if (p == null) {
+                mParseError =PackageManager.INSTALL_PARSE_FAILED_MANIFEST_MALFORMED;                    
+                return false;
+            }
+
+            owner.providers.add(p);
+
+        } else if (tagName.equals(&quot;activity-alias&quot;)) {
+           ...
+        } else if (parser.getName().equals(&quot;meta-data&quot;)) {
+            ...
+        }  
+    }
+    ...
+     return true;
+}
+</code></pre><p>好！看到这里，基本我们开头说的，一堆的Activity，service的信息就都看到了！<br>接下去的具体的各个的解析就不说了，我们就那一个解析Activity的例子来看下就好了。</p>
+<pre><code>private Activity parseActivity(Package owner, Resources res,
+        XmlPullParser parser, AttributeSet attrs, int flags, String[] outError,
+        boolean receiver, boolean hardwareAccelerated)
+        throws XmlPullParserException, IOException {
+
+    TypedArray sa = res.obtainAttributes(attrs, R.styleable.AndroidManifestActivity);
+
+    if (mParseActivityArgs == null) {
+        mParseActivityArgs = new ParseComponentArgs(owner, outError,
+                R.styleable.AndroidManifestActivity_name,
+                R.styleable.AndroidManifestActivity_label,
+                R.styleable.AndroidManifestActivity_icon,
+                R.styleable.AndroidManifestActivity_logo,
+                R.styleable.AndroidManifestActivity_banner,
+                mSeparateProcesses,
+                R.styleable.AndroidManifestActivity_process,
+                R.styleable.AndroidManifestActivity_description,
+                R.styleable.AndroidManifestActivity_enabled);
+    }        
+    mParseActivityArgs.tag = receiver ? &quot;&lt;receiver&gt;&quot; : &quot;&lt;activity&gt;&quot;;
+    mParseActivityArgs.sa = sa;
+    mParseActivityArgs.flags = flags;
+
+    Activity a = new Activity(mParseActivityArgs, new ActivityInfo());
+
+    ... 省略一堆配置内容
+
+
+    if (!receiver) {
+        if (sa.getBoolean(R.styleable.AndroidManifestActivity_hardwareAccelerated,
+                hardwareAccelerated)) {
+            a.info.flags |= ActivityInfo.FLAG_HARDWARE_ACCELERATED;
+        }
+
+        a.info.launchMode = sa.getInt(
+                R.styleable.AndroidManifestActivity_launchMode, ActivityInfo.LAUNCH_MULTIPLE); //默认的启动模式是LAUNCH_MULTIPLE
+
+        a.info.documentLaunchMode = sa.getInt(R.styleable.
+                AndroidManifestActivity_documentLaunchMode,
+                ActivityInfo.DOCUMENT_LAUNCH_NONE);
+
+        a.info.maxRecents = sa.getInt(R.styleable.
+                AndroidManifestActivity_maxRecents,
+                ActivityManager.getDefaultAppRecentsLimitStatic()); 
+
+        a.info.persistableMode = sa.getInteger(
+                R.styleable.AndroidManifestActivity_persistableMode,
+                ActivityInfo.PERSIST_ROOT_ONLY);
+        ...
+    } else {
+        a.info.launchMode = ActivityInfo.LAUNCH_MULTIPLE;
+        a.info.configChanges = 0;
+
+        if (sa.getBoolean(R.styleable.AndroidManifestActivity_singleUser, false)) {
+            a.info.flags |= ActivityInfo.FLAG_SINGLE_USER;
+            if (a.info.exported &amp;&amp; (flags &amp; PARSE_IS_PRIVILEGED) == 0) {
+                 a.info.exported = false;
+                setExported = true;
+            }
+        }
+    }
+
+    ...
+    //和前面一样的套路，根据标签做进一步处理        
+     while ((type=parser.next()) != XmlPullParser.END_DOCUMENT
+           &amp;&amp; (type != XmlPullParser.END_TAG
+                   || parser.getDepth() &gt; outerDepth)) {
+        if (type == XmlPullParser.END_TAG || type == XmlPullParser.TEXT) {
+            continue;
+        }
+
+        if (parser.getName().equals(&quot;intent-filter&quot;)) {
+              ...
+        } else if (!receiver &amp;&amp; parser.getName().equals(&quot;preferred&quot;)) {
+            ...
+         } else if (parser.getName().equals(&quot;meta-data&quot;)) {
+
+        } else {
+          ...
+        }            
+    } 
+    return a;
+}
+</code></pre><hr>
+<h1 id="前进"><a href="#前进" class="headerlink" title="前进"></a>前进</h1><p>好了，看了前面那么一大串，我们回到主线上，到一开始的另外一个同名函数里面的工作。</p>
+<pre><code>private PackageParser.Package scanPackageLI(PackageParser.Package pkg, int 
+        parseFlags, int scanFlags, long currentTime, UserHandle user) throws 
+        PackageManagerException {
+
+    boolean success = false;
+    try {
+        final PackageParser.Package res = scanPackageDirtyLI(pkg, parseFlags, 
+                scanFlags, currentTime, user);
+        success = true;
+        return res;
+    } finally {
+        if (!success &amp;&amp; (scanFlags &amp; SCAN_DELETE_DATA_ON_FAILURES) != 0) {
+            removeDataDirsLI(pkg.volumeUuid, pkg.packageName);
+        }
+    }
+}
+</code></pre><p>又扔给别人工作。这个函数超过了1K行，我服，看得要哭啊。</p>
+<pre><code>private PackageParser.Package scanPackageDirtyLI(PackageParser.Package pkg, int parseFlags,
+        int scanFlags, long currentTime, UserHandle user) throws PackageManagerException {
+    final File scanFile = new File(pkg.codePath);
+
+     ...
+
+    // writer
+    synchronized (mPackages) {
+         ...
+         //添加各种信息，基本模式雷同,为何责任不分割成各个小函数，唉
+
+        N = pkg.services.size();             
+        ...
+
+        N = pkg.receivers.size();
+         ...
+
+        N = pkg.activities.size();
+        r = null;
+        for (i=0; i&lt;N; i++) {
+            PackageParser.Activity a = pkg.activities.get(i);
+            a.info.processName = fixProcessName(pkg.applicationInfo.processName,
+                    a.info.processName, pkg.applicationInfo.uid);
+            mActivities.addActivity(a, &quot;activity&quot;);
+            if ((parseFlags&amp;PackageParser.PARSE_CHATTY) != 0) {
+                if (r == null) {
+                    r = new StringBuilder(256);
+                } else {
+                    r.append(&apos; &apos;);
+                }
+                r.append(a.info.name);
+            }
+        } 
+
+        N = pkg.permissionGroups.size();
+         ...
+
+        N = pkg.permissions.size();
+         ...
+
+        N = pkg.instrumentation.size();
+         ...
+
+    return pkg;
+}
+</code></pre><p> 这个函数主要就是把前面一步解析出来的各种信息再处理下，添加个各种mActivities的变量去。</p>
+<pre><code>public class PackageManagerService extends IPackageManager.Stub {
+
+    final ActivityIntentResolver mActivities =
+            new ActivityIntentResolver();
+
+    // All available receivers, for your resolving pleasure.
+    final ActivityIntentResolver mReceivers =
+            new ActivityIntentResolver();
+
+    // All available services, for your resolving pleasure.
+    final ServiceIntentResolver mServices = new ServiceIntentResolver();
+
+    // All available providers, for your resolving pleasure.
+    final ProviderIntentResolver mProviders = new ProviderIntentResolver();
+
+    ...
+}
+</code></pre><p>通过这些操作，我们整个APK的信息就建立了。<br>最后我们的代码就可以通过各种<code>显示</code>和<code>隐示</code>的Intent等来做各种事情了。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>关于这个PMS还有很多没说的，例如开头图片的那个安装界面等，下次再补充吧，现在又是12点了，我要早点睡，不熬夜！</p>
+<hr>
+<p>很久前在做app的时候，想做的一件事情是检测app被卸载这件事，然后弹一个问卷页面，想收集问题，不过查了下解决方案，都没什么漂亮的，有的是靠监听data文件被删除的，这个很耗费电量。不像Windows上卸载是靠自神提供的UnInstall.exe去执行。所以不好做到，看完这整个过程，似乎也没看到些什么特别好的信息。</p>
+<p>参考资料：</p>
+<p><a href="http://blog.csdn.net/luoshengyang/article/details/6766010" target="_blank" rel="noopener">Android应用程序安装过程源代码分析</a> </p>
+<p><a href="http://blog.csdn.net/new_abc/article/details/12966503" target="_blank" rel="noopener">PackageManagerService启动及初始化流程</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/PMS/" rel="tag">#PMS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" rel="prev">源码探索系列21---帮助做手势判断的GestureDetector</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/" rel="next">源码探索系列19---加载布局的LayoutInflater</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/"
+     data-title="源码探索系列20---安装APK的PackageManagerService"
+     data-content=""
+     data-url="http://yoursite.com/2016/01/10/源码探索系列20---安装APK的PackageManagerService/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/"
+                   data-title="源码探索系列20---安装APK的PackageManagerService" data-url="http://yoursite.com/2016/01/10/源码探索系列20---安装APK的PackageManagerService/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进"><span class="nav-number">2.</span> <span class="nav-text">前进</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">3.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

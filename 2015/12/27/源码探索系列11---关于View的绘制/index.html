@@ -1,0 +1,1121 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,View,绘制," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="我们开发过程，基本需要自定义View，画一些自己的小插件出来这需要我们掌握整个View的绘画过程和一些别的小技巧。这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。">
+<meta name="keywords" content="android,源码,View,绘制">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列11---关于View的绘制">
+<meta property="og:url" content="http://yoursite.com/2015/12/27/源码探索系列11---关于View的绘制/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="我们开发过程，基本需要自定义View，画一些自己的小插件出来这需要我们掌握整个View的绘画过程和一些别的小技巧。这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151227115323242">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.707Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列11---关于View的绘制">
+<meta name="twitter:description" content="我们开发过程，基本需要自定义View，画一些自己的小插件出来这需要我们掌握整个View的绘画过程和一些别的小技巧。这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151227115323242">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列11---关于View的绘制 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列11---关于View的绘制
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-27T02:36:00+08:00" content="2015-12-27">
+            2015-12-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/27/源码探索系列11---关于View的绘制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列11---关于View的绘制/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>我们开发过程，基本需要自定义View，画一些自己的小插件出来<br>这需要我们掌握整个View的绘画过程和一些别的小技巧。<br>这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，<br>之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。</p>
+<a id="more"></a>
+<h1 id="起航-——-绘制流程"><a href="#起航-——-绘制流程" class="headerlink" title="起航 —— 绘制流程"></a>起航 —— 绘制流程</h1><p>API：23</p>
+<p>一般View的“生命周期”即绘画的流程像下面这样。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">st=&gt;start: View的绘画流程</span><br><span class="line"> </span><br><span class="line">op=&gt;operation: measure()</span><br><span class="line"></span><br><span class="line">op2=&gt;operation: layout()</span><br><span class="line"></span><br><span class="line">op3=&gt;operation: draw()</span><br><span class="line"></span><br><span class="line">e=&gt;end: 结束</span><br><span class="line"></span><br><span class="line">st-&gt;op-&gt;op2-&gt;op3-&gt;e</span><br></pre></td></tr></table></figure></p>
+<p> 这个是一般的流程都这样，</p>
+<ol>
+<li>我们的<code>measure</code>负责去测量View的<code>Width</code>和<code>Height</code>,</li>
+<li>然后我们的<code>layout</code>负责去确定其在父容器的位置，</li>
+<li>最后由<code>draw</code>来负责在屏幕上画内容。</li>
+</ol>
+<p>但实际还有一些别的步骤流程，如这些函数由上一层来调用， 就像我们的Activity的<code>onCreate</code>等！<br>不过现在先不提及。我们继续看各个阶段具体到底是做什么先。</p>
+<h2 id="measure"><a href="#measure" class="headerlink" title="measure"></a>measure</h2><pre><code>public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+    boolean optical = isLayoutModeOptical(this);
+   ...
+
+   onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+   ...
+}
+
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+    setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+            getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+}
+
+public static int getDefaultSize(int size, int measureSpec) {
+    int result = size;
+    int specMode = MeasureSpec.getMode(measureSpec);
+    int specSize = MeasureSpec.getSize(measureSpec);
+
+    switch (specMode) {
+    case MeasureSpec.UNSPECIFIED:
+        result = size;
+        break;
+    case MeasureSpec.AT_MOST:
+    case MeasureSpec.EXACTLY:
+        result = specSize;
+        break;
+    }
+    return result;
+}
+</code></pre><p>我们的measure函数是个final类型的，里面主要是调用了onMeasure函数，由他做具体测量。<br>这里需要补充一部分内容，关于<code>MeasureSpec.EXACTLY</code>，<code>MeasureSpec.AT_MOST</code>和<code>MeasureSpec.UNSPECIFIED</code></p>
+<ul>
+<li><strong>EXACTLY：</strong><br>这个词的意思是父容器已经检测出View的精确大小（eg:width=200dp/match_parent）,这时我们的View的最终大小值就是specSize的值。</li>
+<li><strong>AT_MOST：</strong><br>这个词的意思是父容器指定了一个大小（eg:width=wrap_content）,这时我们的View的大小是要小于等于specSize的值，最终大小到底是多大，要看View的具体实现。</li>
+<li><strong>UNSPECIFIED：</strong><br>这个词的意思是父容器不对View有任何大小的限制，需要多大就设置多大，但这一般是系统内部用来表示一种测量的状态。当然还有别的用处，例如我们的<code>ScrollView</code>，他就可以用这个来告诉子View，大小无限，任意画。</li>
+</ul>
+<p>上面的解释看起来这个View的MeasureSpec类型由我们的LayoutParams来设置，但实际这个MeasureSpec是由View和父容器一起决定的。这个好理解，例如我们的LinearLayout里面有个View，前者设置最高为200dp，后者为300dp，最终这个子View大小不由自己设置的300dp决定。具体的测量过程，下次再开贴说，就不插在这里了。我们继续主线</p>
+<p>这样我们回看上面应该就好理解getDefaultSize（）里面的到底是什么意思了。<br>在  <code>MeasureSpec.UNSPECIFIED:</code>的状况下，大小是<code>result = size;</code>，由传过来的参数觉得，我们看下具体做了什么</p>
+<pre><code>protected int getSuggestedMinimumHeight() {
+    return (mBackground == null) ? mMinHeight : max(mMinHeight, mBackground.getMinimumHeight());
+}
+
+protected int getSuggestedMinimumWidth() {
+    return (mBackground == null) ? mMinWidth : max(mMinWidth, mBackground.getMinimumWidth());
+}
+</code></pre><p>我们拿<code>getSuggestedMinimumHeight()</code>来看下<br>里面含义就是：</p>
+<ul>
+<li><p>如果我没背景，那么就是mMinHeight大小，这个值对应于我们写的<code>android:minHeight=&quot;20dp&quot;</code>属性，他的默认值是0。</p>
+<pre><code>case R.styleable.View_minWidth:
+                mMinWidth = a.getDimensionPixelSize(attr, 0);
+                break;
+</code></pre></li>
+<li><p>如果我有背景，那就选背景的最小高度和mMinHeight中最大的。<br>这个背景的<code>getMinimumHeight()</code>内容是</p>
+<pre><code> /**
+* Returns the minimum height suggested by this Drawable. If a View uses this
+* Drawable as a background, it is suggested that the View use at least this
+* value for its height. (There will be some scenarios where this will not be
+* possible.) This value should INCLUDE any padding.
+*
+* @return The minimum height suggested by this Drawable. If this Drawable
+*         doesn&apos;t have a suggested minimum height, 0 is returned.
+*/
+ public int getMinimumHeight() {
+   final int intrinsicHeight = getIntrinsicHeight();
+   return intrinsicHeight &gt; 0 ? intrinsicHeight : 0;
+</code></pre><p>   }<br>自带的解释已经很具体了，返回Drawable的最小高度，没有的话就返回0；可能有些奇怪，说得好像我们的Drawable可以没高是的。确实有些没有，例如我们在自定义一些我们的<strong>圆角</strong>的Button在不同点击效果时候用到的<code>&lt;shape&gt;</code>标签写的背景，他就没有。</p>
+</li>
+</ul>
+<p>继续回主线</p>
+<pre><code>protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) {
+    ...
+    setMeasuredDimensionRaw(measuredWidth, measuredHeight);
+}
+
+private void setMeasuredDimensionRaw(int measuredWidth, int measuredHeight) {
+    mMeasuredWidth = measuredWidth;
+    mMeasuredHeight = measuredHeight;
+
+    mPrivateFlags |= PFLAG_MEASURED_DIMENSION_SET;
+}
+</code></pre><p>最后就设置了测量的大小，是的测量的大小，不是最终的大小，最终的大小还是需要根据实际做调整的。<br>这样我们的measure，测量过程就基本结束了。</p>
+<h3 id="一些题外话："><a href="#一些题外话：" class="headerlink" title="一些题外话："></a><strong>一些题外话：</strong></h3><p>这里补充一个早年无知时候遇到的坑，那时候项目要求弄一个像下面这样的一个带有气泡框的进度条， </p>
+<p><img src="http://img.blog.csdn.net/20151227115323242" alt="这里写图片描述"></p>
+<p>那时候就直接类似于下面这样，继承View，然后重写onDraw函数，在里面绘制好整个样子。</p>
+<pre><code>public class BubbleProgressBar extends View {
+
+        public void onDraw(@NonNull Canvas canvas) {
+              //画进度和泡泡框
+        }
+}    
+</code></pre><p>但画好后，遇到个问题，这个View居然自动填充满整个界面，我设置的是<code>wrap_content</code>，感觉应该是系统帮我搞好，弄成很小的一个啊，怎么就那么大呢？  后来查了资料发现，如果我们是直接继承于View，那需要重写下那个measure函数，要不然他就会自动填满，为啥呢？回看那个<code>getDefaultSize</code>函数</p>
+<pre><code>case MeasureSpec.AT_MOST:
+case MeasureSpec.EXACTLY:
+       result = specSize;
+     break;
+</code></pre><p>我们的<code>wrap_content</code>就是那个<code>AT_MOST</code>和<code>EXACTLY</code>是同条路，实际就等于写了<code>Match_parent</code>。<br>所以我们得根据情况来做判断，来给点指定大小</p>
+<pre><code>@Override
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+    int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+    int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+    if(heightMode==MeasureSpec.AT_MOST widthMode == MeasureSpec.AT_MOST ){
+       setMeasuredDimension(mOurDefalutHeight,mOurDefalutWidth);
+    }         
+     ...
+}    
+</code></pre><p>现在想想，大概当年设计这个View类的人遇到了这个默认初始化大小应该是多大才合适的问题，所以干脆直接来个填充全局的方式。</p>
+<h1 id="前进-——-Layout过程"><a href="#前进-——-Layout过程" class="headerlink" title="前进 —— Layout过程"></a>前进 —— Layout过程</h1><p>看完了测量出界面的大小，我们需要开始下一步layout的过程了。<br>layout主要是用来确定View的位置的，具体如下</p>
+<pre><code>public void layout(int l, int t, int r, int b) {
+
+    ...
+
+    int oldL = mLeft;
+    int oldT = mTop;
+    int oldB = mBottom;
+    int oldR = mRight;
+
+    boolean changed = isLayoutModeOptical(mParent) ?
+            setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
+
+    if (changed || (mPrivateFlags &amp; PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+        onLayout(changed, l, t, r, b);
+        mPrivateFlags &amp;= ~PFLAG_LAYOUT_REQUIRED;
+
+        ListenerInfo li = mListenerInfo;
+        if (li != null &amp;&amp; li.mOnLayoutChangeListeners != null) {
+            ArrayList&lt;OnLayoutChangeListener&gt; listenersCopy =
+                    (ArrayList&lt;OnLayoutChangeListener&gt;)li.mOnLayoutChangeListeners.clone();
+            int numListeners = listenersCopy.size();
+            for (int i = 0; i &lt; numListeners; ++i) {
+                listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);
+            }
+        }
+    }
+
+     ...
+}
+</code></pre><p>整个流程大致是先用setFrame（）函数去设置我们的View的位置，然后调用onLayout来让服从其确定之元素的位置，由于这个onLayout做的是具体的布局工作，需要具体的继承的人去做，例如我们的LinearLayout有水平和垂直之分，所以在View中里面什么也没有。最后是调用监听函数，通知他们onLayoutChange（）了。</p>
+<pre><code> protected boolean setFrame(int left, int top, int right, int bottom) {
+    boolean changed = false;
+
+    if (mLeft != left || mRight != right || mTop != top || mBottom != bottom) {
+        changed = true;
+
+        // Remember our drawn bit
+        int drawn = mPrivateFlags &amp; PFLAG_DRAWN;
+        int oldWidth = mRight - mLeft;
+        int oldHeight = mBottom - mTop;
+        int newWidth = right - left;
+        int newHeight = bottom - top;
+        boolean sizeChanged = (newWidth != oldWidth) || (newHeight != oldHeight);
+
+        // Invalidate our old position
+        invalidate(sizeChanged);
+
+        mLeft = left;
+        mTop = top;
+        mRight = right;
+        mBottom = bottom;
+
+        mRenderNode.setLeftTopRightBottom(mLeft, mTop, mRight, mBottom);
+
+        if (sizeChanged) {
+            sizeChange(newWidth, newHeight, oldWidth, oldHeight);
+        }
+
+         ...
+    }
+    return changed;
+}
+
+/**
+ * Called from layout when this view should  
+ * assign a size and position to each of its children.
+ *
+ * Derived classes with children should override this method 
+ * and call layout on each of their children. 
+ */
+protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+}
+</code></pre><p>好了，基本的layout过程就这么结束了，我们的View的布局也就确定了。<br>接下来就看下draw过程了。</p>
+<h1 id="前进前进——画界面的Draw"><a href="#前进前进——画界面的Draw" class="headerlink" title="前进前进——画界面的Draw"></a>前进前进——画界面的Draw</h1><p>这个画的过程，主要就是把View绘制到屏幕上去，根据写的注释，我们看到View的绘制过程有这里六个步骤。其中两个可以忽略的。</p>
+<pre><code>/*
+    * Draw traversal performs several drawing steps which must be executed
+    * in the appropriate order:
+    *
+    *      1. Draw the background  
+    *      2. If necessary, save the canvas&apos; layers to prepare for fading 
+    *      3. Draw view&apos;s content
+    *      4. Draw children  
+    *      5. If necessary, draw the fading edges and restore layers  
+    *      6. Draw decorations (scrollbars for instance) 
+    */
+</code></pre><p>继续的步骤如下：</p>
+<pre><code>public void draw(Canvas canvas) {
+    final int privateFlags = mPrivateFlags;
+    final boolean dirtyOpaque = (privateFlags &amp; PFLAG_DIRTY_MASK) == PFLAG_DIRTY_OPAQUE &amp;&amp;
+            (mAttachInfo == null || !mAttachInfo.mIgnoreDirtyState);
+    mPrivateFlags = (privateFlags &amp; ~PFLAG_DIRTY_MASK) | PFLAG_DRAWN;
+
+
+    // Step 1, draw the background, if needed
+    int saveCount;
+
+    if (!dirtyOpaque) {
+        drawBackground(canvas);
+    }
+
+    // skip step 2 &amp; 5 if possible (common case)
+    final int viewFlags = mViewFlags;
+    boolean horizontalEdges = (viewFlags &amp; FADING_EDGE_HORIZONTAL) != 0;
+    boolean verticalEdges = (viewFlags &amp; FADING_EDGE_VERTICAL) != 0;
+    if (!verticalEdges &amp;&amp; !horizontalEdges) {
+        // Step 3, draw the content
+        if (!dirtyOpaque) onDraw(canvas);
+
+        // Step 4, draw the children
+        dispatchDraw(canvas);
+
+        // Step 6, draw decorations (scrollbars)
+        onDrawScrollBars(canvas);
+
+        if (mOverlay != null &amp;&amp; !mOverlay.isEmpty()) {
+            mOverlay.getOverlayView().dispatchDraw(canvas);
+        }
+
+        // we&apos;re done...
+        return;
+    }
+
+    /*
+     * Here we do the full fledged routine...
+     * (this is an uncommon case where speed matters less,
+     * this is why we repeat some of the tests that have been
+     * done above)
+     */
+
+        ... 画特效部分
+ }
+</code></pre><p>我们再细看下各个步骤</p>
+<pre><code>private void drawBackground(Canvas canvas) {
+    final Drawable background = mBackground;
+    ...
+
+    final int scrollX = mScrollX;
+    final int scrollY = mScrollY;
+    if ((scrollX | scrollY) == 0) {
+        background.draw(canvas);
+    } else {
+        canvas.translate(scrollX, scrollY);
+        background.draw(canvas);
+        canvas.translate(-scrollX, -scrollY);
+    }
+}
+</code></pre><p>然后这个onDraw和我们onLayout一样，需要自己写，里面空空如也</p>
+<pre><code>protected void onDraw(Canvas canvas) {
+    }
+</code></pre><p>然后那个dispatchDraw(）也是，这个需要我们自己做，但这个更多的是针对于ViewGroup类的包含子View的。这样Draw事件就传递给下面，遍历所有的子View元素的Draw方法，绘制完所有。</p>
+<pre><code>/**
+ * Called by draw to draw the child views. This may be overridden
+ * by derived classes to gain control just before its children are drawn
+ * (but after its own view has been drawn).
+ * @param canvas the canvas on which to draw the view
+ */
+protected void dispatchDraw(Canvas canvas) {
+
+}
+</code></pre><p>这样我们的Draw过程也就介绍了。</p>
+<hr>
+<h1 id="一些补充"><a href="#一些补充" class="headerlink" title="一些补充"></a>一些补充</h1><p>看完一个完整的View的绘制过程，这里补充一些关于ViewGroup的内容<br>ViewGroup绘制过程中还需要让他的各个子View去绘制。</p>
+<h2 id="measureChildren-）"><a href="#measureChildren-）" class="headerlink" title="measureChildren(）"></a>measureChildren(）</h2><pre><code> protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
+    final int size = mChildrenCount;
+    final View[] children = mChildren;
+    for (int i = 0; i &lt; size; ++i) {
+        final View child = children[i];
+        if ((child.mViewFlags &amp; VISIBILITY_MASK) != GONE) {
+            measureChild(child, widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+}
+</code></pre><p>这里看到，他对于那些除了设置为Gone不可见的，都进行了绘制。<br>不过有一个点引起我的兴趣，这个<code>size</code>的大小不是取数组<code>children</code>的大小，而是<code>mChildrenCount</code>这个值。难道这背后有一个什么故事？查了下没什么结果。。。</p>
+<pre><code>protected void measureChild(View child, int parentWidthMeasureSpec,
+        int parentHeightMeasureSpec) {
+    final LayoutParams lp = child.getLayoutParams();
+
+    final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+            mPaddingLeft + mPaddingRight, lp.width);
+    final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+            mPaddingTop + mPaddingBottom, lp.height);
+
+    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
+</code></pre><p>绘制的过程也是直接调用他们的measure函数去执行。在获取到子View的MeasureSpec时，具体是：</p>
+<pre><code>public static int getChildMeasureSpec(int spec, int padding, int childDimension) {
+    int specMode = MeasureSpec.getMode(spec);
+    int specSize = MeasureSpec.getSize(spec);
+
+    int size = Math.max(0, specSize - padding);
+
+    int resultSize = 0;
+    int resultMode = 0;
+
+    switch (specMode) {
+    // Parent has imposed an exact size on us
+    case MeasureSpec.EXACTLY:
+        if (childDimension &gt;= 0) {
+            resultSize = childDimension;
+            resultMode = MeasureSpec.EXACTLY;
+        } else if (childDimension == LayoutParams.MATCH_PARENT) {
+            // Child wants to be our size. So be it.
+            resultSize = size;
+            resultMode = MeasureSpec.EXACTLY;
+        } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+            // Child wants to determine its own size. It can&apos;t be
+            // bigger than us.
+            resultSize = size;
+            resultMode = MeasureSpec.AT_MOST;
+        }
+        break;
+
+    // Parent has imposed a maximum size on us
+    case MeasureSpec.AT_MOST:
+        if (childDimension &gt;= 0) {
+            // Child wants a specific size... so be it
+            resultSize = childDimension;
+            resultMode = MeasureSpec.EXACTLY;
+        } else if (childDimension == LayoutParams.MATCH_PARENT) {
+            // Child wants to be our size, but our size is not fixed.
+            // Constrain child to not be bigger than us.
+            resultSize = size;
+            resultMode = MeasureSpec.AT_MOST;
+        } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+            // Child wants to determine its own size. It can&apos;t be
+            // bigger than us.
+            resultSize = size;
+            resultMode = MeasureSpec.AT_MOST;
+        }
+        break;
+
+    // Parent asked to see how big we want to be
+    case MeasureSpec.UNSPECIFIED:
+        if (childDimension &gt;= 0) {
+            // Child wants a specific size... let him have it
+            resultSize = childDimension;
+            resultMode = MeasureSpec.EXACTLY;
+        } else if (childDimension == LayoutParams.MATCH_PARENT) {
+            // Child wants to be our size... find out how big it should
+            // be
+            resultSize = 0;
+            resultMode = MeasureSpec.UNSPECIFIED;
+        } else if (childDimension == LayoutParams.WRAP_CONTENT) {
+            // Child wants to determine its own size.... find out how
+            // big it should be
+            resultSize = 0;
+            resultMode = MeasureSpec.UNSPECIFIED;
+        }
+        break;
+    }
+    return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
+}
+</code></pre><p>这里面做的事情，主要的就是根据父容器的MeasureSpec同时结合View本身的LayoutParams来共同决定子View的MeasureSpec，所以子元素能用的大小就是父容器的尺寸减去padding</p>
+<pre><code>int specSize = MeasureSpec.getSize(spec);
+int size = Math.max(0, specSize - padding);
+</code></pre><p>前面在说View的时候也有提到过这个，具体的View的大小是需要和父容器协商的。</p>
+<p>根据上面的内容的决定子View的大小的过程，我们可以总结出一个规律，就是如果我们设置了具体的大小（dp/px)那就是ChildSize，要不然是ParentSize除了UNPSECIFIED，</p>
+<table>
+<thead>
+<tr>
+<th>childParams \   parentParams</th>
+<th style="text-align:left">EXACTLY</th>
+<th style="text-align:left">AT_MOST</th>
+<th style="text-align:left">UNSPECIFIED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>dp/px</strong></td>
+<td style="text-align:left">EXACTLY - childSize</td>
+<td style="text-align:left">EXACTLY - childSize</td>
+<td style="text-align:left">EXACTLY - childSize</td>
+</tr>
+<tr>
+<td><strong>match_parent</strong></td>
+<td style="text-align:left">EXACTLY - parentSize</td>
+<td style="text-align:left">EXACTLY - parentSize</td>
+<td style="text-align:left">UNSPECIFIED - 0</td>
+</tr>
+<tr>
+<td><strong>wrap_content</strong></td>
+<td style="text-align:left">EXACTLY - parentSize</td>
+<td style="text-align:left">EXACTLY - parentSize</td>
+<td style="text-align:left">UNSPECIFIED - 0</td>
+</tr>
+</tbody>
+</table>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>一个View的绘制过程就这样结束了，也没太大负责的内容，但一个View里面的内容还是很多可以说的，<br>例如：</p>
+<ul>
+<li>他内部的<code>post</code>机制，他可以让我们减少对Handler的使用。</li>
+<li>Touch事件的传递</li>
+<li>View的滑动</li>
+</ul>
+<p>这些内容我们后面继续慢慢的补充吧。 </p>
+<p>另外这个View的调用者是<code>ViewRoot</code>，他的具体实现是<code>ViewRootImpl</code>，在他的performTraversal函数里面，执行了我们的view的整个绘制周期的调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">st=&gt;start: performTraversals（）</span><br><span class="line">e=&gt;end: 结束</span><br><span class="line"></span><br><span class="line">op1=&gt;operation: View.measure</span><br><span class="line">op2=&gt;operation: View.layout</span><br><span class="line">op3=&gt;operation: View.draw</span><br><span class="line"></span><br><span class="line">cond1=&gt;condition: 不用重新Measure?</span><br><span class="line">cond2=&gt;condition: 不用重新Layout? </span><br><span class="line">cond3=&gt;condition: 不用重新Draw?</span><br><span class="line"></span><br><span class="line">st-&gt;cond1-&gt;cond2 </span><br><span class="line">cond1(yes)-&gt;cond2</span><br><span class="line">cond1(no)-&gt;op1</span><br><span class="line">cond1-&gt;cond2-&gt;cond3</span><br><span class="line">cond2(yes)-&gt;cond3</span><br><span class="line">cond2(no)-&gt;op2</span><br><span class="line">cond3(yes)-&gt;e</span><br><span class="line">cond3(no)-&gt;op3</span><br></pre></td></tr></table></figure>
+<p>更具体的调用流程如下： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">performMeasure-&gt;measure: </span><br><span class="line"></span><br><span class="line">measure-&gt;onMeasure: </span><br><span class="line">onMeasure--&gt; View.measure:</span><br></pre></td></tr></table></figure>
+<p> 另外我们的layout和draw的套路类似，就不细写.</p>
+<ol start="2">
+<li>关于requestLayout,postInvalidate,invalidate这几个函数<br>这几个在我们刷新界面的时候经常用到，这三者的作用是，requestLayout要求重走整个绘制流程从measuer，layout和draw这3个步骤。<br>然后postInvalidate是通过post一个刷新消息给到当前view的handle，再去调用invalidate函数去重新draw整个页面本身。因为invalidate是从ui线程直接调用去刷新自己本身的，所以对于不是ui线程时候想刷新就得靠这个函数。最后那个invalidate的意思前面说了，就是刷新自己，重新draw</li>
+</ol>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/View/" rel="tag">#View</a>
+          
+            <a href="/tags/绘制/" rel="tag">#绘制</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/" rel="prev">源码探索系列12---关于事件分发机制</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/25/开源系列1---造个图片选择器/" rel="next">开源系列1---造个图片选择器</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/27/源码探索系列11---关于View的绘制/"
+     data-title="源码探索系列11---关于View的绘制"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/27/源码探索系列11---关于View的绘制/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/27/源码探索系列11---关于View的绘制/"
+                   data-title="源码探索系列11---关于View的绘制" data-url="http://yoursite.com/2015/12/27/源码探索系列11---关于View的绘制/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航-——-绘制流程"><span class="nav-number">1.</span> <span class="nav-text">起航 —— 绘制流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#measure"><span class="nav-number">1.1.</span> <span class="nav-text">measure</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一些题外话："><span class="nav-number">1.1.1.</span> <span class="nav-text">一些题外话：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进-——-Layout过程"><span class="nav-number">2.</span> <span class="nav-text">前进 —— Layout过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前进前进——画界面的Draw"><span class="nav-number">3.</span> <span class="nav-text">前进前进——画界面的Draw</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一些补充"><span class="nav-number">4.</span> <span class="nav-text">一些补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#measureChildren-）"><span class="nav-number">4.1.</span> <span class="nav-text">measureChildren(）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">5.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

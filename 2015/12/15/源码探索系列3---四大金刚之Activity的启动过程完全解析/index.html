@@ -1,0 +1,1217 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,Activity,启动过程," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在不同版本API，底层实现有些不一样，所以这里贴出现在在看的API版本号API: 23  关于Activity的四个启动flag，这里下次再说。先说下我们熟悉的一句吧 startActivity(new Intent(this,Test2Activity.class)); 相信我们对这句太熟悉不过了，不过说到这里，我想说下关于写Intent的一个感觉好的实践相信你已写腻了一堆这样的intent，用">
+<meta name="keywords" content="android,源码,Activity,启动过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列3---四大金刚之Activity的启动过程完全解析">
+<meta property="og:url" content="http://yoursite.com/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在不同版本API，底层实现有些不一样，所以这里贴出现在在看的API版本号API: 23  关于Activity的四个启动flag，这里下次再说。先说下我们熟悉的一句吧 startActivity(new Intent(this,Test2Activity.class)); 相信我们对这句太熟悉不过了，不过说到这里，我想说下关于写Intent的一个感觉好的实践相信你已写腻了一堆这样的intent，用">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216174523169">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216174637003">
+<meta property="og:image" content="http://pic002.cnblogs.com/images/2012/328668/2012040716440386.jpg">
+<meta property="og:image" content="http://img.blog.csdn.net/20151215222112105">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.721Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列3---四大金刚之Activity的启动过程完全解析">
+<meta name="twitter:description" content="在不同版本API，底层实现有些不一样，所以这里贴出现在在看的API版本号API: 23  关于Activity的四个启动flag，这里下次再说。先说下我们熟悉的一句吧 startActivity(new Intent(this,Test2Activity.class)); 相信我们对这句太熟悉不过了，不过说到这里，我想说下关于写Intent的一个感觉好的实践相信你已写腻了一堆这样的intent，用">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151216174523169">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列3---四大金刚之Activity的启动过程完全解析 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列3---四大金刚之Activity的启动过程完全解析
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-15T01:32:00+08:00" content="2015-12-15">
+            2015-12-15
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在不同版本API，底层实现有些不一样，所以这里贴出现在在看的API版本号<br>API: 23</p>
+<hr>
+<p>关于Activity的四个启动flag，这里下次再说。<br>先说下我们熟悉的一句吧</p>
+<pre><code>startActivity(new Intent(this,Test2Activity.class));
+</code></pre><p>相信我们对这句太熟悉不过了，不过说到这里，我想说下关于写Intent的一个感觉好的实践<br>相信你已写腻了一堆这样的<code>intent</code>，用起来确实很不好的，就像下面这样</p>
+<pre><code>Intent newIntent= new Intent(this,Test2Activity.class);
+        newIntent.putExtra(&quot;data1&quot;, &quot;trialData1&quot;);
+        Bundle bundle=new Bundle();
+        bundle.putSerializable(&quot;key&quot;,&quot;trialData&quot;); 
+        startActivity(newIntent);
+</code></pre><p>像这种方式我在很多开源项目看到了很多这样的写法，这种不好的方式在于，很多我们要跳到同一个Activity里面去时候，重复写了，这很显然不适合<code>DRY原则</code>，而且我们在另外一个Activity获取数据时候，也需要记住这些Key，这不太好！看到的另外一种方式就是直接写一个<code>IntentUtil</code>类，里面写满各种Intent，感觉这种也不是很好！虽然没重复了，不过在获取数据方面还不是很好，还需要定义一些Constant数据，这里提供我个人觉得好的方式，在我们的Activity里面写一个静态的<code>makeIntent（）</code>函数。<br>如下：</p>
+<pre><code>public class Test2Activity extends AppCompatActivity {
+
+
+    public static final String EXTRA_DATA = &quot;extra_data&quot;;
+
+    public static Intent makeIntent(Context mContext, String data) {
+        return new Intent(mContext, Test2Activity.class).putExtra(EXTRA_DATA, data);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test2);
+         //获取传过来的数据
+        String result = getIntent().getStringExtra(EXTRA_DATA);
+    }
+}
+</code></pre><p>之后我们需要调整到这个界面，只需要这么写</p>
+<pre><code>startActivity(Test2Activity.makeIntent(this,&quot;data&quot;));
+</code></pre><p>通过这个静态方法，我们在数据里面读取方面都很简单，而且启动的时候也知道是要跳到那个界面去,重要是看起来很简单！而且不需要去定义一个常量类来记录这些数据的<code>Key</code></p>
+<p>最后的一个大杀器就是直接写成模板。</p>
+<a id="more"></a>
+<p>哈哈，之后就可以快捷的自己生成了！！<br><img src="http://img.blog.csdn.net/20151216174523169" alt="这里写图片描述"></p>
+<p><strong>以后我们就这样，就生成了，不再需要重复写了！</strong></p>
+<p><img src="http://img.blog.csdn.net/20151216174637003" alt="这里写图片描述"></p>
+<p><strong>是不是很好！！！</strong></p>
+<hr>
+<hr>
+<p>#StartActivity<br>上面分享个人觉得好的最佳实战，下面就从这个开始剖析底层是如何启动这个Activity的。</p>
+<pre><code>@Override
+public void startActivity(Intent intent) {
+    this.startActivity(intent, null);
+}
+
+@Override
+public void startActivity(Intent intent, @Nullable Bundle options) {
+   if (options != null) {
+       startActivityForResult(intent, -1, options);
+   } else {
+        startActivityForResult(intent, -1);
+    }
+}
+
+public void startActivityForResult(Intent intent, int requestCode) {
+        startActivityForResult(intent, requestCode, null);
+ }
+
+public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
+    if (mParent == null) {
+        Instrumentation.ActivityResult ar =
+            mInstrumentation.execStartActivity(
+                this, mMainThread.getApplicationThread(), mToken, this,
+                intent, requestCode, options);
+        if (ar != null) {
+            mMainThread.sendActivityResult(
+                mToken, mEmbeddedID, requestCode, ar.getResultCode(),
+                ar.getResultData());
+        }
+        if (requestCode &gt;= 0) {
+            // If this start is requesting a result, we can avoid making
+            // the activity visible until the result is received.  Setting
+            // this code during onCreate(Bundle savedInstanceState) or onResume() will keep the
+            // activity hidden during this time, to avoid flickering.
+            // This can only be done when a result is requested because
+            // that guarantees we will get information back when the
+            // activity is finished, no matter what happens to it.
+            mStartedActivity = true;
+        }
+
+        cancelInputsAndStartExitTransition(options);
+        // TODO Consider clearing/flushing other event sources and events for child windows.
+    } else {
+        if (options != null) {
+            mParent.startActivityFromChild(this, intent, requestCode, options);
+        } else {
+            // Note we want to go through this method for compatibility with
+            // existing applications that may have overridden it.
+            mParent.startActivityFromChild(this, intent, requestCode);
+        }
+    }
+}
+</code></pre><p>从上面代码，我们发现一个很有趣的事实，就是他底层居然调用的是<code>startActivityForResult()</code>函数,而且RequestCode是-1。</p>
+<pre><code>if (requestCode &gt;= 0) {
+    mStartedActivity = true;
+}
+</code></pre><p>结合上面这个判断条件，这样我们就理解，为何在startActivity的RequestCode 有这么句解释</p>
+<blockquote>
+<p>requestCode - If &gt;= 0, this code will be returned in<br>onActivityResult() when the activity exits.</p>
+</blockquote>
+<p> 我们需要注意到这么一句，这句实际的执行了intent程序</p>
+<pre><code>Instrumentation.ActivityResult ar =
+               mInstrumentation.execStartActivity(
+                   this, mMainThread.getApplicationThread(), mToken, this,
+                   intent, requestCode, options);
+</code></pre><p>不知道对<code>MainThread</code>这个单词还记得嘛，在前篇文章说Looper的时候里面有介绍到这个单词，创说中的主线程，他get回ApplicationThread，我们的app线程。另外这个<code>Instrumentation</code>居然出现在这里，我们在介绍测试教程的时候，很多类都是基础于它的，就让我们继续看这个<code>execStartActivity</code>到底做了什么</p>
+<pre><code>public ActivityResult execStartActivity(
+           Context who, IBinder contextThread, IBinder token, Activity target,
+           Intent intent, int requestCode, Bundle options) {
+       IApplicationThread whoThread = (IApplicationThread) contextThread;
+       Uri referrer = target != null ? target.onProvideReferrer() : null;
+       if (referrer != null) {
+           intent.putExtra(Intent.EXTRA_REFERRER, referrer);
+       }
+       if (mActivityMonitors != null) {
+           synchronized (mSync) {
+               final int N = mActivityMonitors.size();
+               for (int i=0; i&lt;N; i++) {
+                   final ActivityMonitor am = mActivityMonitors.get(i);
+                   if (am.match(who, null, intent)) {
+                       am.mHits++;
+                       if (am.isBlocking()) {
+                           return requestCode &gt;= 0 ? am.getResult() : null;
+                       }
+                       break;
+                   }
+               }
+           }
+       }
+       try {
+           intent.migrateExtraStreamToClipData();
+           intent.prepareToLeaveProcess();
+           int result = ActivityManagerNative.getDefault()
+               .startActivity(whoThread, who.getBasePackageName(), intent,
+                       intent.resolveTypeIfNeeded(who.getContentResolver()),
+                       token, target != null ? target.mEmbeddedID : null,
+                       requestCode, 0, null, options);
+           checkStartActivityResult(result, intent);
+       } catch (RemoteException e) {
+           throw new RuntimeException(&quot;Failure from system&quot;, e);
+       }
+       return null;
+   }
+</code></pre><p>（题外话：当年看《Android系统源代码情景分析》的时候吐槽里面都是贴代码的，现在自己分析时候也贴了好多，哈哈）<br>我们看到里面结尾处的最重要的一句，好长的一句ActivityManagerNative实际执行了这个startActivity的工作。</p>
+<pre><code>int result = ActivityManagerNative.getDefault()
+                .startActivity(whoThread, who.getBasePackageName(), intent,
+                        intent.resolveTypeIfNeeded(who.getContentResolver()),
+                        token, target != null ? target.mEmbeddedID : null,
+                        requestCode, 0, null, options);
+</code></pre><p>再近一步的看，我们看到这个<code>ActivityManagerNative</code> 居然是个<strong>抽象类</strong>，而且基础于<code>Binder</code>，实现了<code>IActivityManager</code>这个接口。另外要提一点就是这个<code>@hide</code>，他的作用很神奇的，可以使类在编译时不对外开放，但是运行的时候这些类和API都是可以访问的。所以要直接使用是会报错的，需要修改下设置的，具体有兴趣的，关于他的经一步内容，找下资料吧</p>
+<pre><code>/** {@hide} */
+public abstract class ActivityManagerNative extends Binder implements IActivityManager
+{
+
+    /**
+     * Retrieve the system&apos;s default/global activity manager.
+     */
+    static public IActivityManager getDefault() {
+        return gDefault.get();
+    }
+
+     private static final Singleton&lt;IActivityManager&gt; gDefault = new Singleton&lt;IActivityManager&gt;() {
+            protected IActivityManager create() {
+                IBinder b = ServiceManager.getService(&quot;activity&quot;);
+                if (false) {
+                    Log.v(&quot;ActivityManager&quot;, &quot;default service binder = &quot; + b);
+                }
+                IActivityManager am = asInterface(b);
+                if (false) {
+                    Log.v(&quot;ActivityManager&quot;, &quot;default service = &quot; + am);
+                }
+                return am;
+            }
+        };
+}
+</code></pre><p> 好吧，一个神奇的Binder，让我们继续看下去<br>很遗憾的是，现在都凌晨一点多了，我居然还没找到传说中的<code>ActivityManagerService</code>这个类在哪里！！<br>好消息是，这玩意经过一番折腾，终于发现一个事实，这各类在Android.jar里面没有，得去源码里面找。呵呵。初学，这类坑难免。<br>位置是<code>你的SDK位置\sources\android-23\com\android\server\am</code><br>打开一看，简直疯了，这个类居然</p>
+<p>有<strong>20640</strong>行<br>有<strong>20640</strong>行<br>有<strong>20640</strong>行<br>有<strong>20640</strong>行</p>
+<p>简直不敢相信，怪不得一个文件有871KB大小，服了，这代码量，简直够一个简单的app的整个代码量了！<br>先上一张偷来的大图，整个启动的流程。</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/328668/2012040716440386.jpg" alt="这里写图片描述"></p>
+<p>还没看完一半的代码。呵呵 </p>
+<h2 id="一折腾都一点半了，明天继续写吧。。。"><a href="#一折腾都一点半了，明天继续写吧。。。" class="headerlink" title="一折腾都一点半了，明天继续写吧。。。"></a>一折腾都一点半了，明天继续写吧。。。</h2><p>让我们继续看下了这神奇的<code>ActivityManagerService</code></p>
+<pre><code>@Override
+public final int startActivity(IApplicationThread caller, String callingPackage,
+        Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+        int startFlags, ProfilerInfo profilerInfo, Bundle options) {
+    return startActivityAsUser(caller, callingPackage, intent, resolvedType, resultTo,
+        resultWho, requestCode, startFlags, profilerInfo, options,
+        UserHandle.getCallingUserId());
+}
+
+@Override
+public final int startActivityAsUser(IApplicationThread caller, String callingPackage,
+        Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+        int startFlags, ProfilerInfo profilerInfo, Bundle options, int userId) {
+    enforceNotIsolatedCaller(&quot;startActivity&quot;);
+    userId = handleIncomingUser(Binder.getCallingPid(), Binder.getCallingUid(), userId,
+            false, ALLOW_FULL_ONLY, &quot;startActivity&quot;, null);
+    // TODO: Switch to user app stacks here.
+    return mStackSupervisor.startActivityMayWait(caller, -1, callingPackage, intent,
+            resolvedType, null, null, resultTo, resultWho, requestCode, startFlags,
+            profilerInfo, null, null, options, false, userId, null, null);
+}
+</code></pre><p>这些参数也太多了把，系统的源码这样如此的复杂。</p>
+<pre><code>  final int startActivityMayWait(IApplicationThread caller, int callingUid,
+        String callingPackage, Intent intent, String resolvedType,
+        IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+        IBinder resultTo, String resultWho, int requestCode, int startFlags,
+        ProfilerInfo profilerInfo, WaitResult outResult, Configuration config,
+        Bundle options, boolean ignoreTargetSecurity, int userId,
+        IActivityContainer iContainer, TaskRecord inTask) {
+
+     ...
+
+        int res = startActivityLocked(caller, intent, resolvedType, aInfo,
+                voiceSession, voiceInteractor, resultTo, resultWho,
+                requestCode, callingPid, callingUid, callingPackage,
+                realCallingPid, realCallingUid, startFlags, options, ignoreTargetSecurity,
+                componentSpecified, null, container, inTask);
+
+
+      ...
+}
+</code></pre><p>这个方法也好长，这里贴下最重要的一句<code>startActivityLocked()</code></p>
+<pre><code> final int startActivityLocked(IApplicationThread caller,
+        Intent intent, String resolvedType, ActivityInfo aInfo,
+        IVoiceInteractionSession voiceSession, IVoiceInteractor voiceInteractor,
+        IBinder resultTo, String resultWho, int requestCode,
+        int callingPid, int callingUid, String callingPackage,
+        int realCallingPid, int realCallingUid, int startFlags, Bundle options,
+        boolean ignoreTargetSecurity, boolean componentSpecified, ActivityRecord[] outActivity,
+        ActivityContainer container, TaskRecord inTask) {
+    int err = ActivityManager.START_SUCCESS;
+
+    ...
+
+    err = startActivityUncheckedLocked(r, sourceRecord, voiceSession, voiceInteractor,
+            startFlags, true, options, inTask);
+
+    if (err &lt; 0) {
+        // If someone asked to have the keyguard dismissed on the next
+        // activity start, but we are not actually doing an activity
+        // switch...  just dismiss the keyguard now, because we
+        // probably want to see whatever is behind it.
+        notifyActivityDrawnForKeyguard();
+    }
+    return err;
+}
+</code></pre><p>越到后面的类都好变态，参数看起来可怕，整个类的行数都用千来做单位，看起来真的好辛苦，那些设计这个系统的一开始得花了多少功夫啊！根据查看，他底部是这个方法</p>
+<pre><code>err = startActivityUncheckedLocked(r, sourceRecord, voiceSession, voiceInteractor,
+        startFlags, true, options, inTask);
+</code></pre><p>好想跳过。。。这个方法里面内容也是超级庞大的。看到好难过。。<br>里面调整到<code>resumeTopActivitiesLocked()</code>接着到了</p>
+<pre><code> boolean resumeTopActivitiesLocked(ActivityStack targetStack, ActivityRecord target,
+        Bundle targetOptions) {
+    if (targetStack == null) {
+        targetStack = mFocusedStack;
+    }
+    // Do targetStack first.
+    boolean result = false;
+    if (isFrontStack(targetStack)) {
+        result = targetStack.resumeTopActivityLocked(target, targetOptions);
+    }
+
+    ...
+    return result;
+}
+</code></pre><p>下面这个是ActivityStack的resumeTopActivityLocked</p>
+<pre><code>final boolean resumeTopActivityLocked(ActivityRecord prev, Bundle options) {
+    if (mStackSupervisor.inResumeTopActivity) {
+        // Don&apos;t even start recursing.
+        return false;
+    }
+
+    boolean result = false;
+    try {
+        // Protect against recursion.
+        mStackSupervisor.inResumeTopActivity = true;
+        if (mService.mLockScreenShown == ActivityManagerService.LOCK_SCREEN_LEAVING) {
+            mService.mLockScreenShown = ActivityManagerService.LOCK_SCREEN_HIDDEN;
+            mService.updateSleepIfNeededLocked();
+        }
+        result = resumeTopActivityInnerLocked(prev, options);
+    } finally {
+        mStackSupervisor.inResumeTopActivity = false;
+    }
+    return result;
+}
+</code></pre><p>继续坚持看下去。。</p>
+<pre><code>private boolean resumeTopActivityInnerLocked(ActivityRecord prev, Bundle options) {
+    if (DEBUG_LOCKSCREEN) mService.logLockScreen(&quot;&quot;);
+
+      ....
+
+        mStackSupervisor.startSpecificActivityLocked(next, true, true);
+     ...
+
+}
+</code></pre><p>苍天，终于这个方法短一点了，都敢直接贴上来了，前面都是几百行的，而且重点是很多操作是没深入看，都晕晕的！！</p>
+<pre><code>void startSpecificActivityLocked(ActivityRecord r,
+          boolean andResume, boolean checkConfig) {
+      // Is this activity&apos;s application already running?
+      ProcessRecord app = mService.getProcessRecordLocked(r.processName,
+              r.info.applicationInfo.uid, true);
+
+      r.task.stack.setLaunchTime(r);
+
+      if (app != null &amp;&amp; app.thread != null) {
+          try {
+              if ((r.info.flags&amp;ActivityInfo.FLAG_MULTIPROCESS) == 0
+                      || !&quot;android&quot;.equals(r.info.packageName)) {
+                  // Don&apos;t add this if it is a platform component that is marked
+                  // to run in multiple processes, because this is actually
+                  // part of the framework so doesn&apos;t make sense to track as a
+                  // separate apk in the process.
+                  app.addPackage(r.info.packageName, r.info.applicationInfo.versionCode,
+                          mService.mProcessStats);
+              }
+              realStartActivityLocked(r, app, andResume, checkConfig);
+              return;
+          } catch (RemoteException e) {
+              Slog.w(TAG, &quot;Exception when starting activity &quot;
+                      + r.intent.getComponent().flattenToShortString(), e);
+          }
+
+          // If a dead object exception was thrown -- fall through to
+          // restart the application.
+      }
+
+      mService.startProcessLocked(r.processName, r.info.applicationInfo, true, 0,
+              &quot;activity&quot;, r.intent.getComponent(), false, false, true);
+  }
+</code></pre><p>好日子到头了，又继续看下吧</p>
+<pre><code>final boolean realStartActivityLocked(ActivityRecord r,
+            ProcessRecord app, boolean andResume, boolean checkConfig)
+            throws RemoteException {
+
+           ...
+
+            app.forceProcessStateUpTo(mService.mTopProcessState);
+            app.thread.scheduleLaunchActivity(new Intent(r.intent), r.appToken,
+                    System.identityHashCode(r), r.info, new Configuration(mService.mConfiguration),
+                    new Configuration(stack.mOverrideConfig), r.compat, r.launchedFromPackage,
+                    task.voiceInteractor, app.repProcState, r.icicle, r.persistentState, results,
+                    newIntents, !andResume, mService.isNextTransitionForward(), profilerInfo);
+        ...
+
+        return true;
+    }
+</code></pre><p>看这些，突然想说，知道个整个流程真不容易，好复杂的流程，一开始搭架构的人能力也太犀利了！设计这么多！<br>看到这里我们的线索中断了下，因为<code>app.thread</code>的这个<code>thread</code>是一个接口，继承IInterface，成了个Binder，我们需要找到真正干活的人</p>
+<pre><code>public interface IApplicationThread extends IInterface { 
+
+}
+</code></pre><p>我们搜索了这个ProcessRecord类，发现在他的makeActivie里面对他进行了赋值</p>
+<pre><code> public void makeActive(IApplicationThread _thread, ProcessStatsService tracker) {
+
+     ....
+
+    thread = _thread;
+}
+</code></pre><p>是时候了，使用传说中的Alt+Ctrl+Shift+F7组合键，我们发现他的来源是在AMS里面，我的跪了,感觉新新苦苦回到革命前的感觉啊。</p>
+<p><img src="http://img.blog.csdn.net/20151215222112105" alt="这里写图片描述"><br>接着我们继续追寻，发现下面这个入口</p>
+<pre><code>@Override
+    public final void attachApplication(IApplicationThread thread) {
+        synchronized (this) {
+            int callingPid = Binder.getCallingPid();
+            final long origId = Binder.clearCallingIdentity();
+            attachApplicationLocked(thread, callingPid);
+            Binder.restoreCallingIdentity(origId);
+        }
+    }
+</code></pre><p>既然是Override的方法，我们回来看的声明</p>
+<pre><code>public final class ActivityManagerService extends ActivityManagerNative
+        implements Watchdog.Monitor, BatteryStatsImpl.BatteryCallback {
+
+}
+</code></pre><p>好吧，一个熟悉的东西，我们在<code>ActivityManagerNative</code>发现了最重要的信息，居然跳回了这里！</p>
+<pre><code>case ATTACH_APPLICATION_TRANSACTION: {
+            data.enforceInterface(IActivityManager.descriptor);
+            IApplicationThread app = ApplicationThreadNative.asInterface(
+                    data.readStrongBinder());
+            if (app != null) {
+                attachApplication(app);
+            }
+            reply.writeNoException();
+            return true;
+        }
+</code></pre><p>嫌疑犯<code>ApplicationThreadNative</code>出现了，这名字感觉很有规律啊，XXXNative和我们的ActivityManagerNative是类似的，万恶的Binder又出现了。他的具体实现是下面这个<code>ApplicationThread</code>，居然是<code>ActivityThread</code> 里面的内部类，不要问我怎么知道的</p>
+<pre><code>private class ApplicationThread extends ApplicationThreadNative
+
+
+ ....
+
+public abstract class ApplicationThreadNative extends Binder
+    implements IApplicationThread {
+
+}
+</code></pre><p>既然回到了ApplicationThread，我们就继续吧，我快看腻了，不知道看这个干什么。。<br>但最少我们找到了真正干活的人！！！希望你看这么久，不会忘了我们是要找下面这句</p>
+<pre><code>app.thread.scheduleLaunchActivity(）
+</code></pre><p>好了，我们继续看他的具体内容把</p>
+<pre><code>public final void scheduleLaunchActivity(Intent intent, IBinder token, int ident,
+            ActivityInfo info, Configuration curConfig, CompatibilityInfo compatInfo,
+            Bundle state, List&lt;ResultInfo&gt; pendingResults,
+            List&lt;Intent&gt; pendingNewIntents, boolean notResumed, boolean isForward,
+            String profileName, ParcelFileDescriptor profileFd, boolean autoStopProfiler) {
+        ActivityClientRecord r = new ActivityClientRecord();
+
+        r.token = token;
+        r.ident = ident;
+        r.intent = intent;
+        r.activityInfo = info;
+        r.compatInfo = compatInfo;
+        r.state = state;
+
+        r.pendingResults = pendingResults;
+        r.pendingIntents = pendingNewIntents;
+
+        r.startsNotResumed = notResumed;
+        r.isForward = isForward;
+
+        r.profileFile = profileName;
+        r.profileFd = profileFd;
+        r.autoStopProfiler = autoStopProfiler;
+
+        updatePendingConfiguration(curConfig);
+
+        queueOrSendMessage(H.LAUNCH_ACTIVITY, r);
+    }
+</code></pre><p>发送消息，又事坑</p>
+<pre><code>private void queueOrSendMessage(int what, Object obj) {
+       queueOrSendMessage(what, obj, 0, 0);
+}
+
+private void queueOrSendMessage(int what, Object obj, int arg1) {
+    queueOrSendMessage(what, obj, arg1, 0);
+}
+
+private void queueOrSendMessage(int what, Object obj, int arg1, int arg2) {
+    synchronized (this) {
+        if (DEBUG_MESSAGES) Slog.v(
+            TAG, &quot;SCHEDULE &quot; + what + &quot; &quot; + mH.codeToString(what)
+            + &quot;: &quot; + arg1 + &quot; / &quot; + obj);
+        Message msg = Message.obtain();
+        msg.what = what;
+        msg.obj = obj;
+        msg.arg1 = arg1;
+        msg.arg2 = arg2;
+        mH.sendMessage(msg);
+    } 
+}
+
+final H mH = new H();
+</code></pre><p>我们看到，他最后居然用一个Handler发送消息，呵呵，而且这个handler居然那么简单的名字</p>
+<pre><code>private class H extends Handler {
+
+    public static final int LAUNCH_ACTIVITY         = 100;
+    public static final int PAUSE_ACTIVITY          = 101; 
+
+    ...
+
+    public void handleMessage(Message msg) {
+        if (DEBUG_MESSAGES) Slog.v(TAG, &quot;&gt;&gt;&gt; handling: &quot; + msg.what);
+        switch (msg.what) {
+            case LAUNCH_ACTIVITY: {
+                ActivityClientRecord r = (ActivityClientRecord)msg.obj;
+
+                r.packageInfo = getPackageInfoNoCheck(
+                        r.activityInfo.applicationInfo, r.compatInfo);
+                handleLaunchActivity(r, null);
+            } break;
+            case RELAUNCH_ACTIVITY: {
+                ActivityClientRecord r = (ActivityClientRecord)msg.obj;
+                handleRelaunchActivity(r);
+            } break;
+
+            ...
+        }
+        if (DEBUG_MESSAGES) Slog.v(TAG, &quot;&lt;&lt;&lt; done: &quot; + msg.what);
+    }
+}
+</code></pre><p>继续看下去吧，<code>handleLaunchActivity()</code>,写到这里，很想说，没什么动力，估计没什么人没事会把整个系统的源码看一遍。实在好累的感觉</p>
+<pre><code>private void handleLaunchActivity(ActivityClientRecord r, Intent customIntent) {
+
+
+    if (r.profileFd != null) {
+        mProfiler.setProfiler(r.profileFile, r.profileFd);
+        mProfiler.startProfiling();
+        mProfiler.autoStopProfiler = r.autoStopProfiler;
+    }
+
+    // Make sure we are running with the most recent config.
+    handleConfigurationChanged(null, null);
+
+    if (localLOGV) Slog.v(
+        TAG, &quot;Handling launch of &quot; + r);
+    Activity a = performLaunchActivity(r, customIntent);
+
+    if (a != null) {
+        r.createdConfig = new Configuration(mConfiguration);
+        Bundle oldState = r.state;
+        handleResumeActivity(r.token, false, r.isForward);
+
+
+            r.paused = true;
+        }
+    }  
+
+    ...
+}
+</code></pre><p>恭喜你，看到这里基本到尾声了，我们的Activity被创建出来了，这个函数一百多行，实在太长了，就不贴了<br>，一个函数长度都够我平时写的一个类的长度了。<br>在performLaunchActivity(）函数里面，对我们的Activity粘贴到window，设置主题，设置Context ，调用OnCreate函数等等操作。 </p>
+<p>然后就是在handleResumeActivity里面，会调用我们最熟悉不过的<code>onResume()</code>函数！<br>好了，到这里结束！！！！！</p>
+<p>关于别的Activity的生命周期函数是怎么调用到的，下次有空再继续写！<br>就这点内容，看了我几个小时，得洗澡先了！！</p>
+<hr>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>第一次自己看完这么长的一个流程，真的是不容易，写这篇花了我两个晚上<br>虽然觉得挺好，不过也不知道有什么意义呢，看完整个启动的生命周期！<br>写系统代码的人也是牛逼，绕来绕去的，这么长流程，想做到没bug的话真的不容易！<br>我看着就累了，特别是看到那个AMS里面居然<strong>两万多行！！！</strong>，<br>这一个类，真的完全都够写一个中小型的项目的代码量了<br>发现自己贴了好多代码，整篇文章都16，000多了，好长！！<br>估计一般人都不会看，就当记录下整个流程，<br>下次遇到问题，方便自己查阅</p>
+<p>——————-再次更新——————–</p>
+<p><strong>补充下一个笑话</strong></p>
+<p>深夜，交警查车，突然插到一部车的后尾箱放了几百万美元，在这样一个夜黑风高之晚，显然很有嫌疑，所以警察质问司机：“为何这么晚还带这么多钱跑？”，实际虽然有点紧张，但就回答了句，“嗯，我能”。<br>这个是以前在知乎看到的。具体大意入手，最终想说的就是那么两个字，因为我能。&gt;.&lt;</p>
+<hr>
+<p>参考：<br>整个流程图，来自下面这篇文章<br><a href="http://www.cnblogs.com/lijunamneg/p/3573093.html" target="_blank" rel="noopener">Activity启动创建 (AcitivtyManageService,ActivityThread,Activity)</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/Activity/" rel="tag">#Activity</a>
+          
+            <a href="/tags/启动过程/" rel="tag">#启动过程</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/" rel="prev">源码探索系列4---数据库ORM框架之Ormlite解析</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/09/源码探索系列2---深入解析AsyncTask/" rel="next">源码探索系列2---深入解析AsyncTask</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/"
+     data-title="源码探索系列3---四大金刚之Activity的启动过程完全解析"
+     data-content=""
+     data-url="http://yoursite.com/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/"
+                   data-title="源码探索系列3---四大金刚之Activity的启动过程完全解析" data-url="http://yoursite.com/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一折腾都一点半了，明天继续写吧。。。"><span class="nav-number">1.</span> <span class="nav-text">一折腾都一点半了，明天继续写吧。。。</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number"></span> <span class="nav-text">后记</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

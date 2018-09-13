@@ -1,0 +1,1312 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,源码,HotFix," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在插件化和热修复方面，应该算是解决了不少燃眉问题了。 目前开源的有：360的DroidPlugin，阿里的AndFix，Dexposed主席的dynamic-load-apk点评的Android Dynamic Loader，  现在我们来看看它们的原理和各自的优缺点吧。">
+<meta name="keywords" content="android,源码,HotFix">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列25---救急灭火的消防员之插件&amp;HotFix">
+<meta property="og:url" content="http://yoursite.com/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在插件化和热修复方面，应该算是解决了不少燃眉问题了。 目前开源的有：360的DroidPlugin，阿里的AndFix，Dexposed主席的dynamic-load-apk点评的Android Dynamic Loader，  现在我们来看看它们的原理和各自的优缺点吧。">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_201832-120i022461493.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160305201106.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_015a873b31a0044c65a5a1c4501b9bb9_b.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.718Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列25---救急灭火的消防员之插件&amp;HotFix">
+<meta name="twitter:description" content="在插件化和热修复方面，应该算是解决了不少燃眉问题了。 目前开源的有：360的DroidPlugin，阿里的AndFix，Dexposed主席的dynamic-load-apk点评的Android Dynamic Loader，  现在我们来看看它们的原理和各自的优缺点吧。">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_201832-120i022461493.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列25---救急灭火的消防员之插件&HotFix | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列25---救急灭火的消防员之插件&HotFix
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-05T23:33:46+08:00" content="2016-03-05">
+            2016-03-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_201832-120i022461493.jpg" alt="enter image description here"></p>
+<p>在插件化和热修复方面，应该算是解决了不少燃眉问题了。</p>
+<p>目前开源的有：<br>360的<a href="https://github.com/Qihoo360/DroidPlugin" target="_blank" rel="noopener">DroidPlugin</a>，<br>阿里的<a href="https://github.com/alibaba/AndFix" target="_blank" rel="noopener">AndFix</a>，<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a><br>主席的<a href="https://github.com/singwhatiwanna/dynamic-load-apk" target="_blank" rel="noopener">dynamic-load-apk</a><br>点评的<a href="https://github.com/mmin18/AndroidDynamicLoader" target="_blank" rel="noopener">Android Dynamic Loader</a>， </p>
+<p>现在我们来看看它们的原理和各自的优缺点吧。</p>
+<a id="more"></a>
+<h1 id="方案介绍"><a href="#方案介绍" class="headerlink" title="方案介绍"></a>方案介绍</h1><blockquote>
+<p>原理无不是“移梁换柱，欺上瞒下“的工作。</p>
+</blockquote>
+<h2 id="DroidPlugin"><a href="#DroidPlugin" class="headerlink" title="DroidPlugin"></a>DroidPlugin</h2><p>版本：708df95</p>
+<p>简述：360这个DroidPlugin使用的动态代理的方案，为了让插件中的方法能够正确的调用，把所有的方法都Hook了，然后自己写对应的Handle类来接管。另外为了兼容，我们看到作者是费劲了心机啊，里面包含的吐槽那是看着就明白一个兼容安卓机的程序员的心酸啊，哈。根据在PluginApplication 里面的写的创建日期为14年底，到八月份开源，应该背后也测了不少bug。</p>
+<h3 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h3><p>介绍：<br>整个项目还是挺大的，还有别项目要说，我们就来简单快速的看下。首先我们从官方介绍的安装apk插件的入口开始–installPackage。 </p>
+<pre><code>PluginManager.getInstance().installPackage(String filepath, int flags);
+</code></pre><p>对于这个接口的调用</p>
+<pre><code>private IPluginManager mPluginManager;
+
+public int installPackage(String filepath, int flags) throws RemoteException {
+
+        if (mPluginManager != null) {
+            int result = mPluginManager.installPackage(filepath, flags);
+            Log.w(TAG, String.format(&quot;%s install result %d&quot;, filepath, result));
+            return result;
+        } else {
+            Log.w(TAG, &quot;Plugin Package Manager Service not be connect&quot;);
+        }
+     ...
+    return -1;
+}
+</code></pre><p> 我们看到背后是交给了mPluginManger去干活的，他背后实现是IPluginManagerImpl</p>
+<pre><code>public interface IPluginManager extends android.os.IInterface
+public class IPluginManagerImpl extends IPluginManager.Stub 
+</code></pre><p>接着我们去看下真-干活着-内容   , 有点长，我们慢慢看下</p>
+<pre><code>public int installPackage(String filepath, int flags) throws RemoteException {
+    //install plugin
+    String apkfile = null;
+     ...
+       PackageManager pm = mContext.getPackageManager();
+       PackageInfo info = pm.getPackageArchiveInfo(filepath, 0);
+       if (info == null) {
+           return PackageManagerCompat.INSTALL_FAILED_INVALID_APK;
+       }
+
+       apkfile = PluginDirHelper.getPluginApkFile(mContext, info.packageName);
+
+       if ((flags &amp; PackageManagerCompat.INSTALL_REPLACE_EXISTING) != 0) {
+           //下面是安装插件的内容，先停止，有缓存就删除
+           forceStopPackage(info.packageName);
+           if (mPluginCache.containsKey(info.packageName)) {
+               deleteApplicationCacheFiles(info.packageName, null);
+           }
+           new File(apkfile).delete();
+           Utils.copyFile(filepath, apkfile);
+           PluginPackageParser parser = new PluginPackageParser(mContext, 
+                                                   new File(apkfile));
+           parser.collectCertificates(0);
+           PackageInfo pkgInfo = parser.getPackageInfo(
+                                       PackageManager.GET_PERMISSIONS                                                    
+                                       | PackageManager.GET_SIGNATURES);
+            //对程序的权限请求做下判断，宿主如果没有的就报错。                           
+           if (pkgInfo != null &amp;&amp; pkgInfo.requestedPermissions != null &amp;&amp; 
+              pkgInfo.requestedPermissions.length &gt; 0) {
+               for (String requestedPermission : pkgInfo.requestedPermissions) {
+                 boolean b = false;
+                 b = pm.getPermissionInfo(requestedPermission, 0) != null; 
+                 if (!mHostRequestedPermission.contains(requestedPermission) &amp;&amp; b) {
+                       Log.e(TAG, &quot;No Permission %s&quot;, requestedPermission);
+                       new File(apkfile).delete();
+                       return PluginManager.INSTALL_FAILED_NO_REQUESTEDPERMISSION;
+                   }
+               }
+           }
+            saveSignatures(pkgInfo);//保存签名，没什么好说的
+            copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0));//复制插件中的native库
+            //Dex文件，使用DexClassLoader动态的载入类代码
+            dexOpt(mContext, apkfile, parser);
+
+            mPluginCache.put(parser.getPackageName(), parser);
+            //回调通知
+            mActivityManagerService.onPkgInstalled(mPluginCache, parser, 
+                                            parser.getPackageName());
+
+            sendInstalledBroadcast(info.packageName);
+            //ok，安装完
+            return PackageManagerCompat.INSTALL_SUCCEEDED;
+
+        } else {
+
+            if (mPluginCache.containsKey(info.packageName)) {
+                return PackageManagerCompat.INSTALL_FAILED_ALREADY_EXISTS;
+            } else {
+               //啊.....下面的内容....居然和上面的一样...
+               //...估计是直接CV大法....
+               //...就是安装更新...能否把上面的封装到一个函数去...
+               //...我的强迫症...
+                forceStopPackage(info.packageName);
+                new File(apkfile).delete();
+                Utils.copyFile(filepath, apkfile);
+                PluginPackageParser parser = new PluginPackageParser(mContext, new 
+                                               File(apkfile));
+                parser.collectCertificates(0);
+                PackageInfo pkgInfo =parser.getPackageInfo(
+                                    PackageManager.GET_PERMISSIONS
+                                   | PackageManager.GET_SIGNATURES);
+                if (pkgInfo != null &amp;&amp; pkgInfo.requestedPermissions != null &amp;&amp; 
+                  pkgInfo.requestedPermissions.length &gt; 0) {
+                   for (String requestedPermission : pkgInfo.requestedPermissions) {
+
+                    boolean b = false;  
+                    b = pm.getPermissionInfo(requestedPermission, 0) != null;
+                    if (!mHostRequestedPermission.contains(requestedPermission)
+                        &amp;&amp;b) {
+
+                          Log.e(TAG, &quot;No Permission %s&quot;, requestedPermission);
+                          new File(apkfile).delete();
+                          return PluginManager.
+                          INSTALL_FAILED_NO_REQUESTEDPERMISSION;
+                      }
+                  }
+                }
+
+               saveSignatures(pkgInfo);
+               copyNativeLibs(mContext, apkfile, parser.getApplicationInfo(0));
+               dexOpt(mContext, apkfile, parser);
+               mPluginCache.put(parser.getPackageName(), parser);
+               mActivityManagerService.onPkgInstalled(mPluginCache, parser, 
+                                           parser.getPackageName());
+               sendInstalledBroadcast(info.packageName);
+               return PackageManagerCompat.INSTALL_SUCCEEDED;
+           }
+       }
+   ...
+}
+
+
+private void dexOpt(Context hostContext, String apkfile, PluginPackageParser parser) 
+throws Exception {
+
+        String packageName = parser.getPackageName();
+        String optimizedDirectory = PluginDirHelper.
+                            getPluginDalvikCacheDir(hostContext, packageName);
+        String libraryPath = PluginDirHelper.getPluginNativeLibraryDir(
+                                            hostContext, packageName);
+
+        //单独挑这个方法出来说，是想告诉在细心看的你一个彩蛋，就在这个类里面有一个叫
+        // 《适配安卓机的心酸故事》，有兴趣就自己去看下，这里不贴出来,哈哈 
+        ClassLoader classloader = new PluginClassLoader(apkfile, optimizedDirectory, 
+                                libraryPath, ClassLoader.getSystemClassLoader());                                     
+
+        // 里面的注释还有很多有趣的，例如另外一个地方的一段 
+        //
+        //    // 方式2
+        //    if (iam1 == iam2) {
+        //        //这段代码是废的，没啥用，写这里只是不想改而已。
+        //        FieldUtils.writeField(obj, &quot;mInstance&quot;, object);
+        //   }                                    
+
+        ...                                    
+ }
+</code></pre><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160305201106.jpg" alt="enter image description here">    </p>
+<p>结合作者的PPT，四大组件用的是先注册占坑方式。 </p>
+<h3 id="Hook-的内容"><a href="#Hook-的内容" class="headerlink" title="Hook 的内容"></a>Hook 的内容</h3><p>前面有提到为了保证正确，作者hook了所有的方法，具体Hook内容在Hook包里面的<code>HookFactory</code>里面</p>
+<pre><code>public final void installHook(Context context, ClassLoader classLoader)
+ throws Throwable {
+
+    installHook(new IClipboardBinderHook(context), classLoader);
+    //for ISearchManager
+    installHook(new ISearchManagerBinderHook(context), classLoader);
+    //for INotificationManager
+    installHook(new INotificationManagerBinderHook(context), classLoader);
+    installHook(new IMountServiceBinder(context), classLoader);
+    installHook(new IAudioServiceBinderHook(context), classLoader);
+    installHook(new IContentServiceBinderHook(context), classLoader);
+    installHook(new IWindowManagerBinderHook(context), classLoader);
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP_MR1) {
+        installHook(new IGraphicsStatsBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.KITKAT) {
+        installHook(new WebViewFactoryProviderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.KITKAT) {
+        installHook(new IMediaRouterServiceBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.LOLLIPOP) {
+        installHook(new ISessionManagerBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.JELLY_BEAN_MR2) {
+        installHook(new IWifiManagerBinderHook(context), classLoader);
+    }
+
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.JELLY_BEAN_MR2) {
+        installHook(new IInputMethodManagerBinderHook(context), classLoader);
+    }
+    if (VERSION.SDK_INT &gt;= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+        installHook(new ILocationManagerBinderHook(context), classLoader);
+    }
+    installHook(new IPackageManagerHook(context), classLoader);
+    installHook(new IActivityManagerHook(context), classLoader);
+    installHook(new PluginCallbackHook(context), classLoader);
+    installHook(new InstrumentationHook(context), classLoader);
+    installHook(new LibCoreHook(context), classLoader);
+
+    installHook(new SQLiteDatabaseHook(context), classLoader);
+}
+</code></pre><p>看到这里，我们对整体的方案应该有个大概的了解了。具体的细节就不再贴了。有兴趣可以看下他们的源码。</p>
+<h2 id="AndFix"><a href="#AndFix" class="headerlink" title="AndFix"></a>AndFix</h2><p>版本： c68d981  </p>
+<p>简述： 同样是方法的hook，AndFix不像Dexposed从Method入手，而是以<strong>Field</strong>为切入点。把方法改为native的，再在底层Hook替换。 </p>
+<h3 id="起航-1"><a href="#起航-1" class="headerlink" title="起航"></a>起航</h3><p>根据官方介绍的<code>Load patch</code>，我们下<code>patchManager.loadPatch()</code>的内容</p>
+<pre><code>/**
+ * load patch,call when application start
+ * 
+ */
+public void loadPatch() {
+    mLoaders.put(&quot;*&quot;, mContext.getClassLoader());// wildcard
+    Set&lt;String&gt; patchNames;
+    List&lt;String&gt; classes;
+    for (Patch patch : mPatchs) {
+        patchNames = patch.getPatchNames();
+        for (String patchName : patchNames) {
+            classes = patch.getClasses(patchName);
+            mAndFixManager.fix(patch.getFile(), mContext.getClassLoader(),
+                    classes);
+        }
+    }
+}
+</code></pre><p>看到最后干活的是那个<code>AndFixManger</code>的<code>fix（）</code>方法</p>
+<pre><code>/**
+ * fix
+ *
+ * @param file        patch file
+ * @param classLoader  classloader of class that will be fixed
+ * @param classes     classes will be fixed
+ */
+public synchronized void fix(File file, ClassLoader classLoader, List&lt;String&gt; classes) {
+
+    ...
+
+    File optfile = new File(mOptDir, file.getName());
+    boolean saveFingerprint = true;
+    if (optfile.exists()) {
+        // need to verify fingerprint when the optimize file exist,
+        // prevent someone attack on jailbreak device with
+        // Vulnerability-Parasyte.
+        // btw:exaggerated android Vulnerability-Parasyte
+        // http://secauo.com/Exaggerated-Android-Vulnerability-Parasyte.html
+        if (mSecurityChecker.verifyOpt(optfile)) {
+            saveFingerprint = false;
+        } else if (!optfile.delete()) {
+            return;
+        }
+    }
+       //读取补丁dex文件
+    final DexFile dexFile = DexFile.loadDex(file.getAbsolutePath(),
+            optfile.getAbsolutePath(), Context.MODE_PRIVATE);
+
+    if (saveFingerprint) {
+        mSecurityChecker.saveOptSig(optfile);
+    }
+
+
+
+    ClassLoader patchClassLoader = new ClassLoader(classLoader) {
+        @Override
+        protected Class&lt;?&gt; findClass(String className) {
+            Class&lt;?&gt; clazz = dexFile.loadClass(className, this);
+            if (clazz == null &amp;&amp; 
+                className.startsWith(&quot;com.alipay.euler.andfix&quot;)) {
+
+                return Class.forName(className);
+                // annotation’s class not found
+            }
+            if (clazz == null) {
+                throw new ClassNotFoundException(className);
+            }
+            return clazz;
+        }
+    };
+
+    Enumeration&lt;String&gt; entrys = dexFile.entries();
+    Class&lt;?&gt; clazz = null;
+    while (entrys.hasMoreElements()) {
+        String entry = entrys.nextElement();
+        if (classes != null &amp;&amp; !classes.contains(entry)) {
+            continue;// skip, not need fix
+        } 
+        clazz = dexFile.loadClass(entry, patchClassLoader);
+        if (clazz != null) {
+            fixClass(clazz, classLoader);    // 找到补丁，加载 
+        }
+    }
+}
+</code></pre><p>我们去看下fixClass</p>
+<pre><code>private void fixClass(Class&lt;?&gt; clazz, ClassLoader classLoader) {
+  Method[] methods = clazz.getDeclaredMethods();
+  MethodReplace methodReplace;
+  String clz;
+  String meth;
+  //替换所有方法，annotation是补丁包加上的
+  for (Method method : methods) {
+    methodReplace = method.getAnnotation(MethodReplace.class);
+    if (methodReplace == null)
+      continue;
+    clz = methodReplace.clazz();
+    meth = methodReplace.method();
+    if (!isEmpty(clz) &amp;&amp; !isEmpty(meth)) {
+      replaceMethod(classLoader, clz, meth, method);
+    }
+  }
+}
+</code></pre><p>替换方法的     replaceMethod()</p>
+<pre><code>private void replaceMethod(ClassLoader classLoader, 
+String clz,String meth, Method method) {
+
+    String key = clz + &quot;@&quot; + classLoader.toString();
+    Class&lt;?&gt; clazz = mFixedClass.get(key);
+    if (clazz == null) {// class not load
+        // 要被替换的class
+        Class&lt;?&gt; clzz = classLoader.loadClass(clz);
+        // initialize target class
+        clazz = AndFix.initTargetClass(clzz);
+        //这个initTargetClass居然是去修改 access flag 为Public
+    }
+    if (clazz != null) {// initialize class OK
+        mFixedClass.put(key, clazz);
+          // 需要被替换的函数
+        Method src = clazz.getDeclaredMethod(meth,
+                method.getParameterTypes());
+        AndFix.addReplaceMethod(src, method);
+        // 替换逻辑，在cpp进行实现
+    }
+    ...
+}
+
+
+/**
+ * initialize the target class, and modify access flag of class’ fields to
+ * public   &lt;---修改access flag为Public，这有才！我们跟踪去看下
+ * 
+ * @param clazz
+ *            target class
+ * @return initialized class
+ */
+public static Class&lt;?&gt; initTargetClass(Class&lt;?&gt; clazz) {
+    try {
+        Class&lt;?&gt; targetClazz = Class.forName(clazz.getName(), true,
+                clazz.getClassLoader());
+
+        initFields(targetClazz);
+        return targetClazz;
+    } catch (Exception e) {
+        Log.e(TAG, &quot;initTargetClass&quot;, e);
+    }
+    return null;
+}
+
+private static void initFields(Class&lt;?&gt; clazz) {
+    Field[] srcFields = clazz.getDeclaredFields();
+    for (Field srcField : srcFields) {
+        Log.d(TAG, &quot;modify &quot; + clazz.getName() + &quot;.&quot; + srcField.getName()
+                + &quot; flag:&quot;);
+        setFieldFlag(srcField);
+    }
+}
+
+private static native void setFieldFlag(Field field);
+Runtime.getRuntime().loadLibrary(&quot;andfix&quot;);    //  &lt;---这个
+</code></pre><p>是个native的内容，我们看下加载的是什么，看起来对art和dalvik做了区分对待</p>
+<pre><code>static void setFieldFlag(JNIEnv* env, jclass clazz, jobject field) {
+    if (isArt) {
+        art_setFieldFlag(env, field);
+    } else {
+        dalvik_setFieldFlag(env, field);
+    }
+}
+</code></pre><p>我们去看下dalvik的，在<code>dalvik_method_replace.cpp</code>里面</p>
+<pre><code>extern void dalvik_setFieldFlag(JNIEnv* env, jobject field) {
+
+    Field* dalvikField = (Field*) env-&gt;FromReflectedField(field);
+    dalvikField-&gt;accessFlags = dalvikField-&gt;accessFlags &amp; (~ACC_PRIVATE)
+                               | ACC_PUBLIC;
+    LOGD(&quot;dalvik_setFieldFlag: %d &quot;, dalvikField-&gt;accessFlags);
+}
+</code></pre><p>// 真是大法厉害，这都可以。哈哈<br>好了，我们回主线，去看下那个<code>AndFix.replaceMethod()</code> </p>
+<pre><code> public static void addReplaceMethod(Method src, Method dest) {
+        try {
+            replaceMethod(src, dest);
+            initFields(dest.getDeclaringClass());
+        } catch (Throwable e) {
+            Log.e(TAG, &quot;addReplaceMethod&quot;, e);
+        }
+    }
+ //也是一个native的
+private static native void replaceMethod(Method dest, Method src);
+</code></pre><p>在 andFix.cpp里面，也是区分了dalvik和art。</p>
+<pre><code>static void replaceMethod(JNIEnv* env, jclass clazz, jobject src,
+jobject dest) {
+    if (isArt) {
+        art_replaceMethod(env, src, dest);
+    } else {
+        dalvik_replaceMethod(env, src, dest);
+    }
+}
+</code></pre><p>我们先挑个dalvik的来看下</p>
+<pre><code>extern void __attribute__ ((visibility (&quot;hidden&quot;))) dalvik_replaceMethod(
+    JNIEnv *env, jobject src, jobject dest) {
+
+    jobject clazz = env-&gt;CallObjectMethod(dest, jClassMethod);
+    ClassObject *clz = (ClassObject *) dvmDecodeIndirectRef_fnPtr(
+            dvmThreadSelf_fnPtr(), clazz);
+
+    clz-&gt;status = CLASS_INITIALIZED;
+    //我们要替换的有bug的方法。
+    Method *meth = (Method *) env-&gt;FromReflectedMethod(src);
+
+    // 我们的新的解决方法
+    Method *target = (Method *) env-&gt;FromReflectedMethod(dest);
+    LOGD(&quot;dalvikMethod: %s&quot;, meth-&gt;name);
+
+    meth-&gt;jniArgInfo = 0x80000000; 
+    meth-&gt;accessFlags |= ACC_NATIVE;//修改方法为native方法！！
+
+    int argsSize = dvmComputeMethodArgsSize_fnPtr(meth);
+    if (!dvmIsStaticMethod(meth))
+        argsSize++;
+    meth-&gt;registersSize = meth-&gt;insSize = argsSize;
+    meth-&gt;insns = (void *) target;//保存新的方法到insnn
+    meth-&gt;nativeFunc = dalvik_dispatcher;
+    //绑定桥接函数，java方法的跳转函数
+}
+
+
+static void dalvik_dispatcher(const u4 *args, jvalue *pResult,
+                          const Method *method, void *self) {
+
+      ...
+
+    Method *meth = (Method *) method-&gt;insns;
+    meth-&gt;accessFlags = meth-&gt;accessFlags | ACC_PUBLIC;
+
+     ...    
+
+    if (!dvmIsStaticMethod(meth)) {
+        Object *thisObj = (Object *) args[0];
+        ClassObject *tmp = thisObj-&gt;clazz;
+        thisObj-&gt;clazz = meth-&gt;clazz;
+        argArray = boxMethodArgs(meth, args + 1);
+        if (dvmCheckException_fnPtr(self))
+            goto bail;  //&lt;-- 咦，我们看到了goto！
+
+        dvmCallMethod_fnPtr(self, (Method *) jInvokeMethod,            
+                            dvmCreateReflectMethodObject_fnPtr(meth), &amp;result,
+                             thisObj,argArray);
+
+        thisObj-&gt;clazz = tmp;
+    } else {
+        argArray = boxMethodArgs(meth, args);
+        if (dvmCheckException_fnPtr(self))
+            goto bail;
+
+        dvmCallMethod_fnPtr(self, (Method *) jInvokeMethod,
+                            dvmCreateReflectMethodObject_fnPtr(meth), &amp;result, NULL,
+                            argArray);
+    }
+
+    if (dvmCheckException_fnPtr(self)) {
+        Object *excep = dvmGetException_fnPtr(self);
+        jni_env-&gt;Throw((jthrowable) excep);
+        goto bail;
+    }
+
+    ...
+
+    bail:
+    dvmReleaseTrackedAlloc_fnPtr((Object *) argArray, self);
+}
+
+
+extern jboolean __attribute__ ((visibility (&quot;hidden&quot;))) dalvik_setup(
+    JNIEnv *env, int apilevel) {
+jni_env = env;
+void *dvm_hand = dlopen(&quot;libdvm.so&quot;, RTLD_NOW);
+if (dvm_hand) {
+    ...
+    dvmCallMethod_fnPtr = dvm_dlsym(dvm_hand,apilevel&gt;10?
+            &quot;_Z13dvmCallMethodP6ThreadPK6MethodP6ObjectP6JValuez&quot; :
+            &quot;dvmCallMethod&quot;);
+    if (!dvmCallMethod_fnPtr) {
+        throwNPE(env, &quot;dvmCallMethod_fnPtr&quot;);
+        return JNI_FALSE;
+    }
+  ...
+</code></pre><p>我们看到，它通过<code>dvmCallMethod_fnPtr</code>来调用<code>libdvm.so</code>中的<code>dvmCallMethod()</code>来加载替换后的新方法，从而替换方法。<br>至此，通过dalvik_dispatcher这个跳转函数完成最后的替换工作，到这里就完成了两个方法的替换。</p>
+<p>对于art，他还根据系统的版本的不同，分了6.0，5.1版和5.0版。</p>
+<pre><code>extern void __attribute__ ((visibility (&quot;hidden&quot;))) art_replaceMethod(
+        JNIEnv* env, jobject src, jobject dest) {
+    if (apilevel &gt; 22) {
+        replace_6_0(env, src, dest);
+    } else if (apilevel &gt; 21) {
+        replace_5_1(env, src, dest);
+    } else {
+        replace_5_0(env, src, dest);
+    }
+}
+</code></pre><p>我们挑个5.0的吧，反正大同小异的。art_method_replace_5_0.cpp</p>
+<pre><code>void replace_5_0(JNIEnv* env, jobject src, jobject dest) {
+
+    art::mirror::ArtMethod* smeth =
+            (art::mirror::ArtMethod*) env-&gt;FromReflectedMethod(src);
+
+    art::mirror::ArtMethod* dmeth =
+            (art::mirror::ArtMethod*) env-&gt;FromReflectedMethod(dest);
+
+    dmeth-&gt;declaring_class_-&gt;class_loader_ =
+            smeth-&gt;declaring_class_-&gt;class_loader_; //for plugin classloader
+    dmeth-&gt;declaring_class_-&gt;clinit_thread_id_ =
+            smeth-&gt;declaring_class_-&gt;clinit_thread_id_;
+    dmeth-&gt;declaring_class_-&gt;status_ = smeth-&gt;declaring_class_-&gt;status_-1;
+
+    smeth-&gt;declaring_class_ = dmeth-&gt;declaring_class_;
+    smeth-&gt;access_flags_ = dmeth-&gt;access_flags_;
+    smeth-&gt;frame_size_in_bytes_ = dmeth-&gt;frame_size_in_bytes_;
+    smeth-&gt;dex_cache_initialized_static_storage_ =
+            dmeth-&gt;dex_cache_initialized_static_storage_;
+    smeth-&gt;dex_cache_resolved_types_ = dmeth-&gt;dex_cache_resolved_types_;
+    smeth-&gt;dex_cache_resolved_methods_ = dmeth-&gt;dex_cache_resolved_methods_;
+    smeth-&gt;vmap_table_ = dmeth-&gt;vmap_table_;
+    smeth-&gt;core_spill_mask_ = dmeth-&gt;core_spill_mask_;
+    smeth-&gt;fp_spill_mask_ = dmeth-&gt;fp_spill_mask_;
+    smeth-&gt;mapping_table_ = dmeth-&gt;mapping_table_;
+    smeth-&gt;code_item_offset_ = dmeth-&gt;code_item_offset_;
+    smeth-&gt;entry_point_from_compiled_code_ =
+            dmeth-&gt;entry_point_from_compiled_code_;
+
+    smeth-&gt;entry_point_from_interpreter_ = dmeth-&gt;entry_point_from_interpreter_;
+    smeth-&gt;native_method_ = dmeth-&gt;native_method_;
+    smeth-&gt;method_index_ = dmeth-&gt;method_index_;
+    smeth-&gt;method_dex_index_ = dmeth-&gt;method_dex_index_;
+
+    LOGD(&quot;replace_5_0: %d , %d&quot;, smeth-&gt;entry_point_from_compiled_code_,
+            dmeth-&gt;entry_point_from_compiled_code_);
+
+}
+
+
+void setFieldFlag_5_0(JNIEnv* env, jobject field) {
+    art::mirror::ArtField* artField =
+            (art::mirror::ArtField*) env-&gt;FromReflectedField(field);
+    artField-&gt;access_flags_ = artField-&gt;access_flags_ &amp; (~0x0002) | 0x0001;
+    LOGD(&quot;setFieldFlag_5_0: %d &quot;, artField-&gt;access_flags_);
+}
+</code></pre><p>我们看到，主要是把原方法的各种属性都改成补丁方法的，同时实现的指针也替换为新的。</p>
+<p>真是写Android程序，虽说是用java入门，不过写到后面变成了C/C++去了。整个项目还是挺小巧精悍的，赞</p>
+<h2 id="Dexposed"><a href="#Dexposed" class="headerlink" title="Dexposed"></a>Dexposed</h2><p>版本：d108256</p>
+<p>简述：基于Xposed的AOP框架，取Dexposed也是向他致敬的意思，目前做到了方法级粒度（可以调用方法前，方法后，替代方法，这三种都可以做到，AOP，写过spring的应该对这个再熟悉不过了，针对java方法做拦截，但不支持C的方法。），另外可以插桩，做热补丁和SDK hook等等的功能，很好很强大。就是不支持5.0+。  我们知道，Xposed是需要Root权限的，因为它劫持 <code>zygote</code>，并使用<code>Xposed Bridge</code>来hook方法并注入自己的代码，实现非侵入式的runtime修改。但Dexposed不需要，因为他劫持的是自己，通过劫持 <code>java method</code>，将java方法改为native，并且将这个方法的实现链接到一个通用的<code>Native Dispatch</code>方法上。已经半年没更新了，不知道他们对ART支持是不是已经搞定，不过没更新。</p>
+<p>具体流程如图:</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_015a873b31a0044c65a5a1c4501b9bb9_b.png" alt="enter image description here"></p>
+<p> 具体到方法，可参见XposedBridge:</p>
+<pre><code>/**
+ * Intercept every call to the specified method and call a handler function instead.
+ * @param method The method to intercept
+ */
+
+private native synchronized static void hookMethodNative(
+                                Member method, Class&lt;?&gt; declaringClass, int slot, 
+                                Object additionalInfo);
+</code></pre><p>其具体native实现则在Xposed的<code>libxposed_common.cpp</code>里面有注册，根据系统版本分发到<br><code>libxposed_dalvik</code>和<code>libxposed_art</code>里面，以<code>dalvik</code>为例大致来说就是记录下原来的方法信息，并把方法指针指向我们的<code>hookedMethodCallback</code>，从而实现拦截的目的。</p>
+<p>至于代码的解析，应为不能修art的我们先不深究 (  -_ -“ )<br>其余几个库，我们下次再写。</p>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><h2 id="DroidPlugin-1"><a href="#DroidPlugin-1" class="headerlink" title="DroidPlugin"></a>DroidPlugin</h2><h3 id="限制和缺陷"><a href="#限制和缺陷" class="headerlink" title="限制和缺陷:"></a>限制和缺陷:</h3><ol>
+<li>无法在插件中发送具有自定义资源的Notification，例如： a. 带自定义RemoteLayout的Notification b. 图标通过R.drawable.XXX指定的通知（插件系统会自动将其转化为Bitmap）</li>
+<li>无法在插件中注册一些具有特殊Intent Filter的Service、Activity、BroadcastReceiver、ContentProvider等组件以供Android系统、已经安装的其他APP调用。</li>
+<li>缺乏对Native层的Hook，对某些带native代码的apk支持不好，可能无法运行。比如一部分游戏无法当作插件运行。</li>
+</ol>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><ol>
+<li>支持Androd 2.3以上系统，在host中集成Droid Plugin项目非常简单</li>
+<li>插件APK完全不需做任何修改，可以独立安装运行、也可以做插件运行。要以插件模式运行某个APK，你无需重新编译、无需知道其源码。</li>
+<li>插件的四大组件完全不需要在Host程序中注册，支持Service、Activity、BroadcastReceiver、ContentProvider四大组件</li>
+<li>插件之间、Host程序与插件之间会互相认为对方已经”安装”在系统上了。</li>
+<li>API低侵入性：极少的API。HOST程序只是需要一行代码即可集成Droid Plugin</li>
+<li>超强隔离：插件之间、插件与Host之间完全的代码级别的隔离：不能互相调用对方的代码。通讯只能使用Android系统级别的通讯方法。</li>
+<li>支持所有系统API</li>
+<li>资源完全隔离：插件之间、与Host之间实现了资源完全隔离，不会出现资源窜用的情况。</li>
+<li>实现了进程管理，插件的空进程会被及时回收，占用内存低。</li>
+<li>插件的静态广播会被当作动态处理，如果插件没有运行（即没有插件进程运行），其静态广播也永远不会被触发。<br>使</li>
+</ol>
+<h2 id="AndFix-1"><a href="#AndFix-1" class="headerlink" title="AndFix"></a>AndFix</h2><p>AndFix是全版本支持，但是，但是，以我国内的繁荣的各种定制ROM前，适配这种坑啊，说多都是泪。<br>虽然从实现方式上来说，类似Dexposed，通过jni来替换，但更简洁直接，应用<strong>patch不需要重启</strong>。<br>    但由于跳过了类初始化，所以像静态xx和构造函数都会出问题，复杂点的类Class.forname可能直接挂掉。我觉得还是得重启好。反正一般需要紧急修复的这种Bug都可以<strong>非常的成功，非常成功的</strong>导致程序闪退。</p>
+<h2 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h2><p>这个没在上面贴，是在一篇QQ空间的微信号发的文章看到的，具体我介绍我就不复制了，在结尾的参考文章有提到，里面有详细的介绍。ClassLoader是全版本支持，虽对启动速度略有影响（微信启动那时间久得啊，不想说），且只能在重启时生效（个人感觉这还是可以接受的，参考上面AndFix那句话，而且我记得QQ空间的一篇文章，有做多次崩溃就重置app的操作的。这还是挺细心的！），不过已在扣扣空间有了较长时间的实际测试了，还是个不错的选择的。 开源实现有Nuwa, HotFix, DroidFix。</p>
+<h2 id="Dexposed-1"><a href="#Dexposed-1" class="headerlink" title="Dexposed"></a>Dexposed</h2><p>Dexposed不支持<strong>Art模式</strong>，写补丁的话有点小困难，需要反射写混淆后的代码，粒度细，如果你要替换的方法多的话，这工作量会比较大。热补丁和增量都是一个应对紧急情况的救火方法，做好测试与写好代码还是不能丢的。</p>
+<p>下面是官方贴的支持情况：</p>
+<blockquote>
+<p>Follow is support status.<br>Runtime | Android Version | Support<br>——  | ————— | ——–<br>Dalvik  | 2.2             | Not Test<br>Dalvik  | 2.3             | Yes<br>Dalvik  | 3.0             | No<br>Dalvik  | 4.0-4.4         | Yes<br>ART     | 5.0             | Testing<br>ART     | 5.1             | No<br>ART     | M               | No</p>
+</blockquote>
+<blockquote>
+<p>另外，据闻facebook也有自己的一个叫<a href="https://www.zhihu.com/question/29093652" target="_blank" rel="noopener">Nish的热修复项目</a>，不过目前还在解决这个ART问题，所以推迟了。</p>
+</blockquote>
+<p> 不过又是据闻，对ART的支持是有解决方案的，具体它们的是什么，目前不得而知。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>  插件化给我们带来的一些好处是明显的，相信你也看了很多介绍了，但下面两点想提下 </p>
+<ol>
+<li><strong>A/B testing</strong><br>以前写过A/B test的代码都知道，一堆根据服务器传来的参数做的判断条件代码镶嵌在程序里面。看起来还是挺难受的，用了插件化，就可以直接的直接分成A,B两个包，这样就分割开了。</li>
+<li><strong>解耦项目</strong><br>当你的项目到了一定程序，要接入的内容很多的时候，这时候从MultiDex转到插件化是在所难免的。它让我们避免了协同开发过程中可能遇到的问题，例如bug的回归测试，编译速度的提高等。负责特定模块的人只需要负责好自己的程序就好咯。</li>
+</ol>
+<p>至于带来的麻烦嘛，也是有的，就看你项目的复杂度到什么级别。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li><p><a href="http://v.youku.com/v_show/id_XNTMzMjYzMzM2.html#paction" target="_blank" rel="noopener">阿里技术沙龙第十六期《android插件化及动态部署—ATLAS》</a>，查相关内容时候在知乎看到关于Atlas的一段事，传送地址 －－ 》》 <a href="https://www.zhihu.com/question/38083715" target="_blank" rel="noopener">你怎么看待携程DynamicApk插件化框架的抄袭现象?</a></p>
+</li>
+<li><p><a href="https://github.com/Qihoo360/DroidPlugin/blob/master/DOC/%E6%8F%92%E4%BB%B6%E6%9C%BA%E5%88%B6%E4%BB%8B%E7%BB%8D.pptx" target="_blank" rel="noopener">DroidPlugin插件机制介绍.pptx</a> ，作者写的一个介绍ppt</p>
+</li>
+<li><p><a href="http://android-developers.blogspot.com/2011/07/custom-class-loading-in-dalvik.html" target="_blank" rel="noopener">custom-class-loading-in-dalvik</a>，动态加载class的Google官方教程，插件化原理基础</p>
+</li>
+<li><p><a href="http://mp.weixin.qq.com/s?__biz=MzI1MTA1MzM2Nw==&amp;mid=400118620&amp;idx=1&amp;sn=b4fdd5055731290eef12ad0d17f39d4a&amp;scene=0#wechat_redirect" target="_blank" rel="noopener">安卓App热补丁动态修复技术介绍</a> ， QQ空间团队的热修复方案，灵感来源于谷歌的MultiDex</p>
+</li>
+<li><p><a href="http://www.infoq.com/cn/presentations/mobile-phone-taobao-hotpatch-technology-introduction" target="_blank" rel="noopener">手机淘宝Hotpatch技术介绍</a>，qcon大会上手淘hotpatch技术介绍</p>
+</li>
+<li><p><a href="http://www.infoq.com/cn/articles/android-dynamic-loading?utm_campaign=rightbar_v2&amp;utm_source=infoq&amp;utm_medium=articles_link&amp;utm_content=link_text" target="_blank" rel="noopener">Android动态加载技术三个关键问题详解</a>，任主席的一篇文章</p>
+</li>
+<li><a href="http://www.infoq.com/cn/articles/ctrip-android-dynamic-loading?email=947091870@qq.com" target="_blank" rel="noopener">携程Android App插件化和动态加载实践</a></li>
+</ol>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>插件化虽然在自己现在的项目中用不到，不过学习下他们怎么实现的也挺好的，在这里做下总结，以后要是有需要也可以快速的用上，虽然到以后可能都有别的解决方案了，或者安卓没落，被VR/AR给替代了…</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/源码/" rel="tag">#源码</a>
+          
+            <a href="/tags/HotFix/" rel="tag">#HotFix</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/" rel="prev">源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" rel="next">源码探索系列24---那把黄油刀ButterKnife</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/"
+     data-title="源码探索系列25---救急灭火的消防员之插件&HotFix"
+     data-content=""
+     data-url="http://yoursite.com/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/"
+                   data-title="源码探索系列25---救急灭火的消防员之插件&HotFix" data-url="http://yoursite.com/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#方案介绍"><span class="nav-number">1.</span> <span class="nav-text">方案介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DroidPlugin"><span class="nav-number">1.1.</span> <span class="nav-text">DroidPlugin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#起航"><span class="nav-number">1.1.1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hook-的内容"><span class="nav-number">1.1.2.</span> <span class="nav-text">Hook 的内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AndFix"><span class="nav-number">1.2.</span> <span class="nav-text">AndFix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#起航-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">起航</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dexposed"><span class="nav-number">1.3.</span> <span class="nav-text">Dexposed</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#比较"><span class="nav-number">2.</span> <span class="nav-text">比较</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DroidPlugin-1"><span class="nav-number">2.1.</span> <span class="nav-text">DroidPlugin</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限制和缺陷"><span class="nav-number">2.1.1.</span> <span class="nav-text">限制和缺陷:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点："><span class="nav-number">2.1.2.</span> <span class="nav-text">特点：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AndFix-1"><span class="nav-number">2.2.</span> <span class="nav-text">AndFix</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ClassLoader"><span class="nav-number">2.3.</span> <span class="nav-text">ClassLoader</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dexposed-1"><span class="nav-number">2.4.</span> <span class="nav-text">Dexposed</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">2.5.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后记"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

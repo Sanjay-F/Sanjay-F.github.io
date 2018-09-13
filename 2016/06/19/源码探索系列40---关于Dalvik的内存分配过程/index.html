@@ -1,0 +1,1307 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,Dalvik,dvm," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。 那么实际是这样吗？真的是这样吗？  我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个">
+<meta name="keywords" content="android,Dalvik,dvm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列40---关于Dalvik的内存分配过程">
+<meta property="og:url" content="http://yoursite.com/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。 那么实际是这样吗？真的是这样吗？  我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.728Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列40---关于Dalvik的内存分配过程">
+<meta name="twitter:description" content="我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。 那么实际是这样吗？真的是这样吗？  我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列40---关于Dalvik的内存分配过程 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列40---关于Dalvik的内存分配过程
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-19T12:55:46+08:00" content="2016-06-19">
+            2016-06-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？<br>我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。</p>
+<p>那么实际是这样吗？真的是这样吗？</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png" alt="enter image description here"></p>
+<p>我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个问题。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API:23，Dalvik：kitkat</p>
+<p>在上一篇<a href="http://sanjay-f.github.io/2016/06/12/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9738---%E5%85%B3%E4%BA%8Edalvik%E8%99%9A%E6%8B%9F%E6%9C%BA/" target="_blank" rel="noopener">源码探索系列38—关于dalvik虚拟机</a>有提及到，我们的VM加载类是当遇到下面这么一堆情况时候 ：</p>
+<ol>
+<li>建新实例，如New一个，用newInstance()，Clone()，IO的getOjbect()</li>
+<li>调用静态方法</li>
+<li>操作类或接口中声明的非常量静态字段</li>
+<li>调用特定的反射方法</li>
+<li>初始化其子类</li>
+<li>指定其为虚拟机启动时的初始化类</li>
+</ol>
+<p>然后针对的提了遇到new 时候的情况，他会有个操作码<code>OP_NEW_INSTANCE</code>，然后去生成。不过在这个过程，我们没针对的去探讨关于内存的分配过程，而是理顺了整个流程。现在我们可以就内存部分开始来说点内容了。</p>
+<p>我们知道了遇到new一个对象对应的函数是下面这个<code>HANDLE_OPCODE(OP_NEW_INSTANCE)</code>，所以我们来看下其中的内存部分吧。</p>
+<h2 id="HANDLE-OPCODE-OP-NEW-INSTANCE"><a href="#HANDLE-OPCODE-OP-NEW-INSTANCE" class="headerlink" title="HANDLE_OPCODE(OP_NEW_INSTANCE)"></a>HANDLE_OPCODE(OP_NEW_INSTANCE)</h2><p>处理我们的new对象的代码如下，line1649</p>
+<pre><code>/* File: c/OP_NEW_INSTANCE.cpp */
+HANDLE_OPCODE(OP_NEW_INSTANCE /*vAA, class@BBBB*/)
+    {
+        ClassObject* clazz;
+        Object* newObj;
+
+        EXPORT_PC();
+
+        vdst = INST_AA(inst);
+        ref = FETCH(1);
+        ILOGV(&quot;|new-instance v%d,class@0x%04x&quot;, vdst, ref);
+        clazz = dvmDexGetResolvedClass(methodClassDex, ref);
+        if (clazz == NULL) {
+            clazz = dvmResolveClass(curMethod-&gt;clazz, ref, false);
+            if (clazz == NULL)
+                GOTO_exceptionThrown();
+        }
+
+        if (!dvmIsClassInitialized(clazz) &amp;&amp; 
+            !dvmInitClass(clazz))                
+            GOTO_exceptionThrown();
+
+#if defined(WITH_JIT)
+ ...不看JIT的内容
+#endif
+...
+        //我们关注的一句话
+        newObj = dvmAllocObject(clazz, ALLOC_DONT_TRACK);
+        if (newObj == NULL)
+            GOTO_exceptionThrown();
+        SET_REGISTER(vdst, (u4) newObj);
+    }
+    FINISH(2);
+OP_END
+</code></pre><p>在这里，真正分配内存的操作dvmAllocObject，我们看下参数，左边的<code>clazz</code>，就是我们想创建的对象类，前面的一大段代码做的内容，就是帮我们初始化这个变量。【嗯，下一次或许得看下是否应该写下关于class结构的内容，不过感觉也还不是很有用处，除了面试时候…..】</p>
+<p>另外一个参数<code>ALLOC_DONT_TRACK</code>是告诉Dalvik虚拟机的堆管理器，要分配的对象是一个根集对象，不需要对它进行跟踪。因为根集对象在GC时是会自动被追踪处理的。一般我们的根对象有这么几种</p>
+<ol>
+<li><p>栈中引用的对象，引用是在栈帧中的本地变量表中的，真正的对象在堆中</p>
+</li>
+<li><p>方法区perm中的类静态属性引用的对象，以及常量引用的对象</p>
+</li>
+<li><p>本地方法栈中JNI（Native方法）的引用的对象</p>
+</li>
+</ol>
+<p>然后，我们继续看下我们的关注内容dvmAllcoObject</p>
+<h2 id="Alloc-dvmAllcoObject"><a href="#Alloc-dvmAllcoObject" class="headerlink" title="Alloc.dvmAllcoObject()"></a>Alloc.dvmAllcoObject()</h2><p>文件路径：dalvik/vm/alloc/Alloc.cpp</p>
+<pre><code> /*
+     * Create an instance of the specified class.
+     *
+     * Returns NULL and throws an exception on failure.
+     */
+Object* dvmAllocObject(ClassObject* clazz, int flags)
+{
+    Object* newObj;
+
+    assert(clazz != NULL);
+    assert(dvmIsClassInitialized(clazz) || dvmIsClassInitializing(clazz));
+
+    /* allocate on GC heap; memory is zeroed out */
+    newObj = (Object*)dvmMalloc(clazz-&gt;objectSize, flags);
+    if (newObj != NULL) {
+        DVM_OBJECT_INIT(newObj, clazz);
+        dvmTrackAllocation(clazz, clazz-&gt;objectSize);   /* notify DDMS */
+        // Add barrier to force all metadata writes to main memory to complete
+        ANDROID_MEMBAR_FULL();
+    }
+
+    return newObj;
+}
+</code></pre><p>在这里，我们看到了句官方的注释，在GC heap上给我们申请clazz-&gt;objectSize大小的内存空间给我们的这个newObj使用。如果创建成功，就调用DVM_OBJECT_INIT()来初始化我们的变量，把它和clazz类关联起来。因为这个<br>dvmMalloc返回的实际就是一块我们制定大小（clazz-&gt;objectSize）的内存地址而已，至于要怎么用这块空间，就由我们决定了。所以我们把它这我们要new的那个clazz关联在一起。</p>
+<p>。我们知道，一个DVM加载类会有三个步骤：</p>
+<blockquote>
+<p>装载-&gt; 连接( 验证-&gt;准备-&gt;解析 )-&gt;初始化</p>
+</blockquote>
+<p>装载就是上一个函数做了，这个函数看起来不就是做了连接的工作嘛？背后这 dvmTrackAllocation做了什么，我们后面再看。<br>接着是通知DDMS，用dvmTrackAllocation()记录我们的这个新的内存分配信息。 最后是加barrier从而强制所有元数据写到主内存去完成。</p>
+<h3 id="dvmMalloc"><a href="#dvmMalloc" class="headerlink" title="dvmMalloc()"></a>dvmMalloc()</h3><p>vm/alloc/heap.cpp</p>
+<pre><code>void* dvmMalloc(size_t size, int flags)
+{
+    void *ptr;
+
+    dvmLockHeap();
+        /* Try as hard as possible to allocate some memory.
+        */
+    ptr = tryMalloc(size);
+    if (ptr != NULL) {   
+        /* We&apos;ve got the memory.
+         */
+        if (gDvm.allocProf.enabled) {
+            Thread* self = dvmThreadSelf();
+            gDvm.allocProf.allocCount++;
+            gDvm.allocProf.allocSize += size;
+            if (self != NULL) {
+                self-&gt;allocProf.allocCount++;
+                self-&gt;allocProf.allocSize += size;
+            }
+        }
+    } else {
+        /* The allocation failed.
+         */
+
+        if (gDvm.allocProf.enabled) {
+            Thread* self = dvmThreadSelf();
+            gDvm.allocProf.failedAllocCount++;
+            gDvm.allocProf.failedAllocSize += size;
+            if (self != NULL) {
+                self-&gt;allocProf.failedAllocCount++;
+                self-&gt;allocProf.failedAllocSize += size;
+            }
+        }
+    }
+
+    dvmUnlockHeap();
+
+    if (ptr != NULL) {
+        /*
+         * If caller hasn&apos;t asked us not to track it, add it to the
+         * internal tracking list.
+         */
+        if ((flags &amp; ALLOC_DONT_TRACK) == 0) {
+            dvmAddTrackedAlloc((Object*)ptr, NULL);
+        }
+    } else {
+        /*
+         * The allocation failed; throw an OutOfMemoryError.
+         */
+        throwOOME();
+    }
+
+    return ptr;
+}
+</code></pre><p>来，我们来看下这个函数，开头先去锁住堆，然后就去申请size大小的内存，看起来这个申请过程很不容易啊，人家都说恶劣try as hard as possible。确实很不容易，背后有很多的逻辑，后面我们再提及。继续看下流程。<br>在去malloc空间回来后，如果成功，不为空的话，就记录这次信息，失败也记录下。<br>接着解锁.因我们在<code>HANDLE_OPCODE()</code>传的flag是<code>ALLOC_DONT_TRACK</code>，所以我们这里不会跑去加到内部Tracking list.<br>倒是如果前面申请失败，会抛给我们一个OOME的bug。呵，这个我们遇到比较多点，传闻中的OOM啊！大名鼎鼎的内存溢出bug。</p>
+<p>好了，看完流程，我们来看下这个  </p>
+<h4 id="tryMalloc-size"><a href="#tryMalloc-size" class="headerlink" title="tryMalloc(size)"></a>tryMalloc(size)</h4><pre><code>static void *tryMalloc(size_t size)
+{
+    ...
+    char* hprof_file = NULL;
+    void *ptr;
+    int result = -1;
+    int debug_oom = 0;
+
+    //step 1
+    ptr = dvmHeapSourceAlloc(size);
+    if (ptr != NULL) {
+        return ptr;
+    }
+
+   //step 2        
+    if (gDvm.gcHeap-&gt;gcRunning) {             
+        dvmWaitForConcurrentGcToComplete();
+    } else {           
+      gcForMalloc(false);
+    }    
+    ptr = dvmHeapSourceAlloc(size);
+    if (ptr != NULL) {
+        return ptr;
+    }
+
+    //STEP 3
+    ptr = dvmHeapSourceAllocAndGrow(size);
+    if (ptr != NULL) {
+        size_t newHeapSize;    
+        newHeapSize = dvmHeapSourceGetIdealFootprint();
+        ...
+         return ptr;
+    }
+
+   //STEP 4        
+    /* Most allocations should have succeeded by now, so the heap
+     * is really full, really fragmented, or the requested size is
+     * really big.  Do another GC, collecting SoftReferences this
+     * time.  The VM spec requires that all SoftReferences have
+     * been collected and cleared before throwing an OOME.
+     */         
+     LOGI_HEAP(&quot;Forcing collection of SoftReferences for %zu-byte allocation&quot;,
+            size);
+    gcForMalloc(true);
+    ptr = dvmHeapSourceAllocAndGrow(size);
+    if (ptr != NULL) {
+        return ptr;
+    }
+
+     dvmDumpThread(dvmThreadSelf(), false);    
+    ...    
+    if(debug_oom == 1) {
+       ...
+    }
+
+    return NULL;
+}
+</code></pre><p>我们来看下，这个调用流程，主要分了四步走。</p>
+<ol>
+<li>先直接调用dvmHeapSourceAlloc去申请空间，如果成功，就返回，失败就继续step2</li>
+<li>前面一步没申请到，就进行GC，如果当前GC正在进行就等下，没有就触发，同时GC的参数为<code>false</code>，表示对<strong>软引用</strong>的对象<strong>还不要回收</strong>。然后再调用一次<code>dvmHeapSourceAlloc()</code>去申请，成功则返回。失败再走第三部</li>
+<li>如果GC完还失败，那就调用<code>dvmHeapSourceAllocAndGrow(）</code>，尝试来增长下我们的heap空间，然后再返回一个给我们。基本上到这一步理论都成功了。失败了再走第四步咯</li>
+<li>到了这步，系统会回收软引用<code>SoftRef</code>的变量空间，因为我们看到GC参数为true，在GC完后，就再次调用<code>dvmHeapSourceAllocAndGrow（）</code>去申请下空间。到这里如果还失败，那没办法，只能给你个NULL了，这回导致上层<code>dvmMalloc()</code>抛出OOM咯！</li>
+</ol>
+<h4 id="dvmHeapSourceAlloc"><a href="#dvmHeapSourceAlloc" class="headerlink" title="dvmHeapSourceAlloc"></a>dvmHeapSourceAlloc</h4><p>dalvik/vm/alloc/HeapSource.cpp</p>
+<p>我们来看下这个dvmHeapSourceAlloc是怎么给我们申请内存空间的</p>
+<pre><code>void* dvmHeapSourceAlloc(size_t n)
+{
+    HS_BOILERPLATE();
+
+    HeapSource *hs = gHs;
+    Heap* heap = hs2heap(hs);//这是一个宏,长下面这样，用来获得头位置的
+    //#define hs2heap(hs_) (&amp;((hs_)-&gt;heaps[0]))
+
+    if (heap-&gt;bytesAllocated + n &gt; hs-&gt;softLimit) {
+        /*
+         * This allocation would push us over the soft limit; 
+         * act as if the heap is full.
+         */
+        LOGV_HEAP(&quot;softLimit of %zd.%03zdMB hit for %zd-byte allocation&quot;,
+                  FRACTIONAL_MB(hs-&gt;softLimit), n);
+        return NULL;
+    }
+</code></pre><p>开头地方我们看到了gHs，它是一个全局变量，指向一个HeapSource结构。<br>开头判断下，如果我们已调用的大小（heap-&gt;bytesAllocated）加多新调用的大小N，是否超过了软限制（softLimit），超了就返回NULL。</p>
+<p>关于这个HeapSocure的几个字段含义，可以看下他的结构定义，长下面这样：</p>
+<pre><code>    struct HeapSource {
+
+    // Target ideal heap utilization ratio; range 1..HEAP_UTILIZATION_MAX 
+    size_t targetUtilization;
+
+    size_t startSize;        // The starting heap size.
+
+    // The largest that the heap source as a whole is allowed to grow.          
+    size_t maximumSize;
+
+    /*
+     * The largest size we permit the heap to grow.  This value allows
+     * the user to limit the heap growth below the maximum size.  This
+     * is a work around until we can dynamically set the maximum size.
+     * This value can range between the starting size and the maximum
+     * size but should never be set below the current footprint of the
+     * heap.
+     */
+    size_t growthLimit;
+
+    // The desired max size of the heap source as a whole.         
+    size_t idealSize;
+
+    /* The maximum number of bytes allowed to be allocated from the
+     * active heap before a GC is forced.  This is used to &quot;shrink&quot; the
+     * heap in lieu of actual compaction.
+     */
+    size_t softLimit;
+
+    /* Minimum number of free bytes. Used with the target utilization when
+     * setting the softLimit. Never allows less bytes than this to be free
+     * when the heap size is below the maximum size or growth limit.
+     */
+    size_t minFree;
+
+    /* Maximum number of free bytes. Used with the target utilization when
+     * setting the softLimit. Never allows more bytes than this to be free
+     * when the heap size is below the maximum size or growth limit.
+     */
+    size_t maxFree;
+
+
+    // The heaps; heaps[0] is always the active heap,
+    //which new objects should be allocated from.           
+    Heap heaps[HEAP_SOURCE_MAX_HEAP_COUNT];
+
+    // The current number of heaps.          
+    size_t numHeaps;
+
+    // True if zygote mode was active when the HeapSource was created.          
+    bool sawZygote;
+
+
+    // The base address of the virtual memory reservation. 
+    char *heapBase;
+
+
+     // The length in bytes of the virtual memory reservation. 
+    size_t heapLength;
+
+     //The live object bitmap. 
+    HeapBitmap liveBits;
+
+
+     // The mark bitmap. 
+    HeapBitmap markBits;
+
+      //Native allocations. 
+    int32_t nativeBytesAllocated;
+    size_t nativeFootprintGCWatermark;
+    size_t nativeFootprintLimit;
+    bool nativeNeedToRunFinalization;
+
+     //State for the GC daemon. 
+    bool hasGcThread;
+    pthread_t gcThread;
+    bool gcThreadShutdown;
+    pthread_mutex_t gcThreadMutex;
+    pthread_cond_t gcThreadCond;
+    bool gcThreadTrimNeeded;
+};
+</code></pre><p>然后我们看到我们的softLimit是写着：The maximum number of bytes allowed to be allocated from the  active heap before a GC is forced。根据这个注释，我们知道，这是我们的<code>active堆</code>在GC前允许被调用的大小。</p>
+<p>这个值得意义就是自己说的那样，是我们在GC前允许被调用的大小，这样我们的程序在上面那个函数得到NULL后，就会<strong>触发GC</strong>，然后再去申请空间。<br>即利用这个<code>softLimit</code>来帮助我们合理的管理内存空间，避免内存碎片化问题过于严重，把内存利用率提高些，避免我们无限制的内存调用。<br>所以，在每次GC后，DVM会根据<code>Active堆</code>已经分配的内存字节数、设定的堆目标利用率和Zygote堆的大小，重新计算<code>Soft Limit</code>。</p>
+<p>我们再回顾下这个判断</p>
+<pre><code>if (heap-&gt;bytesAllocated + n &gt; hs-&gt;softLimit) {     
+       return NULL;
+   }
+</code></pre><p>之所有如果超了就返回NULL，不允许进行增加内存，我想这大概就是这套内存管理逻辑中的一环，它更倾向于保持内存合理的使用。<br>另外的dvmHeapSourceAllocAndGrow函数才是负责grow的。</p>
+<p>继续看后面的。在还有空间的时候需要分是否为lowMemoryMode来做处理。</p>
+<pre><code>void* ptr;
+   if (gDvm.lowMemoryMode) {
+       /* This is only necessary because mspace_calloc always memsets the
+        * allocated memory to 0. This is bad for memory usage since it leads
+        * to dirty zero pages. If low memory mode is enabled, we use
+        * mspace_malloc which doesn&apos;t memset the allocated memory and madvise
+        * the page aligned region back to the kernel.
+        */
+       ptr = mspace_malloc(heap-&gt;msp, n);
+       if (ptr == NULL) {
+           return NULL;
+       }
+       uintptr_t zero_begin = (uintptr_t)ptr;
+       uintptr_t zero_end = (uintptr_t)ptr + n;
+
+       // Calculate the page aligned region.             
+       uintptr_t begin = ALIGN_UP_TO_PAGE_SIZE(zero_begin);
+       uintptr_t end = zero_end &amp; ~(uintptr_t)(SYSTEM_PAGE_SIZE - 1);
+
+       /* If our allocation spans more than one page, we attempt to madvise.
+        */
+       if (begin &lt; end) {
+
+           //重要的一句调用
+           // madvise the page aligned region to kernel. 
+           madvise((void*)begin, end - begin, MADV_DONTNEED);
+
+           // Zero the region after the page aligned region. 
+           memset((void*)end, 0, zero_end - end);
+           //调用系统接口madvice时，指定的内存地址以及内存大小都必须以
+           //页大小为边界的，但是函数mspace_malloc分配出来的内存的地址
+           //只能保证对齐到8个字节，因此，我们是有可能不能将所有分配出
+           //来的内存都通过系统接口madvice标记为MADV_DONTNEED的。
+           //这时候对于不能标记为MADV_DONTNEED的内存，
+           //因此需调用memset来将它们初始化为0。
+
+           // Zero out the region before the page aligned region.                
+           zero_end = begin;
+       }
+
+       //开头的注释有说到，因为这`mspace_malloc`分配的内存是不会把
+       // 内存初始化为0的，而DVM又要求分配给对象的内存初始化为0,
+       //所以我们得手动调用下这个
+       memset((void*)zero_begin, 0, zero_end - zero_begin);
+   } else {
+       ptr = mspace_calloc(heap-&gt;msp, 1, n);
+       if (ptr == NULL) {
+           return NULL;
+       }
+   }
+</code></pre><p>我们看到，在低内存模式中，如果我们调用的内存对象大小是超过一个page大小的，DVM假设对象不会马上就使用分配到的内存，因此，它就通过系统接口<code>madvice（）</code>和<code>MADV_DONTNEED标志</code>，告诉内核刚刚分配出去的内存在<strong>近期内不会使用</strong>，内核可以对该内存做对应的物理页回收。如果分配出去的内存被使用，则内核会重新给它映射物理页，这样就可以做到按需分配物理内存。达到适合在内存小的设备上运行的特点。</p>
+<p>对于非低内存模式，就相对简单了，直接调用<code>mspace_calloc（）</code>，然后不为空就返回。因为他相对<code>mspace_malloc（）</code>好处就是还会自动帮我们置0；</p>
+<p>然后我们继续看下后面的内容：</p>
+<pre><code>    countAllocation(heap, ptr); 
+    //有在gc就返回，没有就触发一次GC然后再返回
+    if (gDvm.gcHeap-&gt;gcRunning || !hs-&gt;hasGcThread) { 
+        return ptr;
+    }
+    if (heap-&gt;bytesAllocated &gt; heap-&gt;concurrentStartBytes){     
+        //通知GC线程执行一次Concurrent GC
+        dvmSignalCond(&amp;gHs-&gt;gcThreadCond);
+    }
+    return ptr;
+} 
+
+/*
+ * Functions to update heapSource-&gt;bytesAllocated when an object
+ * is allocated or freed.  mspace_usable_size() will give
+ * us a much more accurate picture of heap utilization than
+ * the requested byte sizes would.
+ *
+ * These aren&apos;t exact, and should not be treated as such.
+ */
+static void countAllocation(Heap *heap, const void *ptr)
+{
+    assert(heap-&gt;bytesAllocated &lt; mspace_footprint(heap-&gt;msp));
+
+    heap-&gt;bytesAllocated += mspace_usable_size(ptr) +
+            HEAP_SOURCE_CHUNK_OVERHEAD;
+    heap-&gt;objectsAllocated++;
+    HeapSource* hs = gDvm.gcHeap-&gt;heapSource;
+    dvmHeapBitmapSetObjectBit(&amp;hs-&gt;liveBits, ptr);
+
+    assert(heap-&gt;bytesAllocated &lt; mspace_footprint(heap-&gt;msp));
+}
+</code></pre><p>这个countAllocation主要是记录了<code>Active堆</code>已分配的字节数和对象数。<br>然后调用<code>dvmHeapBitmapSetObjectBit（）</code>函数将新分配的对象在<code>Live Heap Bitmap</code>上对应的位设置为<strong>1</strong>，也就是说将新创建的对象标记为是<strong>存活的</strong>。关于Live Heap Bitmap注释可以看前面的结构提到的。</p>
+<p>到这里，这个函数基本就到这里了，我们来看下另外一个倾向于grow的函数</p>
+<h4 id="dvmHeapSourceAllocAndGrow（）"><a href="#dvmHeapSourceAllocAndGrow（）" class="headerlink" title="dvmHeapSourceAllocAndGrow（）"></a>dvmHeapSourceAllocAndGrow（）</h4><p>dalvik/vm/alloc/HeapSource.cpp</p>
+<pre><code>/*
+ * Allocates &lt;n&gt; bytes of zeroed data, growing as much as possible
+ * if necessary.
+ */
+void* dvmHeapSourceAllocAndGrow(size_t n)
+{
+    HS_BOILERPLATE();
+
+    HeapSource *hs = gHs;
+    Heap* heap = hs2heap(hs);
+
+      // STEP 1        
+    //复用他来负责申请空间，失败了才进行grow；
+    void* ptr = dvmHeapSourceAlloc(n);
+    if (ptr != NULL) {
+        return ptr;
+    }
+
+      //STEP 2
+    size_t oldIdealSize = hs-&gt;idealSize;
+    if (isSoftLimited(hs)) {   
+
+        /* We&apos;re soft-limited.  Try removing the soft limit to
+         * see if we can allocate without actually growing.
+         */
+        hs-&gt;softLimit = SIZE_MAX;
+        ptr = dvmHeapSourceAlloc(n);
+        if (ptr != NULL) {
+            /* Removing the soft limit worked;  fix things up to
+             * reflect the new effective ideal size.
+             */
+            snapIdealFootprint();
+            return ptr;
+        }
+        // softLimit intentionally left at SIZE_MAX.
+    }
+
+  //STEP 3
+    /* We&apos;re not soft-limited.  Grow the heap to satisfy the request.
+     * If this call fails, no footprints will have changed.
+     */
+    ptr = heapAllocAndGrow(hs, heap, n);
+    if (ptr != NULL) {
+        /* The allocation succeeded.  Fix up the ideal size to
+         * reflect any footprint modifications that had to happen.
+         */
+        snapIdealFootprint();
+    } else {
+        /* We just couldn&apos;t do it.  Restore the original ideal size,
+         * fixing up softLimit if necessary.
+         */
+        setIdealFootprint(oldIdealSize);
+    }
+    return ptr;
+}
+</code></pre><p>我们看上面主要分了三步</p>
+<ol>
+<li>直接调用dvmHeapSourceAlloc去申请，因为这个之前有GC过，有可能有足够的空间。如果失败，再继续第二部。</li>
+<li>记录下oldIdealSize大小，用于后面恢复用。尝试移去软限制，来看下是否可以，如果行就做些恢复操作，然后返回。不行再进行第三步</li>
+<li>这时候还不行就只能真的涨空间了，因此调用了<code>heapAllocAndGrow</code>来做最后的处理。</li>
+</ol>
+<p>知道个流程，我们看下其中几个细节点的意思</p>
+<h5 id="isSoftLimited"><a href="#isSoftLimited" class="headerlink" title="isSoftLimited()"></a>isSoftLimited()</h5><pre><code>    /*
+ * Returns true iff a soft limit is in effect for the active heap.
+ */
+static bool isSoftLimited(const HeapSource *hs)
+{
+    /* softLimit will be either SIZE_MAX or the limit for the
+     * active mspace.  idealSize can be greater than softLimit
+     * if there is more than one heap.  If there is only one
+     * heap, a non-SIZE_MAX softLimit should always be the same
+     * as idealSize.
+     */
+    return hs-&gt;softLimit &lt;= hs-&gt;idealSize;
+}
+</code></pre><p>在前面heapSoucre结构里有这两个的含义，<code>hs-&gt;softLimit</code>指<code>Active堆</code>的大小，而<code>hs-&gt;idealSize</code>指的是<strong>Zygote堆</strong>和<strong>Active堆</strong>的大小之和。<br>之所以有这么个判断，是因为存在可能没有zygote堆，然后两者一直相等的情况。</p>
+<ol>
+<li><p>当只有一个堆时，即只有Active堆时，如果设置了Soft Limit，那么它的大小总是等于Active堆的大小，即这时候hs-&gt;softLimit总是等于hs-&gt;idealSize。如果没有设置Soft Limit，那么它的值会被设置为SIZE_MAX值，这会就会保证hs-&gt;softLimit大于hs-&gt;idealSize。也就是说，当只有一个堆时，函数isSoftLimited能正确的反映Active堆是否设置有Soft Limit。</p>
+</li>
+<li><p>当有两个堆时，即Zygote堆和Active堆同时存在，那么如果设置有Soft Limit，那么它的值就总是等于Active堆的大小。<br>由于hs-&gt;idealSize描述的是Zygote堆和Active堆的大小之和，因此就一定可以保证hs-&gt;softLimit小于等于hs-&gt;idealSize。如果没有设置Soft Limit，即hs-&gt;softLimit的值等于SIZE_MAX，那么就一定可以保证hs-&gt;softLimit的值大于hs-&gt;idealSize的值。也就是说，当有两个堆时，函数isSoftLimited也能正确的反映Active堆是否设置有Soft Limit。</p>
+</li>
+</ol>
+<h5 id="heapAllocAndGrow"><a href="#heapAllocAndGrow" class="headerlink" title="heapAllocAndGrow"></a>heapAllocAndGrow</h5><pre><code>/* Remove any hard limits, try to allocate, and shrink back down.
+ * Last resort when trying to allocate an object.
+ */
+static void* heapAllocAndGrow(HeapSource *hs, Heap *heap, size_t n)
+{
+    /* Grow as much as possible, but don&apos;t let the real footprint
+     * go over the absolute max.
+     */
+    size_t max = heap-&gt;maximumSize;
+
+    mspace_set_footprint_limit(heap-&gt;msp, max);
+    void* ptr = dvmHeapSourceAlloc(n);
+
+    /* Shrink back down as small as possible.  Our caller may
+     * readjust max_allowed to a more appropriate value.
+     */
+    mspace_set_footprint_limit(heap-&gt;msp,
+                               mspace_footprint(heap-&gt;msp));
+    return ptr;
+} 
+</code></pre><p>我们看这个函数先将<code>Active堆</code>（heap-&gt;msp）的大小设置为允许的最大值（heap-&gt;maximumSize），接着再调<code>dvmHeapSourceAlloc</code>去分配大小为n的内存。然后用<code>mspace_footprint（）</code>获得分配了n个字节之后Active堆的大小，并且将该值设置为Active堆的当前大小限制。<br>这就相当于是将Active堆的当前大小限制值从允许设置的最大值减少为一个刚刚合适的值。</p>
+<p>至此，我们把整个的内存申请过程都看了下了！！！</p>
+<h3 id="DVM-OBJECT-INIT"><a href="#DVM-OBJECT-INIT" class="headerlink" title="DVM_OBJECT_INIT()"></a>DVM_OBJECT_INIT()</h3><p> VM/oo/object.h</p>
+<p>稍微回过头来看下开头那里的这个做初始化的宏</p>
+<pre><code>    /*
+ * Properly initialize an Object.
+ * void DVM_OBJECT_INIT(Object *obj, ClassObject *clazz_)
+ */
+#define DVM_OBJECT_INIT(obj, clazz_) \
+    dvmSetFieldObject(obj, OFFSETOF_MEMBER(Object, clazz), clazz_)
+</code></pre><p>这里我们稍微提下obj这个对象，这个结构也在这个文件里面。</p>
+<pre><code>    /*
+ * There are three types of objects:
+ *  Class objects - an instance of java.lang.Class
+ *  Array objects - an object created with a &quot;new array&quot; instruction
+ *  Data objects - an object that is neither of the above
+ *
+ * We also define String objects.  At present they&apos;re equivalent to
+ * DataObject, but that may change.  (Either way, they make some of the
+ * code more obvious.)
+ *
+ * All objects have an Object header followed by type-specific data.
+ */
+struct Object {
+    /* ptr to class object */
+    ClassObject*    clazz;
+
+    /*
+     * A word containing either a &quot;thin&quot; lock or a &quot;fat&quot; monitor.  See
+     * the comments in Sync.c for a description of its layout.
+     */
+    u4              lock;
+};
+</code></pre><p>我们看Object类只有两个成员变量：clazz和lock。</p>
+<ol>
+<li>clazz的类型为ClassObject，它对应于Java层的<code>java.lang.Class</code>类，用来描述对象所属的类。</li>
+<li><p>lock是一个锁，正是因为有了这个成员变量，在Java层中，每一个对象都可以当锁使用。</p>
+<p>然后这个对应的函数</p>
+</li>
+</ol>
+<h4 id="dvmSetFieldObject"><a href="#dvmSetFieldObject" class="headerlink" title="dvmSetFieldObject()"></a>dvmSetFieldObject()</h4><p>vm/oo/objectInlines.h</p>
+<pre><code>INLINE void dvmSetFieldObject(Object* obj, int offset, Object* val) {
+JValue* lhs = (JValue*)BYTE_OFFSET(obj, offset);
+lhs-&gt;l = val;
+if (val != NULL) {
+    dvmWriteBarrierField(obj, &amp;lhs-&gt;l);
+}
+</code></pre><p>} </p>
+<p>嗯，背后的内容就很多，我们暂时点到为止。<br>先留一条线索在这里，下次写DVM关于类的的加载部分时候，再来细入的谈。</p>
+<h3 id="dvmTrackAllocation"><a href="#dvmTrackAllocation" class="headerlink" title="dvmTrackAllocation()"></a>dvmTrackAllocation()</h3><p>VM\AllocTracker.cpp</p>
+<p> 这个宏的定义在AllocTracker.H文件中。然后我们看下对应的实际实现</p>
+<pre><code>#define dvmTrackAllocation(_clazz, _size)                                   \
+{                                                                       \
+    if (gDvm.allocRecords != NULL)                                      \
+        dvmDoTrackAllocation(_clazz, _size);                            \
+}
+void dvmDoTrackAllocation(ClassObject* clazz, size_t size);
+</code></pre><h4 id="dvmDoTrackAllocation"><a href="#dvmDoTrackAllocation" class="headerlink" title="dvmDoTrackAllocation()"></a>dvmDoTrackAllocation()</h4><pre><code>/*
+ * Add a new allocation to the set.
+ */
+void dvmDoTrackAllocation(ClassObject* clazz, size_t size)
+{
+    Thread* self = dvmThreadSelf();
+    if (self == NULL) {
+        ALOGW(&quot;alloc tracker: no thread&quot;);
+        return;
+    }
+
+    dvmLockMutex(&amp;gDvm.allocTrackerLock);
+    if (gDvm.allocRecords == NULL) {
+        dvmUnlockMutex(&amp;gDvm.allocTrackerLock);
+        return;
+    }
+
+    /* advance and clip */
+    if (++gDvm.allocRecordHead == gDvm.allocRecordMax)
+        gDvm.allocRecordHead = 0;
+
+    AllocRecord* pRec = &amp;gDvm.allocRecords[gDvm.allocRecordHead];
+
+    pRec-&gt;clazz = clazz;
+    pRec-&gt;size = size;
+    pRec-&gt;threadId = self-&gt;threadId;
+    getStackFrames(self, pRec);
+
+    if (gDvm.allocRecordCount &lt; gDvm.allocRecordMax)
+        gDvm.allocRecordCount++;
+
+    dvmUnlockMutex(&amp;gDvm.allocTrackerLock);
+}
+</code></pre><p>关于这部分，暂时也不做深入，留一个线索在这里，以后再做对应的深入记录。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>看完这部分内容，我们可以确定的是，我们的调用的对象，他的实际内存空间确实在堆里面，而且是放在Active堆里面的。</p>
+<p>不过关于这个堆的创建过程和划分等内容，想必有些人看了怪怪的，所以下面可以考录来写下这个HeapStruct的内容。</p>
+<h1 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h1><ol>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/41688319" target="_blank" rel="noopener">http://blog.csdn.net/luoshengyang/article/details/41688319</a></li>
+</ol>
+<p>============再次更新</p>
+<p>2016/10/27<br>最近看到微信开发分享的一篇文章，觉得不错，就贴在这<br>[Android内存申请分析]{<a href="http://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=2649286327&amp;idx=1&amp;sn=b69513e3dfd1de848daefe03ab6719c2&amp;scene=26#wechat_redirect}" target="_blank" rel="noopener">http://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=2649286327&amp;idx=1&amp;sn=b69513e3dfd1de848daefe03ab6719c2&amp;scene=26#wechat_redirect}</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/Dalvik/" rel="tag">#Dalvik</a>
+          
+            <a href="/tags/dvm/" rel="tag">#dvm</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" rel="prev">源码探索系列41---关于DVM的Heap堆创建过程</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" rel="next">源码探索系列39---关于电量统计BatteryStatsHelper</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/"
+     data-title="源码探索系列40---关于Dalvik的内存分配过程"
+     data-content=""
+     data-url="http://yoursite.com/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/"
+                   data-title="源码探索系列40---关于Dalvik的内存分配过程" data-url="http://yoursite.com/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HANDLE-OPCODE-OP-NEW-INSTANCE"><span class="nav-number">1.1.</span> <span class="nav-text">HANDLE_OPCODE(OP_NEW_INSTANCE)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Alloc-dvmAllcoObject"><span class="nav-number">1.2.</span> <span class="nav-text">Alloc.dvmAllcoObject()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmMalloc"><span class="nav-number">1.2.1.</span> <span class="nav-text">dvmMalloc()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tryMalloc-size"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">tryMalloc(size)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dvmHeapSourceAlloc"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">dvmHeapSourceAlloc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dvmHeapSourceAllocAndGrow（）"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">dvmHeapSourceAllocAndGrow（）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#isSoftLimited"><span class="nav-number">1.2.1.3.1.</span> <span class="nav-text">isSoftLimited()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#heapAllocAndGrow"><span class="nav-number">1.2.1.3.2.</span> <span class="nav-text">heapAllocAndGrow</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DVM-OBJECT-INIT"><span class="nav-number">1.2.2.</span> <span class="nav-text">DVM_OBJECT_INIT()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dvmSetFieldObject"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">dvmSetFieldObject()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dvmTrackAllocation"><span class="nav-number">1.2.3.</span> <span class="nav-text">dvmTrackAllocation()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dvmDoTrackAllocation"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">dvmDoTrackAllocation()</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ref"><span class="nav-number">3.</span> <span class="nav-text">ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

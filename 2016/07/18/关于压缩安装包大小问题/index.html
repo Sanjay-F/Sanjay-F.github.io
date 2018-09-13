@@ -1,0 +1,823 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="在很久很久的塞班时代，那时候的程序几十KB就算大了。在不久的几年前，很多APP也是几M大小。不过到了最近几年，都是几十M的。你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽 对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间  这张图片告诉我们一个方向  压缩项目代码量，删除过时没用的 降低我们的资源文件大小，例如图片,用混淆等 下载的第三方库和so等文件尝试用更小的 一">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于压缩安装包大小问题">
+<meta property="og:url" content="http://yoursite.com/2016/07/18/关于压缩安装包大小问题/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="在很久很久的塞班时代，那时候的程序几十KB就算大了。在不久的几年前，很多APP也是几M大小。不过到了最近几年，都是几十M的。你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽 对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间  这张图片告诉我们一个方向  压缩项目代码量，删除过时没用的 降低我们的资源文件大小，例如图片,用混淆等 下载的第三方库和so等文件尝试用更小的 一">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/6d17e381gw1eqvmdlfzdoj20s206y76z.jpg">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/gson.PNG">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-09-27%2012.26.28.png">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.702Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于压缩安装包大小问题">
+<meta name="twitter:description" content="在很久很久的塞班时代，那时候的程序几十KB就算大了。在不久的几年前，很多APP也是几M大小。不过到了最近几年，都是几十M的。你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽 对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间  这张图片告诉我们一个方向  压缩项目代码量，删除过时没用的 降低我们的资源文件大小，例如图片,用混淆等 下载的第三方库和so等文件尝试用更小的 一">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/large/6d17e381gw1eqvmdlfzdoj20s206y76z.jpg">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 关于压缩安装包大小问题 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              关于压缩安装包大小问题
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-07-18T23:11:00+08:00" content="2016-07-18">
+            2016-07-18
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/07/18/关于压缩安装包大小问题/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/18/关于压缩安装包大小问题/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在很久很久的塞班时代，那时候的程序几十KB就算大了。<br>在不久的几年前，很多APP也是几M大小。<br>不过到了最近几年，都是几十M的。<br>你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽</p>
+<p>对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间</p>
+<p><img src="http://ww4.sinaimg.cn/large/6d17e381gw1eqvmdlfzdoj20s206y76z.jpg" alt="enter image description here"></p>
+<p>这张图片告诉我们一个方向</p>
+<ol>
+<li>压缩项目代码量，删除过时没用的</li>
+<li>降低我们的资源文件大小，例如图片,用混淆等</li>
+<li>下载的第三方库和so等文件尝试用更小的</li>
+<li>一些assets的内容不用的移除</li>
+</ol>
+<a id="more"></a>  
+<h3 id="1-去除多余的类"><a href="#1-去除多余的类" class="headerlink" title="1.去除多余的类"></a>1.去除多余的类</h3><p>对于一些包，可能只用到了几个方法，可以尝试用别的更小的包代替，或者直接抽出来那几个方法来用。</p>
+<p>关于计算方法，这里有一个相对好用的方法推荐<code>dexcount-gradle-plugin</code> 。</p>
+<p> 在你的app/build.gradle添加</p>
+<pre><code>dependencies {
+    classpath &apos;com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.3.0&apos;
+}
+
+apply plugin: &apos;com.getkeepsafe.dexcount&apos;
+</code></pre><p>接着打开在AS底部的Terminal，输入下面的命令</p>
+<pre><code>&gt; gradlew assembleDebug
+</code></pre><p>在结尾的地方，就会</p>
+<pre><code>。。。
+Total methods in app-debug.apk: 50020 (76.33% used)
+Total fields in app-debug.apk:  31868 (48.63% used)
+Methods remaining in app-debug.apk: 15515
+Fields remaining in app-debug.apk:  33667
+
+BUILD SUCCESSFUL
+</code></pre><p> 除此之外，还提供一些图形化的界面可以查看，路径在：${buildDir}/outputs/dexcount/</p>
+<p> 或者我们打开目录里面的这个<code>debugChart/index.html</code>文件<br>这时候可以很方便的看到具体那个包的方法数，不过好像看不了大小<br> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/gson.PNG" alt="enter image description here"><br>  更多内容可以看官方文档<a href="https://github.com/KeepSafe/dexcount-gradle-plugin" target="_blank" rel="noopener">https://github.com/KeepSafe/dexcount-gradle-plugin</a></p>
+<p>如果可以，可以手动精简一些包，很多功能都没用到。<br>例如当年的volley，他的工具包里面例如图片加载等很多就没使用到，这完全就浪费啊。</p>
+<h3 id="2-降低版本"><a href="#2-降低版本" class="headerlink" title="2.降低版本"></a>2.降低版本</h3><pre><code>compile &apos;com.android.support:appcompat-v7
+compile &apos;com.android.support:appcompat-v4
+</code></pre><p>这两个包V24.0.0版的1.4M左右，版本越高的V7和V4，包越大。如果是非常小的项目，完全没有必要引用它俩。<br>或者可以考录用低版本的，虽然新版本可能修复一些bug，例如RecycleView曾经就有过分割线的显示错误问题。</p>
+<p>在这里推荐一个叫<a href="http://www.methodscount.com/plugins?spm=5176.100239.blogcont60555.18.alxScu" target="_blank" rel="noopener">MethodCount</a>的插件，他可以帮助我们快速的查看我们添加的包的方法数目，这个包的额外依赖的包的数目，同时点击蓝色的圈，可以查看具体的依赖的内容！</p>
+<p>例如我们的<a href="http://www.methodscount.com/?lib=com.android.support:appcompat-v7:23.1.1" target="_blank" rel="noopener">appcompat-v7-23.1.1</a>，点击它查看各个版本依赖的内容。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-09-27%2012.26.28.png" alt="enter image description here"></p>
+<p>这里看到我们的23.1.1是有5319个方法，额外依赖2个，Design包就是2165个方法，4个额外的依赖。 </p>
+<p>通过这个，可以提供实际的数据，指导我们做判断。<br>这个就比那个<code>dexcount</code>来个更快和直接，不过它不可以看自己的包代码效果，和编译后的情况，各有特色。</p>
+<h3 id="3-混淆"><a href="#3-混淆" class="headerlink" title="3. 混淆"></a>3. 混淆</h3><p>使用proguard混淆代码，它会对不用的代码做优化，并且混淆后也能够减少安装包的大小。</p>
+<pre><code> buildTypes {
+
+    release {
+        minifyEnabled true  // &lt;-开启
+        shrinkResources false
+        zipAlignEnabled true
+
+        signingConfig signingConfigs.release
+        proguardFiles getDefaultProguardFile(&apos;proguard-android.txt&apos;), &apos;proguard-rules.pro&apos;
+    }
+}
+</code></pre><p>对release版本用混淆可以很好的减少大小，因为他会将没用的剔除掉    </p>
+<h3 id="4-去除X86-so"><a href="#4-去除X86-so" class="headerlink" title="4. 去除X86.so"></a>4. 去除X86.so</h3><p>native code的部分，大多数情况下只需要支持armabi与x86的架构即可。如果非必须，可以考虑拿掉x86的部分。</p>
+<pre><code>    android {
+        compileSdkVersion 23
+        buildToolsVersion &quot;23.0.3&quot;
+
+
+        defaultConfig {         
+            minSdkVersion 19
+            targetSdkVersion 23
+            multiDexEnabled false
+
+            ndk {
+                //这个配置让realm数据库只有armeabi.so文件，从而压缩apk的大小
+                abiFilters &quot;armeabi&quot;  //就是这句，可以有效减少大小！你去看微信它也是只有支持armeabi了。
+            }
+}
+</code></pre><h3 id="5-去除没用的资源"><a href="#5-去除没用的资源" class="headerlink" title="5. 去除没用的资源"></a>5. 去除没用的资源</h3><p>随着发展，很多图片等资源都不用了，甚至一些font也不再使用，这时候应该考虑删除掉。<br>为了一次性的移除没用的资源，这是我们可以使用到的，使用<code>Lint工具</code>查找没有使用到的资源。<br>位置在顶部的 <code>Refactor-&gt; Inspect Code</code>.然后清楚没用的资源</p>
+<p>很多项目组做到一定程度，都会自定义出一份自己的Lint配置项。<br>或者自己公司的代码风格等内容。<br>关于如何自定义LINT，可以看这个美团的案例：<a href="http://tech.meituan.com/android_custom_lint.html" target="_blank" rel="noopener">Android自定义Lint实践</a><br>关于代码风格问题，具体查看这个地址<a href="https://github.com/jshiell/checkstyle-idea" target="_blank" rel="noopener">checkstyle-idea</a><br>个人是建议统一代码风格的，这有助于我们统一代码，避免“巴别塔之乱”这样的故事</p>
+<p>除此还有微信出版的一个强效工具<a href="https://github.com/shwenzhang/AndResGuard" target="_blank" rel="noopener">AndResGuard</a>，具体文章介绍看这里<a href="%28http://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=208135658&amp;idx=1&amp;sn=ac9bd6b4927e9e82f9fa14e396183a8f#rd%29">安装包立减1M–微信Android资源混淆打包工具</a></p>
+<h3 id="图片"><a href="#图片" class="headerlink" title="图片"></a>图片</h3><blockquote>
+<p>大图化小，小图化了</p>
+</blockquote>
+<h3 id="6-图片格式"><a href="#6-图片格式" class="headerlink" title="6. 图片格式"></a>6. 图片格式</h3><p>微信对图片从<code>PNG替换成SVG</code>，整体大小达到了压缩，<a href="https://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=207863967&amp;idx=1&amp;sn=3d7b07d528f38e9f812e8df7df1e3322" target="_blank" rel="noopener">具体文件可以查看这里</a><br>另外还有<code>webP图片格式</code>也是可以参考的，现在不少公司都开始用了。</p>
+<p>对于<code>图片压缩</code>也是一个不错的方式，<a href="https://tinypng.com/" target="_blank" rel="noopener">tinypng</a>用其独特的算法可以实现在无损压缩的情况下图片文件大小缩小到原来的30%-50%。<br>这个压缩图片是强烈推荐的，可以让你的XXX-hdpi的减少个几M都是有可能的！！！</p>
+<p><a href="http://www.wufangbo.com/png-image-optimization/" target="_blank" rel="noopener">详情可以看下关于PNG图片优化压缩的文章：</a> </p>
+<h3 id="7-降低依赖包的图片资源"><a href="#7-降低依赖包的图片资源" class="headerlink" title="7.  降低依赖包的图片资源"></a>7.  降低依赖包的图片资源</h3><p>覆盖aar里的一些默认的大图，一些aar库里面包含我们没用到的图，语言版本等。<br>最典型的是support-v4兼容库中包含一些“可能”用到的图片，实际上在你的app中不会用到。<br>可以在/build/intermediates/exploded-aar/下的各个aar库的res目录查找检验。然后删除！</p>
+<h3 id="8-插件化"><a href="#8-插件化" class="headerlink" title="8. 插件化"></a>8. 插件化</h3><p>关于插件化，这个目前已经有很成熟的技术方案了，不过对一部分业务不大的程序，估计效果一般。<br>对于像支付宝，淘宝之流的就效果明显！<br> 当然，或许可以考录砍功能 ，虽然一般程序都是上功能容易，砍一个就相对难，或者PM根本就没想过要删哪一个。</p>
+<h3 id="9-Facebook的redex优化字节码"><a href="#9-Facebook的redex优化字节码" class="headerlink" title="9.Facebook的redex优化字节码"></a>9.Facebook的redex优化字节码</h3><p>redex是facebook发布的一款android字节码的优化工具，需要按照说明文档自行配置一下。</p>
+<pre><code>redex input.apk -o output.apk --sign -s &lt;KEYSTORE&gt; -a &lt;KEYALIAS&gt; -p &lt;KEYPASS&gt;
+</code></pre><p>如果先进行redex，在进行微信混淆，减小了711k，redex贡献了157k：<br>另外，据反应redex后会有崩溃的现象，这个要留意一下，我这里压缩之后都是可以正常运行的。</p>
+<p>详情参考：<a href="https://github.com/facebook/redex" target="_blank" rel="noopener">ReDex: An Android Bytecode Optimizer</a></p>
+<h3 id="极限压缩"><a href="#极限压缩" class="headerlink" title="极限压缩"></a>极限压缩</h3><p>apk实质是一个zip压缩包，在zip压缩包里有两种模式：<code>Deflate</code>和<code>Stored</code></p>
+<p>  Deflate是抽气，压缩的意思，跟LayoutInflater里的inflate是相反的单词，inflate是填充，充气的意思。<br>  可以看出resources.arsc、*.png采用压缩模式，而其它采用存储模式。</p>
+<p>如何极限压缩？把Stored模式的变为Deflate模式。</p>
+<h3 id="选择压缩算法"><a href="#选择压缩算法" class="headerlink" title="选择压缩算法"></a>选择压缩算法</h3><table>
+<thead>
+<tr>
+<th>压缩算法</th>
+<th style="text-align:center">文件大小(kb)　　</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通Zip-普通压缩　</td>
+<td style="text-align:center">　    20016</td>
+</tr>
+<tr>
+<td>普通Zip-极限压缩</td>
+<td style="text-align:center">20012</td>
+</tr>
+<tr>
+<td>7zZip-普通压缩</td>
+<td style="text-align:center">19800</td>
+</tr>
+<tr>
+<td>7zZip-极限压缩</td>
+<td style="text-align:center">19578</td>
+</tr>
+</tbody>
+</table>
+<p>从表格中我们知道7zZip的压缩效果比普通Zip好，并且7zZip-极限压缩的比普通压缩要好，因此为了极限压缩，我们采用7zZip-极限压缩。</p>
+<p>  注意：</p>
+<ol>
+<li><p>在Android2.3以前的任何压缩的资源的原始大小超过1M，AssetManger读取时会抛出异常。</p>
+</li>
+<li><p>流媒体文件不能进行压缩</p>
+</li>
+<li><p>限制：只支持2.3以上版本程序才可以使用</p>
+<p>因此极限压缩的极限压缩操作如下：</p>
+</li>
+</ol>
+<blockquote>
+<p>解压—&gt;7zip极限压缩—&gt;回复部分只能Store的资源</p>
+</blockquote>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><p><a href="http://zmywly8866.github.io/2015/04/06/decrease-apk-size.html" target="_blank" rel="noopener">关于APK瘦身值得分享的一些经验</a></p>
+<p><a href="https://github.com/android-cn/android-discuss/issues/51" target="_blank" rel="noopener">[问答] 如何缩减APK包大小？</a></p>
+<p><a href="http://jayfeng.com/2015/12/29/APK%E7%98%A6%E8%BA%AB%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener">APK瘦身实践</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/29/源码探索系列42---关于ViewPager/" rel="prev">源码探索系列42---关于ViewPager</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" rel="next">源码探索系列41---关于DVM的Heap堆创建过程</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/07/18/关于压缩安装包大小问题/"
+     data-title="关于压缩安装包大小问题"
+     data-content=""
+     data-url="http://yoursite.com/2016/07/18/关于压缩安装包大小问题/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/07/18/关于压缩安装包大小问题/"
+                   data-title="关于压缩安装包大小问题" data-url="http://yoursite.com/2016/07/18/关于压缩安装包大小问题/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-去除多余的类"><span class="nav-number">1.</span> <span class="nav-text">1.去除多余的类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-降低版本"><span class="nav-number">2.</span> <span class="nav-text">2.降低版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-混淆"><span class="nav-number">3.</span> <span class="nav-text">3. 混淆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-去除X86-so"><span class="nav-number">4.</span> <span class="nav-text">4. 去除X86.so</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-去除没用的资源"><span class="nav-number">5.</span> <span class="nav-text">5. 去除没用的资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#图片"><span class="nav-number">6.</span> <span class="nav-text">图片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-图片格式"><span class="nav-number">7.</span> <span class="nav-text">6. 图片格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-降低依赖包的图片资源"><span class="nav-number">8.</span> <span class="nav-text">7.  降低依赖包的图片资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-插件化"><span class="nav-number">9.</span> <span class="nav-text">8. 插件化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Facebook的redex优化字节码"><span class="nav-number">10.</span> <span class="nav-text">9.Facebook的redex优化字节码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#极限压缩"><span class="nav-number">11.</span> <span class="nav-text">极限压缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选择压缩算法"><span class="nav-number">12.</span> <span class="nav-text">选择压缩算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ref"><span class="nav-number"></span> <span class="nav-text">ref</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

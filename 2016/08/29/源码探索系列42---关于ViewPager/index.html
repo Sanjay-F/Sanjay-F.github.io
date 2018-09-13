@@ -1,0 +1,1659 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,ViewPager," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。 #起航SDK23–support-v4 public class ViewPager extends ViewGroup  我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个">
+<meta name="keywords" content="android,ViewPager">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码探索系列42---关于ViewPager">
+<meta property="og:url" content="http://yoursite.com/2016/08/29/源码探索系列42---关于ViewPager/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。 #起航SDK23–support-v4 public class ViewPager extends ViewGroup  我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/title.PNG">
+<meta property="og:updated_time" content="2018-09-13T03:59:42.729Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码探索系列42---关于ViewPager">
+<meta name="twitter:description" content="最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。 #起航SDK23–support-v4 public class ViewPager extends ViewGroup  我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个">
+<meta name="twitter:image" content="http://7xl9zd.com1.z0.glb.clouddn.com/title.PNG">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 源码探索系列42---关于ViewPager | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              源码探索系列42---关于ViewPager
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-08-29T23:11:00+08:00" content="2016-08-29">
+            2016-08-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/08/29/源码探索系列42---关于ViewPager/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/29/源码探索系列42---关于ViewPager/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。</p>
+<p>#起航<br>SDK23–support-v4</p>
+<pre><code>public class ViewPager extends ViewGroup 
+</code></pre><p>我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个函数。<br>再在去看下几个常用的接口，设置adapter的内容，以及选中特定页面的逻辑。<br>最后再看下对于touch事件的处理。</p>
+<a id="more"></a>
+<h1 id="三个绘制流程"><a href="#三个绘制流程" class="headerlink" title="三个绘制流程"></a>三个绘制流程</h1><h2 id="onMeasure"><a href="#onMeasure" class="headerlink" title="onMeasure"></a>onMeasure</h2><pre><code>@Override
+protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec){
+
+    // For simple implementation, our internal size is always 0.
+    // We depend on the container to specify the layout size of
+    // our view.  We can&apos;t really know what it is since we will be
+    // adding and removing different arbitrary views and do not
+    // want the layout to change as this happens.
+    setMeasuredDimension(getDefaultSize(0, widthMeasureSpec),
+            getDefaultSize(0, heightMeasureSpec));
+
+    final int measuredWidth = getMeasuredWidth();
+    final int maxGutterSize = measuredWidth / 10;
+    mGutterSize = Math.min(maxGutterSize, mDefaultGutterSize);
+
+    // Children are just made to fill our space.
+    int childWidthSize =measuredWidth-getPaddingLeft()-getPaddingRight();
+    int childHeightSize = getMeasuredHeight() - getPaddingTop() 
+                                             - getPaddingBottom();
+</code></pre><p>关于这个Decor Views，主要是目前谷歌抽出了PagerTitleStrip和PagerTabStrip两个类，<br>提供一个简单的方案来在界面上加多标题，不过目前还是挺少用的，<br>毕竟很多都要求挺高的定制效果。类似下面这种原生效果估计没几个人喜欢</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/title.PNG" alt="enter image description here"> </p>
+<pre><code>&lt;android.support.v4.view.ViewPager  
+        android:id=&quot;@+id/viewpager&quot;  
+        android:layout_width=&quot;wrap_content&quot;  
+        android:layout_height=&quot;200dip&quot;  
+        android:layout_gravity=&quot;center&quot;&gt;  
+
+        &lt;android.support.v4.view.PagerTitleStrip  
+            android:id=&quot;@+id/pagertitle&quot;    
+            android:layout_width=&quot;wrap_content&quot;    
+            android:layout_height=&quot;wrap_content&quot;    
+            android:layout_gravity=&quot;top&quot;  
+            /&gt;  
+
+&lt;/android.support.v4.view.ViewPager&gt;  
+</code></pre><p>像上面这段xml代码写的类似，<br>我们可以通过layout_gravity来设置这个title在pager的位置是顶部还是底部。</p>
+<pre><code>/*
+ * Make sure all children have been properly measured. Decor views first.
+ * Right now we cheat and make this less complicated by assuming decor
+ * views won&apos;t intersect. We will pin to edges based on gravity.
+ */
+int size = getChildCount();
+for (int i = 0; i &lt; size; ++i) {
+    final View child = getChildAt(i);
+    if (child.getVisibility() != GONE) {
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (lp != null &amp;&amp; lp.isDecor) {
+            final int hgrav = lp.gravity &amp; Gravity.HORIZONTAL_GRAVITY_MASK;
+            final int vgrav = lp.gravity &amp; Gravity.VERTICAL_GRAVITY_MASK;
+            int widthMode = MeasureSpec.AT_MOST;
+            int heightMode = MeasureSpec.AT_MOST;
+            boolean consumeVertical = vgrav == Gravity.TOP || 
+                          vgrav == Gravity.BOTTOM;
+                          //这个就是XML配置文件的gravity字段
+
+            boolean consumeHorizontal = hgrav == Gravity.LEFT || 
+                           hgrav == Gravity.RIGHT;
+
+            if (consumeVertical) {
+                widthMode = MeasureSpec.EXACTLY;
+            } else if (consumeHorizontal) {
+                heightMode = MeasureSpec.EXACTLY;
+            }
+
+            int widthSize = childWidthSize;
+            int heightSize = childHeightSize;
+            if (lp.width != LayoutParams.WRAP_CONTENT) {
+                widthMode = MeasureSpec.EXACTLY;
+                if (lp.width != LayoutParams.FILL_PARENT) {
+                    widthSize = lp.width;
+                }
+            }
+            if (lp.height != LayoutParams.WRAP_CONTENT) {
+                heightMode = MeasureSpec.EXACTLY;
+                if (lp.height != LayoutParams.FILL_PARENT) {
+                    heightSize = lp.height;
+                }
+            }
+            final int widthSpec = MeasureSpec.makeMeasureSpec(
+                                widthSize, widthMode);
+            final int heightSpec = MeasureSpec.makeMeasureSpec(
+                                heightSize, heightMode);
+
+            child.measure(widthSpec, heightSpec);
+
+            if (consumeVertical) {
+                childHeightSize -= child.getMeasuredHeight();
+            } else if (consumeHorizontal) {
+                childWidthSize -= child.getMeasuredWidth();
+            }
+        }
+    }
+}
+
+
+mChildWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    childWidthSize, MeasureSpec.EXACTLY);
+mChildHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    childHeightSize, MeasureSpec.EXACTLY);
+
+
+// Make sure we have created all fragments that we need to have shown.
+mInLayout = true;
+populate(); //这个函数很长，主要是初始化界面等操作，后面会讲到
+mInLayout = false;
+
+// Page views next.
+size = getChildCount();
+for (int i = 0; i &lt; size; ++i) {
+    final View child = getChildAt(i);
+    if (child.getVisibility() != GONE) {
+
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (lp == null || !lp.isDecor) {
+            final int widthSpec = MeasureSpec.makeMeasureSpec(                    
+                    (int) (childWidthSize * lp.widthFactor), 
+                    MeasureSpec.EXACTLY);
+
+            child.measure(widthSpec, mChildHeightMeasureSpec);
+        }
+    }
+}
+}
+</code></pre><p>整个OnMeasure函数都是一些常规的viewGroup的套路，<br>包括一些测量长宽值为父容器给与的最大长宽值，<br>测量DecorView，测量ContentView。</p>
+<h2 id="OnLayout"><a href="#OnLayout" class="headerlink" title="OnLayout"></a>OnLayout</h2><p>接下来是布局的内容，我们猜测估计和在onMeasure里面有类似的内容，对DecorView和ContentView进行layout操作，毕竟都是模板操作。如果没有那些没什么用的child，估计整个代码会精简不少</p>
+<pre><code>@Override
+protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    final int count = getChildCount();
+    int width = r - l;
+    int height = b - t;
+    int paddingLeft = getPaddingLeft();
+    int paddingTop = getPaddingTop();
+    int paddingRight = getPaddingRight();
+    int paddingBottom = getPaddingBottom();
+    final int scrollX = getScrollX();
+
+    int decorCount = 0;
+
+    //和猜想类似，开始了对于child的相关操作
+    // First pass - decor views. We need to do this in two passes so that
+    // we have the proper offsets for non-decor views later.
+    for (int i = 0; i &lt; count; i++) {
+        final View child = getChildAt(i);
+        if (child.getVisibility() != GONE) {
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            int childLeft = 0;
+            int childTop = 0;
+            if (lp.isDecor) {
+                final int hgrav = lp.gravity &amp; Gravity.HORIZONTAL_GRAVITY_MASK;
+                final int vgrav = lp.gravity &amp; Gravity.VERTICAL_GRAVITY_MASK;
+                switch (hgrav) {                       
+
+                       ...分情况去获得childLeft,childTop,Padding信息                      
+                       ...
+                } 
+                childLeft += scrollX;                    
+                //根据等到的布局信息，让child也去layout
+                child.layout(childLeft, childTop,
+                        childLeft + child.getMeasuredWidth(),
+                        childTop + child.getMeasuredHeight());
+                decorCount++;
+            }
+        }
+    }
+
+    final int childWidth = width - paddingLeft - paddingRight;
+    // Page views. Do this once we have the right padding offsets from above.
+
+    for (int i = 0; i &lt; count; i++) {
+        final View child = getChildAt(i);
+        if (child.getVisibility() != GONE) {
+
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            ItemInfo ii;
+            if (!lp.isDecor &amp;&amp; (ii = infoForChild(child)) != null) {
+                int loff = (int) (childWidth * ii.offset);
+                int childLeft = paddingLeft + loff;
+                int childTop = paddingTop;
+                if (lp.needsMeasure) {
+                    // This was added during layout and needs measurement.
+                    // Do it now that we know what we&apos;re working with.
+                    lp.needsMeasure = false;
+                    final int widthSpec = MeasureSpec.makeMeasureSpec(
+                            (int) (childWidth * lp.widthFactor),
+                            MeasureSpec.EXACTLY);
+
+                    final int heightSpec = MeasureSpec.makeMeasureSpec(
+                            (int) (height - paddingTop - paddingBottom),
+                            MeasureSpec.EXACTLY);
+
+                    child.measure(widthSpec, heightSpec);
+
+                }
+                 //现在对我们的contentView进行处理
+                child.layout(childLeft, childTop,
+                        childLeft + child.getMeasuredWidth(),
+                        childTop + child.getMeasuredHeight());
+            }
+        }
+    }
+    mTopPageBounds = paddingTop;
+    mBottomPageBounds = height - paddingBottom;
+    mDecorChildCount = decorCount;
+    //默认为ture，所以会执行
+    if (mFirstLayout) {
+        scrollToItem(mCurItem, false, 0, false);
+    }
+    mFirstLayout = false;
+}
+</code></pre><h3 id="scrollToItem"><a href="#scrollToItem" class="headerlink" title="scrollToItem"></a>scrollToItem</h3><p>这个就是让我们滚到默认的第一个页面去的作用</p>
+<pre><code>private void scrollToItem(int item, boolean smoothScroll, int velocity,
+        boolean dispatchSelected) {
+    final ItemInfo curInfo = infoForPosition(item);
+    int destX = 0;
+    if (curInfo != null) {
+        final int width = getClientWidth();
+        destX = (int) (width * Math.max(mFirstOffset,
+                Math.min(curInfo.offset, mLastOffset)));
+    }
+    if (smoothScroll) {
+        smoothScrollTo(destX, 0, velocity);
+        if (dispatchSelected) {
+            dispatchOnPageSelected(item);
+        }
+    } else {
+        if (dispatchSelected) {
+            dispatchOnPageSelected(item);
+        }
+        completeScroll(false);
+        scrollTo(destX, 0);
+        pageScrolled(destX);
+    }
+}    
+</code></pre><p>看我上面这两个，就是最后一个onDraw函数了，不过viewPager重写多了Draw函数，因为需要做多额外的绘制工作，那是什么呢？我们来看下</p>
+<h2 id="draw"><a href="#draw" class="headerlink" title="draw"></a>draw</h2><pre><code>  @Override
+public void draw(Canvas canvas) {
+    super.draw(canvas);
+    boolean needsInvalidate = false;
+
+    final int overScrollMode = ViewCompat.getOverScrollMode(this);
+    if (overScrollMode == ViewCompat.OVER_SCROLL_ALWAYS ||
+            (overScrollMode == ViewCompat.OVER_SCROLL_IF_CONTENT_SCROLLS &amp;&amp;
+                    mAdapter != null &amp;&amp; mAdapter.getCount() &gt; 1)) {
+        if (!mLeftEdge.isFinished()) {
+            final int restoreCount = canvas.save();
+            final int height = getHeight() - getPaddingTop()
+                                           -getPaddingBottom();
+
+            final int width = getWidth();
+
+            canvas.rotate(270);
+            canvas.translate(-height + getPaddingTop(), mFirstOffset * width);
+            mLeftEdge.setSize(height, width);
+            needsInvalidate |= mLeftEdge.draw(canvas);
+            canvas.restoreToCount(restoreCount);
+        }
+        if (!mRightEdge.isFinished()) {
+            final int restoreCount = canvas.save();
+            final int width = getWidth();
+            final int height = getHeight() - getPaddingTop() - getPaddingBottom();
+
+            canvas.rotate(90);
+            canvas.translate(-getPaddingTop(), -(mLastOffset + 1) * width);
+            mRightEdge.setSize(height, width);
+            needsInvalidate |= mRightEdge.draw(canvas);
+            canvas.restoreToCount(restoreCount);
+        }
+    } else {
+        mLeftEdge.finish();
+        mRightEdge.finish();
+    }
+
+    if (needsInvalidate) {
+        // Keep animating
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+}
+</code></pre><p>我们看我全部，发现它只是对左右边缘效果进行处理 。<br>我们在水平滑动到左边缘和右边缘的时候，我们可以看到一个半透明的东西，就像那个listview下拉的时候，顶部有一个东西表示到顶了。这个可以抽出来用在别的地方，哈。</p>
+<h2 id="onDraw-Canvas-canvas"><a href="#onDraw-Canvas-canvas" class="headerlink" title="onDraw(Canvas canvas)"></a>onDraw(Canvas canvas)</h2><pre><code>@Override
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+
+    // Draw the margin drawable between pages if needed.
+    if (mPageMargin &gt; 0 &amp;&amp; mMarginDrawable != null &amp;&amp; mItems.size() &gt; 0 &amp;&amp; mAdapter != null) {
+        final int scrollX = getScrollX();
+        final int width = getWidth();
+
+        final float marginOffset = (float) mPageMargin / width;
+        int itemIndex = 0;
+        ItemInfo ii = mItems.get(0);
+        float offset = ii.offset;
+        final int itemCount = mItems.size();
+        final int firstPos = ii.position;
+        final int lastPos = mItems.get(itemCount - 1).position;
+        for (int pos = firstPos; pos &lt; lastPos; pos++) {
+            while (pos &gt; ii.position &amp;&amp; itemIndex &lt; itemCount) {
+                ii = mItems.get(++itemIndex);
+            }
+
+            float drawAt;
+            if (pos == ii.position) {
+                drawAt = (ii.offset + ii.widthFactor) * width;
+                offset = ii.offset + ii.widthFactor + marginOffset;
+            } else {
+                float widthFactor = mAdapter.getPageWidth(pos);
+                drawAt = (offset + widthFactor) * width;
+                offset += widthFactor + marginOffset;
+            }
+
+            if (drawAt + mPageMargin &gt; scrollX) {
+                mMarginDrawable.setBounds(Math.round(drawAt), mTopPageBounds,
+                        Math.round(drawAt + mPageMargin), mBottomPageBounds);
+                mMarginDrawable.draw(canvas);
+            }
+
+            if (drawAt &gt; scrollX + width) {
+                break; // No more visible, no sense in continuing
+            }
+        }
+    }
+}
+</code></pre><p><code>onDraw</code>只是绘画了页面的间隔效果。</p>
+<h1 id="两个常用操作"><a href="#两个常用操作" class="headerlink" title="两个常用操作"></a>两个常用操作</h1><h1 id="setAdapter-PagerAdapter-adapter"><a href="#setAdapter-PagerAdapter-adapter" class="headerlink" title="setAdapter(PagerAdapter adapter)"></a>setAdapter(PagerAdapter adapter)</h1><pre><code>/**
+ * Set a PagerAdapter that will supply views for this pager as needed.
+ *
+ * @param adapter Adapter to use
+ */
+public void setAdapter(PagerAdapter adapter) {
+
+    if (mAdapter != null) {
+        mAdapter.setViewPagerObserver(null);
+        mAdapter.startUpdate(this);
+        for (int i = 0; i &lt; mItems.size(); i++) {
+            final ItemInfo ii = mItems.get(i);
+            mAdapter.destroyItem(this, ii.position, ii.object);
+        }
+        mAdapter.finishUpdate(this);
+        mItems.clear();
+        removeNonDecorViews();
+        mCurItem = 0;
+        scrollTo(0, 0);
+    }
+</code></pre><p>如果原来就有设置adapter的话，是会先清空旧的观察者，然后这个<code>startUpdate</code>函数，目前在FSPA和FPA里面都是没有用到，里面代码都为空，他的作用在官方的文档里面写的是<code>Called when a change in the shown pages is going to start being made.</code>。然后调用adapter的destroyItem，去销毁所有的item。对应的下面那个finishUpdate函数，我们看下官方的注释内容如下 </p>
+<blockquote>
+<p>Called when the a change in the shown pages has been completed.  At this<br>point you must ensure that all of the pages have actually been added or<br>removed from the container as appropriate.<br>所以这个是在告诉adaper一些添加/移除改动结束用的。</p>
+</blockquote>
+<p>做完上面的移除旧adapter工作后，后面对应的操作是否会合上面的有一个对应的类似操作呢？<br>毕竟销毁和创建总是搭配出现的。</p>
+<pre><code>final PagerAdapter oldAdapter = mAdapter;
+mAdapter = adapter;
+mExpectedAdapterCount = 0;
+
+if (mAdapter != null) {
+    if (mObserver == null) {
+        mObserver = new PagerObserver();
+    }
+    mAdapter.setViewPagerObserver(mObserver);//
+    mPopulatePending = false;
+    final boolean wasFirstLayout = mFirstLayout;
+    mFirstLayout = true;
+    mExpectedAdapterCount = mAdapter.getCount();
+    if (mRestoredCurItem &gt;= 0) {
+        mAdapter.restoreState(mRestoredAdapterState, mRestoredClassLoader);
+        setCurrentItemInternal(mRestoredCurItem, false, true);
+        mRestoredCurItem = -1;
+        mRestoredAdapterState = null;
+        mRestoredClassLoader = null;
+        //关于这个mResotredCurItem是在viewpager自己的onRestoreInstanceState记录的，
+        //如果恢复有这个值就继续调到对应页面,当然，如果是第一次设置，这个值不是&gt;=0，
+        //所以不走这条路径
+
+    } else if (!wasFirstLayout) {
+        populate();
+    } else {
+        requestLayout();
+    }
+}
+</code></pre><p>关于这个wasFirstLayout，他的默认是true，然后在<code>onAttachedToWindow</code>里面也是再次设置为true。<br>只有在<code>onLayout</code>的时候设为false；<br>关于这个populaite很长，我们后面再慢慢看下<br>整个函数最后就是这个接口更新</p>
+<pre><code>    if (mAdapterChangeListener != null &amp;&amp; oldAdapter != adapter) {
+        mAdapterChangeListener.onAdapterChanged(oldAdapter, adapter);
+    }
+}
+</code></pre><h2 id="populate"><a href="#populate" class="headerlink" title="populate"></a>populate</h2><p>这函数这么长，居然没在开头加注释，说下这函数是刚什么鬼的</p>
+<pre><code>  void populate() {
+    populate(mCurItem);//默认0
+}
+
+void populate(int newCurrentItem) {
+    ItemInfo oldCurInfo = null;
+    if (mCurItem != newCurrentItem) {//相等，跳过
+        oldCurInfo = infoForPosition(mCurItem);
+        mCurItem = newCurrentItem;
+    }
+
+    if (mAdapter == null) {   //不为空，跳过
+        sortChildDrawingOrder();
+        return;
+    }
+
+    // Bail now if we are waiting to populate.  This is to hold off
+    // on creating views from the time the user releases their finger to
+    // fling to a new position until we have finished the scroll to
+    // that position, avoiding glitches from happening at that point.        
+    if (mPopulatePending) {//在前面setAdapter里面mPopulatePending = false;
+        if (DEBUG) Log.i(TAG, &quot;populate is pending, skipping for now...&quot;);
+        sortChildDrawingOrder();
+        return;
+    }
+
+    // Also, don&apos;t populate until we are attached to a window.  This is to
+    // avoid trying to populate before we have restored our view hierarchy
+    // state and conflicting with what is restored.
+    if (getWindowToken() == null) {
+        return;
+    }
+
+    mAdapter.startUpdate(this);
+    //看到熟悉的一句，开始做一些操作的标记
+
+
+    final int pageLimit = mOffscreenPageLimit;
+    final int startPos = Math.max(0, mCurItem - pageLimit);
+    final int N = mAdapter.getCount();
+    final int endPos = Math.min(N-1, mCurItem + pageLimit);
+
+    //在继续之前他会做多判断，看数目和在setAdaper时候数目是否一样，变了就报错
+    if (N != mExpectedAdapterCount) {
+        String resName;
+        try {
+            resName = getResources().getResourceName(getId());
+        } catch (Resources.NotFoundException e) {
+            resName = Integer.toHexString(getId());
+        }
+        throw new IllegalStateException(&quot;The application&apos;s PagerAdapter changed the adapter&apos;s&quot; +
+                &quot; contents without calling PagerAdapter#notifyDataSetChanged!&quot; +
+                &quot; Expected adapter item count: &quot; + mExpectedAdapterCount + &quot;, found: &quot; + N +
+                &quot; Pager id: &quot; + resName +
+                &quot; Pager class: &quot; + getClass() +
+                &quot; Problematic adapter: &quot; + mAdapter.getClass());
+    }
+
+    // Locate the currently focused item or add it if needed.
+    int curIndex = -1;
+    ItemInfo curItem = null;
+
+    //前面并没往mItems添加过内容，所以循环不执行                
+    for (curIndex = 0; curIndex &lt; mItems.size(); curIndex++) {
+        final ItemInfo ii = mItems.get(curIndex);
+        if (ii.position &gt;= mCurItem) {
+            if (ii.position == mCurItem) curItem = ii;
+            break;
+        }
+    }        
+
+    if (curItem == null &amp;&amp; N &gt; 0) {
+        curItem = addNewItem(mCurItem, curIndex);
+    }
+</code></pre><p>然后这个addNewItem函数的内容，就是构建一个结构，记录了对应的position和object信息与宽度。<br>最后加mItems里面。我们看到的是这个函数里面调用了<code>mAdapter.instantiateItem(）</code>去初始化了我们的第一个页面，因为传过来的position就是0；整个viewpagr里面就这里有去调用<code>instantiateItem(）</code></p>
+<h3 id="addNewItem"><a href="#addNewItem" class="headerlink" title="addNewItem"></a>addNewItem</h3><pre><code>ItemInfo addNewItem(int position, int index) {
+
+        ItemInfo ii = new ItemInfo();
+        ii.position = position;
+        ii.object = mAdapter.instantiateItem(this, position);
+        ii.widthFactor = mAdapter.getPageWidth(position);
+        if (index &lt; 0 || index &gt;= mItems.size()) {
+            mItems.add(ii);
+        } else {
+            mItems.add(index, ii);
+        }
+        return ii;
+}
+</code></pre><p>继续看下面的内容，这作者就不能把这堆代码分几个函数出来吗？这么长</p>
+<pre><code>// Fill 3x the available width or up to the number of offscreen
+// pages requested to either side, whichever is larger.
+// If we have no current item we have no work to do.
+if (curItem != null) {
+    float extraWidthLeft = 0.f;
+    int itemIndex = curIndex - 1;
+    ItemInfo ii = itemIndex &gt;= 0 ? mItems.get(itemIndex) : null;
+    //我们的curIndex为0,所以ii为null，这个重命名成preNode才感觉妥当            
+    final int clientWidth = getClientWidth();
+    // clientWidth=getMeasuredWidth()-getPaddingLeft()-getPaddingRight();
+
+    final float leftWidthNeeded = clientWidth &lt;= 0 ? 0 :
+            2.f - curItem.widthFactor + (float) getPaddingLeft() / (float) clientWidth;
+    //2.F一个magic number。。。不知道什么意思
+    //这个widthFActor是1.f，在addNewItem(）里面返回的
+
+
+    for (int pos = mCurItem - 1; pos &gt;= 0; pos--) {
+    //下面这一堆主要是根据当前的位置和 最多有效页面数 ，来销毁页面也新建页面  
+        if (extraWidthLeft &gt;= leftWidthNeeded &amp;&amp; pos &lt; startPos) {
+            if (ii == null) {
+                break;
+            }
+            if (pos == ii.position &amp;&amp; !ii.scrolling) {
+                mItems.remove(itemIndex);
+                mAdapter.destroyItem(this, pos, ii.object);                         
+                itemIndex--;
+                curIndex--;
+                ii = itemIndex &gt;= 0 ? mItems.get(itemIndex) : null;
+            }
+        } else if (ii != null &amp;&amp; pos == ii.position) {
+            extraWidthLeft += ii.widthFactor;
+            itemIndex--;
+            ii = itemIndex &gt;= 0 ? mItems.get(itemIndex) : null;
+        } else {
+            ii = addNewItem(pos, itemIndex + 1);
+            extraWidthLeft += ii.widthFactor;
+            curIndex++;
+            ii = itemIndex &gt;= 0 ? mItems.get(itemIndex) : null;
+        }
+    }
+
+    float extraWidthRight = curItem.widthFactor;
+    itemIndex = curIndex + 1;
+    if (extraWidthRight &lt; 2.f) {
+        ii = itemIndex &lt; mItems.size() ? mItems.get(itemIndex) : null;
+        final float rightWidthNeeded = clientWidth &lt;= 0 ? 0 :
+                (float) getPaddingRight() / (float) clientWidth + 2.f;
+        for (int pos = mCurItem + 1; pos &lt; N; pos++) {
+            if (extraWidthRight &gt;= rightWidthNeeded &amp;&amp; pos &gt; endPos) {
+                if (ii == null) {
+                    break;
+                }
+                if (pos == ii.position &amp;&amp; !ii.scrolling) {
+                    mItems.remove(itemIndex);
+                    mAdapter.destroyItem(this, pos, ii.object);                            
+                    ii = itemIndex &lt; mItems.size() ? mItems.get(itemIndex) : null;
+                }
+            } else if (ii != null &amp;&amp; pos == ii.position) {
+                extraWidthRight += ii.widthFactor;
+                itemIndex++;
+                ii = itemIndex &lt; mItems.size() ? mItems.get(itemIndex) : null;
+            } else {
+                ii = addNewItem(pos, itemIndex);
+                itemIndex++;
+                extraWidthRight += ii.widthFactor;
+                ii = itemIndex &lt; mItems.size() ? mItems.get(itemIndex) : null;
+            }
+        }
+    }
+
+    calculatePageOffsets(curItem, curIndex, oldCurInfo);
+    // 计算页面的偏移量,主要是ItemInfo里面的信息，很长，就不贴上来了
+}
+
+...
+//设置当前的可见item为哪一个
+mAdapter.setPrimaryItem(this, mCurItem, curItem != null ? curItem.object : null);
+//在做延迟加载功能时候，我们有需要用到Fragment的setUserVisibleHint函数的回调。
+</code></pre><p>具体的代码想下面这样</p>
+<h3 id="setPrimaryItem"><a href="#setPrimaryItem" class="headerlink" title="setPrimaryItem"></a>setPrimaryItem</h3><pre><code>@Override
+public void setPrimaryItem(ViewGroup container, int position, Object object) {
+    Fragment fragment = (Fragment)object;
+    if (fragment != mCurrentPrimaryItem) {
+        if (mCurrentPrimaryItem != null) {
+            mCurrentPrimaryItem.setMenuVisibility(false);
+            mCurrentPrimaryItem.setUserVisibleHint(false);
+        }
+        if (fragment != null) {
+            fragment.setMenuVisibility(true);
+            fragment.setUserVisibleHint(true);
+        }
+        mCurrentPrimaryItem = fragment;
+    }
+}
+</code></pre><p>继续回主线</p>
+<pre><code>    mAdapter.finishUpdate(this);//我们看下面这句表示了结束操作
+
+    // Check width measurement of current pages and drawing sort order.
+    // Update LayoutParams as needed.
+    final int childCount = getChildCount();
+    for (int i = 0; i &lt; childCount; i++) {
+        final View child = getChildAt(i);
+        final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        lp.childIndex = i;
+        if (!lp.isDecor &amp;&amp; lp.widthFactor == 0.f) {
+            // 0 means requery the adapter for this, it doesn&apos;t have a valid width.
+            final ItemInfo ii = infoForChild(child);
+            if (ii != null) {
+                lp.widthFactor = ii.widthFactor;
+                lp.position = ii.position;
+            }
+        }
+    }
+    sortChildDrawingOrder();
+
+    if (hasFocus()) {
+        View currentFocused = findFocus();
+        ItemInfo ii = currentFocused != null ? infoForAnyChild(currentFocused) : null;
+        if (ii == null || ii.position != mCurItem) {
+            for (int i=0; i&lt;getChildCount(); i++) {
+                View child = getChildAt(i);
+                ii = infoForChild(child);
+                if (ii != null &amp;&amp; ii.position == mCurItem){
+                    if (child.requestFocus(View.FOCUS_FORWARD)) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre><h3 id="sortChildDrawingOrder"><a href="#sortChildDrawingOrder" class="headerlink" title="sortChildDrawingOrder()"></a>sortChildDrawingOrder()</h3><pre><code>  private void sortChildDrawingOrder() {
+    //我们并没有设置pageTranstramer，所以默认为default，判断为false，不执行。
+    if (mDrawingOrder != DRAW_ORDER_DEFAULT) {
+        if (mDrawingOrderedChildren == null) {
+            mDrawingOrderedChildren = new ArrayList&lt;View&gt;();
+        } else {
+            mDrawingOrderedChildren.clear();
+        }
+        final int childCount = getChildCount();
+        for (int i = 0; i &lt; childCount; i++) {
+            final View child = getChildAt(i);
+            mDrawingOrderedChildren.add(child);
+        }
+        Collections.sort(mDrawingOrderedChildren, sPositionComparator);
+    }
+}
+</code></pre><p>以上我们简单的快速的看了下这个设置adapter的内容，我们现在来看下我们手动设置具体页面的时候，都经过什么样的逻辑代码</p>
+<h1 id="setCurrentItem-int-item"><a href="#setCurrentItem-int-item" class="headerlink" title="setCurrentItem(int item)"></a>setCurrentItem(int item)</h1><pre><code>public void setCurrentItem(int item) {
+        mPopulatePending = false;
+        setCurrentItemInternal(item, !mFirstLayout, false);
+    }
+
+void setCurrentItemInternal(int item, boolean smoothScroll, boolean always) {
+        setCurrentItemInternal(item, smoothScroll, always, 0);
+    }
+
+     void setCurrentItemInternal(int item, boolean smoothScroll, boolean always, int velocity) {
+    if (mAdapter == null || mAdapter.getCount() &lt;= 0) {
+        setScrollingCacheEnabled(false);
+        return;
+    }
+    if (!always &amp;&amp; mCurItem == item &amp;&amp; mItems.size() != 0) {
+        setScrollingCacheEnabled(false);
+        return;
+    }
+
+    if (item &lt; 0) {
+        item = 0;
+    } else if (item &gt;= mAdapter.getCount()) {
+        item = mAdapter.getCount() - 1;
+    }
+    final int pageLimit = mOffscreenPageLimit;
+</code></pre><p>这个mOffscreenPageLimit默认为1；我们可以通过setOffscreenPageLimit（）函数来另外的设置这个值的大小，主要就是缓存的页面大小</p>
+<pre><code>    if (item &gt; (mCurItem + pageLimit) || item &lt; (mCurItem - pageLimit)) {
+        // We are doing a jump by more than one page.  To avoid
+        // glitches, we want to keep all current pages in the view
+        // until the scroll ends.
+        for (int i=0; i&lt;mItems.size(); i++) {
+            mItems.get(i).scrolling = true;
+        }
+    }
+    final boolean dispatchSelected = mCurItem != item;
+
+    if (mFirstLayout) {
+        // We don&apos;t have any idea how big we are yet and shouldn&apos;t have any pages either.
+        // Just set things up and let the pending layout handle things.
+        mCurItem = item;
+        if (dispatchSelected) {
+            dispatchOnPageSelected(item);
+        }
+        requestLayout();
+    } else {
+        populate(item);
+        scrollToItem(item, smoothScroll, velocity, dispatchSelected);
+    }
+}
+</code></pre><p>看我这部分，我们必要去看下他对于touch事件的处理。</p>
+<h1 id="事件分发"><a href="#事件分发" class="headerlink" title="事件分发"></a>事件分发</h1><p>事件分发都是三步走的套路，一个<code>dispatchTouchEvent()</code> ，<code>onInterceptTouchEvent()</code>和一个<code>onTouchEvent()</code>；不过这里他没重写这个dispatchTouchEvent，因为他是直接继承与ViewGroup的，只有后面两个，所以我们来看下后面两个的吧</p>
+<h2 id="onInterceptTouchEvent"><a href="#onInterceptTouchEvent" class="headerlink" title="onInterceptTouchEvent()"></a>onInterceptTouchEvent()</h2><p>关于拦截，一个点就是根据判断，看要不要处理这个点，对这个点做拦截，所以我们逻辑应该是看下对这个的判断逻辑是什么。</p>
+<pre><code>@Override
+public boolean onInterceptTouchEvent(MotionEvent ev) {
+    /*
+     * This method JUST determines whether we want to intercept the motion.
+     * If we return true, onMotionEvent will be called and we do the actual
+     * scrolling there.
+     */
+    final int action = ev.getAction() &amp; MotionEvent.ACTION_MASK;
+</code></pre><p>原本也打算写下这个MotionEvent的介绍，不过前段时间都没太大的动力，<br>配套的一个demo案例<a href="https://github.com/Sanjay-F/PullToZoomInListView" target="_blank" rel="noopener">PullToZoomInListView</a>都上传好了，就是没开动，看哪天有想法再写吧。</p>
+<pre><code>// Always take care of the touch gesture being complete.
+if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+    // Release the drag.
+    if (DEBUG) Log.v(TAG, &quot;Intercept done!&quot;);
+    mIsBeingDragged = false;
+    mIsUnableToDrag = false;
+    mActivePointerId = INVALID_POINTER;
+    if (mVelocityTracker != null) {
+        mVelocityTracker.recycle();
+        mVelocityTracker = null;
+    }
+    return false;
+}
+
+// Nothing more to do here if we have decided whether or not we
+// are dragging.
+if (action != MotionEvent.ACTION_DOWN) {
+    if (mIsBeingDragged) { 
+        return true;
+    }
+    if (mIsUnableToDrag) { 
+        return false;
+    }
+}
+
+switch (action) {
+
+     case MotionEvent.ACTION_DOWN: {
+        /*
+         * Remember location of down touch.
+         * ACTION_DOWN always refers to pointer index 0.
+         */
+        mLastMotionX = mInitialMotionX = ev.getX();
+        mLastMotionY = mInitialMotionY = ev.getY();
+        mActivePointerId = ev.getPointerId(0);
+        mIsUnableToDrag = false;
+
+        mScroller.computeScrollOffset();
+        if (mScrollState == SCROLL_STATE_SETTLING &amp;&amp;                
+            Math.abs(mScroller.getFinalX()-mScroller.getCurrX())&gt;mCloseEnough){
+</code></pre><p>默认的初始化时idle状态，private int mScrollState = SCROLL_STATE_IDLE;</p>
+<p>然后这个mCloseEnough就是2个dp的距离<br>private static final int CLOSE_ENOUGH = 2; // dp<br>final float density = context.getResources().getDisplayMetrics().density;<br>mCloseEnough = (int) (CLOSE_ENOUGH * density);</p>
+<pre><code>// Let the user &apos;catch&apos; the pager as it animates.
+mScroller.abortAnimation();
+mPopulatePending = false;
+populate();
+//这个函数我们在前面已经知道了，就是new一个页面出来。
+
+mIsBeingDragged = true;//通过这个标记，在开头的判断条件就帮助我们提前返回了
+
+//要求parent不要拦截事件
+requestParentDisallowInterceptTouchEvent(true);
+//更新状态为Dragging
+setScrollState(SCROLL_STATE_DRAGGING);
+</code></pre><p>看完这部分，主要就是在滑动这个ViewPager的时候，我们把手指放上去，这时候能够定住页面，不要让他再滚动下去了。</p>
+<pre><code>            } else {
+                completeScroll(false);
+                mIsBeingDragged = false;
+            }
+            break;
+        }
+
+
+        case MotionEvent.ACTION_MOVE: {
+
+            final int activePointerId = mActivePointerId;
+            if (activePointerId == INVALID_POINTER) {
+                break;
+            }
+
+            final int pointerIndex = ev.findPointerIndex(activePointerId);
+            final float x = ev.getX(pointerIndex);
+            final float dx = x - mLastMotionX;
+            final float xDiff = Math.abs(dx);
+            final float y = ev.getY(pointerIndex);
+            final float yDiff = Math.abs(y - mInitialMotionY);
+
+            if (dx != 0 &amp;&amp; !isGutterDrag(mLastMotionX, dx) &amp;&amp;
+                    canScroll(this, false, (int) dx, (int) x, (int) y)) {
+             //由于嵌套的View在这个位置是可以滑动的，所以我们不拦截他，
+             //例如有一个水平滑动的listview之类结构
+                 mLastMotionX = x;
+                mLastMotionY = y;
+                mIsUnableToDrag = true;
+                return false;
+            }
+
+            if (xDiff &gt; mTouchSlop &amp;&amp; xDiff * 0.5f &gt; yDiff) {
+                //这个就是我们的拦截判断逻辑条件，
+                //根据滑动的时候水平方向和垂直方向的滑动大小
+
+                mIsBeingDragged = true;
+                requestParentDisallowInterceptTouchEvent(true);
+                setScrollState(SCROLL_STATE_DRAGGING);
+                mLastMotionX = dx &gt; 0 ? mInitialMotionX + mTouchSlop :
+                        mInitialMotionX - mTouchSlop;
+                mLastMotionY = y;
+                setScrollingCacheEnabled(true);
+            } else if (yDiff &gt; mTouchSlop) {
+                mIsUnableToDrag = true;
+            }
+
+            if (mIsBeingDragged) {
+                // Scroll to follow the motion event
+                if (performDrag(x)) {
+                    //这个函数主要就是根据当前的x去处理下那个边缘效果
+
+                    postInvalidateOnAnimation();
+                }
+            }
+            break;
+        }
+
+
+
+        case MotionEvent.ACTION_POINTER_UP:
+            onSecondaryPointerUp(ev);
+            break;
+    }
+
+    if (mVelocityTracker == null) {
+        mVelocityTracker = VelocityTracker.obtain();
+    }
+    mVelocityTracker.addMovement(ev);
+
+    return mIsBeingDragged;
+}
+</code></pre><h2 id="onTouchEvent"><a href="#onTouchEvent" class="headerlink" title="onTouchEvent()"></a>onTouchEvent()</h2><pre><code>@Override
+public boolean onTouchEvent(MotionEvent ev) {
+    if (ev.getAction() == MotionEvent.ACTION_DOWN &amp;&amp; ev.getEdgeFlags() != 0) {
+        // Don&apos;t handle edge touches immediately -- 
+        //they may actually belong to one of our descendants.
+        //注释说的是对于边缘的点，有可能是自己的child的 ，所以自己不立马处理，返回false
+        return false;
+    }
+
+    if (mAdapter == null || mAdapter.getCount() == 0) {
+        // Nothing to present or scroll; nothing to touch.
+        return false;
+    }
+
+    if (mVelocityTracker == null) {
+        mVelocityTracker = VelocityTracker.obtain();
+    }
+    mVelocityTracker.addMovement(ev);
+
+    final int action = ev.getAction();
+    boolean needsInvalidate = false;
+
+    //接下来我们看下对于不同action的处理
+
+    switch (action &amp; MotionEvent.ACTION_MASK) {
+        case MotionEvent.ACTION_DOWN: {
+        //对于down事件，也是常规的处理，暂停滚动，标记坐标信息
+            mScroller.abortAnimation();
+            mPopulatePending = false;
+            populate();
+
+            // Remember where the motion event started
+            mLastMotionX = mInitialMotionX = ev.getX();
+            mLastMotionY = mInitialMotionY = ev.getY();
+            mActivePointerId = ev.getPointerId(0);
+            break;
+        }
+
+        //对于move时间，它根据Drag分成两部分
+
+        case MotionEvent.ACTION_MOVE:
+            if (!mIsBeingDragged) {
+                final int pointerIndex = ev.findPointerIndex(mActivePointerId);
+                final float x = ev.getX(pointerIndex);
+                final float xDiff = Math.abs(x - mLastMotionX);
+                final float y = ev.getY(pointerIndex);
+                final float yDiff = Math.abs(y - mLastMotionY);
+
+                if (xDiff &gt; mTouchSlop &amp;&amp; xDiff &gt; yDiff) { 
+                    //和在拦截的时候类似的套路，没什么好说的
+
+                    mIsBeingDragged = true;
+                    requestParentDisallowInterceptTouchEvent(true);
+                    mLastMotionX = x - mInitialMotionX &gt; 0 ? 
+                                   mInitialMotionX + mTouchSlop :                                           
+                                    mInitialMotionX - mTouchSlop;
+
+                    mLastMotionY = y;
+                    setScrollState(SCROLL_STATE_DRAGGING);
+                    setScrollingCacheEnabled(true);
+
+                    //这个预防万一，感觉也是怪怪的，估计是曾经出过什么错误，没找出来，
+                    //发现在这里加多一句妥当
+
+                    // Disallow Parent Intercept, just in case
+                    ViewParent parent = getParent();
+                    if (parent != null) {
+                        parent.requestDisallowInterceptTouchEvent(true);
+                    }
+                }
+            }
+
+             //这个没写成else状态，因为上面代码会存在标记为true的可能！
+            if (mIsBeingDragged) {
+                // Scroll to follow the motion event
+                final int activePointerIndex = ev.findPointerIndex(
+                                mActivePointerId);
+
+                final float x = ev.getX(activePointerIndex);
+                needsInvalidate |= performDrag(x);
+            }                
+            break;
+
+
+        关于up事件，也是一些常规操作，计算当前页面，恢复状态，释放那个边缘效果，刷新界面
+        case MotionEvent.ACTION_UP:
+            if (mIsBeingDragged) {
+                final VelocityTracker velocityTracker = mVelocityTracker;
+                velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
+                final int initialVelocity = (int) velocityTracker.getXVelocity(
+                                            mActivePointerId);
+                mPopulatePending = true;
+
+                final float scrollStart = getScrollStart();
+                final float scrolledPages = scrollStart / getPaddedWidth();
+                final ItemInfo ii = infoForFirstVisiblePage();
+                final int currentPage = ii.position;
+                final float nextPageOffset;
+                if (isLayoutRtl()) {
+                    nextPageOffset = (ii.offset - scrolledPages) / ii.widthFactor;
+                }  else {
+                    nextPageOffset = (scrolledPages - ii.offset) / ii.widthFactor;
+                }
+
+                final int activePointerIndex = ev.findPointerIndex(
+                                                mActivePointerId);
+
+                final float x = ev.getX(activePointerIndex);
+                final int totalDelta = (int) (x - mInitialMotionX);
+                //计算当前应该显示那个页面，例如我们滑动超过40%时候，认为要滑倒下一页
+                final int nextPage = determineTargetPage(
+                        currentPage, nextPageOffset, initialVelocity, totalDelta);
+
+                setCurrentItemInternal(nextPage, true, true, initialVelocity);
+
+                mActivePointerId = INVALID_POINTER;
+                endDrag();
+                mLeftEdge.onRelease();
+                mRightEdge.onRelease();
+                needsInvalidate = true;
+            }
+            break;
+
+
+        case MotionEvent.ACTION_CANCEL:
+            if (mIsBeingDragged) {
+                scrollToItem(mCurItem, true, 0, false);
+                mActivePointerId = INVALID_POINTER;
+                endDrag();
+                mLeftEdge.onRelease();
+                mRightEdge.onRelease();
+                needsInvalidate = true;
+            }
+            break;
+
+        case MotionEvent.ACTION_POINTER_DOWN: {
+            final int index = ev.getActionIndex();
+            final float x = ev.getX(index);
+            mLastMotionX = x;
+            mActivePointerId = ev.getPointerId(index);
+            break;
+        }
+        case MotionEvent.ACTION_POINTER_UP:
+            onSecondaryPointerUp(ev);
+            mLastMotionX = ev.getX(ev.findPointerIndex(mActivePointerId));
+            break;
+    }
+    if (needsInvalidate) {
+        postInvalidateOnAnimation();
+    }
+    return true;
+}
+</code></pre><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这篇文章已经写得很长了，看了下有2万5的字数，对ViewPager的大部分内容我们是有一个大概的了解了。<br>原本也想写多关于FSPA和FPA的内容，不过好吃了还是算了把，单独起一篇来说</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/ViewPager/" rel="tag">#ViewPager</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" rel="prev">源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/18/关于压缩安装包大小问题/" rel="next">关于压缩安装包大小问题</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/08/29/源码探索系列42---关于ViewPager/"
+     data-title="源码探索系列42---关于ViewPager"
+     data-content=""
+     data-url="http://yoursite.com/2016/08/29/源码探索系列42---关于ViewPager/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/08/29/源码探索系列42---关于ViewPager/"
+                   data-title="源码探索系列42---关于ViewPager" data-url="http://yoursite.com/2016/08/29/源码探索系列42---关于ViewPager/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">105</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#三个绘制流程"><span class="nav-number">1.</span> <span class="nav-text">三个绘制流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#onMeasure"><span class="nav-number">1.1.</span> <span class="nav-text">onMeasure</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OnLayout"><span class="nav-number">1.2.</span> <span class="nav-text">OnLayout</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#scrollToItem"><span class="nav-number">1.2.1.</span> <span class="nav-text">scrollToItem</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#draw"><span class="nav-number">1.3.</span> <span class="nav-text">draw</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#onDraw-Canvas-canvas"><span class="nav-number">1.4.</span> <span class="nav-text">onDraw(Canvas canvas)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#两个常用操作"><span class="nav-number">2.</span> <span class="nav-text">两个常用操作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#setAdapter-PagerAdapter-adapter"><span class="nav-number">3.</span> <span class="nav-text">setAdapter(PagerAdapter adapter)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#populate"><span class="nav-number">3.1.</span> <span class="nav-text">populate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#addNewItem"><span class="nav-number">3.1.1.</span> <span class="nav-text">addNewItem</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#setPrimaryItem"><span class="nav-number">3.1.2.</span> <span class="nav-text">setPrimaryItem</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sortChildDrawingOrder"><span class="nav-number">3.1.3.</span> <span class="nav-text">sortChildDrawingOrder()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#setCurrentItem-int-item"><span class="nav-number">4.</span> <span class="nav-text">setCurrentItem(int item)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#事件分发"><span class="nav-number">5.</span> <span class="nav-text">事件分发</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#onInterceptTouchEvent"><span class="nav-number">5.1.</span> <span class="nav-text">onInterceptTouchEvent()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#onTouchEvent"><span class="nav-number">5.2.</span> <span class="nav-text">onTouchEvent()</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
