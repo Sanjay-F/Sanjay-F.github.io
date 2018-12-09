@@ -1,0 +1,978 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,JetPack,Lifecycle," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。 这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。  这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。 系列文章基本按照这">
+<meta name="keywords" content="android,JetPack,Lifecycle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JetPack源码探索系列1---Lifecycle">
+<meta property="og:url" content="http://yoursite.com/2018/08/23/JetPack源码探索系列1---Lifecycle/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。 这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。  这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。 系列文章基本按照这">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.imgur.com/aTR60lI.png">
+<meta property="og:image" content="https://i.imgur.com/XsXGMMy.png">
+<meta property="og:image" content="https://i.imgur.com/3b6jhWl.png">
+<meta property="og:image" content="https://i.imgur.com/940ECip.png">
+<meta property="og:updated_time" content="2018-12-09T05:20:49.492Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JetPack源码探索系列1---Lifecycle">
+<meta name="twitter:description" content="安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。 这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。  这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。 系列文章基本按照这">
+<meta name="twitter:image" content="https://i.imgur.com/aTR60lI.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> JetPack源码探索系列1---Lifecycle | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              JetPack源码探索系列1---Lifecycle
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-08-23T22:45:46+08:00" content="2018-08-23">
+            2018-08-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。</p>
+<p>这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。</p>
+<p><img src="https://i.imgur.com/aTR60lI.png" alt=""></p>
+<p>这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。</p>
+<p>系列文章基本按照这个列表的内容来做，对于基础包就不做过度描述，Appcompat最近运用于做一些转场动画，不过这个只针对5.0的贡献元素等的一次封装，没太大意义，就不管了，KTX是对kotlin的扩展使用，也不深入去说，Multidex这个都知道，只是挪过来放一起，就不去看了。</p>
+<p>所以这次的探索系列文章，主要针对<strong>架构</strong>这一列.先做记录，然后对UI，行为这块做些记录。像TV,Wear OS 这些选择看了即可，需要时候再看。<br>同时作为踩过dataBind的问题的人，现在对他是完全的嫌弃的，他带来太多的问题了。</p>
+<p>现在就开始从Lifecycles开始写起.点击more查看更多哦！</p>
+<a id="more"></a>
+<h1 id="LifeCycles"><a href="#LifeCycles" class="headerlink" title="LifeCycles"></a>LifeCycles</h1><p>早期开发安卓经常遇到一些生命周期的问题，例如要处理些在Fragment发起网络请求，接着Fragment被销毁，突然这时候请求回来了，这就往往容易出一堆的问题，为此我们可以使用LIfeCycle来做些处理</p>
+<p><strong>Lifecycles</strong>：生命周期感知组件，处理生命周期的相关的操作。Lifecycle 是一个类，它持有关于组件（如 Activity 或 Fragment）生命周期状态的信息，并且允许其他对象观察此状态。</p>
+<p>使用起来像下面的样子：</p>
+<pre><code>public interface IPresenter extends LifecycleObserver {
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    void onCreate(@NotNull LifecycleOwner owner);
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    void onDestroy(@NotNull LifecycleOwner owner);
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+    void onLifecycleChanged(@NotNull LifecycleOwner owner, @NotNull Lifecycle.Event event);
+}
+
+public class BasePresenter implements IPresenter {
+
+    private static final String TAG = &quot;BasePresenter&quot;;    
+
+    @Override
+    public void onLifecycleChanged(@NotNull LifecycleOwner owner, @NotNull Lifecycle.Event event) {
+
+    }
+
+    @Override
+    public void onCreate(@NotNull LifecycleOwner owner) {
+        Log.d(TAG, &quot;BasePresenter.onCreate&quot; + this.getClass().toString());
+    }
+
+    @Override
+    public void onDestroy(@NotNull LifecycleOwner owner) {
+        Log.d(TAG, &quot;BasePresenter.onDestroy&quot; + this.getClass().toString());
+    }
+}
+
+
+public class MainActivity extends AppCompatActivity {
+    private IPresenter mPresenter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState); 
+        setContentView(R.layout.activity_main);
+
+        mPresenter = new MainPresenter(this);
+        getLifecycle().addObserver(mPresenter);
+        //添加LifecycleObserver，之后会自动调用presenter里面对应的生命周期方法
+    } 
+}
+</code></pre><p>这个就像它自己说的，把一些模板代码给帮我们封装好了，但稍微成熟的app像这样的事情其实都做了，只是对于新开的项目可以尝试这些东西。</p>
+<p>基于上面的内容，我们可以先思考下，他到底是怎么做到生命周期的回调的？<br>我们看他是在方法前面加多注解的，依据我们看这么多年注解的框架来理解，有可能是APT那样的生成的新的代码，来帮我们做了这些事情，<br>要不是被系统识别到，自动调用。带着这个想法，我们开始看下源码，到底是怎么做到的？最后再贴UML图</p>
+<p>在详细看之前，我们先看下官方接口的文档说明：</p>
+<pre><code>Defines an object that has an Android Lifecycle. Fragment and FragmentActivity classes 
+implement LifecycleOwner interface which has the getLifecycle method to access the Lifecycle.
+You can also implement LifecycleOwner in your own classes.
+
+Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_START, Lifecycle.Event.ON_RESUME events
+in this class are dispatched after the LifecycleOwner&apos;s related method returns.
+
+ `==============注意上下两排的调用顺序区别====================`
+
+Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY events in this 
+class are dispatched before the LifecycleOwner&apos;s related method is called.  
+很好理解，初始化一些环节要想准备好我们才可以调用，
+销毁时候，我们是需要做提前的销毁操作，不然很多变量等信息就都没了啊。
+
+For instance, Lifecycle.Event.ON_START will be dispatched after onStart returns, 
+Lifecycle.Event.ON_STOP will be dispatched before onStop is called.
+This gives you certain guarantees on which state the owner is in.
+If you use Java 8 Language, then observe events with DefaultLifecycleObserver. 
+To include it you should add &quot;android.arch.lifecycle:common-java8:&lt;version&gt;&quot;
+to your build.gradle file.
+
+   class TestObserver implements DefaultLifecycleObserver {
+        @Override
+       public void onCreate(LifecycleOwner owner) {
+           // your code
+       }
+   }
+===注意下这里，对于java7的区别，现在为了上RX和lambada之类的，我们项目是已经升级Java到8了===
+
+If you use Java 7 Language, Lifecycle events are observed using annotations.
+Once Java 8 Language becomes mainstream on Android, annotations will be deprecated, 
+so between DefaultLifecycleObserver and annotations,
+you must always prefer DefaultLifecycleObserver.
+
+   class TestObserver implements LifecycleObserver {
+      @OnLifecycleEvent(ON_STOP)
+     void onStopped() {}
+   }
+
+Observer methods can receive zero or one argument. 
+If used, the first argument must be of type LifecycleOwner.
+Methods annotated with Lifecycle.Event.ON_ANY can receive the second argument, 
+which must be of type Lifecycle.Event.
+
+   class TestObserver implements LifecycleObserver {
+      @OnLifecycleEvent(ON_CREATE)
+     void onCreated(LifecycleOwner source) {}
+      @OnLifecycleEvent(ON_ANY)
+     void onAny(LifecycleOwner source, Event event) {}
+   }    
+</code></pre><p>个人就不翻译了，很简单，都看的懂,说到这里得提下，大部分框架在类文件的开头没写很多的注释，<br>说明整体的思虑设计之类信息，其实挺不友好的，久了自己也会忘记代码细节内容的<br>，后面接盘的人也难以快速的理解原本的思路。</p>
+<p>接下我们看具体实现</p>
+<pre><code>@Override
+public void addObserver(@NonNull LifecycleObserver observer) {
+
+    State initialState = mState == DESTROYED ? DESTROYED : INITIALIZED;        
+    ObserverWithState statefulObserver = new ObserverWithState(observer, initialState);
+    ObserverWithState previous = mObserverMap.putIfAbsent(observer, statefulObserver);
+
+    if (previous != null) {
+        return;
+    }
+
+    LifecycleOwner lifecycleOwner = mLifecycleOwner.get();
+    if (lifecycleOwner == null) {
+        // it is null we should be destroyed. Fallback quickly
+        return;
+    }
+
+    boolean isReentrance = mAddingObserverCounter != 0 || mHandlingEvent;
+    State targetState = calculateTargetState(observer);
+    mAddingObserverCounter++;
+    while ((statefulObserver.mState.compareTo(targetState) &lt; 0
+            &amp;&amp; mObserverMap.contains(observer))) {
+        pushParentState(statefulObserver.mState);
+        statefulObserver.dispatchEvent(lifecycleOwner, upEvent(statefulObserver.mState));
+        popParentState();
+        // mState / subling may have been changed recalculate
+        targetState = calculateTargetState(observer);
+    }
+
+    if (!isReentrance) {
+        // we do sync only on the top level.
+        sync();
+    }
+    mAddingObserverCounter--;
+}
+</code></pre><p>可以看到，根据observer和initialState构造ObserverWithState对象statefulObserver，<br>然后将该对象存入mObserverMap，可以简单的把它理解成用来保存观察者的Map。然后等到回到时候去查map来调用对应方法？</p>
+<p>现在我们看下怎么等到通知呢？其实在FragmentManager是可以收到对应的生命周期回到的，Activity也是类似的，就不贴了<br><img src="https://i.imgur.com/XsXGMMy.png" alt=""></p>
+<p>调用你这个performXXx函数然后呢？</p>
+<p><img src="https://i.imgur.com/3b6jhWl.png" alt=""><br>我们看到会去调用<code>handleLifecycleEvent（）</code><br>他的入口是这个</p>
+<pre><code> public void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
+        State next = getStateAfter(event);
+        moveToState(next);
+    }
+
+  static State getStateAfter(Event event) {
+    switch (event) {
+        case ON_CREATE:
+        case ON_STOP:
+            return CREATED;
+        case ON_START:
+        case ON_PAUSE:
+            return STARTED;
+        case ON_RESUME:
+            return RESUMED;
+        case ON_DESTROY:
+            return DESTROYED;
+        case ON_ANY:
+            break;
+    }
+    throw new IllegalArgumentException(&quot;Unexpected event value &quot; + event);
+}
+</code></pre><p>读取到对应的状态，然后到下个状态，像个状态机一样的</p>
+<pre><code>private void moveToState(State next) {
+    if (mState == next) {
+        return;
+    }
+    mState = next;    //赋值刷新当前的状态为新状态!
+
+    if (mHandlingEvent || mAddingObserverCounter != 0) {
+        mNewEventOccurred = true;
+        // we will figure out what to do on upper level.
+        return;
+    }
+    mHandlingEvent = true;
+    sync();
+    mHandlingEvent = false;
+}    
+</code></pre><p>关键在Sync方法，我们去看下</p>
+<pre><code>// happens only on the top of stack (never in reentrance),
+// so it doesn&apos;t have to take in account parents
+private void sync() {
+    LifecycleOwner lifecycleOwner = mLifecycleOwner.get();
+    if (lifecycleOwner == null) {
+        Log.w(LOG_TAG, &quot;LifecycleOwner is garbage collected, you shouldn&apos;t try dispatch &quot;
+                + &quot;new events from it.&quot;);
+        return;
+    }
+    while (!isSynced()) {
+        mNewEventOccurred = false;
+        // no need to check eldest for nullability, because isSynced does it for us.
+        if (mState.compareTo(mObserverMap.eldest().getValue().mState) &lt; 0) {
+            backwardPass(lifecycleOwner);
+        }
+        Entry&lt;LifecycleObserver, ObserverWithState&gt; newest = mObserverMap.newest();
+        if (!mNewEventOccurred &amp;&amp; newest != null
+                &amp;&amp; mState.compareTo(newest.getValue().mState) &gt; 0) {
+            forwardPass(lifecycleOwner);
+        }
+    }
+    mNewEventOccurred = false;
+}
+</code></pre><p>这里需要说下，这些状态是一堆枚举的变量，谷歌自己说要少用枚举，多用注解的使用方式。哎。弄了点小技巧，用枚举来做状态的计算，确定是<code>backwardPass</code>还是<code>forwardPass</code>往前</p>
+<pre><code>@SuppressWarnings(&quot;WeakerAccess&quot;)
+public enum Event {
+    /**
+     * Constant for onCreate event of the {@link LifecycleOwner}.
+     */
+    ON_CREATE,
+    /**
+     * Constant for onStart event of the {@link LifecycleOwner}.
+     */
+    ON_START,
+    /**
+     * Constant for onResume event of the {@link LifecycleOwner}.
+     */
+    ON_RESUME,
+    /**
+     * Constant for onPause event of the {@link LifecycleOwner}.
+     */
+    ON_PAUSE,
+    /**
+     * Constant for onStop event of the {@link LifecycleOwner}.
+     */
+    ON_STOP,
+    /**
+     * Constant for onDestroy event of the {@link LifecycleOwner}.
+     */
+    ON_DESTROY,
+    /**
+     * An {@link Event Event} constant that can be used to match all events.
+     */
+    ON_ANY
+}
+</code></pre><p>我们拿往前的代码看下：</p>
+<pre><code> private void forwardPass(LifecycleOwner lifecycleOwner) {
+    Iterator&lt;Entry&lt;LifecycleObserver, ObserverWithState&gt;&gt; ascendingIterator =
+            mObserverMap.iteratorWithAdditions();
+    while (ascendingIterator.hasNext() &amp;&amp; !mNewEventOccurred) {
+        Entry&lt;LifecycleObserver, ObserverWithState&gt; entry = ascendingIterator.next();
+        ObserverWithState observer = entry.getValue();
+        while ((observer.mState.compareTo(mState) &lt; 0 &amp;&amp; !mNewEventOccurred
+                &amp;&amp; mObserverMap.contains(entry.getKey()))) {
+            pushParentState(observer.mState);
+            observer.dispatchEvent(lifecycleOwner, upEvent(observer.mState));
+            popParentState();
+        }
+    }
+}
+</code></pre><p> 这里确实去走了一遍遍历map的结构！最后是去分发消息，这个也就很好的理解了。类似于EventBus的结构，注册保存到map，等消息来，遍历回调的过程。</p>
+<pre><code>static class ObserverWithState {
+    State mState;
+    GenericLifecycleObserver mLifecycleObserver;
+
+    ObserverWithState(LifecycleObserver observer, State initialState) {
+        mLifecycleObserver = Lifecycling.getCallback(observer);
+        mState = initialState;
+    }
+
+    void dispatchEvent(LifecycleOwner owner, Event event) {
+        State newState = getStateAfter(event);
+        mState = min(mState, newState);
+        mLifecycleObserver.onStateChanged(owner, event);
+        mState = newState;
+    }
+}
+</code></pre><p>看我整体我们也就明白了；</p>
+<p>贴一张别人的图，就不自己画了。</p>
+<p><img src="https://i.imgur.com/940ECip.png" alt=""></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/JetPack/" rel="tag">#JetPack</a>
+          
+            <a href="/tags/Lifecycle/" rel="tag">#Lifecycle</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/24/JetPack源码探索系列2---LiveData/" rel="prev">JetPack源码探索系列2---LiveData</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" rel="next">源码探索系列45---关于局域网播放与ServerSocket</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/"
+     data-title="JetPack源码探索系列1---Lifecycle"
+     data-content=""
+     data-url="http://yoursite.com/2018/08/23/JetPack源码探索系列1---Lifecycle/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/"
+                   data-title="JetPack源码探索系列1---Lifecycle" data-url="http://yoursite.com/2018/08/23/JetPack源码探索系列1---Lifecycle/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#LifeCycles"><span class="nav-number">1.</span> <span class="nav-text">LifeCycles</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

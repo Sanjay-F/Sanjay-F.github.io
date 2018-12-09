@@ -203,6 +203,372 @@
           
           
             
+              <a class="post-title-link" href="/2015/12/05/Android测试教程12--模拟读取的文件数据库/" itemprop="url">
+                Android测试教程12--模拟读取的文件/数据库
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-05T16:13:00+08:00" content="2015-12-05">
+            2015-12-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/05/Android测试教程12--模拟读取的文件数据库/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/05/Android测试教程12--模拟读取的文件数据库/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p> 有时我们需要对文件或数据库进行测试，但我们又不想破坏应用程序或设备原有的数据。<br>此时我们就需要一个Mock来替代他们，这里的Mock不是android.test.mock，<br>但也是android.test包下面的，<code>RenamingDelegatingContext</code>的类。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/05/Android测试教程12--模拟读取的文件数据库/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/04/Android测试教程11--Mock之mockito，异步测试/" itemprop="url">
+                Android测试教程11--Mock之mockito，异步测试
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-04T18:17:00+08:00" content="2015-12-04">
+            2015-12-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/04/Android测试教程11--Mock之mockito，异步测试/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/04/Android测试教程11--Mock之mockito，异步测试/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>#1. mockito是干什么的？</p>
+<p>Mock框架之一，其余的还有EasyMock，PowerMock等。</p>
+<blockquote>
+<p>Mock说白了就是打桩（Stub）或则模拟，当你调用一个不好在测试中创建的对象时，<br>Mock框架为你<strong>模拟</strong>一个和真实对象类似的替身来完成相应的行为</p>
+</blockquote>
+<p>就是利用他，我们可以创建一个傀儡，然后被mock的类要返回的数据我们都可以<strong>指定</strong>！<br>就像下面这样 :</p>
+<pre><code>User user = mock(User.class);
+when(user.getName(3)).thenReturn(&quot;张三&quot;);
+Log.e(TAG, &quot;name=&quot; + user.getName(3));
+assertEquals(&quot;张三&quot;, user.getName(3));
+</code></pre><p>我们mock了User这个类，要求他当被请求返回名字<code>getName()</code>的时候，就返回<code>张三</code></p>
+<p>很好懂吧？下面说点实际的运用</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/04/Android测试教程11--Mock之mockito，异步测试/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/03/Android测试教程10--monkey Test/" itemprop="url">
+                Android测试教程10--monkey Test
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-03T23:48:00+08:00" content="2015-12-03">
+            2015-12-03
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/03/Android测试教程10--monkey Test/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/03/Android测试教程10--monkey Test/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>#1，Monkey Test简介</p>
+<p>什么是monkey test？<br>如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。<br>是的，他的一大特色就是可以乱点一通！！！！！！！<br>就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！<br>所以简单说就是 <strong>“压力测试”</strong></p>
+<p><a href="http://developer.android.com/tools/help/monkey.html" target="_blank" rel="noopener">官方介绍文档地址，点这里</a></p>
+<p>那要准备点什么吗？</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/03/Android测试教程10--monkey Test/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/" itemprop="url">
+                Android测试教程9--聊聊配置测试环境的一些问题
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-03T18:09:00+08:00" content="2015-12-03">
+            2015-12-03
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>最近学测试的时候，遇到一些配置上的问题，在这里都写下来</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/03/Android测试教程9--聊聊配置测试环境的一些问题/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2015/12/03/源码探索系列0---微信抢红包插件原理解析/" itemprop="url">
                 源码探索系列0---微信抢红包插件原理解析
               </a>
@@ -284,365 +650,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/11/27/Android测试教程8--测试我们的Activity/" itemprop="url">
-                Android测试教程8--测试我们的Activity
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-11-27T11:31:00+08:00" content="2015-11-27">
-            2015-11-27
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/11/27/Android测试教程8--测试我们的Activity/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/27/Android测试教程8--测试我们的Activity/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>做安卓开发，怎能不测试下我们的Activity呢？<br>但实际的项目经验告诉我的直觉，这个测试真是因人而异啊。<br>为啥？</p>
-<ul>
-<li>有些人把网络请求直接写在Activity里面的</li>
-<li>有采用MVVM，MVP架构的</li>
-<li>有的把数据库操作部分直接写在Activity里面的</li>
-<li>还有各种乱七八糟的</li>
-</ul>
-<p>所以理解的Activity测试内容就给人不一样的感觉。<br>这里讲下一个特殊的测试类<code>ActivityUnitTestCase</code> </p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/27/Android测试教程8--测试我们的Activity/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/11/26/Android测试教程7--丢失/" itemprop="url">
-                Android测试教程7---丢失，待补充
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-11-26T23:11:00+08:00" content="2015-11-26">
-            2015-11-26
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/11/26/Android测试教程7--丢失/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/26/Android测试教程7--丢失/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody"><p> 我的这篇文章被CSDN吞了，找不回来了</p>
-</span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/11/26/Android测试教程6--测试我们的Application/" itemprop="url">
-                Android测试教程6--测试我们的Application
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-11-26T13:27:00+08:00" content="2015-11-26">
-            2015-11-26
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/11/26/Android测试教程6--测试我们的Application/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/26/Android测试教程6--测试我们的Application/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>有时候我们会继承我们的Application，然后在里面加多一些全局的设置，常量啊等等。</p>
-<p>那么该如何测试呢？<br>这里举一个简单的例子<br>来测试一下用SharedPreferences保存和读取数据。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/26/Android测试教程6--测试我们的Application/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/11/24/Android测试教程5--模拟键盘输入/" itemprop="url">
-                Android测试教程5--模拟键盘输入
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-11-24T11:35:00+08:00" content="2015-11-24">
-            2015-11-24
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/11/24/Android测试教程5--模拟键盘输入/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/24/Android测试教程5--模拟键盘输入/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 开发过程中，如何向需要输入字符串的输入框输入数据呢？<br> 最重要的语句如下：</p>
-<pre><code>ulPhoneET.requestFocus();
-sendKeys(&quot;1 8 8 1 2 3 4 5 6 7 8&quot;);
-</code></pre><p>先让输入框获得焦点，然后调用<code>sendKeys</code>输入我们想要的内容。<br>例如这里输入一个电话号码<code>18812345678</code>（请各个字用空格空开）</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/24/Android测试教程5--模拟键盘输入/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -681,7 +688,7 @@ sendKeys(&quot;1 8 8 1 2 3 4 5 6 7 8&quot;);
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">106</span>
+              <span class="site-state-item-count">110</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -695,7 +702,7 @@ sendKeys(&quot;1 8 8 1 2 3 4 5 6 7 8&quot;);
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-count">124</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

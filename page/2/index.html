@@ -203,6 +203,402 @@
           
           
             
+              <a class="post-title-link" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="url">
+                JetPack源码探索系列1---Lifecycle
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-08-23T22:45:46+08:00" content="2018-08-23">
+            2018-08-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。</p>
+<p>这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。</p>
+<p><img src="https://i.imgur.com/aTR60lI.png" alt=""></p>
+<p>这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。</p>
+<p>系列文章基本按照这个列表的内容来做，对于基础包就不做过度描述，Appcompat最近运用于做一些转场动画，不过这个只针对5.0的贡献元素等的一次封装，没太大意义，就不管了，KTX是对kotlin的扩展使用，也不深入去说，Multidex这个都知道，只是挪过来放一起，就不去看了。</p>
+<p>所以这次的探索系列文章，主要针对<strong>架构</strong>这一列.先做记录，然后对UI，行为这块做些记录。像TV,Wear OS 这些选择看了即可，需要时候再看。<br>同时作为踩过dataBind的问题的人，现在对他是完全的嫌弃的，他带来太多的问题了。</p>
+<p>现在就开始从Lifecycles开始写起.点击more查看更多哦！</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" itemprop="url">
+                源码探索系列45---关于局域网播放与ServerSocket
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-10-08T15:25:00+08:00" content="2016-10-08">
+            2016-10-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。</p>
+<p>整个局域网播放流畅主要是下面的流程</p>
+<pre><code>客户端 &lt;--- (socket通讯)---&gt;服务器&lt;---(smb协议)---&gt;某台局域网电脑
+</code></pre><p>我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这个服务器和播放器做通讯，根据播放器 发来的请求头的<code>range</code>（类似断点续成的原理），来加载特定的数据给播放器。<br>而服务器的数据是从某台局域网电脑上读取的啊，在windows上，有<code>smb</code>协议负责处理这部分内容，我们靠着这个smb协议去链接 <code>数据源</code> ，即某台有我们想要播放的视频的那台电脑。去加载播放器请求的内容，然后扔回给播放器。</p>
+<p>大致的流程就是上面这样。至于具体的代码细节，在下面给出demo</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/" itemprop="url">
+                源码探索系列44---关于AM的forceStopPackage
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-09-27T23:25:00+08:00" content="2016-09-27">
+            2016-09-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/27/源码探索系列44---关于AM的forceStopPackage/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>最近想寻找什么方法能够彻底的关闭别人的app！<br>这听起来就很流氓，居然是关闭别人的，而且还要是关闭 <code>前台进程（Foreground process)</code>，这想法真大胆。查了下目前的资料，</p>
+<ol>
+<li><p>类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。<br>按照我们熟悉的</p>
+</li>
+<li><p>forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并不能真的关闭第三方，别人的程序。另外AM还有别的方法听起来像可以关闭别人进程的，如<code>killBackgroundProcesses</code>，<code>removeTask</code>等。</p>
+</li>
+<li><p>Process.killProcess()<br>在process这个类里面，由几个方法可以调用去关闭，其中有一个的注释很有意思，打算贴出来。</p>
+<pre><code> /**
+ * @hide
+ * Private impl for avoiding a log message...  DO NOT USE without doing
+ * your own log, or the Android Illuminati （安卓光明会）will find you some night and beat you up.
+ * 这段注释很调皮😝，特拿出来哈
+ */
+public static final void killProcessQuiet(int pid) {
+    sendSignalQuiet(pid, SIGNAL_KILL);
+}
+
+public static final native void sendSignalQuiet(int pid, int signal);
+</code></pre></li>
+</ol>
+<p>对于上面的所有，这篇文章主要记录<code>forceStopPackage（）</code>背后执行的内容，别的方法之后再考虑写。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="url">
+                源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-09-09T13:11:00+08:00" content="2016-09-09">
+            2016-09-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>对于这两个adapter的区别，我们在对代码做一次遍历后给出</p>
+<p>为了便于沟通，我们把前者缩写成<code>FPA</code>,后者缩写成<code>FSPA</code></p>
+<p>现在我们先来看下简单的使用情况</p>
+<pre><code>public abstract class FragmentPagerAdapter extends PagerAdapter 
+public abstract class FragmentStatePagerAdapter extends PagerAdapter 
+</code></pre><p>通过这两个类的声明，我们知道他们都是继承与PagerAdapter的抽象类，需要实现两个接口</p>
+<pre><code>public abstract Fragment getItem(int position);
+//返回对应的position要展示的Fragment
+
+public abstract int getCount();
+//返回要展示的总fragment数目
+</code></pre><p>我想应该你有写过类似的代码，直接自己继承与PagerAdapter，然后重写多下面两个函数来创建/销毁界面</p>
+<pre><code>public Object instantiateItem(ViewGroup container, int position)
+public void destroyItem(ViewGroup container, int position, Object object)
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/08/29/源码探索系列42---关于ViewPager/" itemprop="url">
                 源码探索系列42---关于ViewPager
               </a>
@@ -283,371 +679,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/07/18/关于压缩安装包大小问题/" itemprop="url">
-                关于压缩安装包大小问题
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-07-18T23:11:00+08:00" content="2016-07-18">
-            2016-07-18
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/07/18/关于压缩安装包大小问题/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/18/关于压缩安装包大小问题/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>在很久很久的塞班时代，那时候的程序几十KB就算大了。<br>在不久的几年前，很多APP也是几M大小。<br>不过到了最近几年，都是几十M的。<br>你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽</p>
-<p>对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间</p>
-<p><img src="http://ww4.sinaimg.cn/large/6d17e381gw1eqvmdlfzdoj20s206y76z.jpg" alt="enter image description here"></p>
-<p>这张图片告诉我们一个方向</p>
-<ol>
-<li>压缩项目代码量，删除过时没用的</li>
-<li>降低我们的资源文件大小，例如图片,用混淆等</li>
-<li>下载的第三方库和so等文件尝试用更小的</li>
-<li>一些assets的内容不用的移除</li>
-</ol>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/07/18/关于压缩安装包大小问题/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" itemprop="url">
-                源码探索系列41---关于DVM的Heap堆创建过程
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-06-22T12:54:46+08:00" content="2016-06-22">
-            2016-06-22
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>在上一篇的<a href="http://sanjay-f.github.io/2016/06/19/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9740---%E5%85%B3%E4%BA%8EDalvik%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">关于Dalvik的内存分配过程</a>，我们简单的看了下<code>new</code>一个对象时候的内存分配情况，期间我们多次的看到了HeapStruce的东西，他是负责存我们的Heap信息的，其中一些内容还是挺一笔带过的，这里来做更进一步的了解。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="url">
-                源码探索系列40---关于Dalvik的内存分配过程
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-06-19T12:55:46+08:00" content="2016-06-19">
-            2016-06-19
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？<br>我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。</p>
-<p>那么实际是这样吗？真的是这样吗？</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png" alt="enter image description here"></p>
-<p>我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个问题。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="url">
-                源码探索系列39---关于电量统计BatteryStatsHelper
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-06-14T12:55:46+08:00" content="2016-06-14">
-            2016-06-14
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>关于APP的优化，有一点就是关于电量的内容。<br>关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！<br>不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流量，相应的手机电量估计也不弱。</p>
-<p>说了那么多，我们先来看下到底系统是怎么多电量的统计的，知道他是怎么算的，我们才能更好的对症下药。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -686,7 +717,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">106</span>
+              <span class="site-state-item-count">110</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -700,7 +731,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-count">124</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

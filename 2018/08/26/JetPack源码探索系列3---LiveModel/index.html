@@ -1,0 +1,997 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,JetPack,VidwModel," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="VidwModel前面在使用LiveData时候，我们已经看到了ViewModel，不过没有去深入的说，因为那篇文章是说LiveData的，这次我们说会ViewModle去。它主要是以关联生命周期的方式来存储和管理UI相关的数据的类，即使configuration发生改变，数据仍然可以存在不会销毁前面我们看到我们的LiveData是写在viewModle里面的变量啊。 jetPack在引入View">
+<meta name="keywords" content="android,JetPack,VidwModel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JetPack源码探索系列3---VidwModel">
+<meta property="og:url" content="http://yoursite.com/2018/08/26/JetPack源码探索系列3---LiveModel/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="VidwModel前面在使用LiveData时候，我们已经看到了ViewModel，不过没有去深入的说，因为那篇文章是说LiveData的，这次我们说会ViewModle去。它主要是以关联生命周期的方式来存储和管理UI相关的数据的类，即使configuration发生改变，数据仍然可以存在不会销毁前面我们看到我们的LiveData是写在viewModle里面的变量啊。 jetPack在引入View">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.imgur.com/V9VHrOn.png">
+<meta property="og:image" content="https://i.imgur.com/WM1dXf4.png">
+<meta property="og:updated_time" content="2018-12-09T06:09:50.943Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JetPack源码探索系列3---VidwModel">
+<meta name="twitter:description" content="VidwModel前面在使用LiveData时候，我们已经看到了ViewModel，不过没有去深入的说，因为那篇文章是说LiveData的，这次我们说会ViewModle去。它主要是以关联生命周期的方式来存储和管理UI相关的数据的类，即使configuration发生改变，数据仍然可以存在不会销毁前面我们看到我们的LiveData是写在viewModle里面的变量啊。 jetPack在引入View">
+<meta name="twitter:image" content="https://i.imgur.com/V9VHrOn.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> JetPack源码探索系列3---VidwModel | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              JetPack源码探索系列3---VidwModel
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-08-26T21:45:46+08:00" content="2018-08-26">
+            2018-08-26
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/08/26/JetPack源码探索系列3---LiveModel/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/26/JetPack源码探索系列3---LiveModel/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h1 id="VidwModel"><a href="#VidwModel" class="headerlink" title="VidwModel"></a>VidwModel</h1><p>前面在使用LiveData时候，我们已经看到了ViewModel，不过没有去深入的说，因为那篇文章是说LiveData的，这次我们说会ViewModle去。<br>它主要是以关联生命周期的方式来存储和管理UI相关的数据的类，即使configuration发生改变，数据仍然可以存在不会销毁<br>前面我们看到我们的LiveData是写在viewModle里面的变量啊。</p>
+<p>jetPack在引入ViewModel时有以下几点：</p>
+<ol>
+<li><p>数据管理：<br>Activity或Fragment这类应用组件都有自己的生命周期，他们的生命周期都是被Framework所管理。Framework可能会根据用户的一些操作以及设备的状态对Activity或Fragment进行销毁和重建。作为开发者，这些行为我们是无法干预的。伴随着Activity或Fragment的销毁和重建，它们当中的数据也会随着一起销毁和重建。对于一些简单的数据，Activity可以使用onSaveInstanceState()方法，并从onCreate的bundle中重新获取，但这一方法仅仅适合一些简单的UI状态，对于列表型这种庞大的数据类型并不适合</p>
+</li>
+<li><p>异步与生命周期问题：<br>Activity或Fragment经常会做一些异步的耗时操作，随之就需要管理这些异步操作得到的数据，并在destroyed的时候清理它们，从而避免内存溢出这类问题的发生。但是这样的处理会随着项目扩大而变得十分复杂</p>
+</li>
+<li><p>分忧：<br>Activity或Fragment本身需要处理很多用户的输入事件并和操作系统打交道，当它们还要花时间管理那些数据资源时，它们所在的类就会变得异常庞大，造就出所谓的god activities和god fragments，这样很尴尬</p>
+</li>
+</ol>
+<p>正因为这样，所以类似MVP结构的重要一环一样，这个也会有很长的生命周期，便于我们对数据做统一管理<br><img src="https://i.imgur.com/V9VHrOn.png" alt=""></p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>关于使用在是上一篇说了，这里不重复，直接看源码把。之前已经说了，ViewModel即使发生configuration改变（比如旋转屏幕），数据仍然可以存在不会销毁，到底怎么做到的呢？</p>
+<p>先看文档：</p>
+<pre><code>/**
+ * ViewModel is a class that is responsible for preparing and managing the data for
+ * an {@link android.app.Activity Activity} or a {@link android.support.v4.app.Fragment Fragment}.
+ * It also handles the communication of the Activity / Fragment with the rest of the application
+ * (e.g. calling the business logic classes).
+ * &lt;p&gt;有点类似于MVP的p，做一些持久化的数据管理之类事情。
+ * 
+ * A ViewModel is always created in association with a scope (an fragment or an activity) and will
+ * be retained as long as the scope is alive. E.g. if it is an Activity, until it is
+ * finished.
+ * &lt;p&gt;
+ * In other words, this means that a ViewModel will not be destroyed if its owner is destroyed for a
+ * configuration change (e.g. rotation). The new instance of the owner will just re-connected to the
+ * existing ViewModel.
+ * &lt;p&gt;
+ * #设置这个的目的：
+ * The purpose of the ViewModel is to acquire and keep the information that is necessary for an
+ * Activity or a Fragment. The Activity or the Fragment should be able to observe changes in the
+ * ViewModel. ViewModels usually expose this information via {@link LiveData} or Android Data
+ * Binding. You can also use any observability construct from you favorite framework.
+ * &lt;p&gt;
+ * ViewModel&apos;s only responsibility is to manage the data for the UI. It &lt;b&gt;should never&lt;/b&gt; access
+ * your view hierarchy or hold a reference back to the Activity or the Fragment.
+ * &lt;p&gt;
+ * Typical usage from an Activity standpoint would be:
+ * &lt;pre&gt;
+ * public class UserActivity extends Activity {
+ *
+ *     {@literal @}Override
+ *     protected void onCreate(Bundle savedInstanceState) {
+ *         super.onCreate(savedInstanceState);
+ *         setContentView(R.layout.user_activity_layout);
+ *         final UserModel viewModel = ViewModelProviders.of(this).get(UserModel.class);
+ *         viewModel.userLiveData.observer(this, new Observer&lt;User&gt;() {
+ *            {@literal @}Override
+ *             public void onChanged(@Nullable User data) {
+ *                 // update ui.
+ *             }
+ *         });
+ *         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+ *             {@literal @}Override
+ *             public void onClick(View v) {
+ *                  viewModel.doAction();
+ *             }
+ *         });
+ *     }
+ * }
+ * &lt;/pre&gt;
+ *
+ * ViewModel would be:
+ * &lt;pre&gt;
+ * public class UserModel extends ViewModel {
+ *     public final LiveData&amp;lt;User&amp;gt; userLiveData = new LiveData&lt;&gt;();
+ *
+ *     public UserModel() {
+ *         // trigger user load.
+ *     }
+ *
+ *     void doAction() {
+ *         // depending on the action, do necessary business logic calls and update the
+ *         // userLiveData.
+ *     }
+ * }
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * ViewModels can also be used as a communication layer between different Fragments of an Activity.
+ * Each Fragment can acquire the ViewModel using the same key via their Activity. This allows
+ * communication between Fragments in a de-coupled fashion such that they never need to talk to
+ * the other Fragment directly.
+ * &lt;pre&gt;
+ * public class MyFragment extends Fragment {
+ *     public void onStart() {
+ *         UserModel userModel = ViewModelProviders.of(getActivity()).get(UserModel.class);
+ *     }
+ * }
+ * &lt;/pre&gt;
+ * &lt;/&gt;
+ */
+public abstract class ViewModel {
+        /**
+         * This method will be called when this ViewModel is no longer used and will be destroyed.
+         * &lt;p&gt;
+         * It is useful when ViewModel observes some data and you need to clear this subscription to
+         * prevent a leak of this ViewModel.
+         */
+    @SuppressWarnings(&quot;WeakerAccess&quot;)
+    protected void onCleared() {
+    }
+}
+</code></pre><p>说真的，这个类真的是什么都没有，但是文档很长，描述了这个到底做了什么事情，也便于我们后续去看源码的时候，可以更好的理解对应的逻辑</p>
+<p><img src="https://i.imgur.com/WM1dXf4.png" alt=""><br>看完我们明白，这个ViewModel很像是MVP总的P，负责和view做交互逻辑的，对吗？</p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>我们从上一个评论案例入口来说：</p>
+<pre><code>mViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
+</code></pre><h2 id="of"><a href="#of" class="headerlink" title="of()"></a>of()</h2><p>这个入口从这里进去后，我们知道了该怎么看源码了。</p>
+<pre><code>/**
+ * Utilities methods for {@link ViewModelStore} class.
+ */
+public class ViewModelProviders {
+
+    /*
+     * Creates a {@link ViewModelProvider}, which retains ViewModels while a scope of given
+     * {@code fragment} is alive. More detailed explanation is in {@link ViewModel}.
+     * &lt;p&gt;
+     * It uses {@link ViewModelProvider.AndroidViewModelFactory} to instantiate new ViewModels.
+     *
+     * @param fragment a fragment, in whose scope ViewModels should be retained
+     * @return a ViewModelProvider instance
+     */
+    @MainThread
+    public static ViewModelProvider of(@NonNull Fragment fragment) {
+        return of(fragment, null);
+    }
+
+     @MainThread
+    public static ViewModelProvider of(@NonNull Fragment fragment, @Nullable Factory factory) {
+        Application application = checkApplication(checkActivity(fragment));
+        if (factory == null) {
+            factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
+        }
+        return new ViewModelProvider(ViewModelStores.of(fragment), factory);
+    }
+
+
+    /**
+     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
+     * {@code Factory} and retain them in the given {@code store}.
+     *
+     * @param store   {@code ViewModelStore} where ViewModels will be stored.
+     * @param factory factory a {@code Factory} which will be used to instantiate
+     *                new {@code ViewModels}
+     */
+    public ViewModelProvider(@NonNull ViewModelStore store, @NonNull Factory factory) {
+        mFactory = factory;
+        this.mViewModelStore = store;
+    }
+}
+</code></pre><p>我们看这个是new了一个新的ViewModelProviders出来的，构造了两个fragemnt,factory参数，<br>我们看下构造参数时候的ViewModelStores.of静态方法:</p>
+<pre><code>@MainThread
+public static ViewModelStore of(@NonNull Fragment fragment) {
+    if (fragment instanceof ViewModelStoreOwner) {
+        return ((ViewModelStoreOwner) fragment).getViewModelStore();
+    }
+    return holderFragmentFor(fragment).getViewModelStore();
+}
+
+ @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public static HolderFragment holderFragmentFor(Fragment fragment) {
+    return sHolderFragmentManager.holderFragmentFor(fragment);
+}
+</code></pre><p>去拿到Fragment对应的holder出来</p>
+<pre><code>/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class HolderFragment extends Fragment implements ViewModelStoreOwner {}
+</code></pre><p>这个holderFragment是系统的一个隐藏类，具体是做什么呢？先不管，我们看下后面的getViewModelStore内容</p>
+<pre><code>private ViewModelStore mViewModelStore = new ViewModelStore();
+@Override
+public ViewModelStore getViewModelStore() {
+    return mViewModelStore;
+}
+</code></pre><p>我们看下重要的方法holderFragmentFor里面的内容：</p>
+<pre><code>HolderFragment holderFragmentFor(Fragment parentFragment) {
+        FragmentManager fm = parentFragment.getChildFragmentManager();
+        HolderFragment holder = findHolderFragment(fm);
+        if (holder != null) {
+            return holder;
+        }
+        holder = mNotCommittedFragmentHolders.get(parentFragment);
+        if (holder != null) {
+            return holder;
+        }
+
+        parentFragment.getFragmentManager()
+                .registerFragmentLifecycleCallbacks(mParentDestroyedCallback, false);
+        holder = createHolderFragment(fm);
+        mNotCommittedFragmentHolders.put(parentFragment, holder);
+        return holder;
+    }
+
+    private static HolderFragment createHolderFragment(FragmentManager fragmentManager) {
+        HolderFragment holder = new HolderFragment();
+        fragmentManager.beginTransaction().add(holder, HOLDER_TAG).commitAllowingStateLoss();
+        return holder;
+    }
+</code></pre><p>holderFragmentFor()负责创建Fragment并与其所在的Activity的Lifecycle相关联</p>
+<p>在看进去这个结构：</p>
+<pre><code>public class ViewModelStore {
+
+    private final HashMap&lt;String, ViewModel&gt; mMap = new HashMap&lt;&gt;();
+
+    final void put(String key, ViewModel viewModel) {
+        ViewModel oldViewModel = mMap.put(key, viewModel);
+        if (oldViewModel != null) {
+            oldViewModel.onCleared();
+        }
+    }
+
+    final ViewModel get(String key) {
+        return mMap.get(key);
+    }
+
+    /**
+     *  Clears internal storage and notifies ViewModels that they are no longer used.
+     */
+    public final void clear() {
+        for (ViewModel vm : mMap.values()) {
+            vm.onCleared();
+        }
+        mMap.clear();
+    }
+}
+</code></pre><p>看都这里，我们可以大胆的猜测，是否因为在某个更持久的地方，放了这个viewModel，所以才保证了一直可以拿到这个ViewModel数据？<br>通过把这个数据放在Fragment对象里面，这样只要不是销毁，无论经历什么生命周期，都可以去通过这个地方拿到的意思，从而达到效果?</p>
+<p>在HolderFragment创建的同时也完成了ViewModelStore的创建，而ViewModelStore里面保存的都是ViewModel，所以ViewModel也就被保存下来了.而当HolderFragment销毁时，其所保存的ViewModel对象就会被清理掉</p>
+<h2 id="get"><a href="#get" class="headerlink" title="get()"></a>get()</h2><p>这样前面部分也就看完了，我们来看下后面的get内容：</p>
+<pre><code>mViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
+
+
+ /**
+ * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
+ * an activity), associated with this {@code ViewModelProvider}.
+ * &lt;p&gt;
+ * The created ViewModel is associated with the given scope and will be retained
+ * as long as the scope is alive (e.g. if it is an activity, until it is
+ * finished or process is killed).
+ *
+ * @param modelClass The class of the ViewModel to create an instance of it if it is not
+ *                   present.
+ * @param &lt;T&gt;        The type parameter for the ViewModel.
+ * @return A ViewModel that is an instance of the given type {@code T}.
+ */
+@NonNull
+@MainThread
+public &lt;T extends ViewModel&gt; T get(@NonNull Class&lt;T&gt; modelClass) {
+    String canonicalName = modelClass.getCanonicalName();
+    if (canonicalName == null) {
+        throw new IllegalArgumentException(&quot;Local and anonymous classes can not be ViewModels&quot;);
+    }
+    return get(DEFAULT_KEY + &quot;:&quot; + canonicalName, modelClass);
+}
+private static final String DEFAULT_KEY =
+        &quot;android.arch.lifecycle.ViewModelProvider.DefaultKey&quot;;
+
+
+ @MainThread
+public &lt;T extends ViewModel&gt; T get(@NonNull String key, @NonNull Class&lt;T&gt; modelClass) {
+    ViewModel viewModel = mViewModelStore.get(key);
+
+    if (modelClass.isInstance(viewModel)) {
+        //noinspection unchecked
+        return (T) viewModel;
+    } else {
+        //noinspection StatementWithEmptyBody
+        if (viewModel != null) {
+            // TODO: log a warning.
+        }
+    }
+
+    viewModel = mFactory.create(modelClass);
+    mViewModelStore.put(key, viewModel);
+    //noinspection unchecked
+    return (T) viewModel;
+}
+</code></pre><p>系统会优先从已有的ViewModelStore中去查找这个Key对应的ViewModel，如果找到则直接返回，否则则通过mFactory.create(modelClass)创建并保存到ViewModelStore中再返回。我们来看下create()</p>
+<p>看到这里我们也就终于知道了，确实就是保存在store里面去了。</p>
+<p>我们看下cereate里面的</p>
+<pre><code> @Override
+public &lt;T extends ViewModel&gt; T create(@NonNull Class&lt;T&gt; modelClass) {
+    if (AndroidViewModel.class.isAssignableFrom(modelClass)) {
+        //noinspection TryWithIdenticalCatches
+        try {
+            return modelClass.getConstructor(Application.class).newInstance(mApplication);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(&quot;Cannot create an instance of &quot; + modelClass, e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(&quot;Cannot create an instance of &quot; + modelClass, e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(&quot;Cannot create an instance of &quot; + modelClass, e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(&quot;Cannot create an instance of &quot; + modelClass, e);
+        }
+    }
+    return super.create(modelClass);
+}
+</code></pre><p>没有就反射调用给你new一个。哈哈</p>
+<p>好了这样我们也就明白整体是怎样的拉！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/JetPack/" rel="tag">#JetPack</a>
+          
+            <a href="/tags/VidwModel/" rel="tag">#VidwModel</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/05/JetPack源码探索系列4---WorkManager/" rel="prev">JetPack源码探索系列4---WorkManager</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/24/JetPack源码探索系列2---LiveData/" rel="next">JetPack源码探索系列2---LiveData</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2018/08/26/JetPack源码探索系列3---LiveModel/"
+     data-title="JetPack源码探索系列3---VidwModel"
+     data-content=""
+     data-url="http://yoursite.com/2018/08/26/JetPack源码探索系列3---LiveModel/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2018/08/26/JetPack源码探索系列3---LiveModel/"
+                   data-title="JetPack源码探索系列3---VidwModel" data-url="http://yoursite.com/2018/08/26/JetPack源码探索系列3---LiveModel/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VidwModel"><span class="nav-number">1.</span> <span class="nav-text">VidwModel</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">2.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码"><span class="nav-number">3.</span> <span class="nav-text">源码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#of"><span class="nav-number">3.1.</span> <span class="nav-text">of()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#get"><span class="nav-number">3.2.</span> <span class="nav-text">get()</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
