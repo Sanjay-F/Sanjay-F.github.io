@@ -49,7 +49,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://i.imgur.com/jGx5ihc.png">
 <meta property="og:image" content="https://i.imgur.com/4G2rqGk.png">
-<meta property="og:updated_time" content="2018-12-09T06:32:21.870Z">
+<meta property="og:updated_time" content="2018-12-09T09:26:13.987Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JetPack源码探索系列4---WorkManager">
 <meta name="twitter:description" content="WorkManagerThe WorkManager API makes it easy to specify deferrable, asynchronous tasks and when they should run. These APIs let you create a task and hand it off to WorkManager to run immediately or a">
@@ -261,7 +261,502 @@
 <p>整体原理如下<br> <img src="https://i.imgur.com/jGx5ihc.png" alt=""></p>
 <p>使用流程如下：<img src="https://i.imgur.com/4G2rqGk.png" alt=""></p>
 <a id="more"></a>
-<p>我们来看下源码</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>下面缩写成WorkManager为WM,然后我们来看下个demo：</p>
+<pre><code>OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(MyWorker.class).setInitialDelay(100, TimeUnit.SECONDS).build();
+WorkManager.getInstance().enqueue(request);
+
+public class MyWorker extends Worker {
+
+    public MyWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
+    @Override
+    public Result doWork() {
+         // do something
+        return null;
+    }
+}
+</code></pre><p>这是一个最简单的延时100s然后启动执行的小demo，我们用这个来做探索：<br>在详细的进去看源码前，还是建议继续看下文档的内容：</p>
+<pre><code>/**
+ * WorkManager is a library used to enqueue deferrable work that is guaranteed to execute sometime
+ * after its {@link Constraints} are met.  WorkManager allows observation of work status and the
+ * ability to create complex chains of work.
+
+ * 类是RX可以弄成一堆链式的条子一样，顺序执行一堆任务。定时启动，监听状态，功能非常强大.我们后面再看下是如何做到链式执行任务的
+ * &lt;p&gt;
+ * WorkManager uses an underlying job dispatching service when available based on the following
+ * criteria:
+ * &lt;p&gt;&lt;ul&gt;
+ * &lt;li&gt;Uses JobScheduler for API 23+
+ * &lt;li&gt;Uses a custom AlarmManager + BroadcastReceiver implementation for API 14-22&lt;/ul&gt;
+ * &lt;p&gt;
+ * All work must be done in a {@link ListenableWorker} class.  A simple implementation,
+ * {@link Worker}, is recommended as the starting point for most developers.  With the optional
+ * dependencies, you can also use {@code CoroutineWorker} or {@code RxWorker}.
+ * &lt;p&gt;
+ * 
+ * There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
+ * {@link PeriodicWorkRequest}.  You can enqueue requests using WorkManager as follows:
+ *
+    =====只有两种类型的WORK
+ * &lt;pre&gt;
+ * {@code
+ * WorkManager workManager = WorkManager.getInstance();
+ * workManager.enqueue(new OneTimeWorkRequest.Builder(FooWorker.class).build());}&lt;/pre&gt;
+ *
+ * A {@link WorkRequest} has an associated id that can be used for lookups and observation as
+ * follows:
+ *
+ * &lt;pre&gt;
+ * {@code
+ * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
+ * workManager.enqueue(request);
+ * LiveData&lt;WorkInfo&gt; status = workManager.getWorkInfoByIdLiveData(request.getId());
+ * status.observe(...);}&lt;/pre&gt;
+ *
+ * You can also use the id for cancellation:
+ *
+ * &lt;pre&gt;
+ * {@code
+ * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
+ * workManager.enqueue(request);
+ * workManager.cancelWorkById(request.getId());}&lt;/pre&gt;
+
+    #每个request都有一个id，就像发网络请求一样
+ * You can chain work as follows:
+ *
+ * &lt;pre&gt;
+ * {@code
+ * WorkRequest request1 = new OneTimeWorkRequest.Builder(FooWorker.class).build();
+ * WorkRequest request2 = new OneTimeWorkRequest.Builder(BarWorker.class).build();
+ * WorkRequest request3 = new OneTimeWorkRequest.Builder(BazWorker.class).build();
+ * workManager.beginWith(request1, request2).then(request3).enqueue();}&lt;/pre&gt;
+ *
+ *  ==支持链式的任务，很棒的特性
+ * Each call to {@link #beginWith(OneTimeWorkRequest)} or {@link #beginWith(List)} returns a
+ * {@link WorkContinuation} upon which you can call
+ * {@link WorkContinuation#then(OneTimeWorkRequest)} or {@link WorkContinuation#then(List)} to
+ * chain further work.  This allows for creation of complex chains of work.  For example, to create
+ * a chain like this:
+ *
+ * &lt;pre&gt;
+ *            A
+ *            |
+ *      +----------+
+ *      |          |
+ *      B          C
+ *      |
+ *   +----+
+ *   |    |
+ *   D    E             &lt;/pre&gt;
+ *
+ * you would enqueue them as follows:
+ *
+ * &lt;pre&gt;
+ * {@code
+ * WorkContinuation continuation = workManager.beginWith(A);
+ * continuation.then(B).then(D, E).enqueue();  // A is implicitly enqueued here
+ * continuation.then(C).enqueue();}&lt;/pre&gt;
+ *
+ * Work is eligible for execution when all of its prerequisites are complete.  If any of its
+ * prerequisites fail or are cancelled, the work will never run.
+
+ * ==我怎么知道失败呢？
+ * &lt;p&gt;
+ * WorkRequests can accept {@link Constraints}, inputs (see {@link Data}), and backoff criteria.
+ * WorkRequests can be tagged with human-readable Strings
+ * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
+ * uniquely-identifiable name (see
+ * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Manually initializing WorkManager&lt;/b&gt;
+ * &lt;p&gt;
+ * You can manually initialize WorkManager and provide a custom {@link Configuration} for it.
+ * Please see {@link #initialize(Context, Configuration)}.
+ */
+
+public abstract class WorkManager {}
+</code></pre><p>看我上面的文档注释，我们知道这个库功能还是很强大的，完全的写完的话，文字可能会很长，毕竟支持的特定太多，功能太强大，全部写下来不容易，我还是筛选部分来说吧。有需要再去细看</p>
+<h2 id="uuid"><a href="#uuid" class="headerlink" title="uuid"></a>uuid</h2><p>我们先看下是怎么生成id的</p>
+<pre><code>public abstract static class Builder&lt;B extends Builder, W extends WorkRequest&gt; {
+
+   boolean mBackoffCriteriaSet = false;
+   UUID mId;
+   WorkSpec mWorkSpec;
+   Set&lt;String&gt; mTags = new HashSet&lt;&gt;();
+
+   Builder(@NonNull Class&lt;? extends ListenableWorker&gt; workerClass) {
+       mId = UUID.randomUUID();
+       。。。。
+   }
+</code></pre><h2 id="randomUUID"><a href="#randomUUID" class="headerlink" title="randomUUID"></a>randomUUID</h2><pre><code> /**
+ * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
+ *
+ * The {@code UUID} is generated using a cryptographically strong pseudo
+ * random number generator.
+ *
+ * @return  A randomly generated {@code UUID}
+ */
+public static UUID randomUUID() {
+    SecureRandom ng = Holder.numberGenerator;
+
+    byte[] randomBytes = new byte[16];
+    ng.nextBytes(randomBytes);
+    randomBytes[6]  &amp;= 0x0f;  /* clear version        */
+    randomBytes[6]  |= 0x40;  /* set to version 4     */
+    randomBytes[8]  &amp;= 0x3f;  /* clear variant        */
+    randomBytes[8]  |= 0x80;  /* set to IETF variant  */
+    return new UUID(randomBytes);
+}
+static final SecureRandom numberGenerator = new SecureRandom();
+</code></pre><p>看下记录这个，是平时也有生成唯一ID的需求，以后也可以借鉴这个来改下。</p>
+<h1 id="enqueue"><a href="#enqueue" class="headerlink" title="enqueue"></a>enqueue</h1><p>继续看enqueue的内容，在WorkManagerImpl类里面：</p>
+<pre><code>public final Operation enqueue(@NonNull WorkRequest workRequest) {
+    return enqueue(Collections.singletonList(workRequest));
+}
+
+public Operation enqueue(
+        @NonNull List&lt;? extends WorkRequest&gt; workRequests) {
+
+    // This error is not being propagated as part of the Operation, as we want the
+    // app to crash during development. Having no workRequests is always a developer error.
+    if (workRequests.isEmpty()) {
+        throw new IllegalArgumentException(
+                &quot;enqueue needs at least one WorkRequest.&quot;);
+    }
+    return new WorkContinuationImpl(this, workRequests).enqueue();
+}
+</code></pre><h2 id="WorkContinuationImpl"><a href="#WorkContinuationImpl" class="headerlink" title="WorkContinuationImpl"></a>WorkContinuationImpl</h2><p>我们去到WorkContinuationImpl看了，这个构造函数，就是new多了一个新的WorkContinuationImpl出来，然后enqueue（）<br>     WorkContinuationImpl(<br>            @NonNull WorkManagerImpl workManagerImpl,<br>            @NonNull List&lt;? extends WorkRequest&gt; work) {<br>        this(<br>                workManagerImpl,<br>                null,<br>                ExistingWorkPolicy.KEEP,<br>                work,<br>                null);<br>    }</p>
+<pre><code>WorkContinuationImpl(
+        @NonNull WorkManagerImpl workManagerImpl,
+        String name,
+        ExistingWorkPolicy existingWorkPolicy,
+        @NonNull List&lt;? extends WorkRequest&gt; work) {
+    this(workManagerImpl, name, existingWorkPolicy, work, null);
+}
+
+WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+        String name,
+        ExistingWorkPolicy existingWorkPolicy,
+        @NonNull List&lt;? extends WorkRequest&gt; work,
+        @Nullable List&lt;WorkContinuationImpl&gt; parents) {
+    mWorkManagerImpl = workManagerImpl;
+    mName = name;
+    mExistingWorkPolicy = existingWorkPolicy;
+    mWork = work;
+    mParents = parents;
+    mIds = new ArrayList&lt;&gt;(mWork.size());
+    mAllIds = new ArrayList&lt;&gt;();
+    if (parents != null) {
+        for (WorkContinuationImpl parent : parents) {
+            mAllIds.addAll(parent.mAllIds);
+        }
+    }
+    for (int i = 0; i &lt; work.size(); i++) {
+        String id = work.get(i).getStringId();
+        mIds.add(id);
+        mAllIds.add(id);
+    }
+}
+</code></pre><p>看下enqueue</p>
+<pre><code> public @NonNull Operation enqueue() {
+    // Only enqueue if not already enqueued.
+    if (!mEnqueued) {
+        // The runnable walks the hierarchy of the continuations
+        // and marks them enqueued using the markEnqueued() method, parent first.
+        EnqueueRunnable runnable = new EnqueueRunnable(this);
+        mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+        mOperation = runnable.getOperation();
+    } else {
+        Logger.get().warning(TAG,
+                String.format(&quot;Already enqueued work ids (%s)&quot;, TextUtils.join(&quot;, &quot;, mIds)));
+    }
+    return mOperation;
+}
+</code></pre><p>我们看这里先普通的new一个新的runnable，然后放到线程池去执行；</p>
+<pre><code>mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
+</code></pre><p>这个<strong>getWorkTaskExecutor</strong>实际实现对应的是WorkManagerTaskExecutor类，我们进去看下里面。<br>    @Override<br>    public void executeOnBackgroundThread(Runnable r) {<br>        mBackgroundExecutor.execute(r);<br>    }<br>    private final ExecutorService mBackgroundExecutor =<br>            Executors.newSingleThreadExecutor(mBackgroundThreadFactory);</p>
+<p>确实是，去线程池执行这个。那到底是如何做到定时的呢？</p>
+<p>我们去这个EnqueueRunnable看下，他是一个真的Runnable：</p>
+<pre><code>public class EnqueueRunnable implements Runnable {
+
+    private static final String TAG = &quot;EnqueueRunnable&quot;;
+
+    private final WorkContinuationImpl mWorkContinuation;
+    private final OperationImpl mOperation;
+
+    public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
+        mWorkContinuation = workContinuation;
+        mOperation = new OperationImpl();
+    }
+
+    @Override
+    public void run() {
+        try {
+            if (mWorkContinuation.hasCycles()) {
+                throw new IllegalStateException(
+                        String.format(&quot;WorkContinuation has cycles (%s)&quot;, mWorkContinuation));
+            }
+            boolean needsScheduling = addToDatabase();
+            if (needsScheduling) {
+                // Enable RescheduleReceiver, only when there are Worker&apos;s that need scheduling.
+                final Context context =
+                        mWorkContinuation.getWorkManagerImpl().getApplicationContext();
+                PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
+                scheduleWorkInBackground();
+            }
+            mOperation.setState(Operation.SUCCESS);
+        } catch (Throwable exception) {
+            mOperation.setState(new Operation.State.FAILURE(exception));
+        }
+    }
+}
+</code></pre><p>这个我们进去看下</p>
+<h2 id="addToDatabase（）"><a href="#addToDatabase（）" class="headerlink" title="addToDatabase（）"></a>addToDatabase（）</h2><pre><code>public boolean addToDatabase() {
+    WorkManagerImpl workManagerImpl = mWorkContinuation.getWorkManagerImpl();
+    WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+    workDatabase.beginTransaction();
+    try {
+        boolean needsScheduling = processContinuation(mWorkContinuation);
+        workDatabase.setTransactionSuccessful();
+        return needsScheduling;
+    } finally {
+        workDatabase.endTransaction();
+    }
+}
+</code></pre><p>把这个任务持久化的保存到数据库里面去了</p>
+<h2 id="processContinuation"><a href="#processContinuation" class="headerlink" title="processContinuation"></a>processContinuation</h2><pre><code>  private static boolean processContinuation(@NonNull WorkContinuationImpl workContinuation) {
+    boolean needsScheduling = false;
+    List&lt;WorkContinuationImpl&gt; parents = workContinuation.getParents();
+    if (parents != null) {
+        for (WorkContinuationImpl parent : parents) {
+            // When chaining off a completed continuation we need to pay
+            // attention to parents that may have been marked as enqueued before.
+            if (!parent.isEnqueued()) {
+                needsScheduling |= processContinuation(parent);
+            } else {
+                Logger.get().warning(TAG, String.format(&quot;Already enqueued work ids (%s).&quot;,
+                        TextUtils.join(&quot;, &quot;, parent.getIds())));
+            }
+        }
+    }
+    needsScheduling |= enqueueContinuation(workContinuation);
+    return needsScheduling;
+}
+</code></pre><h2 id="enqueueContinuation"><a href="#enqueueContinuation" class="headerlink" title="enqueueContinuation"></a>enqueueContinuation</h2><pre><code> private static boolean enqueueContinuation(@NonNull WorkContinuationImpl workContinuation) {
+    Set&lt;String&gt; prerequisiteIds = WorkContinuationImpl.prerequisitesFor(workContinuation);
+
+    boolean needsScheduling = enqueueWorkWithPrerequisites(
+            workContinuation.getWorkManagerImpl(),
+            workContinuation.getWork(),
+            prerequisiteIds.toArray(new String[0]),
+            workContinuation.getName(),
+            workContinuation.getExistingWorkPolicy());
+
+    workContinuation.markEnqueued();
+    return needsScheduling;
+}
+</code></pre><h2 id="enqueueWorkWithPrerequisites"><a href="#enqueueWorkWithPrerequisites" class="headerlink" title="enqueueWorkWithPrerequisites"></a>enqueueWorkWithPrerequisites</h2><p>到这个地方，我们看到核心的计算的地方了，去拿当前的系统时间去做计算处理，逻辑还是很复杂的，需要点耐心看下。</p>
+<pre><code>/**
+ * Enqueues the {@link WorkSpec}&apos;s while keeping track of the prerequisites.
+ *
+ * @return {@code true} If there is any scheduling to be done.
+ */
+private static boolean enqueueWorkWithPrerequisites(
+        WorkManagerImpl workManagerImpl,
+        @NonNull List&lt;? extends WorkRequest&gt; workList,
+        String[] prerequisiteIds,
+        String name,
+        ExistingWorkPolicy existingWorkPolicy) {
+
+    boolean needsScheduling = false;
+
+    long currentTimeMillis = System.currentTimeMillis();
+    WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+
+    boolean hasPrerequisite = (prerequisiteIds != null &amp;&amp; prerequisiteIds.length &gt; 0);
+    boolean hasCompletedAllPrerequisites = true;
+    boolean hasFailedPrerequisites = false;
+    boolean hasCancelledPrerequisites = false;
+
+    if (hasPrerequisite) {
+        // If there are prerequisites, make sure they actually exist before enqueuing
+        // anything.  Prerequisites may not exist if we are using unique tags, because the
+        // chain of work could have been wiped out already.
+        for (String id : prerequisiteIds) {
+            WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
+            if (prerequisiteWorkSpec == null) {
+                Logger.get().error(TAG,
+                        String.format(&quot;Prerequisite %s doesn&apos;t exist; not enqueuing&quot;, id));
+                return false;
+            }
+
+            WorkInfo.State prerequisiteState = prerequisiteWorkSpec.state;
+            hasCompletedAllPrerequisites &amp;= (prerequisiteState == SUCCEEDED);
+            if (prerequisiteState == FAILED) {
+                hasFailedPrerequisites = true;
+            } else if (prerequisiteState == CANCELLED) {
+                hasCancelledPrerequisites = true;
+            }
+        }
+    }
+
+    boolean isNamed = !TextUtils.isEmpty(name);
+
+    // We only apply existing work policies for unique tag sequences that are the beginning of
+    // chains.
+    boolean shouldApplyExistingWorkPolicy = isNamed &amp;&amp; !hasPrerequisite;
+    if (shouldApplyExistingWorkPolicy) {
+        // Get everything with the unique tag.
+        List&lt;WorkSpec.IdAndState&gt; existingWorkSpecIdAndStates =
+                workDatabase.workSpecDao().getWorkSpecIdAndStatesForName(name);
+
+        if (!existingWorkSpecIdAndStates.isEmpty()) {
+            // If appending, these are the new prerequisites.
+            if (existingWorkPolicy == APPEND) {
+                DependencyDao dependencyDao = workDatabase.dependencyDao();
+                List&lt;String&gt; newPrerequisiteIds = new ArrayList&lt;&gt;();
+                for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                    if (!dependencyDao.hasDependents(idAndState.id)) {
+                        hasCompletedAllPrerequisites &amp;= (idAndState.state == SUCCEEDED);
+                        if (idAndState.state == FAILED) {
+                            hasFailedPrerequisites = true;
+                        } else if (idAndState.state == CANCELLED) {
+                            hasCancelledPrerequisites = true;
+                        }
+                        newPrerequisiteIds.add(idAndState.id);
+                    }
+                }
+                prerequisiteIds = newPrerequisiteIds.toArray(prerequisiteIds);
+                hasPrerequisite = (prerequisiteIds.length &gt; 0);
+            } else {
+                // If we&apos;re keeping existing work, make sure to do so only if something is
+                // enqueued or running.
+                if (existingWorkPolicy == KEEP) {
+                    for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                        if (idAndState.state == ENQUEUED || idAndState.state == RUNNING) {
+                            return false;
+                        }
+                    }
+                }
+
+                // Cancel all of these workers.
+                // Don&apos;t allow rescheduling in CancelWorkRunnable because it will happen inside
+                // the current transaction.  We want it to happen separately to avoid race
+                // conditions (see ag/4502245, which tries to avoid work trying to run before
+                // it&apos;s actually been committed to the database).
+                CancelWorkRunnable.forName(name, workManagerImpl, false).run();
+                // Because we cancelled some work but didn&apos;t allow rescheduling inside
+                // CancelWorkRunnable, we need to make sure we do schedule work at the end of
+                // this runnable.
+                needsScheduling = true;
+
+                // And delete all the database records.
+                WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+                for (WorkSpec.IdAndState idAndState : existingWorkSpecIdAndStates) {
+                    workSpecDao.delete(idAndState.id);
+                }
+            }
+        }
+    }
+
+    for (WorkRequest work : workList) {
+        WorkSpec workSpec = work.getWorkSpec();
+
+        if (hasPrerequisite &amp;&amp; !hasCompletedAllPrerequisites) {
+            if (hasFailedPrerequisites) {
+                workSpec.state = FAILED;
+            } else if (hasCancelledPrerequisites) {
+                workSpec.state = CANCELLED;
+            } else {
+                workSpec.state = BLOCKED;
+            }
+        } else {
+            // Set scheduled times only for work without prerequisites. Dependent work
+            // will set their scheduled times when they are unblocked.
+            workSpec.periodStartTime = currentTimeMillis;
+        }
+
+        if (Build.VERSION.SDK_INT &gt;= 23 &amp;&amp; Build.VERSION.SDK_INT &lt;= 25) {
+            tryDelegateConstrainedWorkSpec(workSpec);
+        }
+
+        // If we have one WorkSpec with an enqueued state, then we need to schedule.
+        if (workSpec.state == ENQUEUED) {
+            needsScheduling = true;
+        }
+
+        workDatabase.workSpecDao().insertWorkSpec(workSpec);
+
+        //  居然是通过保存数据库来做的，感觉队列执行，
+        //  可以简单理解是保存对应的后续队列到表格，前序执行，查询数据库后续的内容去执行
+        if (hasPrerequisite) {
+            for (String prerequisiteId : prerequisiteIds) {
+                Dependency dep = new Dependency(work.getStringId(), prerequisiteId);
+                workDatabase.dependencyDao().insertDependency(dep);
+            }
+        }
+
+        for (String tag : work.getTags()) {
+            workDatabase.workTagDao().insert(new WorkTag(tag, work.getStringId()));
+        }
+
+        if (isNamed) {
+            workDatabase.workNameDao().insert(new WorkName(name, work.getStringId()));
+        }
+    }
+    return needsScheduling;
+}
+</code></pre><p>回到开头的地方，返回了needsScheduling后，走的去做对应你的处理了</p>
+<h1 id="scheduleWorkInBackground"><a href="#scheduleWorkInBackground" class="headerlink" title="scheduleWorkInBackground"></a>scheduleWorkInBackground</h1><pre><code>public void scheduleWorkInBackground() {
+    WorkManagerImpl workManager = mWorkContinuation.getWorkManagerImpl();
+    Schedulers.schedule(
+            workManager.getConfiguration(),
+            workManager.getWorkDatabase(),
+            workManager.getSchedulers());
+}
+</code></pre><p>掉用schedule去做定时操作？</p>
+<h2 id="schedule"><a href="#schedule" class="headerlink" title="schedule"></a>schedule</h2><pre><code>public static void schedule(
+        @NonNull Configuration configuration,
+        @NonNull WorkDatabase workDatabase,
+        List&lt;Scheduler&gt; schedulers) {
+    if (schedulers == null || schedulers.size() == 0) {
+        return;
+    }
+
+    WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+    List&lt;WorkSpec&gt; eligibleWorkSpecs;
+
+    workDatabase.beginTransaction();
+    try {
+        eligibleWorkSpecs = workSpecDao.getEligibleWorkForScheduling(
+                configuration.getMaxSchedulerLimit());
+        if (eligibleWorkSpecs != null &amp;&amp; eligibleWorkSpecs.size() &gt; 0) {
+            long now = System.currentTimeMillis();
+
+            // Mark all the WorkSpecs as scheduled.
+            // Calls to Scheduler#schedule() could potentially result in more schedules
+            // on a separate thread. Therefore, this needs to be done first.
+            for (WorkSpec workSpec : eligibleWorkSpecs) {
+                workSpecDao.markWorkSpecScheduled(workSpec.id, now);
+            }
+        }
+        workDatabase.setTransactionSuccessful();
+    } finally {
+        workDatabase.endTransaction();
+    }
+
+    if (eligibleWorkSpecs != null &amp;&amp; eligibleWorkSpecs.size() &gt; 0) {
+        WorkSpec[] eligibleWorkSpecsArray = eligibleWorkSpecs.toArray(new WorkSpec[0]);
+        // Delegate to the underlying scheduler.
+        for (Scheduler scheduler : schedulers) {
+            scheduler.schedule(eligibleWorkSpecsArray);
+        }
+    }
+}
+</code></pre><p>看我这一串问题来了，什么时候来唤醒我的worker，让我干活呢？</p>
 </span>
       
     </div>
@@ -420,7 +915,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WorkManager"><span class="nav-number">1.</span> <span class="nav-text">WorkManager</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#WorkManager"><span class="nav-number">1.</span> <span class="nav-text">WorkManager</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">2.</span> <span class="nav-text">起航</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#uuid"><span class="nav-number">2.1.</span> <span class="nav-text">uuid</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#randomUUID"><span class="nav-number">2.2.</span> <span class="nav-text">randomUUID</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#enqueue"><span class="nav-number">3.</span> <span class="nav-text">enqueue</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#WorkContinuationImpl"><span class="nav-number">3.1.</span> <span class="nav-text">WorkContinuationImpl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#addToDatabase（）"><span class="nav-number">3.2.</span> <span class="nav-text">addToDatabase（）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#processContinuation"><span class="nav-number">3.3.</span> <span class="nav-text">processContinuation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enqueueContinuation"><span class="nav-number">3.4.</span> <span class="nav-text">enqueueContinuation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enqueueWorkWithPrerequisites"><span class="nav-number">3.5.</span> <span class="nav-text">enqueueWorkWithPrerequisites</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#scheduleWorkInBackground"><span class="nav-number">4.</span> <span class="nav-text">scheduleWorkInBackground</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#schedule"><span class="nav-number">4.1.</span> <span class="nav-text">schedule</span></a></li></ol></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
