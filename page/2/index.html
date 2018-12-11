@@ -203,6 +203,108 @@
           
           
             
+              <a class="post-title-link" href="/2018/08/24/JetPack源码探索系列2---LiveData/" itemprop="url">
+                JetPack源码探索系列2---LiveData
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-08-24T20:21:00+08:00" content="2018-08-24">
+            2018-08-24
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/08/24/JetPack源码探索系列2---LiveData/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/24/JetPack源码探索系列2---LiveData/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <h1 id="LiveData"><a href="#LiveData" class="headerlink" title="LiveData"></a>LiveData</h1><p>LiveData是一个可以感知Activity、Fragment生命周期的数据容器。<br>当LiveData所持有的数据发生改变时，它会通知相应的观察者进行数据更新。<br>由于Activity、Fragment都已实现LifecycleOwner接口，</p>
+<p>所以持有LifecycleOwner引用的LiveData在LifecycleOwner的生命周期处于started或resumed时可以作出相应更新，<br>而在LifecycleOwner处于被销毁时停止更新。</p>
+<p>目前在项目使用了这个是改造了 <strong>网络请求，数据回包</strong>的问题。</p>
+<p>发送网络请求，然后用观察者来处理对应数据，省去自己在对回包时候的生命周期判断的恶心判断逻辑。</p>
+<p>从官方文档来看，LiveData的使用有以下几大好处</p>
+<ol>
+<li>保证UI状态和数据的统一：<br>LiveData采用了观察者设计模式。当生命周期状态改变时，LiveData会通知Observer对象。每次应用程序数据更改时，都会通知观察者对象，从而更新UI。</li>
+<li>减少内存泄漏：<br>LiveData能够感知到组件的生命周期，观察者绑定到生命周期对象，并在其相关生命周期被破坏后自行清理。</li>
+<li>当Activity停止时不会引起崩溃：<br>这是因为组件处于非激活状态时，不会收到LiveData中数据变化的通知</li>
+<li>不需要额外的手动处理来响应生命周期的变化：<br>这一点同样是因为LiveData能够感知组件的生命周期，所以就完全不需要在代码中告诉LiveData组件的生命周期状态。</li>
+<li>组件和数据相关的内容能实时更新：<br>组件在前台的时候能够实时收到数据改变的通知，这是可以理解的。当组件从后台到前台来时，LiveData能够将最新的数据通知组件，这两点就保证了组件中和数据相关的内容能够实时更新。</li>
+<li>资源共享：<br>通过继承LiveData类，然后将该类定义成单例模式，在该类封装监听一些系统属性变化，然后通知LiveData的观察者。</li>
+</ol>
+<p><strong>我们经常有这样的场景：</strong></p>
+<p>feed流-详情页这样的例子是最实在的，经常会跳去某个item的详情页，然后在里面做些处理，回到feed流页面，要保持数据的一致</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/08/24/JetPack源码探索系列2---LiveData/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="url">
                 JetPack源码探索系列1---Lifecycle
               </a>
@@ -265,6 +367,196 @@
 <p>现在就开始从Lifecycles开始写起.点击more查看更多哦！</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/" itemprop="url">
+                Flutter入门系列10---关于状态管理BLoC
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-04-28T23:14:46+08:00" content="2018-04-28">
+            2018-04-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/28/Flutter入门系列10---关于状态管理BLoC/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。</p>
+<p>因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊</p>
+<p>目前我们工程有尝试用到了<a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">BLoC</a>这个东西，在这里做简单介绍下</p>
+<p>BLoC的全称是 业务逻辑组件（Business Logic Component）。<br>如果你对响应式编程熟悉的话，应该很好懂这个到底是什么</p>
+<p><img src="https://i.imgur.com/xt3xilA.png" alt=""></p>
+<p>BLoC模式由来自Google的Paolo Soares和Cong Hui设计，并在2018年DartConf期间（2018年1月23日至24日）首次展示。 在YouTube上观看此视频。</p>
+<p>简而言之，业务逻辑（Business Logic ）需要：</p>
+<ul>
+<li>转移到一个或几个BLoC，</li>
+<li>尽可能从表现层中删除。 换句话说，UI组件应该只关心UI事物而不关心业务，</li>
+<li>依赖Streams独家使用输入（Sink）和输出（流），</li>
+<li>保持平台独立，</li>
+<li>保持环境独立。</li>
+</ul>
+<p>事实上，BLoC模式最初被设想为允许独立于平台重用相同的代码：Web应用程序，移动应用程序，后端。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/03/28/Flutter入门系列9---网络请求http/" itemprop="url">
+                Flutter入门系列9---网络请求http
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-03-28T23:14:46+08:00" content="2018-03-28">
+            2018-03-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/03/28/Flutter入门系列9---网络请求http/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/28/Flutter入门系列9---网络请求http/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>这次我们来做个简单的demo，去执行网络请求，加载回来数据后，在listView去显示。由于没有什么现成的api可以调用，这次只能借鉴了别人的demo来说了。。<br>效果类似这样的：<br><img src="https://i.imgur.com/JGF7W7c.png" alt=""><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/03/28/Flutter入门系列9---网络请求http/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -374,283 +666,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="url">
-                Flutter系列7---基础控件Image
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-03-15T23:14:46+08:00" content="2018-03-15">
-            2018-03-15
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/03/15/Flutter入门系列7---基础控件Image/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。</p>
-<p>– <strong>Image：</strong>通过ImageProvider来加载图片</p>
-<p>– <strong>Image.asset：</strong>用来加载本地资源图片</p>
-<p>– <strong>Image.file：</strong>用来加载本地（File文件）图片</p>
-<p>– <strong>Image.network：</strong>用来加载网络图片</p>
-<p>– <strong>Image.memory：</strong>用来加载Uint8List资源（byte数组）图片 </p>
-<p>相比安卓早期需要自己弄一个库去加载，实在厚道，自动封装了对应的加载方法了。怎么使用我们看下下面代码案例</p>
-<p>图片格式上支持： JPEG , PNG ,GIF , 动态 GIF , WebP , 动态WebP , BMP WBMP .</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/03/15/Flutter入门系列7---基础控件Image/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/03/10/Flutter入门系列6---基础控件Stack/" itemprop="url">
-                Flutter系列6---基础控件Stack
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-03-10T23:14:46+08:00" content="2018-03-10">
-            2018-03-10
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/03/10/Flutter入门系列6---基础控件Stack/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/10/Flutter入门系列6---基础控件Stack/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>Flutter还提供了一个叫stack的轮子，他有点像安卓的RelatvieLayout，不过安卓被用得最少的，可能是绝对布局了。<br>基本没派上用处。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/03/10/Flutter入门系列6---基础控件Stack/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/02/13/Flutter入门系列5---显示列表的ListView/" itemprop="url">
-                Flutter入门系列5---显示列表的ListView
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-02-13T22:45:46+08:00" content="2018-02-13">
-            2018-02-13
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/Flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">Flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/02/13/Flutter入门系列5---显示列表的ListView/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/02/13/Flutter入门系列5---显示列表的ListView/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>上一篇说了row和Column，但不带滚动。<br>这次我们说下带滚动效果的ListView</p>
-<p><img src="https://i.imgur.com/9nL2QDe.png" alt=""></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/02/13/Flutter入门系列5---显示列表的ListView/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/">&laquo;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/3/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&laquo;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/3/">&raquo;</a>
   </nav>
 
  </div>
@@ -684,7 +704,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -698,7 +718,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

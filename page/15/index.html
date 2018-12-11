@@ -203,6 +203,311 @@
           
           
             
+              <a class="post-title-link" href="/2016/01/02/设计模式系列8---发号施令的命令模式/" itemprop="url">
+                设计模式系列8---发号施令的命令模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-02T12:05:00+08:00" content="2016-01-02">
+            2016-01-02
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/02/设计模式系列8---发号施令的命令模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列8---发号施令的命令模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p> 好了，我们还是开一个故事吧。<br>我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/75d0dc88d43f8794d129179bd31b0ef419d53ac2.jpg" alt="enter image description here"></p>
+<p>而且我们的美工同学也有这样的经历吧！<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_qP1k.jpg" alt="enter image description here"></p>
+<p>这种混乱的需求来源，导致了下面这种情况。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_1RXA.jpg" alt="enter image description here"></p>
+<p>所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有<br>正所谓集体阵亡，不如死一个好。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/pm.jpg" alt="enter image description here"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/02/设计模式系列8---发号施令的命令模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/02/设计模式系列7---金点子多多的策略模式/" itemprop="url">
+                设计模式系列7---金点子多多的策略模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-02T00:40:00+08:00" content="2016-01-02">
+            2016-01-02
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/02/设计模式系列7---金点子多多的策略模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列7---金点子多多的策略模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>编这个策略模式的故事真的不好想，他和前面的桥接模式很类似，虽然桥接是结构模式，而策略是行为模式。</p>
+<p>这次的故事真的不容易编啊，我们来看下一个我们变成遇到的情况吧。</p>
+<pre><code> public class SortHelper{
+
+    public static final int SORT_HEAP=0;
+    public static final int SORT_BIN=1;
+    public static final int SORT_SHELL=2;
+
+    public void sort(int type){
+        if(type==SORT_HEAP){
+            HeapSort();
+        }else if(type==SORT_BIN){
+            BinSort();
+        }else if(type==SORT_SHELL){
+            ShellSort();
+        }
+    }
+
+    public void HeapSort(){
+        System.out.println(&quot;this is heap sort&quot;);
+
+    }
+
+    public void BinSort(){
+        System.out.println(&quot;this is heap sort&quot;);
+
+    }
+    public void ShellSort(){
+        System.out.println(&quot;this is shell sort&quot;);
+
+    }
+}
+</code></pre><p>在我们的这个排序小助手类，我们根据不同的算法来选择不同的实现。但这个有一些问题，如果我们以后加了新的方法怎么办？<br>一种方法淡然是直接简单的修改，加多了<code>else if</code>，然后加多新的方法，但这不太像ocp原则啊，我们对修改尽量封闭的。而且当条件多了的时候，整个就恨臃肿，不容易维护了。</p>
+<p>为此我们需要一些调整，这时候策略模式登场</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/02/设计模式系列7---金点子多多的策略模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/01/设计模式系列6---分隔的装饰模式/" itemprop="url">
+                设计模式系列6---分隔与包装的装饰模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-01T00:15:00+08:00" content="2016-01-01">
+            2016-01-01
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/01/设计模式系列6---分隔的装饰模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/01/设计模式系列6---分隔的装饰模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%BF%84%E7%BD%97%E6%96%AF%E5%A5%97%E5%A8%83.jpg" alt="enter image description here"></p>
+<p>在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(<strong>Decorator</strong>)。</p>
+<p>按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。</p>
+<p>应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。<br>不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….<br>打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/01/设计模式系列6---分隔的装饰模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2015/12/31/设计模式系列5---多变灵活的桥接/" itemprop="url">
                 设计模式系列5---多变灵活的桥接
               </a>
@@ -399,284 +704,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="url">
-                设计模式系列3---搞转换的适配器模型
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-30T21:26:00+08:00" content="2015-12-30">
-            2015-12-30
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>用过苹果手机的人对这两样东西应该很熟悉</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/adapter.jpg" alt="enter image description here">  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/charge_apple.jpg" alt="enter image description here"></p>
-<p>我们常常需要买多左边那个适配器来用，要不然以苹果这插头，没几个排插能插上的。<br>但有了这转换器的话，只要满足两端标准，就可以<strong>循环利用</strong>，很”环保”.</p>
-<p>例如这样： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203716.jpg" alt="enter image description here">    —   或者这个： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203809.jpg" alt="enter image description here"></p>
-<p>想当年的巴别塔，如果有这样的做语言转换的翻译人，估计也建好了把。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/" itemprop="url">
-                设计模式系列2---幕后黑手的代理模式
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-30T17:21:27+08:00" content="2015-12-30">
-            2015-12-30
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/设计模式系列2---幕后黑手的代理模式/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 今天我们来说说那个代理模式，他的一大功效就是成了挡子弹的人，代替幕后黑手出来干活。<br> 为何这么说呢？<br> 因为人如其名，代理，就是中间人代理商这样的，<br> 我们不用过问到底背后怎么做，只需要找到这个代理人，他可以帮我们搞定所有。</p>
-<p>假设有这么一个人，他可以制造茶叶蛋，炸弹，手枪，火箭，电脑病毒等等。嗯，是个人才。<br>现在他突然手头紧了，想找个朋友帮他看有没什么门路，卖点东西出去，但为了给自己留点后路，他就同他朋友说他会做<code>茶叶蛋</code>，是个十分正经的守法好人民，同时希望帮他卖一点，虽然这朋友并不知道他如意算盘背后是给他背后做的事业提供资金来源。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/" itemprop="url">
-                源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-30T00:27:46+08:00" content="2015-12-30">
-            2015-12-30
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。<br>所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。</p>
-<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23</p>
-<p>我们的<code>Listview</code>是继承于<code>AbsListView</code> 的</p>
-<pre><code>public class ListView extends AbsListView 
-</code></pre><p>而这个AbsListView里面帮我们做了大量的工作，包括与我们的adapter相关的工作，对View的复用等。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/16/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/14/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/16/">&raquo;</a>
   </nav>
 
  </div>
@@ -710,7 +742,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -724,7 +756,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

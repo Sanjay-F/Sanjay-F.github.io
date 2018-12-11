@@ -203,6 +203,282 @@
           
           
             
+              <a class="post-title-link" href="/2016/08/29/源码探索系列42---关于ViewPager/" itemprop="url">
+                源码探索系列42---关于ViewPager
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-08-29T23:11:00+08:00" content="2016-08-29">
+            2016-08-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/08/29/源码探索系列42---关于ViewPager/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/29/源码探索系列42---关于ViewPager/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。</p>
+<p>#起航<br>SDK23–support-v4</p>
+<pre><code>public class ViewPager extends ViewGroup 
+</code></pre><p>我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个函数。<br>再在去看下几个常用的接口，设置adapter的内容，以及选中特定页面的逻辑。<br>最后再看下对于touch事件的处理。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/08/29/源码探索系列42---关于ViewPager/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/07/18/关于压缩安装包大小问题/" itemprop="url">
+                关于压缩安装包大小问题
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-07-18T23:11:00+08:00" content="2016-07-18">
+            2016-07-18
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/07/18/关于压缩安装包大小问题/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/18/关于压缩安装包大小问题/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>在很久很久的塞班时代，那时候的程序几十KB就算大了。<br>在不久的几年前，很多APP也是几M大小。<br>不过到了最近几年，都是几十M的。<br>你看那微信，支付宝，滴滴打车，都是50M差不多大小的巨兽</p>
+<p>对于要压缩我们的apk大小，需要一些指导的思想，告诉我们往哪里找空间</p>
+<p><img src="http://ww4.sinaimg.cn/large/6d17e381gw1eqvmdlfzdoj20s206y76z.jpg" alt="enter image description here"></p>
+<p>这张图片告诉我们一个方向</p>
+<ol>
+<li>压缩项目代码量，删除过时没用的</li>
+<li>降低我们的资源文件大小，例如图片,用混淆等</li>
+<li>下载的第三方库和so等文件尝试用更小的</li>
+<li>一些assets的内容不用的移除</li>
+</ol>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/18/关于压缩安装包大小问题/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" itemprop="url">
+                源码探索系列41---关于DVM的Heap堆创建过程
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-22T12:54:46+08:00" content="2016-06-22">
+            2016-06-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>在上一篇的<a href="http://sanjay-f.github.io/2016/06/19/%E6%BA%90%E7%A0%81%E6%8E%A2%E7%B4%A2%E7%B3%BB%E5%88%9740---%E5%85%B3%E4%BA%8EDalvik%E7%9A%84%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">关于Dalvik的内存分配过程</a>，我们简单的看了下<code>new</code>一个对象时候的内存分配情况，期间我们多次的看到了HeapStruce的东西，他是负责存我们的Heap信息的，其中一些内容还是挺一笔带过的，这里来做更进一步的了解。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/06/22/源码探索系列41---关于DVM的Heap堆创建过程/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="url">
                 源码探索系列40---关于Dalvik的内存分配过程
               </a>
@@ -372,282 +648,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="url">
-                源码探索系列38---关于dalvik虚拟机
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-06-12T00:35:00+08:00" content="2016-06-12">
-            2016-06-12
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样</p>
-<ol>
-<li>我们的DVM（Dalvik Virtual Machine）是怎么启动的</li>
-<li>启动后，JAVA类是怎样的加载和初始化</li>
-<li>初始后，我们的函数Method是怎么执行的</li>
-</ol>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/05/28/安卓性能系列2---优化内存/" itemprop="url">
-                安卓性能系列2---优化内存
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-05-28T22:45:46+08:00" content="2016-05-28">
-            2016-05-28
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/05/28/安卓性能系列2---优化内存/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/28/安卓性能系列2---优化内存/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。<br>在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。<br>先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。</p>
-<p>本次涉及到的工具有Android Studio自带的Memory Monitor，然后是些adb命令。<br>最后来看下Deep Memory Profile。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/28/安卓性能系列2---优化内存/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/" itemprop="url">
-                安卓性能系列1---用TraceView找耗时操作
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-05-26T00:45:46+08:00" content="2016-05-26">
-            2016-05-26
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/26/安卓性能系列1---用TraceView找耗时操作/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。<br>当然据闻牛逼的人纯看代码直接看出来问题，哈。</p>
-<p>解决系统性能问题的几个主要步骤是：<strong>找-&gt;定-&gt;调</strong></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/6/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/4/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/6/">&raquo;</a>
   </nav>
 
  </div>
@@ -681,7 +686,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -695,7 +700,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

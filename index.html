@@ -396,6 +396,92 @@
           
           
             
+              <a class="post-title-link" href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" itemprop="url">
+                关于我们团队在掘金发的Flutter内容，欢迎围观
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-09-10T23:14:46+08:00" content="2018-09-10">
+            2018-09-10
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><p>在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观</p>
+<p><img src="https://i.imgur.com/Cf9u8Uc.png" alt=""></p>
+<p><a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">传送门</a> ： <a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts</a></p>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2018/09/05/JetPack源码探索系列4---WorkManager/" itemprop="url">
                 JetPack源码探索系列4---WorkManager
               </a>
@@ -574,113 +660,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/08/24/JetPack源码探索系列2---LiveData/" itemprop="url">
-                JetPack源码探索系列2---LiveData
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-08-24T20:21:00+08:00" content="2018-08-24">
-            2018-08-24
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/08/24/JetPack源码探索系列2---LiveData/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/24/JetPack源码探索系列2---LiveData/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <h1 id="LiveData"><a href="#LiveData" class="headerlink" title="LiveData"></a>LiveData</h1><p>LiveData是一个可以感知Activity、Fragment生命周期的数据容器。<br>当LiveData所持有的数据发生改变时，它会通知相应的观察者进行数据更新。<br>由于Activity、Fragment都已实现LifecycleOwner接口，</p>
-<p>所以持有LifecycleOwner引用的LiveData在LifecycleOwner的生命周期处于started或resumed时可以作出相应更新，<br>而在LifecycleOwner处于被销毁时停止更新。</p>
-<p>目前在项目使用了这个是改造了 <strong>网络请求，数据回包</strong>的问题。</p>
-<p>发送网络请求，然后用观察者来处理对应数据，省去自己在对回包时候的生命周期判断的恶心判断逻辑。</p>
-<p>从官方文档来看，LiveData的使用有以下几大好处</p>
-<ol>
-<li>保证UI状态和数据的统一：<br>LiveData采用了观察者设计模式。当生命周期状态改变时，LiveData会通知Observer对象。每次应用程序数据更改时，都会通知观察者对象，从而更新UI。</li>
-<li>减少内存泄漏：<br>LiveData能够感知到组件的生命周期，观察者绑定到生命周期对象，并在其相关生命周期被破坏后自行清理。</li>
-<li>当Activity停止时不会引起崩溃：<br>这是因为组件处于非激活状态时，不会收到LiveData中数据变化的通知</li>
-<li>不需要额外的手动处理来响应生命周期的变化：<br>这一点同样是因为LiveData能够感知组件的生命周期，所以就完全不需要在代码中告诉LiveData组件的生命周期状态。</li>
-<li>组件和数据相关的内容能实时更新：<br>组件在前台的时候能够实时收到数据改变的通知，这是可以理解的。当组件从后台到前台来时，LiveData能够将最新的数据通知组件，这两点就保证了组件中和数据相关的内容能够实时更新。</li>
-<li>资源共享：<br>通过继承LiveData类，然后将该类定义成单例模式，在该类封装监听一些系统属性变化，然后通知LiveData的观察者。</li>
-</ol>
-<p><strong>我们经常有这样的场景：</strong></p>
-<p>feed流-详情页这样的例子是最实在的，经常会跳去某个item的详情页，然后在里面做些处理，回到feed流页面，要保持数据的一致</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/08/24/JetPack源码探索系列2---LiveData/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/2/">&raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/2/">&raquo;</a>
   </nav>
 
  </div>
@@ -714,7 +698,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -728,7 +712,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

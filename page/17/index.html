@@ -203,6 +203,291 @@
           
           
             
+              <a class="post-title-link" href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/" itemprop="url">
+                源码探索系列15---那个AsyncTask里面的FutureTask
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-29T01:46:00+08:00" content="2015-12-29">
+            2015-12-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>很久前在写<a href="http://blog.csdn.net/sanjay_f/article/details/50237729" target="_blank" rel="noopener">源码探索系类2–AsyncTask</a>时候有提及到这个类，现在在这里把<code>FutureTask</code>，<code>Future</code>和<code>Callback</code>，这三个火枪手的关系温习下 </p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>就让我们进入主题，开始说说这个<strong>FutureTask</strong>吧。</p>
+<p>在安装开发过程中，系统限制我们对于耗时的任务是不能执行在主线程的，必须单独开一个线程去做。<br>所以我们在开发过程的一种写法是下面这样</p>
+<h2 id="1-用Runnable"><a href="#1-用Runnable" class="headerlink" title="1. 用Runnable"></a>1. <strong>用Runnable</strong></h2><pre><code>new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+         //do something
+         ...
+
+         myHandler.sendMessage(msg);   
+        }
+}).run();
+</code></pre><p>但有时候我们需要这个线程的运算结果，可我们没办法直接获取，因此安卓配套了一个Handler给我们用，利用他发送消息会我们的主线程，执行一些更新任务等。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/28/源码探索系列14---那个HandleThread/" itemprop="url">
+                源码探索系列14---那个HandleThread
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-28T22:05:00+08:00" content="2015-12-28">
+            2015-12-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/28/源码探索系列14---那个HandleThread/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列14---那个HandleThread/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>这篇文章被CSDN搞丢了，好在通过使用谷歌搜索，<br>看到历史的记录版本，现在再根据记忆，补充下内容。<br>算是恢复了这篇文章的大概的模样。虽然对于CSDN的来说这文章没什么，但对于我来说就是自己花的时间和精力。   </p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>这次我们来说说HandleThread，听名字好像就是Handler+Thread的感觉啊。<br>他和Handler的关系就像Service和IntentService一样，一个不支持耗时的任务，一个可以。<br>不过两者还是有点区别，一些是运行在主线程的，一个不在主线程跑。<br>很好理解，要是在主线程跑也能搞耗时任务，那不就逆天了？？<br>对于他的使用，我们就不介绍了，让我们看下他实际做些什么吧。</p>
+<p>就从我们的HandleThread的声明开始说起吧<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/28/源码探索系列14---那个HandleThread/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="url">
+                源码探索系列13---Window的PhoneWindow与WindowManager
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-28T17:36:00+08:00" content="2015-12-28">
+            2015-12-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>关于Window，PhoneWindow和WindowManager三者的关系是：</p>
+<blockquote>
+<p>Window是一个抽象类，他的具体实现是PhoneWindow<br>我们通过WindowManager来管理Window。</p>
+</blockquote>
+<p>我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。</p>
+<p>很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑出来一个小悬浮窗来提示用户。现在看得多的就是各种管家关于内存的提示！这真的很让人纠结的安卓机啊！特别是某米的手机，当年发现他不支持这个功能！搞到得单独为他开发一个别的方式….</p>
+<p>好了，说这么多，我们该从哪里开始说起呢？</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="url">
                 源码探索系列12---关于事件分发机制
               </a>
@@ -380,294 +665,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/25/开源系列1---造个图片选择器/" itemprop="url">
-                开源系列1---造个图片选择器
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-25T11:41:00+08:00" content="2015-12-25">
-            2015-12-25
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/25/开源系列1---造个图片选择器/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/25/开源系列1---造个图片选择器/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>打算开个开源系列，用来分享在项目过程中些的一些小轮子。<br>在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。<br>能力有些，实现得也不算很优雅。<br>还望各大神指点。</p>
-<h1 id="我要造轮子"><a href="#我要造轮子" class="headerlink" title="我要造轮子"></a>我要造轮子</h1><p>作为一名爱折腾人员，重复造轮子这种事还是常做的。<br>没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！<br>例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等问题</p>
-<p> <a href="https://github.com/Sanjay-F/PhotoSelector" target="_blank" rel="noopener">项目的下载地址请点击这里</a></p>
-<p>我们直接上效果图，这个是完成后的样子，目前改得勉强像一回事了。<br>就先粘贴上来，有需要的就拿去再根据自己需要改一个。</p>
-<p> <img src="http://img.blog.csdn.net/20151224225205588" alt="这里写图片描述">     —  <img src="http://img.blog.csdn.net/20151224225846858" alt="这里写图片描述"></p>
-<p><img src="http://img.blog.csdn.net/20151224233556670" alt="这里写图片描述"></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/25/开源系列1---造个图片选择器/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="url">
-                源码探索系列10---替代Listview的RecycleView
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-23T01:22:00+08:00" content="2015-12-23">
-            2015-12-23
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，<a href="http://blog.csdn.net/sanjay_f/article/details/48830311" target="_blank" rel="noopener">可以看这篇文章</a>。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。</p>
-<p>一些不要搞懂的问题</p>
-<ol>
-<li>为何谷歌推荐用这个，背后的效率是高在哪里？</li>
-<li>LayoutManager是怎么去弄不同布局的</li>
-</ol>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="url">
-                源码探索系列9---四大金刚之ContentProvider
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-19T02:42:00+08:00" content="2015-12-19">
-            2015-12-19
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧</p>
-<h1 id="起航-—-ContentResolver"><a href="#起航-—-ContentResolver" class="headerlink" title="起航 — ContentResolver"></a>起航 — ContentResolver</h1><p>API： 23</p>
-<p>说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！<br>现在都不能记起来用他来干嘛了，虽然知道他能用来做跨进程通讯用，不过对于一般的app。<br>这玩意还真的用的次数少啊! 现在能想起来的一次使用这个就是要获取图片的时候。<br>以前开发的时候遇到的恶心的是，有些Rom把相册给阉割了，搞了个别的来代替，导致调不了图库！<br>所以搞到需要自己开发一个，真的很无语！ </p>
-<pre><code>ContentResolver mContentResolver = this.getContentResolver();
-Cursor mCursor = mContentResolver.query(mImageUri, null,
-            MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot;
-                    + MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot; + &quot; or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot;,
-            new String[]{&quot;image/jpeg&quot;, &quot;image/png&quot;, &quot;image/jpg&quot;, &quot;image/jpe&quot;},
-            MediaStore.Images.Media.DATA);
-</code></pre><p>从这里我们开始看起吧</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/16/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/18/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/16/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/18/">&raquo;</a>
   </nav>
 
  </div>
@@ -701,7 +703,7 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -715,7 +717,7 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

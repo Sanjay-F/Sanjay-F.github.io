@@ -203,6 +203,292 @@
           
           
             
+              <a class="post-title-link" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="url">
+                源码探索系列23---那个做布局性能优化的ViewStub
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-02-18T23:25:00+08:00" content="2016-02-18">
+            2016-02-18
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-02-18%2023.22.53.png" alt="enter image description here"></p>
+<p>ViewStub在以开始学安卓的时候就有听说过了，但至今使用的次数都不多，只是在一些加载失败显示错误界面之类的情况用到。虽然他是布局优化的工具之一,不过不得不说，他的实际使用频率还是偏低，可能是我优化的不够多。逃..<br>他的使用形式是下面这样，在xml中</p>
+<pre><code>&lt;ViewStub
+    android:id=&quot;@+id/am_demoStub_vs&quot;
+    android:layout=&quot;@layout/content_main&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;wrap_content&quot;/&gt;
+</code></pre><p>然后在我们的代码。</p>
+<pre><code>if (demoStubView == null) {
+   ViewStub mViewStub = (ViewStub) view.findViewById(R.id.am_demoStub_vs);
+   demoStubView = mViewStub.inflate();
+}
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/02/09/春节间的2015年的小结/" itemprop="url">
+                春节间的2015年的小结
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-02-09T15:27:00+08:00" content="2016-02-09">
+            2016-02-09
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/编程人生/" itemprop="url" rel="index">
+                  <span itemprop="name">编程人生</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/02/09/春节间的2015年的小结/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/09/春节间的2015年的小结/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/img8.jpg" alt="enter image description here"></p>
+<p>乱折腾了一年，又是一年，到了今天开始七天的年假。<br>一年前，还在做所谓的创业，还在坚持着渺茫的希望。<br>像很多人说的那样的一句话:”那时候还很好，很想回到过去。”</p>
+<p>但我不要，我不想回去。<br>记得过去，更好的走下去。<br>成长，没有后退的路。</p>
+<p>面对，作出选择，改进才是一条康庄大道。<br>就像这张我喜欢的w7默认墙纸一样，突破寒冷看到的那一缕光。</p>
+<pre><code>只要坚持,梦想总是可以实现的。
+</code></pre><p>时间，时间，还是时间。不知不觉de过了一年，从学校到社会的切换。写总结这种事，对于我这种粗人，多少觉得有点别扭。</p>
+<p>总结<br>到底要记录点什么？<br>得与失？<br>成长的故事？迷惑?</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/02/09/春节间的2015年的小结/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/28/学习Objective-C的一些事/" itemprop="url">
+                学习Objective-C的一些事
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-28T00:14:46+08:00" content="2016-01-28">
+            2016-01-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Objective-C/" itemprop="url" rel="index">
+                  <span itemprop="name">Objective-C</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/28/学习Objective-C的一些事/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/28/学习Objective-C的一些事/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/sg1024.jpg" alt="enter image description here"></p>
+<p>好久没来更新了，加了快一个月的班，终于快看到曙光了，呵，虽然只是搭建完功能框架和最紧急的需求功能。后面还有很多要加上去的功能在挥手。</p>
+<p>花了周日一天和两个工作日的晚上，总算看完了 <code>Programming in Objective-C</code>，整本五百多页，感觉应该是有扎实的<code>C</code>和<code>java</code>基础原因，整本读起来还是很轻松，加上基本没什么生词量。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/objectivec.jpg" alt="enter image description here"><br>虽然这广州天气也是见了鬼了，居然冷到<br>            <strong>下雪</strong>   ，  <strong>下雪</strong>，<strong>下雪</strong><br>回去加个班，这风雨一吹，直接发起烧来，整个人真是跪了，不过感觉自己还是挺顽强的啊。<br>哈哈。这都能看的下书。</p>
+<p>部分涉及到<code>C</code>的基础的实在是在熟悉了，当初高三毕业暑假就在图书馆看这本<code>《C primer plus》</code></p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/41YXbLNwQjL._SY400_.jpg" alt="enter image description here"></p>
+<p>整个暑假朝八晚六的就这样耗在图书馆，边看边敲了两个多月才搞定！！加上读大学时候看了下K&amp;R的经典。基本学会了。想想当年好像混的还是尖子班，是啊，大学也分班。在A班期末考个96分，应该也是不错的吧。</p>
+<hr>
+<p>好了，我的好朋友Shelley提醒我要早点睡觉了，今天就不写了，洗澡睡觉。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>今天没后记。</p>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/01/17/关于BaseActivity的最佳实践/" itemprop="url">
                 关于BaseActivity的最佳实践
               </a>
@@ -392,290 +678,11 @@ public void computeScroll() {
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" itemprop="url">
-                源码探索系列21---帮助做手势判断的GestureDetector
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-11T15:37:00+08:00" content="2016-01-11">
-            2016-01-11
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/rdn_5215744b835e8.jpg" alt="enter image description here"></p>
-<p>很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个<code>GestureDetector</code>，发现真是大法好啊。</p>
-<p>今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="url">
-                源码探索系列20---安装APK的PackageManagerService
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-10T23:56:46+08:00" content="2016-01-10">
-            2016-01-10
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 我们新新苦苦的写好了程序，打好包，给用户安装。<br> 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？</p>
-<p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png" alt="enter image description here"></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="url">
-                源码探索系列19---加载布局的LayoutInflater
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-10T00:31:46+08:00" content="2016-01-10">
-            2016-01-10
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。</p>
-<pre><code>@Override
-public View getView(int i, View view, ViewGroup viewGroup) {
-    SimpleViewHolder viewHolder;
-    if (view == null) {
-        view = LayoutInflater.from(mContext).inflate(R.layout.listitem_demo, null);
-        viewHolder = new SimpleViewHolder();
-        viewHolder.bindView(view);
-        view.setTag(viewHolder);
-    } else {
-        viewHolder = (SimpleViewHolder) view.getTag();
-    }
-</code></pre><p>那么问题来了，这个家伙是怎么加载到他的呢？<br>我们今天去看下。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
   </nav>
 
  </div>
@@ -709,7 +716,7 @@ public View getView(int i, View view, ViewGroup viewGroup) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -723,7 +730,7 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

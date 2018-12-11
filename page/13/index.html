@@ -203,6 +203,294 @@
           
           
             
+              <a class="post-title-link" href="/2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="url">
+                设计模式系列18---有状态的状态模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-04T23:42:00+08:00" content="2016-01-04">
+            2016-01-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/04/设计模式系列18---有状态的状态模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/53715814201004022126431684313353485_004.jpg" alt="enter image description here"></p>
+<p> 今天我们来聊聊个红绿灯，我们知道有个口诀叫：</p>
+<blockquote>
+<p>红灯停<br>绿灯行<br>黄灯亮了等一等</p>
+</blockquote>
+<p> 但这不是我们关注的重点，我们关注的点是我们红绿灯的状态！</p>
+<p>一般是 <strong>绿灯 -&gt;  黄灯-&gt; 红灯</strong> 的顺序。</p>
+<blockquote>
+<p>绿灯能且只能跑到黄灯<br>黄灯能且只能跑到红灯<br>红灯能且只能跑到绿灯</p>
+</blockquote>
+<p>不过曾经深圳尝试改革，直接从<code>绿灯</code>跳成了<code>红灯</code>，消失一出，当时一片哗然，在试行了一段时间后，发现不妥就又恢复了。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/04/设计模式系列18---有状态的状态模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="url">
+                设计模式系列17---深入了解的访问者模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-04T19:05:00+08:00" content="2016-01-04">
+            2016-01-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/u=3692463948,2718815047&amp;fm=21&amp;gp=0.jpg" alt="enter image description here"></p>
+<p>我们有巡视组，他的主要工作就是巡视各个地方的一些重要点，看下他们的工作展开情况，整个巡视过程对重点对象深入的调查，如</p>
+<ul>
+<li>调阅、复制有关文件、档案、会议记录等资料；</li>
+<li>以适当方式对被巡视地区、单位的下属单位或者部门进行走访调研；</li>
+<li>听取被巡视地区、单位党委（党组）的工作汇报和有关部门的专题汇报；</li>
+</ul>
+<p>除了上面的，还有别的很多内容，所以我们的巡视组可以对被调查对象有深入的了解，如果有猫腻也可以很快的被发现。</p>
+<p>那么问题来了，我们该怎么做这样的一个模型呢？</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="url">
+                设计模式系列16---响应请求的责任链模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-04T17:31:00+08:00" content="2016-01-04">
+            2016-01-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/Image.jpg" alt="enter image description here"></p>
+<p> 所谓责任落实到位，落实到人，就是要找对特定事情有处理权限的人。</p>
+<p> 我们以法院为例子，小事情就在基层人民法院处理了，大一点的事情就找地市级的中级法院，如果事情闹大的就省级的高级人民法院，如果这事件特别重大，那就是最高人民法院了。</p>
+<p>所以我们看下四个级别：</p>
+<pre><code>最高人民法院 &gt; 高级人民法院  &gt; 中级人民法院 &gt; 基层人民法院
+</code></pre><p>那么问题来了，当年窦娥冤情换成现在是归谁管呢？可以跳级跑去告御状吗?</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/F2004111210514300000.jpg" alt="enter image description here"><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="url">
                 设计模式系列15---构表分离的建造者模型
               </a>
@@ -375,282 +663,11 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="url">
-                设计模式系列13---感知变化的观察者模型
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T23:18:00+08:00" content="2016-01-03">
-            2016-01-03
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/33a603bc503a96dd46b3cc65667bb656.jpg" alt="enter image description here"><br>电影《模仿游戏》中，讲述了我们的计算机科学之父<code>图灵</code>通过制造背后那个大机器，来协助盟军破译德国密码系统<code>“英格玛”</code>，从而扭转二战战局的经历。</p>
-<p>如果没图灵用这大机器来破译情报，知道敌军动向，估计整个二战战局可能都被改写！<br>尽管历史没假设，事实就是事实。</p>
-<p>今天我们要说的观察者就是这样的功效，他监视着被观察者，一有什么风吹草动就打报告。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="url">
-                设计模式系列12---遍历统一的迭代模式
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T21:22:00+08:00" content="2016-01-03">
-            2016-01-03
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/W020141211406589017323.jpg" alt="enter image description here"></p>
-<p>对于迭代这件事，我们曾经遇到过很多类似的事情，</p>
-<p>例如：上课点名！！！</p>
-<p> 每次我们的课室<code>存储</code>了一堆的<code>学生对象</code>，然后老师开始<code>迭代名单</code>–点名，<br> 判断某学生是否来上课了，没来的平时分给你扣点，积少成多，考试就压力大了。</p>
-<p> 大学时代满满的回忆啊。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="url">
-                设计模式系列11---快速拷贝的原型模型
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T00:34:00+08:00" content="2016-01-03">
-            2016-01-03
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/2013050615205185.jpg" alt="enter image description here"><br>早年一直有新闻报道，XXX拖欠农民工工资的情况，甚至没有和员工签订合同的。这种做法当然不好，但现实也是挺残酷的，上门为了利润，就这么做，能省就省，遇到什么工伤之类的都不用赔，因为没有合同，你怎么说工伤呢？<br>这和大公司开一家小公司，去做特定的项目类似，规避风险。</p>
-<p>假设我们有一份    重要的合同，需要一式两份保存，每人个一份。<br>这时候我们要快速的备份一份，因为内容完全一样，这时候就可以用原型模型</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/14/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/12/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/14/">&raquo;</a>
   </nav>
 
  </div>
@@ -684,7 +701,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -698,7 +715,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>
