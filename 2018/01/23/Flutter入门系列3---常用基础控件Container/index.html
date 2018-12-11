@@ -30,7 +30,7 @@
 
 
 
-  <meta name="keywords" content="android,Flutter," />
+  <meta name="keywords" content="android,Flutter,Container," />
 
 
 
@@ -39,21 +39,22 @@
   <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
 
 
-<meta name="description" content="上一篇说了Container，流水的讲了Row和Column。这里来进一步的说下.做过web的估计很好理解这个，因为这个和Web中Flex布局很像，但坑的是不带滚动属性，不像ScrollView。如果超出了一行，在debug下面则会显示溢出的提示。    这个顶部有三个控件，红黄蓝，通过设置flex来设置了占比。  class MyAppBar extends StatelessWidget {">
-<meta name="keywords" content="android,Flutter">
+<meta name="description" content="这一篇基于官方的案例，说下基础控件TexT，IconButton，Column，Row.着重Container的使用 先上下效果图  顶部蓝色三个元素，一个汉堡图，一个title，一个右边的搜索图。然后下面是一个简单的text。">
+<meta name="keywords" content="android,Flutter,Container">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flutter入门系列3---基础列表控件Row和Column">
-<meta property="og:url" content="http://yoursite.com/2018/01/28/Flutter入门系列4---边界控制widget/index.html">
+<meta property="og:title" content="Flutter入门系列3---常用基础控件Container">
+<meta property="og:url" content="http://yoursite.com/2018/01/23/Flutter入门系列3---常用基础控件Container/index.html">
 <meta property="og:site_name" content="SanjayF&#39;s blog">
-<meta property="og:description" content="上一篇说了Container，流水的讲了Row和Column。这里来进一步的说下.做过web的估计很好理解这个，因为这个和Web中Flex布局很像，但坑的是不带滚动属性，不像ScrollView。如果超出了一行，在debug下面则会显示溢出的提示。    这个顶部有三个控件，红黄蓝，通过设置flex来设置了占比。  class MyAppBar extends StatelessWidget {">
+<meta property="og:description" content="这一篇基于官方的案例，说下基础控件TexT，IconButton，Column，Row.着重Container的使用 先上下效果图  顶部蓝色三个元素，一个汉堡图，一个title，一个右边的搜索图。然后下面是一个简单的text。">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://i.imgur.com/HY4o4wN.png">
-<meta property="og:image" content="https://i.imgur.com/bgfgrWb.png">
-<meta property="og:updated_time" content="2018-12-11T02:46:06.177Z">
+<meta property="og:image" content="https://i.imgur.com/RYjmJfo.png">
+<meta property="og:image" content="https://i.imgur.com/i2QR8OM.jpg">
+<meta property="og:image" content="https://i.imgur.com/X0C8SHw.png">
+<meta property="og:updated_time" content="2018-12-11T02:51:17.305Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Flutter入门系列3---基础列表控件Row和Column">
-<meta name="twitter:description" content="上一篇说了Container，流水的讲了Row和Column。这里来进一步的说下.做过web的估计很好理解这个，因为这个和Web中Flex布局很像，但坑的是不带滚动属性，不像ScrollView。如果超出了一行，在debug下面则会显示溢出的提示。    这个顶部有三个控件，红黄蓝，通过设置flex来设置了占比。  class MyAppBar extends StatelessWidget {">
-<meta name="twitter:image" content="https://i.imgur.com/HY4o4wN.png">
+<meta name="twitter:title" content="Flutter入门系列3---常用基础控件Container">
+<meta name="twitter:description" content="这一篇基于官方的案例，说下基础控件TexT，IconButton，Column，Row.着重Container的使用 先上下效果图  顶部蓝色三个元素，一个汉堡图，一个title，一个右边的搜索图。然后下面是一个简单的text。">
+<meta name="twitter:image" content="https://i.imgur.com/RYjmJfo.png">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -63,7 +64,7 @@
   };
 </script>
 
-  <title> Flutter入门系列3---基础列表控件Row和Column | SanjayF's blog </title>
+  <title> Flutter入门系列3---常用基础控件Container | SanjayF's blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
@@ -206,7 +207,7 @@
           
           
             
-              Flutter入门系列3---基础列表控件Row和Column
+              Flutter入门系列3---常用基础控件Container
             
           
         </h1>
@@ -215,8 +216,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2018-01-28T20:45:46+08:00" content="2018-01-28">
-            2018-01-28
+          <time itemprop="dateCreated" datetime="2018-01-23T22:45:46+08:00" content="2018-01-23">
+            2018-01-23
           </time>
         </span>
 
@@ -241,8 +242,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2018/01/28/Flutter入门系列4---边界控制widget/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/01/28/Flutter入门系列4---边界控制widget/" itemprop="commentsCount"></span>
+              <a href="/2018/01/23/Flutter入门系列3---常用基础控件Container/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/01/23/Flutter入门系列3---常用基础控件Container/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,129 +257,222 @@
       
 
       
-        <span itemprop="articleBody"><p> 上一篇说了Container，流水的讲了Row和Column。这里来进一步的说下.<br>做过web的估计很好理解这个，因为这个和Web中Flex布局很像，但坑的是不带滚动属性，不像ScrollView。如果超出了一行，在debug下面则会显示溢出的提示。 </p>
-<p> <img src="https://i.imgur.com/HY4o4wN.png" alt=""></p>
-<p>这个顶部有三个控件，红黄蓝，通过设置flex来设置了占比。</p>
-<pre><code> class MyAppBar extends StatelessWidget {
-  MyAppBar({this.title});
+        <span itemprop="articleBody"><p>这一篇基于官方的案例，说下基础控件TexT，IconButton，Column，Row.着重Container的使用</p>
+<p>先上下效果图</p>
+<p><img src="https://i.imgur.com/RYjmJfo.png" alt=""></p>
+<p>顶部蓝色三个元素，一个汉堡图，一个title，一个右边的搜索图。<br>然后下面是一个简单的text。</p>
+<a id="more"></a>
+<p>先上代码</p>
+<pre><code>import &apos;package:flutter/material.dart&apos;;
 
+//运行的入口，就像java执行main方法一样
+void main() =&gt; runApp(MaterialApp(
+      title: &apos;My app&apos;, // used by the OS task switcher
+      home: MyScaffold() //绘制内容为MyScaffold
+    )); 
+
+
+class MyScaffold extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Material is a conceptual piece of paper on which the UI appears.
+
+    //这个返回的内容是个列表Column，上面是MyAppBar,下一行是Center里面的内容
+    return Material(
+      // Column is a vertical, linear layout.
+      child: Column(
+        children: &lt;Widget&gt;[
+          MyAppBar(
+            title: Text(
+              &apos;Example title&apos;,
+              style: Theme.of(context).primaryTextTheme.title,
+            ),
+          ),
+
+          Center(
+            child: Text(&apos;Hello, world!&apos;),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class MyAppBar extends StatelessWidget {
+
+  MyAppBar({this.title});
   final Widget title;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 56.0, // in logical pixels
 
-        decoration: BoxDecoration(color: Colors.blue[500]),
-        // Row is a horizontal, linear layout.
-        child: Row(
-          children: &lt;Widget&gt;[
-            Expanded(
-              child: Container(
-                color: Colors.red,
-                padding: EdgeInsets.all(5.0),
-              ),
-              flex: 1,
-            ),
-            Expanded(
-              child: Container(
-                color: Colors.yellow,
-                padding: EdgeInsets.all(5.0),
-              ),
-              flex: 2,
-            ),
-            Expanded(
-              child: Container(
-                color: Colors.blue,
-                padding: EdgeInsets.all(5.0),
-              ),
-              flex: 1,
-            ),
-          ],
-        )
+      height: 56.0, // in logical pixels
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      decoration: BoxDecoration(color: Colors.blue[500]),
+
+      // Row is a horizontal, linear layout.
+      child: Row( 
+        //row就是水平的线性布局空间。
+        children: &lt;Widget&gt;[
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: null, // 按钮的点击事件，这里没加
+          ),
+
+          // Expanded expands its child to fill the available space.
+          Expanded(
+            child: title,
+          ),
+            //有点像LineLayout里面的weight=1操作，撑满所有
+
+          IconButton(
+            icon: Icon(Icons.search),
+            tooltip: &apos;Search&apos;,
+            onPressed: null,
+          ),
+        ],
+      ),
     );
   }
 }
-</code></pre><a id="more"></a>
-<p>我们看下row的构造函数内容：</p>
-<pre><code>class Row extends Flex {
-  /// Creates a horizontal array of children.
-  ///
-  /// The [direction], [mainAxisAlignment], [mainAxisSize],
-  /// [crossAxisAlignment], and [verticalDirection] arguments must not be null.
-  /// If [crossAxisAlignment] is [CrossAxisAlignment.baseline], then
-  /// [textBaseline] must not be null.
-  ///
-  /// The [textDirection] argument defaults to the ambient [Directionality], if
-  /// any. If there is no ambient directionality, and a text direction is going
-  /// to be necessary to determine the layout order (which is always the case
-  /// unless the row has no children or only one child) or to disambiguate
-  /// `start` or `end` values for the [mainAxisAlignment], the [textDirection]
-  /// must not be null.
-  Row({
+</code></pre><p>看我简单注释和效果，其实也就明白了Column，Row类似于安卓的LineLayout在方向的两个拆分。然后Container是个容器<br>TexT，IconButton这是基础的小控件。</p>
+<h1 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h1><p>官方给出的简介，是一个结合了绘制（painting）、定位（positioning）以及尺寸（sizing）widget的widget。<br>它是一个组合的widget，内部有绘制widget、定位widget、尺寸widget。后续看到的不少widget，都是通过一些更基础的widget组合而成的。</p>
+<pre><code>Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; StatelessWidget &gt; Container
+
+Container({
     Key key,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.max,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
-    TextDirection textDirection,
-    VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
-    List&lt;Widget&gt; children = const &lt;Widget&gt;[],
-  }) : super(
-    children: children,
-    key: key,
-    direction: Axis.horizontal,
-    mainAxisAlignment: mainAxisAlignment,
-    mainAxisSize: mainAxisSize,
-    crossAxisAlignment: crossAxisAlignment,
-    textDirection: textDirection,
-    verticalDirection: verticalDirection,
-    textBaseline: textBaseline,
-  );
+    this.alignment,
+    this.padding,
+    Color color,
+    Decoration decoration,
+    this.foregroundDecoration,
+    double width,
+    double height,
+    BoxConstraints constraints,
+    this.margin,
+    this.transform,
+    this.child,
+  }) 
+</code></pre><p>稍微说下就是，你可能会发现，只有contaienr那一次有height，padding等属性的设置，而在IconButton就没有，因为后者却是没有哈哈。<br>所以才说container有什么定位，尺寸能力，原本我们在Android熟悉的对TextView做的一堆设置，在这里通通没有，你需要拿多Container去包一层，从而获得对应的能力</p>
+<ul>
+<li>alignment：控制child的对齐方式，如果container或者container父节点尺寸大于child的尺寸，这个属性设置会起作用，有很多种对齐方式。</li>
+<li>padding：decoration内部的空白区域，如果有child的话，child位于padding内部。padding与margin的不同之处在于，padding是包含在content内，而margin则是外部边界，设置点击事件的话，padding区域会响应，而margin区域不会响应。</li>
+<li>color：用来设置container背景色，如果foregroundDecoration设置的话，可能会遮盖color效果。</li>
+<li>decoration：绘制在child后面的装饰，设置了decoration的话，就不能设置color属性，否则会报错，此时应该在decoration中进行颜色的设置。</li>
+<li>foregroundDecoration：绘制在child前面的装饰。</li>
+<li>width：container的宽度，设置为double.infinity可以强制在宽度上撑满，不设置，则根据child和父节点两者一起布局。</li>
+<li>height：container的高度，设置为double.infinity可以强制在高度上撑满。</li>
+<li>constraints：添加到child上额外的约束条件。</li>
+<li>margin：围绕在decoration和child之外的空白区域，不属于内容区域。</li>
+<li>transform：设置container的变换矩阵，类型为Matrix4。</li>
+<li>child：container中的内容widget。</li>
+</ul>
+<p><img src="https://i.imgur.com/i2QR8OM.jpg" alt="我们来看下盒子模型"></p>
+<p>Container首先有padding围绕着子部件 (图中深绿色部分) , 将宽高作为约束 . 然后 container 被额外的空白控件围绕, 叫做 margin.</p>
+<p>其绘制顺序大致为:</p>
+<ul>
+<li>先应用给定的变换 transform</li>
+<li>然后绘制 decoration</li>
+<li>再绘制子部件 child</li>
+<li>最后绘制 foregroundDecoration</li>
+</ul>
+<p>transform 是指对widget在原有基础上做一些类似旋转、平移之类的变换 .<br>decoration 以及 foregroundDecoration 是部件的 背景/前景 ‘装饰’ , 比如绘制部件的边框,背景图片等都是 decoration 和 foregroundDecoration中设置的.</p>
+<p>看下下面示例：</p>
+<pre><code>class DemoContainer extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    var imgUrl = &quot;https://ws1.sinaimg.cn/large/006tNc79gy1fpa5bvsqskj3044048mx5.jpg&quot;;
+    return new Container(
+        padding: const EdgeInsets.all(16.0),  // 内边距
+        color: new Color(0xFFF2F2F2),         // 背景色
+        alignment: Alignment.center,          //子部件对齐方式
+        child: new Container(                 // 子部件
+          width: 400.0,                           //宽
+          height: 400.0,                          //高
+          // color 与 decoration 互斥 .如需设置decoration 和 color , 可在decoration中设置color
+          // color: Colors.blueGrey,
+          padding: const EdgeInsets.all(16.0),
+          alignment: Alignment.center,
+          decoration: new BoxDecoration(
+            color: Colors.blueGrey,
+            border: new Border.all(
+              color: Colors.blue,
+              width: 8.0,
+            ),
+            image: new DecorationImage(image: new NetworkImage(imgUrl))
+          ),
+          child: new Text(&apos;Halcyon&apos;,style: const TextStyle(color: Colors.blue,fontSize: 24.0),),
+        )
+
+    );
+  }
 }
-</code></pre><p><img src="https://i.imgur.com/bgfgrWb.png" alt=""></p>
+</code></pre><p><img src="https://i.imgur.com/X0C8SHw.png" alt=""></p>
+<p>首先导航栏下面整个是一个内边距padding 16 的灰色(#F2F2F2)背景的Container ,</p>
+<p>其唯一子部件是居中对齐的, 然后我们主要说明的就是这个子部件,同样是个Container<br>这个子 Container 宽高均为400,也设置了内边距<strong> padding 16 </strong>.</p>
+<p>其 decoration 设置为拥有四周宽度为<strong>8</strong>的<strong>蓝色边框</strong>,并且有一个表情包图片作为容器背景, 由于没指定图片拉伸方式 , 此时图片以原始大小居中显示 。同时这个容器拥有一个内容为 ‘Halcyon’ 的文本子控件居中。</p>
+<h2 id="尺寸的调节"><a href="#尺寸的调节" class="headerlink" title="尺寸的调节"></a>尺寸的调节</h2><p>类似view的onMeasure，而Container自身尺寸的调节分两种情况：</p>
 <ol>
-<li><p>MainAxisAlignment：主轴方向上的对齐方式，会对child的位置起作用，默认是start。<br>其中MainAxisAlignment枚举值：</p>
-<ul>
-<li>center：将children放置在主轴的中心；</li>
-<li>end：将children放置在主轴的末尾；</li>
-<li>spaceAround：将主轴方向上的空白区域均分，使得children之间的空白区域相等，但是首尾child的空白区域为1/2；</li>
-<li>spaceBetween：将主轴方向上的空白区域均分，使得children之间的空白区域相等，首尾child都靠近首尾，没有间隙；</li>
-<li>spaceEvenly：将主轴方向上的空白区域均分，使得children之间的空白区域相等，包括首尾child；</li>
-<li><p>start：将children放置在主轴的起点；</p>
-<p>其中spaceAround、spaceBetween以及spaceEvenly的区别，就是对待首尾child的方式。其距离首尾的距离分别是空白区域的1/2、0、1。</p>
-</li>
-</ul>
-</li>
-<li><p>MainAxisSize：在主轴方向占有空间的值，默认是max。<br>MainAxisSize的取值有两种：</p>
-<ul>
-<li>max：根据传入的布局约束条件，最大化主轴方向的可用空间；</li>
-<li>min：与max相反，是最小化主轴方向的可用空间；</li>
-</ul>
-</li>
-<li><p>CrossAxisAlignment：children在交叉轴方向的对齐方式，与MainAxisAlignment略有不同。<br>CrossAxisAlignment枚举值有如下几种：</p>
-<ul>
-<li>baseline：在交叉轴方向，使得children的baseline对齐；</li>
-<li>center：children在交叉轴上居中展示；</li>
-<li>end：children在交叉轴上末尾展示；</li>
-<li>start：children在交叉轴上起点处展示；</li>
-<li>stretch：让children填满交叉轴方向；</li>
-</ul>
-</li>
-<li><p>TextDirection：阿拉伯语系的兼容设置，一般无需处理。</p>
-</li>
-<li><p>VerticalDirection：定义了children摆放顺序，默认是down。<br>VerticalDirection枚举值有两种：</p>
-<ul>
-<li>down：从top到bottom进行布局；</li>
-<li>up：从bottom到top进行布局。</li>
-</ul>
-<p>top对应Row以及Column的话，就是左边和顶部，bottom的话，则是右边和底部。TextBaseline：使用的TextBaseline的方式，有两种，前面已经介绍过。</p>
-</li>
+<li>Container在没有子节点（children）的时候，会试图去变得足够大。除非constraints是unbounded限制，在这种情况下，Container会试图去变得足够小。</li>
+<li>带子节点的Container，会根据子节点尺寸调节自身尺寸，但是Container构造器中如果包含了width、height以及constraints，则会按照构造器中的参数来进行尺寸的调节。</li>
 </ol>
-<h2 id="Column"><a href="#Column" class="headerlink" title="Column"></a>Column</h2><p>Row和Column都是Flex的子类，只是direction参数不同。Column各方面同Row，因此在这里不再另行讲解。</p>
-<pre><code> Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObjectWidget &gt; MultiChildRenderObjectWidget &gt; Flex &gt; Row
-Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObjectWidget &gt; MultiChildRenderObjectWidget &gt; Flex &gt; Column
-</code></pre><p>我们来看下类源码的地方<br>    class Column extends Flex {<br>      /// Creates a vertical array of children.<br>      ///<br>      /// The [direction], [mainAxisAlignment], [mainAxisSize],<br>      /// [crossAxisAlignment], and [verticalDirection] arguments must not be null.<br>      /// If [crossAxisAlignment] is [CrossAxisAlignment.baseline], then<br>      /// [textBaseline] must not be null.<br>      ///<br>      /// The [textDirection] argument defaults to the ambient [Directionality], if<br>      /// any. If there is no ambient directionality, and a text direction is going<br>      /// to be necessary to disambiguate <code>start</code> or <code>end</code> values for the<br>      /// [crossAxisAlignment], the [textDirection] must not be null.<br>      Column({<br>        Key key,<br>        MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,<br>        MainAxisSize mainAxisSize = MainAxisSize.max,<br>        CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,<br>        TextDirection textDirection,<br>        VerticalDirection verticalDirection = VerticalDirection.down,<br>        TextBaseline textBaseline,<br>        List<widget> children = const <widget>[],<br>      }) : super(<br>        children: children,<br>        key: key,<br>        direction: Axis.vertical,<br>        mainAxisAlignment: mainAxisAlignment,<br>        mainAxisSize: mainAxisSize,<br>        crossAxisAlignment: crossAxisAlignment,<br>        textDirection: textDirection,<br>        verticalDirection: verticalDirection,<br>        textBaseline: textBaseline,<br>      );<br>    }</widget></widget></p>
+<p>也很好理解，默认就是match_parent的状态，如果有子view，就去wrap_content, 写死宽高就按照写的走。 </p>
+<h2 id="绘制"><a href="#绘制" class="headerlink" title="绘制"></a>绘制</h2><p>类似onLayout操作，其实Container类似于android中的ViewGroup。里面包含了很多的基础widget，Flutter是通过组合基础widget的方式弄了个container出来的。</p>
+<p>因此Container的布局行为有时候是比较复杂的。一般情况下，Container会遵循如下顺序去尝试布局：</p>
+<ol>
+<li>对齐（alignment）；</li>
+<li>调节自身尺寸适合子节点；</li>
+<li>采用width、height以及constraints布局；</li>
+<li>扩展自身去适应父节点；</li>
+<li>调节自身到足够小。 </li>
+</ol>
+<p>上面这些听起来有点晕，我们可以直接看源码的角度来解决问题：</p>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><pre><code>@override
+Widget build(BuildContext context) {
+  Widget current = child;
+
+  if (child == null &amp;&amp; (constraints == null || !constraints.isTight)) {
+    current = new LimitedBox(
+      maxWidth: 0.0,
+      maxHeight: 0.0,
+      child: new ConstrainedBox(constraints: const BoxConstraints.expand())
+    );
+  }
+
+  if (alignment != null)
+    current = new Align(alignment: alignment, child: current);
+
+  final EdgeInsetsGeometry effectivePadding = _paddingIncludingDecoration;
+  if (effectivePadding != null)
+    current = new Padding(padding: effectivePadding, child: current);
+
+  if (decoration != null)
+    current = new DecoratedBox(decoration: decoration, child: current);
+
+  if (foregroundDecoration != null) {
+    current = new DecoratedBox(
+      decoration: foregroundDecoration,
+      position: DecorationPosition.foreground,
+      child: current
+    );
+  }
+
+  if (constraints != null)
+    current = new ConstrainedBox(constraints: constraints, child: current);
+
+  if (margin != null)
+    current = new Padding(padding: margin, child: current);
+
+  if (transform != null)
+    current = new Transform(transform: transform, child: current);
+
+  return current;
+} 
+</code></pre><p> 最里层的是child，如果为空或者其他约束条件，则最里层包含的为一个LimitedBox，然后依次是Align、Padding、DecoratedBox、前景DecoratedBox、ConstrainedBox、Padding（实现margin效果）、Transform。</p>
+<p>Container的源码本身并不复杂，复杂的是它的各种布局表现。我们谨记住一点，如果内部不设置约束，则按照父节点尽可能的扩大，如果内部有约束，则按照内部来。 </p>
 </span>
       
     </div>
@@ -391,6 +485,8 @@ Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObject
           
             <a href="/tags/Flutter/" rel="tag">#Flutter</a>
           
+            <a href="/tags/Container/" rel="tag">#Container</a>
+          
         </div>
       
 
@@ -398,13 +494,13 @@ Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObject
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/02/13/Flutter入门系列5---显示列表的ListView/" rel="prev">Flutter入门系列5---显示列表的ListView</a>
+              <a href="/2018/01/28/Flutter入门系列4---边界控制widget/" rel="prev">Flutter入门系列3---基础列表控件Row和Column</a>
             
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/23/Flutter入门系列3---常用基础控件Container/" rel="next">Flutter入门系列3---常用基础控件Container</a>
+              <a href="/2018/01/18/Flutter入门系列2---基础状态widget使用介绍/" rel="next">Flutter入门系列2---基础状态widget使用介绍</a>
             
           </div>
         </div>
@@ -419,10 +515,10 @@ Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObject
 
     <div class="post-spread">
       
-        <div class="ds-share flat" data-thread-key="2018/01/28/Flutter入门系列4---边界控制widget/"
-     data-title="Flutter入门系列3---基础列表控件Row和Column"
+        <div class="ds-share flat" data-thread-key="2018/01/23/Flutter入门系列3---常用基础控件Container/"
+     data-title="Flutter入门系列3---常用基础控件Container"
      data-content=""
-     data-url="http://yoursite.com/2018/01/28/Flutter入门系列4---边界控制widget/">
+     data-url="http://yoursite.com/2018/01/23/Flutter入门系列3---常用基础控件Container/">
   <div class="ds-share-inline">
     <ul  class="ds-share-icons-16">
 
@@ -452,8 +548,8 @@ Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObject
         
           <div class="comments" id="comments">
             
-              <div class="ds-thread" data-thread-key="2018/01/28/Flutter入门系列4---边界控制widget/"
-                   data-title="Flutter入门系列3---基础列表控件Row和Column" data-url="http://yoursite.com/2018/01/28/Flutter入门系列4---边界控制widget/">
+              <div class="ds-thread" data-thread-key="2018/01/23/Flutter入门系列3---常用基础控件Container/"
+                   data-title="Flutter入门系列3---常用基础控件Container" data-url="http://yoursite.com/2018/01/23/Flutter入门系列3---常用基础控件Container/">
               </div>
             
           </div>
@@ -535,7 +631,7 @@ Object &gt; Diagnosticable &gt; DiagnosticableTree &gt; Widget &gt; RenderObject
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Column"><span class="nav-number">1.</span> <span class="nav-text">Column</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Container"><span class="nav-number">1.</span> <span class="nav-text">Container</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#尺寸的调节"><span class="nav-number">1.1.</span> <span class="nav-text">尺寸的调节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#绘制"><span class="nav-number">1.2.</span> <span class="nav-text">绘制</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源码"><span class="nav-number">2.</span> <span class="nav-text">源码</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
