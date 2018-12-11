@@ -1,0 +1,862 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,Flutter,Image," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。 – Image：通过ImageProvider来加载图片 – Image.asset：用来加载本地资源图片 – Image.file：用来加载本地（File文件）图片 – Image.network：用来加载网络图片 – Image.memory：用来加载Uin">
+<meta name="keywords" content="android,Flutter,Image">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter系列7---基础控件Image">
+<meta property="og:url" content="http://yoursite.com/2018/03/15/Flutter入门系列7---基础控件Image/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。 – Image：通过ImageProvider来加载图片 – Image.asset：用来加载本地资源图片 – Image.file：用来加载本地（File文件）图片 – Image.network：用来加载网络图片 – Image.memory：用来加载Uin">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2018-12-11T02:46:23.338Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter系列7---基础控件Image">
+<meta name="twitter:description" content="显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。 – Image：通过ImageProvider来加载图片 – Image.asset：用来加载本地资源图片 – Image.file：用来加载本地（File文件）图片 – Image.network：用来加载网络图片 – Image.memory：用来加载Uin">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Flutter系列7---基础控件Image | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Flutter系列7---基础控件Image
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-03-15T23:14:46+08:00" content="2018-03-15">
+            2018-03-15
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/03/15/Flutter入门系列7---基础控件Image/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。</p>
+<p>– <strong>Image：</strong>通过ImageProvider来加载图片</p>
+<p>– <strong>Image.asset：</strong>用来加载本地资源图片</p>
+<p>– <strong>Image.file：</strong>用来加载本地（File文件）图片</p>
+<p>– <strong>Image.network：</strong>用来加载网络图片</p>
+<p>– <strong>Image.memory：</strong>用来加载Uint8List资源（byte数组）图片 </p>
+<p>相比安卓早期需要自己弄一个库去加载，实在厚道，自动封装了对应的加载方法了。怎么使用我们看下下面代码案例</p>
+<p>图片格式上支持： JPEG , PNG ,GIF , 动态 GIF , WebP , 动态WebP , BMP WBMP .</p>
+<a id="more"></a>
+<p>我们先看下demo</p>
+<pre><code>import &apos;package:flutter/material.dart&apos;;
+
+void main() =&gt;
+    runApp(ImageDemoApp());
+
+class ImageDemoApp extends BoxStateLessWidget{
+
+  @override
+  Widget build(BuildContext context) { 
+    return new Scaffold(
+      appBar: new AppBar(title: new Text(&quot;Container Test&quot;),
+        centerTitle: true,),
+
+      body: new ListView(
+        children: &lt;Widget&gt;[
+          // 资源图片
+          new Image.asset(&apos;imgs/logo.jpeg&apos;),
+          //网络图片
+          new Image.network(
+              &apos;https://flutter.io/images/homepage/header-illustration.png&apos;),
+          //使用ImageProvider加载图片
+          new Image(image: new NetworkImage(
+              &quot;https://flutter.io/images/homepage/screenshot-2.png&quot;),)
+        ],
+      ),
+    );
+  }
+}
+</code></pre><p>这个简单的案例.我们看下构造函数</p>
+<pre><code>/// A widget that displays an image.
+///
+/// Several constructors are provided for the various ways that an image can be
+/// specified:
+///
+///  * [new Image], for obtaining an image from an [ImageProvider].
+///  * [new Image.asset], for obtaining an image from an [AssetBundle]
+///    using a key.
+///  * [new Image.network], for obtaining an image from a URL.
+///  * [new Image.file], for obtaining an image from a [File].
+///  * [new Image.memory], for obtaining an image from a [Uint8List].
+///
+/// The following image formats are supported: {@macro flutter.dart:ui.imageFormats}
+///
+/// To automatically perform pixel-density-aware asset resolution, specify the
+/// image using an [AssetImage] and make sure that a [MaterialApp], [WidgetsApp],
+/// or [MediaQuery] widget exists above the [Image] widget in the widget tree.
+///
+/// The image is painted using [paintImage], which describes the meanings of the
+/// various fields on this class in more detail.
+///
+/// See also:
+///
+///  * [Icon], which shows an image from a font.
+///  * [new Ink.image], which is the preferred way to show an image in a
+///    material application (especially if the image is in a [Material] and will
+///    have an [InkWell] on top of it).
+class Image extends StatefulWidget {
+  /// Creates a widget that displays an image.
+  ///
+  /// To show an image from the network or from an asset bundle, consider using
+  /// [new Image.network] and [new Image.asset] respectively.
+  ///
+  /// The [image], [alignment], [repeat], and [matchTextDirection] arguments
+  /// must not be null.
+  ///
+  /// Either the [width] and [height] arguments should be specified, or the
+  /// widget should be placed in a context that sets tight layout constraints.
+  /// Otherwise, the image dimensions will change as the image is loaded, which
+  /// will result in ugly layout changes.
+  ///
+  /// If [excludeFromSemantics] is true, then [semanticLabel] will be ignored.
+  const Image({
+    Key key,
+    @required this.image,
+    this.semanticLabel,
+    this.excludeFromSemantics = false,
+    this.width,
+    this.height,
+    this.color,
+    this.colorBlendMode,
+    this.fit,
+    this.alignment = Alignment.center,
+    this.repeat = ImageRepeat.noRepeat,
+    this.centerSlice,
+    this.matchTextDirection = false,
+    this.gaplessPlayback = false,
+  }) : assert(image != null),
+       assert(alignment != null),
+       assert(repeat != null),
+       assert(matchTextDirection != null),
+       super(key: key);
+</code></pre><p>对应字段</p>
+<ul>
+<li>width &amp; height<br>用来指定显示图片区域的宽高（并非图片的宽高）</li>
+</ul>
+<ul>
+<li><p>fit<br>设置图片填充，类似于Android中的ScaleType</p>
+<ul>
+<li>BoxFit.contain<br>全图居中显示但不充满，显示原比例    </li>
+<li>BoxFit.cover<br>图片可能拉伸，也可能裁剪，但是充满容器        </li>
+<li>BoxFit.fill<br>全图显示且填充满，图片可能会拉伸        </li>
+<li>BoxFit.fitHeight<br>图片可能拉伸，可能裁剪，高度充满        </li>
+<li>BoxFit.fitWidth<br>图片可能拉伸，可能裁剪，宽度充满        </li>
+<li>BoxFit.scaleDown<br>效果和contain差不多， 但是只能缩小图片，不能放大图片</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>color &amp; <a href="https://docs.flutter.io/flutter/dart-ui/BlendMode-class.html" target="_blank" rel="noopener">colorBlendMode</a><br>这两个属性需要配合使用，就是颜色和图片混合，就类似于Android中的Xfermode。一般少用到，贴链接，有需要时候去看下就可以了。</li>
+</ul>
+<ul>
+<li>alignment<br>用来控制图片摆放的位置</li>
+</ul>
+<ul>
+<li>repeat<br>用来设置图片重复显示（repeat-x水平重复，repeat-y垂直重复，repeat两个方向都重复，no-repeat默认情况不重复）.这个做过web都明白，就是填充view时候的不同方式。</li>
+</ul>
+<ul>
+<li>centerSlice<br>设置图片内部拉伸，相当于在图片内部设置了一个.9图，但是需要注意的是，要在显示图片的大小大于原图的情况下才可以使用这个属性，要不然会报错.理由是下面这个源码：<br><code>assert(sourceSize == inputSize, &#39;centerSlice was used with a BoxFit that does not guarantee that the image is fully visible.&#39;);</code></li>
+</ul>
+<ul>
+<li>matchTextDirection<br>这个需要配合Directionality进行使用</li>
+</ul>
+<ul>
+<li>gaplessPlayback<br>当图片发生改变之后，重新加载图片过程中的样式（1、原图片保留）</li>
+</ul>
+<p>因此我们可以这么修改图片的显示</p>
+<pre><code>new Image.network(
+        &apos;https://gw.alicdn.com/tfs/TB1CgtkJeuSBuNjy1XcXXcYjFXa-906-520.png&apos;,
+        fit: BoxFit.contain,
+        width: 150.0,
+        height: 100.0,
+      ),
+
+
+ new Image.asset(
+          &apos;images/logo.png&apos;,
+          width: 250,
+          height: 250,
+          fit: BoxFit.contain,
+          centerSlice:
+              new Rect.fromCircle(center: const Offset(20, 20), radius: 1),
+        )
+</code></pre><h2 id="FadeInImage"><a href="#FadeInImage" class="headerlink" title="FadeInImage"></a>FadeInImage</h2><p>在实际开发中，考虑到图片加载速度可能不能达到预期。所以希望能增加渐入效果&amp;增加placeHolder的功能。Flutter同样提供的这样的组件——FadeInImage。 </p>
+<h2 id="提示"><a href="#提示" class="headerlink" title="提示"></a>提示</h2><p>唯一有点不友好的是，添加本地图片有点麻烦，希望官方后续优化好这个问题，就是<code>asset</code>文件需要把添加的图片自己手动加到<code>pubspec.yaml</code></p>
+<pre><code>flutter:
+  assets:
+    - assets/my_icon.png
+    - assets/background.png
+</code></pre><p>不像安卓，添加文件的drawable目录，自动有个R的id来使用。同时加载asset是自己写路径，容易出错啊。特别是图片多了之后，成千上百，那简直受不了</p>
+<p>网络请求Image是大家最常见的操作。这里重点说明两个点：</p>
+<ul>
+<li>缓存</li>
+</ul>
+<p>ImageCache是ImageProvider默认使用的图片缓存。ImageCache使用的是LRU的算法。默认可以存储1000张图片。如果觉得缓存太大，可以通过设置ImageCache的maximumSize属性来控制缓存图片的数量。也可以通过设置maximumSizeBytes来控制缓存的大小（默认缓存大小10MB）。</p>
+<ul>
+<li>CDN优化</li>
+</ul>
+<p>如果想要使用cdn优化，可以通过url增加后缀的方式实现。默认实现中没有这个点，但是考虑到cdn优化的可观收益，建议大家利用好这个优化。</p>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><p><a href="https://flutterchina.club/assets-and-images/" target="_blank" rel="noopener">https://flutterchina.club/assets-and-images/</a><br><a href="https://www.jianshu.com/p/9e6c470ea5bf" target="_blank" rel="noopener">https://www.jianshu.com/p/9e6c470ea5bf</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/Flutter/" rel="tag">#Flutter</a>
+          
+            <a href="/tags/Image/" rel="tag">#Image</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/19/Flutter入门系列8---与Android和IOS做相互通讯的channel工具/" rel="prev">Flutter入门系列8---与Android和IOS做相互通讯的channel工具</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/10/Flutter入门系列6---基础控件Stack/" rel="next">Flutter系列5---基础控件Stack</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/"
+     data-title="Flutter系列7---基础控件Image"
+     data-content=""
+     data-url="http://yoursite.com/2018/03/15/Flutter入门系列7---基础控件Image/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/"
+                   data-title="Flutter系列7---基础控件Image" data-url="http://yoursite.com/2018/03/15/Flutter入门系列7---基础控件Image/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#FadeInImage"><span class="nav-number">1.</span> <span class="nav-text">FadeInImage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提示"><span class="nav-number">2.</span> <span class="nav-text">提示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ref"><span class="nav-number">3.</span> <span class="nav-text">ref</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

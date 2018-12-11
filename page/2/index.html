@@ -297,8 +297,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" itemprop="url">
-                源码探索系列45---关于局域网播放与ServerSocket
+              <a class="post-title-link" href="/2018/03/19/Flutter入门系列8---与Android和IOS做相互通讯的channel工具/" itemprop="url">
+                Flutter入门系列8---与Android和IOS做相互通讯的channel工具
               </a>
             
           
@@ -308,8 +308,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-10-08T15:25:00+08:00" content="2016-10-08">
-            2016-10-08
+          <time itemprop="dateCreated" datetime="2018-03-19T23:14:46+08:00" content="2018-03-19">
+            2018-03-19
           </time>
         </span>
 
@@ -318,8 +318,8 @@
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
                 </a>
               </span>
 
@@ -334,8 +334,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/" itemprop="commentsCount"></span>
+              <a href="/2018/03/19/Flutter入门系列8---与Android和IOS做相互通讯的channel工具/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/19/Flutter入门系列8---与Android和IOS做相互通讯的channel工具/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -350,13 +350,9 @@
 
       
         
-          <p>最近需要做一个局域网视频播放的功能，用到两个第三方库，然后遇到了传送失败，速度为0 的问题，只好看下整个库的源码，改下bug，在这里记录下整个逻辑的流程笔记。</p>
-<p>整个局域网播放流畅主要是下面的流程</p>
-<pre><code>客户端 &lt;--- (socket通讯)---&gt;服务器&lt;---(smb协议)---&gt;某台局域网电脑
-</code></pre><p>我们的安卓手机如果要播放局域网某台电脑上的视频，我们需要起一个http服务器，由这个服务器和播放器做通讯，根据播放器 发来的请求头的<code>range</code>（类似断点续成的原理），来加载特定的数据给播放器。<br>而服务器的数据是从某台局域网电脑上读取的啊，在windows上，有<code>smb</code>协议负责处理这部分内容，我们靠着这个smb协议去链接 <code>数据源</code> ，即某台有我们想要播放的视频的那台电脑。去加载播放器请求的内容，然后扔回给播放器。</p>
-<p>大致的流程就是上面这样。至于具体的代码细节，在下面给出demo</p>
+          <p>Flutter这边也可以嵌入到安卓和ios中去，混合开发，就像嵌入RN一样。我们native和web的沟通是通过jsbridge，那么现在flutter和native的通讯就是Platform-Channel啦<br><img src="https://i.imgur.com/EEam8Ix.png" alt=""><br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/10/08/源码探索系列45---关于局域网播放之ServerSocket与SMB/#more" rel="contents">
+            <a class="btn" href="/2018/03/19/Flutter入门系列8---与Android和IOS做相互通讯的channel工具/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -389,8 +385,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/" itemprop="url">
-                源码探索系列44---关于AM的forceStopPackage
+              <a class="post-title-link" href="/2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="url">
+                Flutter系列7---基础控件Image
               </a>
             
           
@@ -400,8 +396,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-09-27T23:25:00+08:00" content="2016-09-27">
-            2016-09-27
+          <time itemprop="dateCreated" datetime="2018-03-15T23:14:46+08:00" content="2018-03-15">
+            2018-03-15
           </time>
         </span>
 
@@ -410,8 +406,8 @@
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
                 </a>
               </span>
 
@@ -426,8 +422,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/27/源码探索系列44---关于AM的forceStopPackage/" itemprop="commentsCount"></span>
+              <a href="/2018/03/15/Flutter入门系列7---基础控件Image/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -442,29 +438,16 @@
 
       
         
-          <p>最近想寻找什么方法能够彻底的关闭别人的app！<br>这听起来就很流氓，居然是关闭别人的，而且还要是关闭 <code>前台进程（Foreground process)</code>，这想法真大胆。查了下目前的资料，</p>
-<ol>
-<li><p>类似各种xx大师，管家的一键加速功能，这种根据各个进程adj评分去关闭方案，似乎对于前台进程是鞭长莫及。<br>按照我们熟悉的</p>
-</li>
-<li><p>forceStopPackage  这个是AM的隐藏方法，实际上由于签名，uid等限制条件，并不能真的关闭第三方，别人的程序。另外AM还有别的方法听起来像可以关闭别人进程的，如<code>killBackgroundProcesses</code>，<code>removeTask</code>等。</p>
-</li>
-<li><p>Process.killProcess()<br>在process这个类里面，由几个方法可以调用去关闭，其中有一个的注释很有意思，打算贴出来。</p>
-<pre><code> /**
- * @hide
- * Private impl for avoiding a log message...  DO NOT USE without doing
- * your own log, or the Android Illuminati （安卓光明会）will find you some night and beat you up.
- * 这段注释很调皮😝，特拿出来哈
- */
-public static final void killProcessQuiet(int pid) {
-    sendSignalQuiet(pid, SIGNAL_KILL);
-}
-
-public static final native void sendSignalQuiet(int pid, int signal);
-</code></pre></li>
-</ol>
-<p>对于上面的所有，这篇文章主要记录<code>forceStopPackage（）</code>背后执行的内容，别的方法之后再考虑写。</p>
+          <p>显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。</p>
+<p>– <strong>Image：</strong>通过ImageProvider来加载图片</p>
+<p>– <strong>Image.asset：</strong>用来加载本地资源图片</p>
+<p>– <strong>Image.file：</strong>用来加载本地（File文件）图片</p>
+<p>– <strong>Image.network：</strong>用来加载网络图片</p>
+<p>– <strong>Image.memory：</strong>用来加载Uint8List资源（byte数组）图片 </p>
+<p>相比安卓早期需要自己弄一个库去加载，实在厚道，自动封装了对应的加载方法了。怎么使用我们看下下面代码案例</p>
+<p>图片格式上支持： JPEG , PNG ,GIF , 动态 GIF , WebP , 动态WebP , BMP WBMP .</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/27/源码探索系列44---关于AM的forceStopPackage/#more" rel="contents">
+            <a class="btn" href="/2018/03/15/Flutter入门系列7---基础控件Image/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -497,8 +480,8 @@ public static final native void sendSignalQuiet(int pid, int signal);
           
           
             
-              <a class="post-title-link" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="url">
-                源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter
+              <a class="post-title-link" href="/2018/03/10/Flutter入门系列6---基础控件Stack/" itemprop="url">
+                Flutter系列5---基础控件Stack
               </a>
             
           
@@ -508,8 +491,8 @@ public static final native void sendSignalQuiet(int pid, int signal);
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-09-09T13:11:00+08:00" content="2016-09-09">
-            2016-09-09
+          <time itemprop="dateCreated" datetime="2018-03-10T23:14:46+08:00" content="2018-03-10">
+            2018-03-10
           </time>
         </span>
 
@@ -518,8 +501,8 @@ public static final native void sendSignalQuiet(int pid, int signal);
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
                 </a>
               </span>
 
@@ -534,8 +517,8 @@ public static final native void sendSignalQuiet(int pid, int signal);
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="commentsCount"></span>
+              <a href="/2018/03/10/Flutter入门系列6---基础控件Stack/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/10/Flutter入门系列6---基础控件Stack/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -550,23 +533,9 @@ public static final native void sendSignalQuiet(int pid, int signal);
 
       
         
-          <p>对于这两个adapter的区别，我们在对代码做一次遍历后给出</p>
-<p>为了便于沟通，我们把前者缩写成<code>FPA</code>,后者缩写成<code>FSPA</code></p>
-<p>现在我们先来看下简单的使用情况</p>
-<pre><code>public abstract class FragmentPagerAdapter extends PagerAdapter 
-public abstract class FragmentStatePagerAdapter extends PagerAdapter 
-</code></pre><p>通过这两个类的声明，我们知道他们都是继承与PagerAdapter的抽象类，需要实现两个接口</p>
-<pre><code>public abstract Fragment getItem(int position);
-//返回对应的position要展示的Fragment
-
-public abstract int getCount();
-//返回要展示的总fragment数目
-</code></pre><p>我想应该你有写过类似的代码，直接自己继承与PagerAdapter，然后重写多下面两个函数来创建/销毁界面</p>
-<pre><code>public Object instantiateItem(ViewGroup container, int position)
-public void destroyItem(ViewGroup container, int position, Object object)
-</code></pre>
+          <p>Flutter还提供了一个叫stack的轮子，他有点像安卓的RelatvieLayout，不过安卓被用得最少的，可能是绝对布局了。<br>基本没派上用处。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#more" rel="contents">
+            <a class="btn" href="/2018/03/10/Flutter入门系列6---基础控件Stack/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -599,8 +568,8 @@ public void destroyItem(ViewGroup container, int position, Object object)
           
           
             
-              <a class="post-title-link" href="/2016/08/29/源码探索系列42---关于ViewPager/" itemprop="url">
-                源码探索系列42---关于ViewPager
+              <a class="post-title-link" href="/2018/02/13/Flutter入门系列5---显示列表的ListView/" itemprop="url">
+                Flutter入门系列5---显示列表的ListView
               </a>
             
           
@@ -610,8 +579,8 @@ public void destroyItem(ViewGroup container, int position, Object object)
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-08-29T23:11:00+08:00" content="2016-08-29">
-            2016-08-29
+          <time itemprop="dateCreated" datetime="2018-02-13T22:45:46+08:00" content="2018-02-13">
+            2018-02-13
           </time>
         </span>
 
@@ -620,8 +589,8 @@ public void destroyItem(ViewGroup container, int position, Object object)
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/Flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">Flutter</span>
                 </a>
               </span>
 
@@ -636,8 +605,8 @@ public void destroyItem(ViewGroup container, int position, Object object)
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/08/29/源码探索系列42---关于ViewPager/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/29/源码探索系列42---关于ViewPager/" itemprop="commentsCount"></span>
+              <a href="/2018/02/13/Flutter入门系列5---显示列表的ListView/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/02/13/Flutter入门系列5---显示列表的ListView/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -652,12 +621,10 @@ public void destroyItem(ViewGroup container, int position, Object object)
 
       
         
-          <p>最近做内存优化的时候，想对首页做延迟加载的优化，在嵌套的情况下有点小问题，所以打算顺便就把这几个类的具体内容看下，屡下思路，然后试着自己改造封装一下，从而满足嵌套情况下的一些小问题。</p>
-<p>#起航<br>SDK23–support-v4</p>
-<pre><code>public class ViewPager extends ViewGroup 
-</code></pre><p>我们先来看下一个view的三个绘制步骤onMeasure，onLayout，onDraw三个函数。<br>再在去看下几个常用的接口，设置adapter的内容，以及选中特定页面的逻辑。<br>最后再看下对于touch事件的处理。</p>
+          <p>上一篇说了row和Column，但不带滚动。<br>这次我们说下带滚动效果的ListView</p>
+<p><img src="https://i.imgur.com/9nL2QDe.png" alt=""></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/08/29/源码探索系列42---关于ViewPager/#more" rel="contents">
+            <a class="btn" href="/2018/02/13/Flutter入门系列5---显示列表的ListView/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -683,7 +650,7 @@ public void destroyItem(ViewGroup container, int position, Object object)
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/">&laquo;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/3/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&laquo;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/3/">&raquo;</a>
   </nav>
 
  </div>
@@ -717,21 +684,21 @@ public void destroyItem(ViewGroup container, int position, Object object)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

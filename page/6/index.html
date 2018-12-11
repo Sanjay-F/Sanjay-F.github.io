@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" itemprop="url">
-                源码探索系列30---插件包PackageManagerService/PMS
+              <a class="post-title-link" href="/2016/05/23/源码探索系列37---Android的属性动画/" itemprop="url">
+                源码探索系列37---Android的属性动画
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-14T19:53:46+08:00" content="2016-04-14">
-            2016-04-14
+          <time itemprop="dateCreated" datetime="2016-05-23T22:45:46+08:00" content="2016-05-23">
+            2016-05-23
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" itemprop="commentsCount"></span>
+              <a href="/2016/05/23/源码探索系列37---Android的属性动画/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/23/源码探索系列37---Android的属性动画/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,10 +256,10 @@
 
       
         
-          <p><strong>PMS</strong>主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。</p>
-<p>做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！</p>
+          <p>The Android framework provides two animation systems: <code>property animation</code> and <code>view animation.</code> Both animation systems are viable options, but the property animation system, in general, is the preferred method to use, because it is <code>more flexible</code> and offers <code>more features.</code> In addition to these two systems, you can utilize <code>Drawable animation,</code> which allows you to load drawable resources and display them one frame after another.</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/37_anim_valueanimator.png" alt="enter image description here"><br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/#more" rel="contents">
+            <a class="btn" href="/2016/05/23/源码探索系列37---Android的属性动画/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -292,8 +292,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" itemprop="url">
-                源码探索系列29---插件化基础之启动插件的Activity
+              <a class="post-title-link" href="/2016/05/18/源码探索系列36---安卓的安全机制permission/" itemprop="url">
+                源码探索系列36---安卓的安全机制permission
               </a>
             
           
@@ -303,8 +303,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-01T17:41:46+08:00" content="2016-04-01">
-            2016-04-01
+          <time itemprop="dateCreated" datetime="2016-05-18T22:28:46+08:00" content="2016-05-18">
+            2016-05-18
           </time>
         </span>
 
@@ -329,8 +329,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" itemprop="commentsCount"></span>
+              <a href="/2016/05/18/源码探索系列36---安卓的安全机制permission/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/18/源码探索系列36---安卓的安全机制permission/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -345,9 +345,11 @@
 
       
         
-          <p>昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，<br>在这个基础上，我们需要来看下怎么开启我们的插件中的Activity</p>
+          <p>本文尝试从源码的角度来对permission等机制做一个了解。<br>另外从安装一个apk的整个流程来看与permission相关的内容。</p>
+<p>Android 是一个<strong>权限分离</strong>的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的<code>uid</code>和<code>gid</code>，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。</p>
+<p>与此同时，安卓在此基础上还进行了扩展，提供了<code>permission机制</code>，它主要是用来对<code>App</code>可以执行的某些具体操作进行权限细分和访问控制，同时提供了<code>per-URI permission 机制</code>，用来提供对某些特定的数据块进行 ad-hoc 方式的访问。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/#more" rel="contents">
+            <a class="btn" href="/2016/05/18/源码探索系列36---安卓的安全机制permission/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -380,8 +382,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/" itemprop="url">
-                源码探索系列28---插件化基础之代理Hook
+              <a class="post-title-link" href="/2016/05/11/源码探索系列中篇结题/" itemprop="url">
+                关于探索系列中篇结题
               </a>
             
           
@@ -391,8 +393,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-03-28T18:41:46+08:00" content="2016-03-28">
-            2016-03-28
+          <time itemprop="dateCreated" datetime="2016-05-11T14:29:46+08:00" content="2016-05-11">
+            2016-05-11
           </time>
         </span>
 
@@ -417,8 +419,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/源码探索系列28---插件化基础之代理Hook/" itemprop="commentsCount"></span>
+              <a href="/2016/05/11/源码探索系列中篇结题/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/11/源码探索系列中篇结题/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -433,10 +435,98 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160328184052.png" alt="enter image description here"></p>
-<p>代理有两种，一种是常见的静态代理模型，这个在<a href="http://sanjay-f.github.io/2015/12/30/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%972---%E5%B9%95%E5%90%8E%E9%BB%91%E6%89%8B%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" target="_blank" rel="noopener">设计模式系列2—幕后黑手的代理模式</a>就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。<br>但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。</p>
+          <span itemprop="articleBody"><p>这几天思考着写点什么来作为中篇的结尾文章，思考来去，感觉也没有一个好想法，一个比较好的切入点写点内容，因此就打住了。<br>把中篇的内容停在#35序号，总共18篇，20w+的字。<br>等哪天有需要再来尝试开下篇吧。！</p>
+<h2 id="工作"><a href="#工作" class="headerlink" title="工作"></a>工作</h2><p>最近也比较乱，不断的在面试来来往往的人，有在阿里做了六年，跳出来创业，做不下去，重新找工作的。也有从职校出来，上了培训班，接着去外包，最后在猎豹做开发的，因部门调去了北京，不想去，所以出来找新的机会的。也有公司被收购了，然后出来再找下工作的83年大哥等等……</p>
+<p>感觉也是挺奇妙的感觉…</p>
+<p>最后附上一份大神在ArchSummit上分享关于淘宝的架构方面的探索视频，鼓励自己追求更高的内容。</p>
+<p><a href="http://www.infoq.com/cn/presentations/taobao-mobile-client-architecture-road" target="_blank" rel="noopener">手机淘宝的客户端架构探索之路—冯森林（淘宝花名：无锋）</a></p>
+<hr>
+<h2 id="The-End"><a href="#The-End" class="headerlink" title="The End"></a>The End</h2></span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/05/05/源码探索系列35---关于Context/" itemprop="url">
+                源码探索系列35---关于Context
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-05-05T17:13:46+08:00" content="2016-05-05">
+            2016-05-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/05/源码探索系列35---关于Context/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/05/源码探索系列35---关于Context/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。<br>那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?<br><code>Context</code>、<code>Activity</code> 和 <code>Application</code>这三个又是怎么个关系，为何有些时候都可以替着用？<br>带着这些问题，我们来探索下，看下背后的实现是怎样的。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/#more" rel="contents">
+            <a class="btn" href="/2016/05/05/源码探索系列35---关于Context/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -469,8 +559,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="url">
-                源码探索系列27---插件化基础之类加载器DexClassLoader
+              <a class="post-title-link" href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/" itemprop="url">
+                源码探索系列34---Android Garbage Collection/dalvik GC
               </a>
             
           
@@ -480,8 +570,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-03-16T20:50:46+08:00" content="2016-03-16">
-            2016-03-16
+          <time itemprop="dateCreated" datetime="2016-04-25T15:54:46+08:00" content="2016-04-25">
+            2016-04-25
           </time>
         </span>
 
@@ -506,8 +596,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="commentsCount"></span>
+              <a href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/25/源码探索系列34---Android Garbage Collection-GC/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -522,107 +612,9 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg" alt="enter image description here"></p>
-<p>Java有个概念叫做<code>类加载器</code>（ClassLoader），它的作用就是<code>动态的装载Class文件</code>。借助<code>ClassLoader</code>这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。</p>
-<p>像下面这样：</p>
-<pre><code>Class.forName(&quot;OurClassName&quot;);
-</code></pre><p>啊！这是反射，嗯！应该是下面这样</p>
-<pre><code>ClassLoader.loadClass(&quot;OurClassName&quot;)
-</code></pre><p>等等！<br>这Java不是可以import就可以了吗，为何还要这个类加载器？<br>因为用import的话得类文件必须在本地且编译的时候必须有这个类文件，否则报错。若想让程序在运行的时候<strong>动态调用</strong>怎么办呢？显然import不合要求，他已经写死的了，所以我们需要ClassLoader来做这件事。<br>利用它来加载Class文件到JVM，以供程序使用。<br>这也是我们能够通过加载补丁包来修复紧急的bug的一个基础</p>
-<p>反射和这个类加载有什么关系嘛？后面再讲<br>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/34-4519811.jpg" alt="enter image description here"><br>when we saw the startup process of Zygote last time , we have come across a familiar words—<strong>GC</strong><br>The Android Garbage Collection is quite strange to me,so i decided to record down something about it.<br>this is the reason why i write this page.<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" itemprop="url">
-                源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-03-09T13:30:46+08:00" content="2016-03-09">
-            2016-03-09
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 上一篇文章，我们对Binder做了一个简单的介绍。现在想从Binder机制的Java层来说下。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/binder_Binder%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A1%86%E6%9E%B6.png" alt="Java层的Binder框架"></p>
-<p>安卓本身在<code>natvie层</code>搭建了整套机制的基础，然后在<code>Java层</code>也重新包装了下，方便我们使用。<br>因此本篇想尝试就只剖析Java层的架构为主，对于natvie层只是简单掠过，虽然在native层我们可以看到他加载虚拟Binder设备，打开Binder驱动，注册service的具体内容。不过我们还是一步一步来。有兴趣的伙伴可以自己去看下。</p>
-<p>那么，就让我们开始探索之旅吧。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/#more" rel="contents">
+            <a class="btn" href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -648,7 +640,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/7/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/5/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/7/">&raquo;</a>
   </nav>
 
  </div>
@@ -682,21 +674,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

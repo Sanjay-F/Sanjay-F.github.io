@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="url">
-                设计模式系列12---遍历统一的迭代模式
+              <a class="post-title-link" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="url">
+                设计模式系列20---聊聊IoC与中介者
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T21:22:00+08:00" content="2016-01-03">
-            2016-01-03
+          <time itemprop="dateCreated" datetime="2016-01-05T15:46:00+08:00" content="2016-01-05">
+            2016-01-05
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,13 +256,18 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/W020141211406589017323.jpg" alt="enter image description here"></p>
-<p>对于迭代这件事，我们曾经遇到过很多类似的事情，</p>
-<p>例如：上课点名！！！</p>
-<p> 每次我们的课室<code>存储</code>了一堆的<code>学生对象</code>，然后老师开始<code>迭代名单</code>–点名，<br> 判断某学生是否来上课了，没来的平时分给你扣点，积少成多，考试就压力大了。</p>
-<p> 大学时代满满的回忆啊。</p>
+          <p>有一个叫<code>控制反转</code>(Inversion of Control，缩写IoC ) 的东西 ，这个对于计算机的人应该是不陌生的概念，就算你不知道那个<code>Bob大叔</code>。</p>
+<p>这个概念简单说的是下面这样的事情</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%B9%B1%E9%BA%BB_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB.JPG" alt="enter image description here"></p>
+<p>原本各个类之间的关系乱七八糟的，看起来头都晕了。<br>他们就像齿轮一样，相互咬合依赖。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB_full.jpg" alt="enter image description here"><br>如果有一个出问题，那可能整个就崩溃了。</p>
+<p>但是，如果有一个人出来承担大事，负责协调各个类的话！<br>那么，他们的关系就可以是像下面图片这样的，<br>各个对象之间可以不感受到对方的“存在”，但整体又运作良好。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%A7%A3%E8%80%A6%E5%90%88_full.jpg" alt="enter image description here"></p>
+<p> 举个可能不恰当的例子：</p>
+<p> 企业<code>ObjectA</code>要招人，可能要去学校<code>ObjectB</code>开宣讲会，去别的企业<code>ObjectC</code>挖人等等。<br> 有些人看到了其中的机会，专门负责为企业输送人才，我们称这类人叫猎头<code>Ioc</code>（也有人才中心等，这里为描述方便，不细究），他负责帮助企业去找到需要的人，我们的HR就可以在公司呆着，看着猎头源源不断发来简历就好了！<br> 再也不用去和学校，别的企业打交道了。是的，从此HR与这两者解耦合,过上了幸福美好的生活!!</p>
+<p>那么问题来了，如何用中介者模式来模拟这个招聘流程？</p>
+<p>今天我们要聊的这个就中介者就是类似的情况，我们来看下实际的代码情况。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -295,8 +300,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="url">
-                设计模式系列11---快速拷贝的原型模型
+              <a class="post-title-link" href="/2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="url">
+                设计模式系列19---可复原的备忘模式
               </a>
             
           
@@ -306,8 +311,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T00:34:00+08:00" content="2016-01-03">
-            2016-01-03
+          <time itemprop="dateCreated" datetime="2016-01-05T12:06:00+08:00" content="2016-01-05">
+            2016-01-05
           </time>
         </span>
 
@@ -332,8 +337,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/05/设计模式系列19---可复原的备忘模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -348,10 +353,13 @@
 
       
         
-          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/2013050615205185.jpg" alt="enter image description here"><br>早年一直有新闻报道，XXX拖欠农民工工资的情况，甚至没有和员工签订合同的。这种做法当然不好，但现实也是挺残酷的，上门为了利润，就这么做，能省就省，遇到什么工伤之类的都不用赔，因为没有合同，你怎么说工伤呢？<br>这和大公司开一家小公司，去做特定的项目类似，规避风险。</p>
-<p>假设我们有一份    重要的合同，需要一式两份保存，每人个一份。<br>这时候我们要快速的备份一份，因为内容完全一样，这时候就可以用原型模型</p>
+          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/4a36acaf2edda3ccc6d433be01e93901213f9278.jpg" alt="enter image description here"></p>
+<p>玩游戏我们都知道有个东西叫<code>自动存档</code>，在我们遇到大Boss要打的时候，更是如此，一定要存档！<br>如果没有存档，死了就要你重新开始，如果是些大型游戏，已经花费了你很多时间，遇到大Boss，然后你被打死了，又没有存档，估计你就想直接把这个游戏卸载了。</p>
+<p>有时偷懒，还去下载别人的通关档案回来覆盖本地的。<br>哈，我就曾经做过！还有一些已经刷满无限金币等的存档！<br>曾经还遇到过必须被大Boss打死才能继续的剧情，但因为外挂太牛逼，活生生把大Boss给打死了！搞到后面都没法继续，只能自己手动滚回某个档案，装怂，去被boss虐下。</p>
+<p>所以很好理解，这个自动存档会保存我们当前的角色的状态，然后如果被大Boss打死了，就自动恢复到这个存档点状态，我们还可以继续去打大Boss，直到我们过关为止。</p>
+<p>那么问题来了，我们该怎么用代码实现呢？<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/05/设计模式系列19---可复原的备忘模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -384,8 +392,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/" itemprop="url">
-                设计模式系列10---高度定制的抽象工厂方法模式
+              <a class="post-title-link" href="/2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="url">
+                设计模式系列18---有状态的状态模式
               </a>
             
           
@@ -395,8 +403,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-02T18:04:00+08:00" content="2016-01-02">
-            2016-01-02
+          <time itemprop="dateCreated" datetime="2016-01-04T23:42:00+08:00" content="2016-01-04">
+            2016-01-04
           </time>
         </span>
 
@@ -421,8 +429,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/04/设计模式系列18---有状态的状态模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -437,12 +445,19 @@
 
       
         
-          <p>上一篇我们介绍了关于使用公模做手机的事情，但有个问题就是不能高度定制，现在我们来介绍下我的抽象工厂方法，他可以做到的定制就很高啦，既可以造飞机，汽车，又可以做苹果手机等等。</p>
-<p>一般能处理这类问题的，都是些大厂家，这类大厂家就很规范，分工明确的，而且也有很多流水线，代工不少产品，为了降低风险同时提营业额嘛，好懂。</p>
-<p>假设有一家叫 <code>NiuBi</code> 的公司，他很厉害，有多条流水线，一条生产火箭，一条生产苹果机，一条生产汽车的。能加工这么广的是厉害。</p>
-<p>面对一个这么厉害的厂，我们需要更高的抽象，现在来展示下怎么写这个厂。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/53715814201004022126431684313353485_004.jpg" alt="enter image description here"></p>
+<p> 今天我们来聊聊个红绿灯，我们知道有个口诀叫：</p>
+<blockquote>
+<p>红灯停<br>绿灯行<br>黄灯亮了等一等</p>
+</blockquote>
+<p> 但这不是我们关注的重点，我们关注的点是我们红绿灯的状态！</p>
+<p>一般是 <strong>绿灯 -&gt;  黄灯-&gt; 红灯</strong> 的顺序。</p>
+<blockquote>
+<p>绿灯能且只能跑到黄灯<br>黄灯能且只能跑到红灯<br>红灯能且只能跑到绿灯</p>
+</blockquote>
+<p>不过曾经深圳尝试改革，直接从<code>绿灯</code>跳成了<code>红灯</code>，消失一出，当时一片哗然，在试行了一段时间后，发现不妥就又恢复了。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/02/设计模式系列10---高度定制的抽象工厂方法模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/04/设计模式系列18---有状态的状态模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -475,8 +490,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/02/设计模式系列9---和而不同的工厂方法模式/" itemprop="url">
-                设计模式系列9---和而不同的工厂模式
+              <a class="post-title-link" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="url">
+                设计模式系列17---深入了解的访问者模式
               </a>
             
           
@@ -486,8 +501,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-02T13:43:00+08:00" content="2016-01-02">
-            2016-01-02
+          <time itemprop="dateCreated" datetime="2016-01-04T19:05:00+08:00" content="2016-01-04">
+            2016-01-04
           </time>
         </span>
 
@@ -512,8 +527,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/02/设计模式系列9---和而不同的工厂方法模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列9---和而不同的工厂方法模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -528,12 +543,17 @@
 
       
         
-          <p>现在的手机制造业，在高度的繁荣发展后，流水线的工作基础，吸引了很多厂商为了压低成本，搞一些odm的手机，就是在一个模版的基础上，改下壳，换个商标的样子，就开发布会，说有新的手机！大家快带上你的钱来买，卖得好不好，纯靠营销能力啊。</p>
-<p>例如下面的，某情怀和某米的手机，是不是很一样啊？<br>改一改又是一部手机！</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/b999a9014c086e066a86ab7f05087bf40ad1cbdc.jpg" alt="enter image description here"> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/Screen%20Shot%202016-01-02%20at%2012.51.36.png" alt="enter image description here"></p>
-<p>那么，作为工厂，应该怎么搞呢？</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/u=3692463948,2718815047&amp;fm=21&amp;gp=0.jpg" alt="enter image description here"></p>
+<p>我们有巡视组，他的主要工作就是巡视各个地方的一些重要点，看下他们的工作展开情况，整个巡视过程对重点对象深入的调查，如</p>
+<ul>
+<li>调阅、复制有关文件、档案、会议记录等资料；</li>
+<li>以适当方式对被巡视地区、单位的下属单位或者部门进行走访调研；</li>
+<li>听取被巡视地区、单位党委（党组）的工作汇报和有关部门的专题汇报；</li>
+</ul>
+<p>除了上面的，还有别的很多内容，所以我们的巡视组可以对被调查对象有深入的了解，如果有猫腻也可以很快的被发现。</p>
+<p>那么问题来了，我们该怎么做这样的一个模型呢？</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/02/设计模式系列9---和而不同的工厂方法模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -566,8 +586,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/02/设计模式系列8---发号施令的命令模式/" itemprop="url">
-                设计模式系列8---发号施令的命令模式
+              <a class="post-title-link" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="url">
+                设计模式系列16---响应请求的责任链模式
               </a>
             
           
@@ -577,8 +597,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-02T12:05:00+08:00" content="2016-01-02">
-            2016-01-02
+          <time itemprop="dateCreated" datetime="2016-01-04T17:31:00+08:00" content="2016-01-04">
+            2016-01-04
           </time>
         </span>
 
@@ -603,8 +623,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/02/设计模式系列8---发号施令的命令模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列8---发号施令的命令模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -619,14 +639,15 @@
 
       
         
-          <p> 好了，我们还是开一个故事吧。<br>我们看到过这样的一个表情，我们的程序员接收到来自四面八方的需求，要和不同的人打交道，应对各种所谓需求背后还加多句：“领导提出来的，很重要“之类的结束语，最终过载，导致崩溃跳楼的情况。哈哈<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/75d0dc88d43f8794d129179bd31b0ef419d53ac2.jpg" alt="enter image description here"></p>
-<p>而且我们的美工同学也有这样的经历吧！<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_qP1k.jpg" alt="enter image description here"></p>
-<p>这种混乱的需求来源，导致了下面这种情况。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/28010737_1RXA.jpg" alt="enter image description here"></p>
-<p>所以，与其让整体暴漏在问题前，不如推我们的PM出去面对所有<br>正所谓集体阵亡，不如死一个好。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/pm.jpg" alt="enter image description here"></p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/Image.jpg" alt="enter image description here"></p>
+<p> 所谓责任落实到位，落实到人，就是要找对特定事情有处理权限的人。</p>
+<p> 我们以法院为例子，小事情就在基层人民法院处理了，大一点的事情就找地市级的中级法院，如果事情闹大的就省级的高级人民法院，如果这事件特别重大，那就是最高人民法院了。</p>
+<p>所以我们看下四个级别：</p>
+<pre><code>最高人民法院 &gt; 高级人民法院  &gt; 中级人民法院 &gt; 基层人民法院
+</code></pre><p>那么问题来了，当年窦娥冤情换成现在是归谁管呢？可以跳级跑去告御状吗?</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/F2004111210514300000.jpg" alt="enter image description here"><br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/02/设计模式系列8---发号施令的命令模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -652,7 +673,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/11/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/13/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/11/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/13/">&raquo;</a>
   </nav>
 
  </div>
@@ -686,21 +707,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

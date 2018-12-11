@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/" itemprop="url">
-                源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇
+              <a class="post-title-link" href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" itemprop="url">
+                源码探索系列33---安卓系统的结合子Zygote
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-03-07T14:47:46+08:00" content="2016-03-07">
-            2016-03-07
+          <time itemprop="dateCreated" datetime="2016-04-22T19:56:46+08:00" content="2016-04-22">
+            2016-04-22
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/" itemprop="commentsCount"></span>
+              <a href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,10 +256,11 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/binder_201109131125266418.jpg" alt="enter image description here"></p>
-<p>Binder，大名鼎鼎，有了他，我们才能和另外一个陌生人（进程）发生沟通啊.<br>那么这个搭桥牵绳的中间人—月老Binder，到底是怎么做到的呢？<br>我们先来简单的了解下，然后再深入的探索。<br>篇幅会比较长，所以分了上中下篇，上篇简述基本的原理，下篇尝试从java层和Native层源码的角度来理解。<br>好了，那么我们就开始说下这个月老Binder的故事吧！</p>
+          <p>Last time，we hava talk about <code>SystemServer</code>,which is fork by <code>zygote</code>.<br>Today, we will do some research on  <code>Zygote</code>.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote handled. All the Application Process &amp; the most important class <code>SystemServer</code> are all fork by him.This paper will introduction the hole startUp process of zygote.class</p>
+<p>Title: StartUp Zygote </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/33_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160423004450.jpg" alt="startUp Zygote "></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/07/源码探索系列26---那个搭桥牵线的月老Binder(上)之论述篇/#more" rel="contents">
+            <a class="btn" href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -292,8 +293,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/" itemprop="url">
-                源码探索系列25---救急灭火的消防员之插件&HotFix
+              <a class="post-title-link" href="/2016/04/21/源码探索系列32---万物初生/" itemprop="url">
+                源码探索系列32---万物初生System Servers
               </a>
             
           
@@ -303,8 +304,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-03-05T23:33:46+08:00" content="2016-03-05">
-            2016-03-05
+          <time itemprop="dateCreated" datetime="2016-04-21T00:54:46+08:00" content="2016-04-21">
+            2016-04-21
           </time>
         </span>
 
@@ -329,8 +330,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/" itemprop="commentsCount"></span>
+              <a href="/2016/04/21/源码探索系列32---万物初生/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/21/源码探索系列32---万物初生/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -345,12 +346,9 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/hotfix_201832-120i022461493.jpg" alt="enter image description here"></p>
-<p>在插件化和热修复方面，应该算是解决了不少燃眉问题了。</p>
-<p>目前开源的有：<br>360的<a href="https://github.com/Qihoo360/DroidPlugin" target="_blank" rel="noopener">DroidPlugin</a>，<br>阿里的<a href="https://github.com/alibaba/AndFix" target="_blank" rel="noopener">AndFix</a>，<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a><br>主席的<a href="https://github.com/singwhatiwanna/dynamic-load-apk" target="_blank" rel="noopener">dynamic-load-apk</a><br>点评的<a href="https://github.com/mmin18/AndroidDynamicLoader" target="_blank" rel="noopener">Android Dynamic Loader</a>， </p>
-<p>现在我们来看看它们的原理和各自的优缺点吧。</p>
+          <p>不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？<br>今天我们先来看下整个过程重要的一个环节SystemServer的内容<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/32_android_boot.png" alt="enter image description here"></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/05/源码探索系列25---救急灭火的消防员之HotFix/#more" rel="contents">
+            <a class="btn" href="/2016/04/21/源码探索系列32---万物初生/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -383,8 +381,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="url">
-                源码探索系列24---那把黄油刀ButterKnife
+              <a class="post-title-link" href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/" itemprop="url">
+                源码探索系列31---插件化基础之Service组件管理
               </a>
             
           
@@ -394,8 +392,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-03-03T17:45:00+08:00" content="2016-03-03">
-            2016-03-03
+          <time itemprop="dateCreated" datetime="2016-04-17T17:27:46+08:00" content="2016-04-17">
+            2016-04-17
           </time>
         </span>
 
@@ -420,8 +418,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="commentsCount"></span>
+              <a href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/17/源码探索系列31---插件化基础之Service组件管理/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -436,12 +434,10 @@
 
       
         
-          <p><img src="https://github.com/JakeWharton/butterknife/raw/master/website/static/logo.png" alt="enter image description here"></p>
-<p>相信做安卓开发的人，一定对写一堆 findViewById（）很有印象。特别是当界面多的时候，那简直是觉得为何没有什么简单易行的办法来拯救我们与危难之间呢？</p>
-<p>既然我诚心诚意的问了，那就得写下答案，如何解决这个重复累赘问题.</p>
-<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1>
+          <p>今天我们来看下四大金刚之一的另外一个Sevice。<br>他和Activity一样，也需要提前占坑，然后HOOK才可以使用。<br>就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/service.png" alt="enter image description here"></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#more" rel="contents">
+            <a class="btn" href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -474,8 +470,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/02/22/写在自己的第一本译本前/" itemprop="url">
-                写在自己的第一本译本前
+              <a class="post-title-link" href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" itemprop="url">
+                源码探索系列30---插件包PackageManagerService/PMS
               </a>
             
           
@@ -485,8 +481,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-02-22T23:40:00+08:00" content="2016-02-22">
-            2016-02-22
+          <time itemprop="dateCreated" datetime="2016-04-14T19:53:46+08:00" content="2016-04-14">
+            2016-04-14
           </time>
         </span>
 
@@ -495,8 +491,8 @@
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/编程人生/" itemprop="url" rel="index">
-                  <span itemprop="name">编程人生</span>
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
                 </a>
               </span>
 
@@ -511,8 +507,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/02/22/写在自己的第一本译本前/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/写在自己的第一本译本前/" itemprop="commentsCount"></span>
+              <a href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -527,10 +523,10 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_51oZlMkZlaL.jpg" alt="enter image description here"></p>
-<p>最近重新看了一遍<a href="http://www.amazon.com/True-Believer-Movements-Perennial-Paperback/dp/0060505915/ref=sr_1_1?ie=UTF8&amp;qid=1456151315&amp;sr=8-1&amp;keywords=The%20True%20Believer" target="_blank" rel="noopener">《The True Believer —Thoughts on the Nature of Mass Movements》</a>，现在是第三遍了，每次都可以得到一些宁静。大概可能是因为在这里面可以找到一个解释，来安慰自己无知的内心吧。</p>
+          <p><strong>PMS</strong>主要管理了手机上的所有APK,可提供一些例如安装与卸载，查询包的信息（如我们在AndroidManifest.xml写的内容），清数据等功能。</p>
+<p>做插件化，想欺骗系统不让他们知道我们悄悄安装多了个APP，对PMS做点手脚当然不可避免的啊，今天就让我们来看下他在插件化过程担当的角色和作用吧！</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/22/写在自己的第一本译本前/#more" rel="contents">
+            <a class="btn" href="/2016/04/14/源码探索系列30---插件包PackageManagerService-PMS/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -563,8 +559,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="url">
-                源码探索系列23---那个做布局性能优化的ViewStub
+              <a class="post-title-link" href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" itemprop="url">
+                源码探索系列29---插件化基础之启动插件的Activity
               </a>
             
           
@@ -574,8 +570,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-02-18T23:25:00+08:00" content="2016-02-18">
-            2016-02-18
+          <time itemprop="dateCreated" datetime="2016-04-01T17:41:46+08:00" content="2016-04-01">
+            2016-04-01
           </time>
         </span>
 
@@ -600,8 +596,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="commentsCount"></span>
+              <a href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -616,21 +612,9 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-02-18%2023.22.53.png" alt="enter image description here"></p>
-<p>ViewStub在以开始学安卓的时候就有听说过了，但至今使用的次数都不多，只是在一些加载失败显示错误界面之类的情况用到。虽然他是布局优化的工具之一,不过不得不说，他的实际使用频率还是偏低，可能是我优化的不够多。逃..<br>他的使用形式是下面这样，在xml中</p>
-<pre><code>&lt;ViewStub
-    android:id=&quot;@+id/am_demoStub_vs&quot;
-    android:layout=&quot;@layout/content_main&quot;
-    android:layout_width=&quot;match_parent&quot;
-    android:layout_height=&quot;wrap_content&quot;/&gt;
-</code></pre><p>然后在我们的代码。</p>
-<pre><code>if (demoStubView == null) {
-   ViewStub mViewStub = (ViewStub) view.findViewById(R.id.am_demoStub_vs);
-   demoStubView = mViewStub.inflate();
-}
-</code></pre>
+          <p>昨天的那篇简答的描述了如何利用HOOK来劫持Intent事件，从何来控制关于Activity的开启，<br>在这个基础上，我们需要来看下怎么开启我们的插件中的Activity</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#more" rel="contents">
+            <a class="btn" href="/2016/04/01/源码探索系列29---插件化基础之启动插件的Activity/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -656,7 +640,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/8/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/6/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/8/">&raquo;</a>
   </nav>
 
  </div>
@@ -690,21 +674,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

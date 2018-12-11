@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/" itemprop="url">
-                源码探索系列4---数据库ORM框架之Ormlite解析
+              <a class="post-title-link" href="/2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="url">
+                源码探索系列12---关于事件分发机制
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-16T02:37:00+08:00" content="2015-12-16">
-            2015-12-16
+          <time itemprop="dateCreated" datetime="2015-12-27T21:36:00+08:00" content="2015-12-27">
+            2015-12-27
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/" itemprop="commentsCount"></span>
+              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,13 +256,21 @@
 
       
         
-          <p>在做项目时候，有使用Ormlite来做数据库部分，以提高开发速度。</p>
-<blockquote>
-<p> OrmLite - Lightweight Object Relational Mapping (ORM) Java Package</p>
-</blockquote>
-<p>这个ORM框架在一般数据量不大的情况下，是一个很好的工具，他封装得很好，使用起来也很方便！<br>相比于原始的<code>Sqlite</code>来说，使用后，很容易回不去了，<br>因为你不再需要敲一堆的sql语句，担心那个字段写错，处理cursor，写各种查询等等！<br>重要的是在增加一些字段属性时候，不再需要改到哭了！<br>
+          <p>关于View的事件分发，实质就是关于MotionEvent时间的分发<br>再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。</p>
+<ul>
+<li><p><strong>三巨头</strong><br>分发过程中有主要涉及到三个人：<br><code>dispatchTouchEvent()</code>,<code>onInterceptTouchEvent()</code>,<code>onTouchEvent()</code><br>这三者的关系如下</p>
+<pre><code> public boolean dispatchTouchEvent(MotionEvent ev) {
+      boolean belongToMe=false;
+      if(onInterceptTouchEvent(ev)){
+           belongToMe=onTouchEvent(ev);
+      }else{
+          belongToMe=child.dispatchTouchEvent(ev);
+      }
+      return belongToMe;
+}        
+</code></pre>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/16/源码探索系列4---数据库ORM框架之Ormlite解析/#more" rel="contents">
+            <a class="btn" href="/2015/12/27/源码探索系列12---关于事件分发机制/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -295,8 +303,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/" itemprop="url">
-                源码探索系列3---四大金刚之Activity的启动过程完全解析
+              <a class="post-title-link" href="/2015/12/27/源码探索系列11---关于View的绘制/" itemprop="url">
+                源码探索系列11---关于View的绘制
               </a>
             
           
@@ -306,8 +314,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-15T01:32:00+08:00" content="2015-12-15">
-            2015-12-15
+          <time itemprop="dateCreated" datetime="2015-12-27T02:36:00+08:00" content="2015-12-27">
+            2015-12-27
           </time>
         </span>
 
@@ -332,8 +340,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/" itemprop="commentsCount"></span>
+              <a href="/2015/12/27/源码探索系列11---关于View的绘制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列11---关于View的绘制/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -348,40 +356,9 @@
 
       
         
-          <p>在不同版本API，底层实现有些不一样，所以这里贴出现在在看的API版本号<br>API: 23</p>
-<hr>
-<p>关于Activity的四个启动flag，这里下次再说。<br>先说下我们熟悉的一句吧</p>
-<pre><code>startActivity(new Intent(this,Test2Activity.class));
-</code></pre><p>相信我们对这句太熟悉不过了，不过说到这里，我想说下关于写Intent的一个感觉好的实践<br>相信你已写腻了一堆这样的<code>intent</code>，用起来确实很不好的，就像下面这样</p>
-<pre><code>Intent newIntent= new Intent(this,Test2Activity.class);
-        newIntent.putExtra(&quot;data1&quot;, &quot;trialData1&quot;);
-        Bundle bundle=new Bundle();
-        bundle.putSerializable(&quot;key&quot;,&quot;trialData&quot;); 
-        startActivity(newIntent);
-</code></pre><p>像这种方式我在很多开源项目看到了很多这样的写法，这种不好的方式在于，很多我们要跳到同一个Activity里面去时候，重复写了，这很显然不适合<code>DRY原则</code>，而且我们在另外一个Activity获取数据时候，也需要记住这些Key，这不太好！看到的另外一种方式就是直接写一个<code>IntentUtil</code>类，里面写满各种Intent，感觉这种也不是很好！虽然没重复了，不过在获取数据方面还不是很好，还需要定义一些Constant数据，这里提供我个人觉得好的方式，在我们的Activity里面写一个静态的<code>makeIntent（）</code>函数。<br>如下：</p>
-<pre><code>public class Test2Activity extends AppCompatActivity {
-
-
-    public static final String EXTRA_DATA = &quot;extra_data&quot;;
-
-    public static Intent makeIntent(Context mContext, String data) {
-        return new Intent(mContext, Test2Activity.class).putExtra(EXTRA_DATA, data);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test2);
-         //获取传过来的数据
-        String result = getIntent().getStringExtra(EXTRA_DATA);
-    }
-}
-</code></pre><p>之后我们需要调整到这个界面，只需要这么写</p>
-<pre><code>startActivity(Test2Activity.makeIntent(this,&quot;data&quot;));
-</code></pre><p>通过这个静态方法，我们在数据里面读取方面都很简单，而且启动的时候也知道是要跳到那个界面去,重要是看起来很简单！而且不需要去定义一个常量类来记录这些数据的<code>Key</code></p>
-<p>最后的一个大杀器就是直接写成模板。</p>
+          <p>我们开发过程，基本需要自定义View，画一些自己的小插件出来<br>这需要我们掌握整个View的绘画过程和一些别的小技巧。<br>这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，<br>之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/15/源码探索系列3---四大金刚之Activity的启动过程完全解析/#more" rel="contents">
+            <a class="btn" href="/2015/12/27/源码探索系列11---关于View的绘制/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -414,8 +391,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/09/源码探索系列2---深入解析AsyncTask/" itemprop="url">
-                源码探索系列2---深入解析AsyncTask
+              <a class="post-title-link" href="/2015/12/25/开源系列1---造个图片选择器/" itemprop="url">
+                开源系列1---造个图片选择器
               </a>
             
           
@@ -425,8 +402,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-09T02:04:00+08:00" content="2015-12-09">
-            2015-12-09
+          <time itemprop="dateCreated" datetime="2015-12-25T11:41:00+08:00" content="2015-12-25">
+            2015-12-25
           </time>
         </span>
 
@@ -451,8 +428,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/09/源码探索系列2---深入解析AsyncTask/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/09/源码探索系列2---深入解析AsyncTask/" itemprop="commentsCount"></span>
+              <a href="/2015/12/25/开源系列1---造个图片选择器/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/25/开源系列1---造个图片选择器/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -467,62 +444,107 @@
 
       
         
-          <p>在解析前，我们先来看下一般我们使用的情况是怎样的<br>下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用<code>publishProgress(i);</code>来更新下进度。<br>我想用过的人自己直接阅读下面代码没有任何问题。</p>
-<pre><code>class MyDemoAsyncTask extends AsyncTask&lt;Integer, Integer, String&gt; {
+          <p>打算开个开源系列，用来分享在项目过程中些的一些小轮子。<br>在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。<br>能力有些，实现得也不算很优雅。<br>还望各大神指点。</p>
+<h1 id="我要造轮子"><a href="#我要造轮子" class="headerlink" title="我要造轮子"></a>我要造轮子</h1><p>作为一名爱折腾人员，重复造轮子这种事还是常做的。<br>没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！<br>例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等问题</p>
+<p> <a href="https://github.com/Sanjay-F/PhotoSelector" target="_blank" rel="noopener">项目的下载地址请点击这里</a></p>
+<p>我们直接上效果图，这个是完成后的样子，目前改得勉强像一回事了。<br>就先粘贴上来，有需要的就拿去再根据自己需要改一个。</p>
+<p> <img src="http://img.blog.csdn.net/20151224225205588" alt="这里写图片描述">     —  <img src="http://img.blog.csdn.net/20151224225846858" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20151224233556670" alt="这里写图片描述"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/25/开源系列1---造个图片选择器/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
 
-        private TextView textView;
-        private ProgressBar progressBar;
+    <footer class="post-footer">
+      
 
-        public MyDemoAsyncTask(TextView textView, ProgressBar progressBar) {
-            super();
-            this.textView = textView;
-            this.progressBar = progressBar;
-        }
+      
 
-        @Override
-        protected void onPreExecute() {
-            textView.setText(&quot;开始执行异步线程&quot;);
-        }
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
 
-        @Override
-        protected String doInBackground(Integer... params) {
-            for (int i = 1; i &lt;= 100; i += 1) {
-                publishProgress(i);         
-               try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return &quot;resultString&quot;;
-        }
 
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(values[0]);
-        }
+    
+      
 
-        @Override
-        protected void onPostExecute(String result) {
-            textView.setText(&quot;异步操作执行结束&quot; + result);
-        }
-    }
-</code></pre><h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>好了，这样一个demo，有几点需要解决的问题。</p>
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="url">
+                源码探索系列10---替代Listview的RecycleView
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-23T01:22:00+08:00" content="2015-12-23">
+            2015-12-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p> 自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，<a href="http://blog.csdn.net/sanjay_f/article/details/48830311" target="_blank" rel="noopener">可以看这篇文章</a>。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。</p>
+<p>一些不要搞懂的问题</p>
 <ol>
-<li><p>为何他只能执行一次，再调用execute()就会出错</p>
-</li>
-<li><p>doInBackground()是怎么做到在后台执行的</p>
-</li>
-<li><p>为何 onPreExecute()，onProgressUpdate(）和onPostExecute(）能运行在主线程</p>
-</li>
-<li><p>为何Task的实例必须在UI thread中创建,execute方法必须在UI thread中调用；</p>
-</li>
-<li><p>为何不能手动的调用onPreExecute()，onPostExecute()，doInBackground(),，onProgressUpdate()这几个方法；</p>
-</li>
+<li>为何谷歌推荐用这个，背后的效率是高在哪里？</li>
+<li>LayoutManager是怎么去弄不同布局的</li>
 </ol>
-<p>带着这么几个问题，我们开始深入的看下AsyncTask的源代码。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/09/源码探索系列2---深入解析AsyncTask/#more" rel="contents">
+            <a class="btn" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -555,8 +577,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="url">
-                源码探索系列1---Handler与HandlerLeak的那些事
+              <a class="post-title-link" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="url">
+                源码探索系列9---四大金刚之ContentProvider
               </a>
             
           
@@ -566,8 +588,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-08T23:55:00+08:00" content="2015-12-08">
-            2015-12-08
+          <time itemprop="dateCreated" datetime="2015-12-19T02:42:00+08:00" content="2015-12-19">
+            2015-12-19
           </time>
         </span>
 
@@ -592,8 +614,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="commentsCount"></span>
+              <a href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -608,98 +630,18 @@
 
       
         
-          <p>开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。</p>
-<p>现在那个Handler被挂上了泄漏的名字！<br>最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。</p>
+          <p>好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧</p>
+<h1 id="起航-—-ContentResolver"><a href="#起航-—-ContentResolver" class="headerlink" title="起航 — ContentResolver"></a>起航 — ContentResolver</h1><p>API： 23</p>
+<p>说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！<br>现在都不能记起来用他来干嘛了，虽然知道他能用来做跨进程通讯用，不过对于一般的app。<br>这玩意还真的用的次数少啊! 现在能想起来的一次使用这个就是要获取图片的时候。<br>以前开发的时候遇到的恶心的是，有些Rom把相册给阉割了，搞了个别的来代替，导致调不了图库！<br>所以搞到需要自己开发一个，真的很无语！ </p>
+<pre><code>ContentResolver mContentResolver = this.getContentResolver();
+Cursor mCursor = mContentResolver.query(mImageUri, null,
+            MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot;
+                    + MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot; + &quot; or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot;,
+            new String[]{&quot;image/jpeg&quot;, &quot;image/png&quot;, &quot;image/jpg&quot;, &quot;image/jpe&quot;},
+            MediaStore.Images.Media.DATA);
+</code></pre><p>从这里我们开始看起吧</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/" itemprop="url">
-                Android测试教程13--模拟服务器MockServer之Moco详细介绍
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-07T15:33:00+08:00" content="2015-12-07">
-            2015-12-07
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 前面一篇介绍了如何用mockito来测试我们的一些异步任务，例如网络请求时候的异步回调。<br>现在做进一步的介绍，一个模拟我们的服务器的东东–<a href="https://github.com/dreamhead/moc" target="_blank" rel="noopener">moco</a></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/07/Android测试教程13--模拟服务器MockServer之Moco详细介绍/#more" rel="contents">
+            <a class="btn" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -725,7 +667,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/16/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/18/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/16/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/18/">&raquo;</a>
   </nav>
 
  </div>
@@ -759,21 +701,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

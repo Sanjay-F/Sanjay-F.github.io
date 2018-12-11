@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="url">
-                设计模式系列17---深入了解的访问者模式
+              <a class="post-title-link" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="url">
+                源码探索系列18---关于资源的加载与匹配的资源机制
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T19:05:00+08:00" content="2016-01-04">
-            2016-01-04
+          <time itemprop="dateCreated" datetime="2016-01-08T23:41:46+08:00" content="2016-01-08">
+            2016-01-08
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列17---深入了解的访问者模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,17 +256,13 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/u=3692463948,2718815047&amp;fm=21&amp;gp=0.jpg" alt="enter image description here"></p>
-<p>我们有巡视组，他的主要工作就是巡视各个地方的一些重要点，看下他们的工作展开情况，整个巡视过程对重点对象深入的调查，如</p>
-<ul>
-<li>调阅、复制有关文件、档案、会议记录等资料；</li>
-<li>以适当方式对被巡视地区、单位的下属单位或者部门进行走访调研；</li>
-<li>听取被巡视地区、单位党委（党组）的工作汇报和有关部门的专题汇报；</li>
-</ul>
-<p>除了上面的，还有别的很多内容，所以我们的巡视组可以对被调查对象有深入的了解，如果有猫腻也可以很快的被发现。</p>
-<p>那么问题来了，我们该怎么做这样的一个模型呢？</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg" alt="enter image description here"></p>
+<p>今天我们来聊聊那个我们加载系统资源的问题。</p>
+<p>说的就是我们放在<code>res</code>目录下的内容，系统是如何获取的。</p>
+<pre><code>getResources().getString(R.string.app_name);
+</code></pre>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列17---深入了解的访问者模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -299,8 +295,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="url">
-                设计模式系列16---响应请求的责任链模式
+              <a class="post-title-link" href="/2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="url">
+                源码探索系列17---LRU与LruCache
               </a>
             
           
@@ -310,8 +306,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T17:31:00+08:00" content="2016-01-04">
-            2016-01-04
+          <time itemprop="dateCreated" datetime="2016-01-07T19:06:00+08:00" content="2016-01-07">
+            2016-01-07
           </time>
         </span>
 
@@ -336,8 +332,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列16---响应请求的责任链模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/07/源码探索系列17---LRU与LruCache/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -352,15 +348,11 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/Image.jpg" alt="enter image description here"></p>
-<p> 所谓责任落实到位，落实到人，就是要找对特定事情有处理权限的人。</p>
-<p> 我们以法院为例子，小事情就在基层人民法院处理了，大一点的事情就找地市级的中级法院，如果事情闹大的就省级的高级人民法院，如果这事件特别重大，那就是最高人民法院了。</p>
-<p>所以我们看下四个级别：</p>
-<pre><code>最高人民法院 &gt; 高级人民法院  &gt; 中级人民法院 &gt; 基层人民法院
-</code></pre><p>那么问题来了，当年窦娥冤情换成现在是归谁管呢？可以跳级跑去告御状吗?</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/F2004111210514300000.jpg" alt="enter image description here"><br>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/a08b87d6277f9e2fe1bb18c01e30e924b999f368.jpg" alt="enter image description here"><br>前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈</p>
+<p>今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现<code>LruCache</code>。</p>
+<p>在开始讲它之前，我们来看下他的基本使用。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列16---响应请求的责任链模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/07/源码探索系列17---LRU与LruCache/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -393,8 +385,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="url">
-                设计模式系列15---构表分离的建造者模型
+              <a class="post-title-link" href="/2016/01/06/源码探索系列---中篇开题/" itemprop="url">
+                源码探索系列---中篇开题
               </a>
             
           
@@ -404,8 +396,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T14:26:00+08:00" content="2016-01-04">
-            2016-01-04
+          <time itemprop="dateCreated" datetime="2016-01-06T19:06:00+08:00" content="2016-01-06">
+            2016-01-06
           </time>
         </span>
 
@@ -430,8 +422,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/06/源码探索系列---中篇开题/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/源码探索系列---中篇开题/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -446,13 +438,13 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/1110012133dbbfcc54o.jpg" alt="enter image description here"></p>
-<p> 现在来讲一件很有意思的故事，上面的画很纯洁，只有一种蓝色。但不得不说这图片还是有色差，不能很好的还原实际的色彩，如果有你机会，可以去看下他的<code>IKB</code>色彩是多么的蓝。<br>这种蓝被叫做<code>国际克莱因蓝</code>（international klein blue，缩写IKB）,以<code>伊夫·克莱因</code>（Yves Klein）的名字来命名的。</p>
-<p>这一种独特的天青石蓝色是在他的化学家友人<code>EdouardAdam</code>的帮助下合成的。<br>克莱因相信，只有最<strong>单纯的色彩</strong>才能唤起最强烈的心灵感受力。</p>
-<p>一些艺术家使用各种色彩以求获得艺术生命力，而克莱因宁愿回归单纯。<br>“克莱因蓝”的 RGB 比值是0:47:147，但是明确的数据并不能减少人们面对它时那种震惊——蓝色本身象征着天空和海洋，象征着没有界限，又因为“克莱因蓝”太过纯净，以至于很难找到可与之搭配的色彩进入人们的视野，因此，它的冲击力格外强烈。<br>这种蓝被誉为一种理想之蓝、绝对之蓝，其明净空旷往往使人迷失其中。<br>克莱因曾说：“表达这种感觉，不用解释，也无需语言，就能让心灵感知——我相信，这就是引导我画单色画的感觉。”</p>
-<p>当然啦，现在他的画那是厉害啊，例如他的《IKB 92》卖了一个多亿。也像这个一样，纯蓝色！！！</p>
+          <h2 id=""><a href="#" class="headerlink" title="   "></a> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/2014021021414608237.jpg" alt="enter image description here">  </h2><h2 id="离开，是为了更好的重逢"><a href="#离开，是为了更好的重逢" class="headerlink" title=" 离开，是为了更好的重逢"></a> <strong>离开，是为了更好的重逢</strong></h2><p>在写设计模式系列，暂停了对安卓系统的源码探索系列的更新的这对时间。</p>
+<p>重新整理了下心情，打算重新继续开始写第17篇文章。</p>
+<p>但越到后面越不容易，毕竟从<code>UI</code>看到<code>Framework</code>，再探索下去就是<code>HAL</code>层面，越到后面对能力的要求越高，同时耗费的时间和精力也必然会越多。一个不小不大的问题是对于过于底层的内容，暂时还不想去看。</p>
+<p>写安卓程序也有两年多了，靠自学入门，平时的一点努力和当初一位做了六年的资深安卓开发人员指点，现在对基础的安卓开发基本没太大问题了，除了复杂的自定义控件依然觉得…</p>
+<p>所以学到现在，显然也属于一段瓶颈期了，毕竟大多数APP套用下框架，补以一些第三方库，基本很快就可以开发完成，因此开发完一个APP所带来的兴奋也不再那么高了。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/06/源码探索系列---中篇开题/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -485,8 +477,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="url">
-                设计模式系列14---管流程不管细节的模板方法模式
+              <a class="post-title-link" href="/2016/01/06/设计模式系列22---局部与整体的组合模式/" itemprop="url">
+                设计模式系列22---局部与整体的组合模式
               </a>
             
           
@@ -496,8 +488,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T00:52:00+08:00" content="2016-01-04">
-            2016-01-04
+          <time itemprop="dateCreated" datetime="2016-01-06T14:26:00+08:00" content="2016-01-06">
+            2016-01-06
           </time>
         </span>
 
@@ -522,8 +514,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/06/设计模式系列22---局部与整体的组合模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/设计模式系列22---局部与整体的组合模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -538,12 +530,13 @@
 
       
         
-          <p> 写了这么久，花的时间最多的是在选故事，找图上，写一篇能看的文章真的不容易啊。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/201206251132405977.jpg" alt="enter image description here"><br>今天来介绍一款“高端智能”的机器人—炒菜机器侠。<br>一个可以会帮我们炒菜的机器人，懒人必备，价格不要你的2999，不要1999，只要899！<br>心动了嘛？赶紧拿起手头的手机，扫码购买吧！</p>
-<p>我们的炒菜机器人，只要你给他材料，就可以煮出你想要的菜。</p>
-<p>什么扬州炒饭，潮州炒饭都不是问题!</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/8601a18b87d6277f6a5d25a228381f30e824fcd9.jpg" alt="enter image description here"></p>
+<p>今天要说的是结构模式的最后一个，组合模式。</p>
+<p>他和我们的数据结构里面的树有点关系，怎么个关系？</p>
+<p>还记得我们在讲 <code>设计模式4---对外包办的门面模型</code>的案例提到的老板叫总经理干活，实际是下面别的部门的人在干活的案例吗？</p>
+<p>现在我们来写一个基于组合模型的总经理叫各部门人员干活的过程。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/06/设计模式系列22---局部与整体的组合模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -576,8 +569,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="url">
-                设计模式系列13---感知变化的观察者模型
+              <a class="post-title-link" href="/2016/01/06/设计模式系列21---避免浪费的享元模型/" itemprop="url">
+                设计模式系列21---避免浪费的享元模型
               </a>
             
           
@@ -587,8 +580,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-03T23:18:00+08:00" content="2016-01-03">
-            2016-01-03
+          <time itemprop="dateCreated" datetime="2016-01-06T12:58:00+08:00" content="2016-01-06">
+            2016-01-06
           </time>
         </span>
 
@@ -613,8 +606,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/06/设计模式系列21---避免浪费的享元模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/设计模式系列21---避免浪费的享元模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -629,11 +622,13 @@
 
       
         
-          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/33a603bc503a96dd46b3cc65667bb656.jpg" alt="enter image description here"><br>电影《模仿游戏》中，讲述了我们的计算机科学之父<code>图灵</code>通过制造背后那个大机器，来协助盟军破译德国密码系统<code>“英格玛”</code>，从而扭转二战战局的经历。</p>
-<p>如果没图灵用这大机器来破译情报，知道敌军动向，估计整个二战战局可能都被改写！<br>尽管历史没假设，事实就是事实。</p>
-<p>今天我们要说的观察者就是这样的功效，他监视着被观察者，一有什么风吹草动就打报告。</p>
+          <p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/d6db63561c56b8bc405fc93d56bcee78.jpg" alt="enter image description here"></p>
+<p>单例模式垄断了对资源的访问，避免了多次生成带来的重复浪费。<br>但有时候，我们并没有这么严格的限制，还是希望多几个干活的，或者说<br>我们的实例有部分的重用功能，但又不能像单例那样只有一个，还是需要很多的实例。</p>
+<p>具体如：</p>
+<p>我们服务器缓存了100W个用户的信息，但是有一些冗余，例如我们的年龄只有100个取值，最多150是不是！但我们有100个用户，每个都有一个单独的年龄字段，相对是有点多余的，如果可以只压缩到100个的话。或者我们的用户里面的省会信息，也就34个！</p>
+<p> 好了，废话那么多，到底这个享元应该怎么写呢？</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/06/设计模式系列21---避免浪费的享元模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -659,7 +654,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/12/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/10/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/12/">&raquo;</a>
   </nav>
 
  </div>
@@ -693,21 +688,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

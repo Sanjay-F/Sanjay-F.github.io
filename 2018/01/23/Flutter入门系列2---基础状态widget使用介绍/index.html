@@ -1,0 +1,971 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,Flutter," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="现在先简单的说下flutter对应的一些基本控件，界面绘制内容逻辑. 配合说明状态管理这个事情，Flutter分了有状态和无状态组件，做过React+Redux套装开发的应该看下面代码很熟悉  widget本身 父widget 另一个对象  想说下这个官方的简单demo，添加多个箱子，点击箱子，切换不同的显示效果 没选中显示灰色背景   widget本身 自己管理不多说，先上模板代码 import">
+<meta name="keywords" content="android,Flutter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter入门系列2---基础状态widget使用介绍">
+<meta property="og:url" content="http://yoursite.com/2018/01/23/Flutter入门系列2---基础状态widget使用介绍/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="现在先简单的说下flutter对应的一些基本控件，界面绘制内容逻辑. 配合说明状态管理这个事情，Flutter分了有状态和无状态组件，做过React+Redux套装开发的应该看下面代码很熟悉  widget本身 父widget 另一个对象  想说下这个官方的简单demo，添加多个箱子，点击箱子，切换不同的显示效果 没选中显示灰色背景   widget本身 自己管理不多说，先上模板代码 import">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.imgur.com/OmNtCiD.png">
+<meta property="og:image" content="https://i.imgur.com/M2snL46.png">
+<meta property="og:updated_time" content="2018-12-11T02:45:14.789Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter入门系列2---基础状态widget使用介绍">
+<meta name="twitter:description" content="现在先简单的说下flutter对应的一些基本控件，界面绘制内容逻辑. 配合说明状态管理这个事情，Flutter分了有状态和无状态组件，做过React+Redux套装开发的应该看下面代码很熟悉  widget本身 父widget 另一个对象  想说下这个官方的简单demo，添加多个箱子，点击箱子，切换不同的显示效果 没选中显示灰色背景   widget本身 自己管理不多说，先上模板代码 import">
+<meta name="twitter:image" content="https://i.imgur.com/OmNtCiD.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Flutter入门系列2---基础状态widget使用介绍 | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Flutter入门系列2---基础状态widget使用介绍
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-01-23T22:45:46+08:00" content="2018-01-23">
+            2018-01-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">Flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/01/23/Flutter入门系列2---基础状态widget使用介绍/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/01/23/Flutter入门系列2---基础状态widget使用介绍/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>现在先简单的说下flutter对应的一些基本控件，界面绘制内容逻辑.</p>
+<p>配合说明状态管理这个事情，Flutter分了有状态和无状态组件，做过React+Redux套装开发的应该看下面代码很熟悉</p>
+<ul>
+<li>widget本身</li>
+<li>父widget</li>
+<li>另一个对象</li>
+</ul>
+<p>想说下这个官方的简单demo，添加多个箱子，点击箱子，切换不同的显示效果<br><img src="https://i.imgur.com/OmNtCiD.png" alt="选中"></p>
+<p>没选中显示灰色背景 </p>
+<p><img src="https://i.imgur.com/M2snL46.png" alt="没选中显示灰色背景"></p>
+<h2 id="widget本身-自己管理"><a href="#widget本身-自己管理" class="headerlink" title="widget本身 自己管理"></a>widget本身 自己管理</h2><p>不多说，先上模板代码</p>
+<pre><code>import &apos;package:flutter/material.dart&apos;;
+
+void main() =&gt; runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    //Flutter做了对material风格的界面的空间，我们只需要传一个参数过去就可以定制内容了
+
+    return new MaterialApp(
+      title: &apos;Flutter Demo&apos;,
+
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text(&apos;Flutter Demo&apos;),//顶部蓝色的bar
+        ),
+        body: new Center(//显示的内容，对应body属性，像web开发一样，整体内容在body里面
+        //内容是用了center这个空间来居中显示我们定义的box
+          child: new BoxA(),//显示一个box
+        ),
+      ),
+    );
+  }
+}
+
+class BoxA extends StatefulWidget {
+//boxA是一个有状态的空间，他的状态管理由_BoxAState处理
+  @override
+  State&lt;StatefulWidget&gt; createState() {
+    return new _BoxAState();
+  }
+}
+
+class _BoxAState extends State&lt;BoxA&gt; {
+  bool _active = false;
+
+  @override
+  Widget build(BuildContext context) {
+
+    //Flutter不行安卓，直接给view添加onClickListener，
+    //而是需要包多一层GestureDetector，然后在onTap属性设置点击回调
+
+    return new GestureDetector(
+      onTap: _handleTap, //点击的处理函数
+      child: new Container(
+        child: new Center(
+          child: new Text(
+            _active ? &quot;actvie&quot; : &quot;InActive&quot;,
+            style: new TextStyle(fontSize: 30.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        //切换不同背景靠这个
+        decoration: new BoxDecoration(
+            color: _active ? Colors.lightBlue[700] : Colors.grey[600]),
+      ),
+    );
+  }
+
+  void _handleTap() {
+    //点击后，我们去刷新state里面的_active值，这个做多web开发同学应该都知道，通过setState来触发界面刷新的逻辑
+    setState(() {
+      _active = !_active;
+    });
+  }
+}
+</code></pre><p>意思的demo是flutter在管理有状态控件时候的自己管理自己的方式。<br>还有另外两种，父亲管理，和别的空间管理.</p>
+<p>这个父亲管理很好理解，其实就是有时候点击事件处理可能是外部传入，我们外面的某个地方想监听这个状态做对应的别的操作嘛，类似回调的逻辑。</p>
+<h2 id="父亲widget管理"><a href="#父亲widget管理" class="headerlink" title="父亲widget管理"></a>父亲widget管理</h2><p>我们来看下怎么做到</p>
+<pre><code>import &apos;package:flutter/material.dart&apos;;
+
+void main() =&gt; runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: &apos;Flutter Demo&apos;,
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text(&apos;Flutter Demo&apos;),
+        ),
+        body: new Center(
+          child: new ParentWidget() //就改了这个
+        ),
+      ),
+    );
+  }
+}
+
+class ParentWidget extends StatefulWidget {
+  @override
+  State&lt;StatefulWidget&gt; createState() {
+    return new _ParentStage();
+  }
+}
+
+class _ParentStage extends State&lt;ParentWidget&gt; {
+  bool _active = false;
+
+  void _handleTap(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+        child: new BoxStateLessWidget(active: _active, onChanged: _handleTap));
+        //我们把回调接口_handleTap传进去,和当前的状态_active传进去，由BoxStateLessWidget去绘制界面
+  }
+}
+
+//原本负责最终绘制界面的widget变成了stateLesswidget，因为由外部做了管理，他只负责对外部传输数据来做绘制界面。
+//有点击操作就做对应的传入接口做调用
+class BoxStateLessWidget extends StatelessWidget {
+  final bool active;
+  final ValueChanged&lt;bool&gt; onChanged;
+
+  BoxStateLessWidget({Key key, this.active: false, @required this.onChanged})
+      : super(key: key);
+
+  void _handleTap() {
+    onChanged(!active);  //这个把传入的接口做调用，告诉外部。从而达到父亲管理
+  }
+
+  Widget build(BuildContext context) {
+    return new GestureDetector(
+      onTap: _handleTap,
+      child: new Container(
+        child: new Center(
+          child: new Text(
+            active ? &apos;Active&apos; : &apos;Inactive&apos;,
+            style: new TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          color: active ? Colors.lightGreen[700] : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+}
+</code></pre><p>最后看那个混合管理</p>
+<h2 id="混合管理"><a href="#混合管理" class="headerlink" title="混合管理"></a>混合管理</h2><p>所谓混合管理，其实就是子widget是个有状态的，可以做一些事情，同时也对父亲传入的回调接口做调用。<br>明白这句我们再来看下代码</p>
+<pre><code>void main() =&gt; runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: &apos;Flutter Demo&apos;,
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text(&apos;Flutter Demo&apos;),
+        ),
+        body: new Center(child: new ParentWidget()),
+      ),
+    );
+  }
+}
+
+class ParentWidget extends StatefulWidget {
+  @override
+  State&lt;StatefulWidget&gt; createState() {
+    return new _ParentStage();
+  }
+}
+
+class _ParentStage extends State&lt;ParentWidget&gt; {
+  bool _active = false;
+
+  void _handleTap(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+        child: new TapboxC(active: _active, onChanged: _handleTap));
+  }
+}
+</code></pre><p>上面这一块和前面都没动，只是在build的时候，用了新的TapboxC来处理<br>然后这个TapboxC是StatefulWidget，不再是前面说的无状态widget，因为这个有状态，才可以在内部做部分控制，刷新界面。<br>同时调用外部的接口，回调做处理。达到所谓的混合管理。</p>
+<pre><code>class TapboxC extends StatefulWidget {
+  TapboxC({Key key, this.active: false, @required this.onChanged})
+      : super(key: key);
+
+  final bool active;
+  final ValueChanged&lt;bool&gt; onChanged;
+
+  _TapboxCState createState() =&gt; new _TapboxCState();
+}
+
+class _TapboxCState extends State&lt;TapboxC&gt; {
+  bool _highlight = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTap() {
+    widget.onChanged(!widget.active);
+  }
+
+  Widget build(BuildContext context) {     
+    return new GestureDetector(
+      onTap: _handleTap,
+
+      onTapDown: _handleTapDown, 
+      onTapUp: _handleTapUp, 
+      onTapCancel: _handleTapCancel,
+
+      child: new Container(
+        child: new Center(
+          child: new Text(widget.active ? &apos;Active&apos; : &apos;Inactive&apos;,
+              style: new TextStyle(fontSize: 32.0, color: Colors.white)),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          color: widget.active ? Colors.lightGreen[700] : Colors.grey[600],
+          border: _highlight
+              ? new Border.all(
+                  color: Colors.teal[700],
+                  width: 10.0,
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+}
+</code></pre><p>这个手势还有很多别的回调方法,具体<a href="https://docs.flutter.io/flutter/widgets/GestureDetector-class.html" target="_blank" rel="noopener">点击这里查看</a>，感觉还是相比安卓厚道很多，不用再自己去弄那么多了。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/Flutter/" rel="tag">#Flutter</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/28/Flutter入门系列4---边界控制widget/" rel="prev">Flutter入门系列3---基础列表控件Row和Column</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/18/Flutter入门系列3---常用基础控件Container/" rel="next">Flutter入门系列3---常用基础控件Container</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2018/01/23/Flutter入门系列2---基础状态widget使用介绍/"
+     data-title="Flutter入门系列2---基础状态widget使用介绍"
+     data-content=""
+     data-url="http://yoursite.com/2018/01/23/Flutter入门系列2---基础状态widget使用介绍/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2018/01/23/Flutter入门系列2---基础状态widget使用介绍/"
+                   data-title="Flutter入门系列2---基础状态widget使用介绍" data-url="http://yoursite.com/2018/01/23/Flutter入门系列2---基础状态widget使用介绍/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">118</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#widget本身-自己管理"><span class="nav-number">1.</span> <span class="nav-text">widget本身 自己管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#父亲widget管理"><span class="nav-number">2.</span> <span class="nav-text">父亲widget管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#混合管理"><span class="nav-number">3.</span> <span class="nav-text">混合管理</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

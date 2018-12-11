@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/02/设计模式系列7---金点子多多的策略模式/" itemprop="url">
-                设计模式系列7---金点子多多的策略模式
+              <a class="post-title-link" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="url">
+                设计模式系列15---构表分离的建造者模型
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-02T00:40:00+08:00" content="2016-01-02">
-            2016-01-02
+          <time itemprop="dateCreated" datetime="2016-01-04T14:26:00+08:00" content="2016-01-04">
+            2016-01-04
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/02/设计模式系列7---金点子多多的策略模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/02/设计模式系列7---金点子多多的策略模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,42 +256,13 @@
 
       
         
-          <p>编这个策略模式的故事真的不好想，他和前面的桥接模式很类似，虽然桥接是结构模式，而策略是行为模式。</p>
-<p>这次的故事真的不容易编啊，我们来看下一个我们变成遇到的情况吧。</p>
-<pre><code> public class SortHelper{
-
-    public static final int SORT_HEAP=0;
-    public static final int SORT_BIN=1;
-    public static final int SORT_SHELL=2;
-
-    public void sort(int type){
-        if(type==SORT_HEAP){
-            HeapSort();
-        }else if(type==SORT_BIN){
-            BinSort();
-        }else if(type==SORT_SHELL){
-            ShellSort();
-        }
-    }
-
-    public void HeapSort(){
-        System.out.println(&quot;this is heap sort&quot;);
-
-    }
-
-    public void BinSort(){
-        System.out.println(&quot;this is heap sort&quot;);
-
-    }
-    public void ShellSort(){
-        System.out.println(&quot;this is shell sort&quot;);
-
-    }
-}
-</code></pre><p>在我们的这个排序小助手类，我们根据不同的算法来选择不同的实现。但这个有一些问题，如果我们以后加了新的方法怎么办？<br>一种方法淡然是直接简单的修改，加多了<code>else if</code>，然后加多新的方法，但这不太像ocp原则啊，我们对修改尽量封闭的。而且当条件多了的时候，整个就恨臃肿，不容易维护了。</p>
-<p>为此我们需要一些调整，这时候策略模式登场</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/1110012133dbbfcc54o.jpg" alt="enter image description here"></p>
+<p> 现在来讲一件很有意思的故事，上面的画很纯洁，只有一种蓝色。但不得不说这图片还是有色差，不能很好的还原实际的色彩，如果有你机会，可以去看下他的<code>IKB</code>色彩是多么的蓝。<br>这种蓝被叫做<code>国际克莱因蓝</code>（international klein blue，缩写IKB）,以<code>伊夫·克莱因</code>（Yves Klein）的名字来命名的。</p>
+<p>这一种独特的天青石蓝色是在他的化学家友人<code>EdouardAdam</code>的帮助下合成的。<br>克莱因相信，只有最<strong>单纯的色彩</strong>才能唤起最强烈的心灵感受力。</p>
+<p>一些艺术家使用各种色彩以求获得艺术生命力，而克莱因宁愿回归单纯。<br>“克莱因蓝”的 RGB 比值是0:47:147，但是明确的数据并不能减少人们面对它时那种震惊——蓝色本身象征着天空和海洋，象征着没有界限，又因为“克莱因蓝”太过纯净，以至于很难找到可与之搭配的色彩进入人们的视野，因此，它的冲击力格外强烈。<br>这种蓝被誉为一种理想之蓝、绝对之蓝，其明净空旷往往使人迷失其中。<br>克莱因曾说：“表达这种感觉，不用解释，也无需语言，就能让心灵感知——我相信，这就是引导我画单色画的感觉。”</p>
+<p>当然啦，现在他的画那是厉害啊，例如他的《IKB 92》卖了一个多亿。也像这个一样，纯蓝色！！！</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/02/设计模式系列7---金点子多多的策略模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -324,8 +295,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/01/设计模式系列6---分隔的装饰模式/" itemprop="url">
-                设计模式系列6---分隔与包装的装饰模式
+              <a class="post-title-link" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="url">
+                设计模式系列14---管流程不管细节的模板方法模式
               </a>
             
           
@@ -335,8 +306,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-01T00:15:00+08:00" content="2016-01-01">
-            2016-01-01
+          <time itemprop="dateCreated" datetime="2016-01-04T00:52:00+08:00" content="2016-01-04">
+            2016-01-04
           </time>
         </span>
 
@@ -361,8 +332,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/01/设计模式系列6---分隔的装饰模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/01/设计模式系列6---分隔的装饰模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -377,12 +348,12 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%BF%84%E7%BD%97%E6%96%AF%E5%A5%97%E5%A8%83.jpg" alt="enter image description here"></p>
-<p>在说完门面，需要提到一个他的近亲，就是同属于结构模式的装饰(<strong>Decorator</strong>)。</p>
-<p>按照开头写故事思路，这故事真是憋了好久才想到套娃的案例。</p>
-<p>应该很多人都有看过套娃吧？没看过的就看上面的图，挺好懂得，就是一个嵌套一个的，挺有意思的。<br>不断的拆开这些套娃，发现里面还有更小的套娃，在拆开发现还有更更小的套娃….<br>打开过程是挺惊喜的，不过装回去就麻烦了，呵呵。</p>
+          <p> 写了这么久，花的时间最多的是在选故事，找图上，写一篇能看的文章真的不容易啊。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/201206251132405977.jpg" alt="enter image description here"><br>今天来介绍一款“高端智能”的机器人—炒菜机器侠。<br>一个可以会帮我们炒菜的机器人，懒人必备，价格不要你的2999，不要1999，只要899！<br>心动了嘛？赶紧拿起手头的手机，扫码购买吧！</p>
+<p>我们的炒菜机器人，只要你给他材料，就可以煮出你想要的菜。</p>
+<p>什么扬州炒饭，潮州炒饭都不是问题!</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/01/设计模式系列6---分隔的装饰模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -415,8 +386,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/31/设计模式系列5---多变灵活的桥接/" itemprop="url">
-                设计模式系列5---多变灵活的桥接
+              <a class="post-title-link" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="url">
+                设计模式系列13---感知变化的观察者模型
               </a>
             
           
@@ -426,8 +397,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-31T23:26:00+08:00" content="2015-12-31">
-            2015-12-31
+          <time itemprop="dateCreated" datetime="2016-01-03T23:18:00+08:00" content="2016-01-03">
+            2016-01-03
           </time>
         </span>
 
@@ -452,8 +423,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/31/设计模式系列5---多变灵活的桥接/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/31/设计模式系列5---多变灵活的桥接/" itemprop="commentsCount"></span>
+              <a href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列13---感知变化的观察者模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -468,35 +439,11 @@
 
       
         
-          <table>
-<thead>
-<tr>
-<th style="text-align:center"><strong>《桥接》 —  SanjayF</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">小时候，梦想是当一名宇航员，驾驭飞船，太空探索。</td>
-</tr>
-<tr>
-<td style="text-align:center">长大后，梦想是当一名渔船夫，划着扁舟，荡漾湖面。</td>
-</tr>
-<tr>
-<td style="text-align:center">后来啊，梦想是当一名大土豪，开着汽车，周游列国。</td>
-</tr>
-<tr>
-<td style="text-align:center">而现在，梦想是当一名好码农，敲着代码，写完桥接。</td>
-</tr>
-<tr>
-<td style="text-align:center"><img src="http://7xl9zd.com1.z0.glb.clouddn.com/19304468_19304468_1364439264237_mthumb.jpg" alt="enter image description here"></td>
-</tr>
-<tr>
-<td style="text-align:center">图： 周庄的桥</td>
-</tr>
-</tbody>
-</table>
+          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/33a603bc503a96dd46b3cc65667bb656.jpg" alt="enter image description here"><br>电影《模仿游戏》中，讲述了我们的计算机科学之父<code>图灵</code>通过制造背后那个大机器，来协助盟军破译德国密码系统<code>“英格玛”</code>，从而扭转二战战局的经历。</p>
+<p>如果没图灵用这大机器来破译情报，知道敌军动向，估计整个二战战局可能都被改写！<br>尽管历史没假设，事实就是事实。</p>
+<p>今天我们要说的观察者就是这样的功效，他监视着被观察者，一有什么风吹草动就打报告。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/31/设计模式系列5---多变灵活的桥接/#more" rel="contents">
+            <a class="btn" href="/2016/01/03/设计模式系列13---感知变化的观察者模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -529,8 +476,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/31/设计模式系列4---对外包办的门面模型/" itemprop="url">
-                设计模式系列4---对外包办的门面模型
+              <a class="post-title-link" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="url">
+                设计模式系列12---遍历统一的迭代模式
               </a>
             
           
@@ -540,8 +487,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-31T16:26:00+08:00" content="2015-12-31">
-            2015-12-31
+          <time itemprop="dateCreated" datetime="2016-01-03T21:22:00+08:00" content="2016-01-03">
+            2016-01-03
           </time>
         </span>
 
@@ -566,8 +513,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/31/设计模式系列4---对外包办的门面模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/31/设计模式系列4---对外包办的门面模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列12---快速拷贝的原型模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -582,14 +529,13 @@
 
       
         
-          <p>说到门面这个词， 在我国的文化就很有内涵啦！<br>不过<code>Facade</code> 这个词有时候翻译为外观。<br>到底该怎么理解这个门面模型呢？</p>
-<p>我们可以看一个公司的架构 </p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/20120725112047797.jpg" alt="enter image description here"></p>
-<p><strong>董事长</strong>同他的<strong>总经理</strong>说他要把今年的销售额翻<code>30</code>倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。</p>
-<p>这样对于发号施令的董事长，不需要知道具体的细节，只需要记得找总经理负责这事就好了。<br>就是苦了这个总经理，需要了解所有的部门情况，分割不同的事情给下面的人干活去。</p>
-<p>所以我们可以简化这个流程成这样的，老板说要去赚钱，总经理找了技术部开发了个杀手级应用，然后销售部门就负责去卖，从而达到赚钱的效果。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/W020141211406589017323.jpg" alt="enter image description here"></p>
+<p>对于迭代这件事，我们曾经遇到过很多类似的事情，</p>
+<p>例如：上课点名！！！</p>
+<p> 每次我们的课室<code>存储</code>了一堆的<code>学生对象</code>，然后老师开始<code>迭代名单</code>–点名，<br> 判断某学生是否来上课了，没来的平时分给你扣点，积少成多，考试就压力大了。</p>
+<p> 大学时代满满的回忆啊。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/31/设计模式系列4---对外包办的门面模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/03/设计模式系列12---快速拷贝的原型模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -622,8 +568,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="url">
-                设计模式系列3---搞转换的适配器模型
+              <a class="post-title-link" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="url">
+                设计模式系列11---快速拷贝的原型模型
               </a>
             
           
@@ -633,8 +579,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-30T21:26:00+08:00" content="2015-12-30">
-            2015-12-30
+          <time itemprop="dateCreated" datetime="2016-01-03T00:34:00+08:00" content="2016-01-03">
+            2016-01-03
           </time>
         </span>
 
@@ -659,8 +605,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/03/设计模式系列11---快速拷贝的原型模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -675,13 +621,10 @@
 
       
         
-          <p>用过苹果手机的人对这两样东西应该很熟悉</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/adapter.jpg" alt="enter image description here">  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/charge_apple.jpg" alt="enter image description here"></p>
-<p>我们常常需要买多左边那个适配器来用，要不然以苹果这插头，没几个排插能插上的。<br>但有了这转换器的话，只要满足两端标准，就可以<strong>循环利用</strong>，很”环保”.</p>
-<p>例如这样： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203716.jpg" alt="enter image description here">    —   或者这个： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203809.jpg" alt="enter image description here"></p>
-<p>想当年的巴别塔，如果有这样的做语言转换的翻译人，估计也建好了把。</p>
+          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/2013050615205185.jpg" alt="enter image description here"><br>早年一直有新闻报道，XXX拖欠农民工工资的情况，甚至没有和员工签订合同的。这种做法当然不好，但现实也是挺残酷的，上门为了利润，就这么做，能省就省，遇到什么工伤之类的都不用赔，因为没有合同，你怎么说工伤呢？<br>这和大公司开一家小公司，去做特定的项目类似，规避风险。</p>
+<p>假设我们有一份    重要的合同，需要一式两份保存，每人个一份。<br>这时候我们要快速的备份一份，因为内容完全一样，这时候就可以用原型模型</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/03/设计模式系列11---快速拷贝的原型模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -707,7 +650,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/14/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/12/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/14/">&raquo;</a>
   </nav>
 
  </div>
@@ -741,21 +684,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="url">
-                源码探索系列20---安装APK的PackageManagerService
+              <a class="post-title-link" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="url">
+                源码探索系列24---那把黄油刀ButterKnife
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-10T23:56:46+08:00" content="2016-01-10">
-            2016-01-10
+          <time itemprop="dateCreated" datetime="2016-03-03T17:45:00+08:00" content="2016-03-03">
+            2016-03-03
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="commentsCount"></span>
+              <a href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,10 +256,12 @@
 
       
         
-          <p> 我们新新苦苦的写好了程序，打好包，给用户安装。<br> 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？</p>
-<p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png" alt="enter image description here"></p>
+          <p><img src="https://github.com/JakeWharton/butterknife/raw/master/website/static/logo.png" alt="enter image description here"></p>
+<p>相信做安卓开发的人，一定对写一堆 findViewById（）很有印象。特别是当界面多的时候，那简直是觉得为何没有什么简单易行的办法来拯救我们与危难之间呢？</p>
+<p>既然我诚心诚意的问了，那就得写下答案，如何解决这个重复累赘问题.</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#more" rel="contents">
+            <a class="btn" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -292,8 +294,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="url">
-                源码探索系列19---加载布局的LayoutInflater
+              <a class="post-title-link" href="/2016/02/22/写在自己的第一本译本前/" itemprop="url">
+                写在自己的第一本译本前
               </a>
             
           
@@ -303,8 +305,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-10T00:31:46+08:00" content="2016-01-10">
-            2016-01-10
+          <time itemprop="dateCreated" datetime="2016-02-22T23:40:00+08:00" content="2016-02-22">
+            2016-02-22
           </time>
         </span>
 
@@ -313,8 +315,8 @@
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/编程人生/" itemprop="url" rel="index">
+                  <span itemprop="name">编程人生</span>
                 </a>
               </span>
 
@@ -329,8 +331,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="commentsCount"></span>
+              <a href="/2016/02/22/写在自己的第一本译本前/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/写在自己的第一本译本前/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -345,21 +347,10 @@
 
       
         
-          <p>对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。</p>
-<pre><code>@Override
-public View getView(int i, View view, ViewGroup viewGroup) {
-    SimpleViewHolder viewHolder;
-    if (view == null) {
-        view = LayoutInflater.from(mContext).inflate(R.layout.listitem_demo, null);
-        viewHolder = new SimpleViewHolder();
-        viewHolder.bindView(view);
-        view.setTag(viewHolder);
-    } else {
-        viewHolder = (SimpleViewHolder) view.getTag();
-    }
-</code></pre><p>那么问题来了，这个家伙是怎么加载到他的呢？<br>我们今天去看下。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_51oZlMkZlaL.jpg" alt="enter image description here"></p>
+<p>最近重新看了一遍<a href="http://www.amazon.com/True-Believer-Movements-Perennial-Paperback/dp/0060505915/ref=sr_1_1?ie=UTF8&amp;qid=1456151315&amp;sr=8-1&amp;keywords=The%20True%20Believer" target="_blank" rel="noopener">《The True Believer —Thoughts on the Nature of Mass Movements》</a>，现在是第三遍了，每次都可以得到一些宁静。大概可能是因为在这里面可以找到一个解释，来安慰自己无知的内心吧。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#more" rel="contents">
+            <a class="btn" href="/2016/02/22/写在自己的第一本译本前/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -392,8 +383,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
           
             
-              <a class="post-title-link" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="url">
-                源码探索系列18---关于资源的加载与匹配的资源机制
+              <a class="post-title-link" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="url">
+                源码探索系列23---那个做布局性能优化的ViewStub
               </a>
             
           
@@ -403,8 +394,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-08T23:41:46+08:00" content="2016-01-08">
-            2016-01-08
+          <time itemprop="dateCreated" datetime="2016-02-18T23:25:00+08:00" content="2016-02-18">
+            2016-02-18
           </time>
         </span>
 
@@ -429,8 +420,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="commentsCount"></span>
+              <a href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -445,13 +436,21 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg" alt="enter image description here"></p>
-<p>今天我们来聊聊那个我们加载系统资源的问题。</p>
-<p>说的就是我们放在<code>res</code>目录下的内容，系统是如何获取的。</p>
-<pre><code>getResources().getString(R.string.app_name);
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202016-02-18%2023.22.53.png" alt="enter image description here"></p>
+<p>ViewStub在以开始学安卓的时候就有听说过了，但至今使用的次数都不多，只是在一些加载失败显示错误界面之类的情况用到。虽然他是布局优化的工具之一,不过不得不说，他的实际使用频率还是偏低，可能是我优化的不够多。逃..<br>他的使用形式是下面这样，在xml中</p>
+<pre><code>&lt;ViewStub
+    android:id=&quot;@+id/am_demoStub_vs&quot;
+    android:layout=&quot;@layout/content_main&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;wrap_content&quot;/&gt;
+</code></pre><p>然后在我们的代码。</p>
+<pre><code>if (demoStubView == null) {
+   ViewStub mViewStub = (ViewStub) view.findViewById(R.id.am_demoStub_vs);
+   demoStubView = mViewStub.inflate();
+}
 </code></pre>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#more" rel="contents">
+            <a class="btn" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -484,8 +483,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
           
             
-              <a class="post-title-link" href="/2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="url">
-                源码探索系列17---LRU与LruCache
+              <a class="post-title-link" href="/2016/02/09/春节间的2015年的小结/" itemprop="url">
+                春节间的2015年的小结
               </a>
             
           
@@ -495,8 +494,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-07T19:06:00+08:00" content="2016-01-07">
-            2016-01-07
+          <time itemprop="dateCreated" datetime="2016-02-09T15:27:00+08:00" content="2016-02-09">
+            2016-02-09
           </time>
         </span>
 
@@ -505,8 +504,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/编程人生/" itemprop="url" rel="index">
+                  <span itemprop="name">编程人生</span>
                 </a>
               </span>
 
@@ -521,8 +520,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/07/源码探索系列17---LRU与LruCache/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="commentsCount"></span>
+              <a href="/2016/02/09/春节间的2015年的小结/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/09/春节间的2015年的小结/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -537,11 +536,15 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/a08b87d6277f9e2fe1bb18c01e30e924b999f368.jpg" alt="enter image description here"><br>前段时间的文章都配图，今天写完才觉得少了什么，想起来要图，所以今天我们就补一只豆逼的哈士奇在这里吧。哈哈</p>
-<p>今天我们来聊聊那个LRU（Least Recently Used 近期最少使用算法）在我们开发过程的实际应用和我们的安卓系统在support包有提供的一种实现<code>LruCache</code>。</p>
-<p>在开始讲它之前，我们来看下他的基本使用。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/img8.jpg" alt="enter image description here"></p>
+<p>乱折腾了一年，又是一年，到了今天开始七天的年假。<br>一年前，还在做所谓的创业，还在坚持着渺茫的希望。<br>像很多人说的那样的一句话:”那时候还很好，很想回到过去。”</p>
+<p>但我不要，我不想回去。<br>记得过去，更好的走下去。<br>成长，没有后退的路。</p>
+<p>面对，作出选择，改进才是一条康庄大道。<br>就像这张我喜欢的w7默认墙纸一样，突破寒冷看到的那一缕光。</p>
+<pre><code>只要坚持,梦想总是可以实现的。
+</code></pre><p>时间，时间，还是时间。不知不觉de过了一年，从学校到社会的切换。写总结这种事，对于我这种粗人，多少觉得有点别扭。</p>
+<p>总结<br>到底要记录点什么？<br>得与失？<br>成长的故事？迷惑?</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/07/源码探索系列17---LRU与LruCache/#more" rel="contents">
+            <a class="btn" href="/2016/02/09/春节间的2015年的小结/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -574,8 +577,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
           
             
-              <a class="post-title-link" href="/2016/01/06/源码探索系列---中篇开题/" itemprop="url">
-                源码探索系列---中篇开题
+              <a class="post-title-link" href="/2016/01/28/学习Objective-C的一些事/" itemprop="url">
+                学习Objective-C的一些事
               </a>
             
           
@@ -585,8 +588,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-06T19:06:00+08:00" content="2016-01-06">
-            2016-01-06
+          <time itemprop="dateCreated" datetime="2016-01-28T00:14:46+08:00" content="2016-01-28">
+            2016-01-28
           </time>
         </span>
 
@@ -595,8 +598,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
+                <a href="/categories/Objective-C/" itemprop="url" rel="index">
+                  <span itemprop="name">Objective-C</span>
                 </a>
               </span>
 
@@ -611,8 +614,8 @@ public View getView(int i, View view, ViewGroup viewGroup) {
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/06/源码探索系列---中篇开题/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/源码探索系列---中篇开题/" itemprop="commentsCount"></span>
+              <a href="/2016/01/28/学习Objective-C的一些事/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/28/学习Objective-C的一些事/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -627,16 +630,16 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
       
         
-          <h2 id=""><a href="#" class="headerlink" title="   "></a> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/2014021021414608237.jpg" alt="enter image description here">  </h2><h2 id="离开，是为了更好的重逢"><a href="#离开，是为了更好的重逢" class="headerlink" title=" 离开，是为了更好的重逢"></a> <strong>离开，是为了更好的重逢</strong></h2><p>在写设计模式系列，暂停了对安卓系统的源码探索系列的更新的这对时间。</p>
-<p>重新整理了下心情，打算重新继续开始写第17篇文章。</p>
-<p>但越到后面越不容易，毕竟从<code>UI</code>看到<code>Framework</code>，再探索下去就是<code>HAL</code>层面，越到后面对能力的要求越高，同时耗费的时间和精力也必然会越多。一个不小不大的问题是对于过于底层的内容，暂时还不想去看。</p>
-<p>写安卓程序也有两年多了，靠自学入门，平时的一点努力和当初一位做了六年的资深安卓开发人员指点，现在对基础的安卓开发基本没太大问题了，除了复杂的自定义控件依然觉得…</p>
-<p>所以学到现在，显然也属于一段瓶颈期了，毕竟大多数APP套用下框架，补以一些第三方库，基本很快就可以开发完成，因此开发完一个APP所带来的兴奋也不再那么高了。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/06/源码探索系列---中篇开题/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
+          <span itemprop="articleBody"><p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/sg1024.jpg" alt="enter image description here"></p>
+<p>好久没来更新了，加了快一个月的班，终于快看到曙光了，呵，虽然只是搭建完功能框架和最紧急的需求功能。后面还有很多要加上去的功能在挥手。</p>
+<p>花了周日一天和两个工作日的晚上，总算看完了 <code>Programming in Objective-C</code>，整本五百多页，感觉应该是有扎实的<code>C</code>和<code>java</code>基础原因，整本读起来还是很轻松，加上基本没什么生词量。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/objectivec.jpg" alt="enter image description here"><br>虽然这广州天气也是见了鬼了，居然冷到<br>            <strong>下雪</strong>   ，  <strong>下雪</strong>，<strong>下雪</strong><br>回去加个班，这风雨一吹，直接发起烧来，整个人真是跪了，不过感觉自己还是挺顽强的啊。<br>哈哈。这都能看的下书。</p>
+<p>部分涉及到<code>C</code>的基础的实在是在熟悉了，当初高三毕业暑假就在图书馆看这本<code>《C primer plus》</code></p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/41YXbLNwQjL._SY400_.jpg" alt="enter image description here"></p>
+<p>整个暑假朝八晚六的就这样耗在图书馆，边看边敲了两个多月才搞定！！加上读大学时候看了下K&amp;R的经典。基本学会了。想想当年好像混的还是尖子班，是啊，大学也分班。在A班期末考个96分，应该也是不错的吧。</p>
+<hr>
+<p>好了，我的好朋友Shelley提醒我要早点睡觉了，今天就不写了，洗澡睡觉。</p>
+<h1 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h1><p>今天没后记。</p>
+</span>
         
       
     </div>
@@ -659,7 +662,7 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/10/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/8/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/10/">&raquo;</a>
   </nav>
 
  </div>
@@ -693,21 +696,21 @@ public View getView(int i, View view, ViewGroup viewGroup) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

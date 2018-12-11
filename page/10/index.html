@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/06/设计模式系列22---局部与整体的组合模式/" itemprop="url">
-                设计模式系列22---局部与整体的组合模式
+              <a class="post-title-link" href="/2016/01/17/关于BaseActivity的最佳实践/" itemprop="url">
+                关于BaseActivity的最佳实践
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-06T14:26:00+08:00" content="2016-01-06">
-            2016-01-06
+          <time itemprop="dateCreated" datetime="2016-01-17T22:21:00+08:00" content="2016-01-17">
+            2016-01-17
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/06/设计模式系列22---局部与整体的组合模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/设计模式系列22---局部与整体的组合模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/17/关于BaseActivity的最佳实践/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/17/关于BaseActivity的最佳实践/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,13 +256,16 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/8601a18b87d6277f6a5d25a228381f30e824fcd9.jpg" alt="enter image description here"></p>
-<p>今天要说的是结构模式的最后一个，组合模式。</p>
-<p>他和我们的数据结构里面的树有点关系，怎么个关系？</p>
-<p>还记得我们在讲 <code>设计模式4---对外包办的门面模型</code>的案例提到的老板叫总经理干活，实际是下面别的部门的人在干活的案例吗？</p>
-<p>现在我们来写一个基于组合模型的总经理叫各部门人员干活的过程。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/P60117-133225.jpg" alt="与友人共躺琶洲塔江堤边畅谈人生"></p>
+<p>最近公司开新项目，一直加班，任务量很满，基本都排到过年后回来的二月底了。。。所以最近没什么时间写文章。<br>今天周日，终于有点时间缓冲，现在写点项目中遇到的内容，做点分享。</p>
+<p>今天说的是关于<code>BaseActivity</code>和<code>ActionBar</code>个人觉得的最佳实践。</p>
+<p>相信这个类名字对于很多人来说应该再熟悉不过了，毕竟开发就避免不了这两者，每个Activity顶部基本都会有一条<code>ActionBar</code>，当然我指的不是这个类本身，而是指代那个标题栏。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/131734139647542.jpg" alt="enter image description here"></p>
+<p>我相信我们基本每个界面都有这个东西存在，而且有时候看到一些项目的这标题栏用的不是系统的<strong>Actionbar</strong>，</p>
+<p>而在<code>theme</code>里面写的是<code>noActionbar</code>的主题，<br>接着自己多写一个定制的bar的样式的<code>xml</code>文件，<br>最后再用<code>include</code>之类的来做。</p>
+<p>可能因为有时候那个<code>PM</code>的需求太不按常规Android风格出牌了，只能自己做一个，不知你们有没遇到过，但我是遇到不少了，例如要求title是居中,<strong>加粗</strong>的。<br>后来谷歌出了个<code>ToolBar</code>的东西，他确实带来了不少惊喜，让我们可以有更高的定制程度，毕竟人家就是一个viewGroup类来的，但即使有了一个ToolBar，有一样东西是少不了的，那就是</p>
+<p><strong>我们每个界面都需要单独的去添加这个view，同时各种的设置，那么问题来了，我们能否简化这部分工作呢？</strong></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/06/设计模式系列22---局部与整体的组合模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/17/关于BaseActivity的最佳实践/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -295,8 +298,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/06/设计模式系列21---避免浪费的享元模型/" itemprop="url">
-                设计模式系列21---避免浪费的享元模型
+              <a class="post-title-link" href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/" itemprop="url">
+                源码探索系列22---顺滑滚动的Scroller
               </a>
             
           
@@ -306,8 +309,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-06T12:58:00+08:00" content="2016-01-06">
-            2016-01-06
+          <time itemprop="dateCreated" datetime="2016-01-12T01:05:46+08:00" content="2016-01-12">
+            2016-01-12
           </time>
         </span>
 
@@ -332,8 +335,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/06/设计模式系列21---避免浪费的享元模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/06/设计模式系列21---避免浪费的享元模型/" itemprop="commentsCount"></span>
+              <a href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/12/源码探索系列22---顺滑滚动的Scroller/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -348,13 +351,26 @@
 
       
         
-          <p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/d6db63561c56b8bc405fc93d56bcee78.jpg" alt="enter image description here"></p>
-<p>单例模式垄断了对资源的访问，避免了多次生成带来的重复浪费。<br>但有时候，我们并没有这么严格的限制，还是希望多几个干活的，或者说<br>我们的实例有部分的重用功能，但又不能像单例那样只有一个，还是需要很多的实例。</p>
-<p>具体如：</p>
-<p>我们服务器缓存了100W个用户的信息，但是有一些冗余，例如我们的年龄只有100个取值，最多150是不是！但我们有100个用户，每个都有一个单独的年龄字段，相对是有点多余的，如果可以只压缩到100个的话。或者我们的用户里面的省会信息，也就34个！</p>
-<p> 好了，废话那么多，到底这个享元应该怎么写呢？</p>
+          <p>我们自定义View的时候难免会需要到滚动的状态，而Scroller可以帮助我们做到顺滑的滚动。<br>使用的基本套路是下面这样的，然后我们需要滚的的时候调用下smoothScrollTo函数就可以了。</p>
+<pre><code>Scroller mScroller = new Scroller(context);
+
+private void smoothScrollTo(int destX, int destY) {
+    int scrollX = getScrollX();
+    int delta = destX - scrollX;
+    mScroller.startScroll(scrollX, 0, delta, 0, 1000);
+}
+
+@Override
+public void computeScroll() {
+    if (mScroller.computeScrollOffset()) {
+        scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+        postInvalidate();
+    } 
+}
+</code></pre><p>我们知道这个Scroller本身是不能移动我们View的，最终还是要靠本身的scrollTo函数。通过我们希望的滑动距离和时间，然后计算出每次滚动的具体，一直就那样一点点的滚动，从而实现弹性滑动的效果。</p>
+<p>现在我们就去看下他背后是做了什么。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/06/设计模式系列21---避免浪费的享元模型/#more" rel="contents">
+            <a class="btn" href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -387,8 +403,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="url">
-                设计模式系列20---聊聊IoC与中介者
+              <a class="post-title-link" href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" itemprop="url">
+                源码探索系列21---帮助做手势判断的GestureDetector
               </a>
             
           
@@ -398,8 +414,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-05T15:46:00+08:00" content="2016-01-05">
-            2016-01-05
+          <time itemprop="dateCreated" datetime="2016-01-11T15:37:00+08:00" content="2016-01-11">
+            2016-01-11
           </time>
         </span>
 
@@ -424,8 +440,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="commentsCount"></span>
+              <a href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -440,18 +456,11 @@
 
       
         
-          <p>有一个叫<code>控制反转</code>(Inversion of Control，缩写IoC ) 的东西 ，这个对于计算机的人应该是不陌生的概念，就算你不知道那个<code>Bob大叔</code>。</p>
-<p>这个概念简单说的是下面这样的事情</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%B9%B1%E9%BA%BB_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB.JPG" alt="enter image description here"></p>
-<p>原本各个类之间的关系乱七八糟的，看起来头都晕了。<br>他们就像齿轮一样，相互咬合依赖。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB_full.jpg" alt="enter image description here"><br>如果有一个出问题，那可能整个就崩溃了。</p>
-<p>但是，如果有一个人出来承担大事，负责协调各个类的话！<br>那么，他们的关系就可以是像下面图片这样的，<br>各个对象之间可以不感受到对方的“存在”，但整体又运作良好。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%A7%A3%E8%80%A6%E5%90%88_full.jpg" alt="enter image description here"></p>
-<p> 举个可能不恰当的例子：</p>
-<p> 企业<code>ObjectA</code>要招人，可能要去学校<code>ObjectB</code>开宣讲会，去别的企业<code>ObjectC</code>挖人等等。<br> 有些人看到了其中的机会，专门负责为企业输送人才，我们称这类人叫猎头<code>Ioc</code>（也有人才中心等，这里为描述方便，不细究），他负责帮助企业去找到需要的人，我们的HR就可以在公司呆着，看着猎头源源不断发来简历就好了！<br> 再也不用去和学校，别的企业打交道了。是的，从此HR与这两者解耦合,过上了幸福美好的生活!!</p>
-<p>那么问题来了，如何用中介者模式来模拟这个招聘流程？</p>
-<p>今天我们要聊的这个就中介者就是类似的情况，我们来看下实际的代码情况。</p>
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/rdn_5215744b835e8.jpg" alt="enter image description here"></p>
+<p>很久前开始写安卓程序时候，对双击事件的判断都是直接在touch事件里面做判断的，后来听说了有个<code>GestureDetector</code>，发现真是大法好啊。</p>
+<p>今天我们就来看下这个类到底做了什么，可以识别出多种不同的手势。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#more" rel="contents">
+            <a class="btn" href="/2016/01/11/源码探索系列21---帮助做手势判断的GestureDetector/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -484,8 +493,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="url">
-                设计模式系列19---可复原的备忘模式
+              <a class="post-title-link" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="url">
+                源码探索系列20---安装APK的PackageManagerService
               </a>
             
           
@@ -495,8 +504,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-05T12:06:00+08:00" content="2016-01-05">
-            2016-01-05
+          <time itemprop="dateCreated" datetime="2016-01-10T23:56:46+08:00" content="2016-01-10">
+            2016-01-10
           </time>
         </span>
 
@@ -521,8 +530,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/05/设计模式系列19---可复原的备忘模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列20---安装APK的PackageManagerService/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -537,13 +546,10 @@
 
       
         
-          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/4a36acaf2edda3ccc6d433be01e93901213f9278.jpg" alt="enter image description here"></p>
-<p>玩游戏我们都知道有个东西叫<code>自动存档</code>，在我们遇到大Boss要打的时候，更是如此，一定要存档！<br>如果没有存档，死了就要你重新开始，如果是些大型游戏，已经花费了你很多时间，遇到大Boss，然后你被打死了，又没有存档，估计你就想直接把这个游戏卸载了。</p>
-<p>有时偷懒，还去下载别人的通关档案回来覆盖本地的。<br>哈，我就曾经做过！还有一些已经刷满无限金币等的存档！<br>曾经还遇到过必须被大Boss打死才能继续的剧情，但因为外挂太牛逼，活生生把大Boss给打死了！搞到后面都没法继续，只能自己手动滚回某个档案，装怂，去被boss虐下。</p>
-<p>所以很好理解，这个自动存档会保存我们当前的角色的状态，然后如果被大Boss打死了，就自动恢复到这个存档点状态，我们还可以继续去打大Boss，直到我们过关为止。</p>
-<p>那么问题来了，我们该怎么用代码实现呢？<br>
+          <p> 我们新新苦苦的写好了程序，打好包，给用户安装。<br> 那么问题来了，为何能够安装这个APK呢， 背后到底发生了什么事？</p>
+<p>  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/20150105041330439.png" alt="enter image description here"></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/05/设计模式系列19---可复原的备忘模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/10/源码探索系列20---安装APK的PackageManagerService/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -576,8 +582,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="url">
-                设计模式系列18---有状态的状态模式
+              <a class="post-title-link" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="url">
+                源码探索系列19---加载布局的LayoutInflater
               </a>
             
           
@@ -587,8 +593,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T23:42:00+08:00" content="2016-01-04">
-            2016-01-04
+          <time itemprop="dateCreated" datetime="2016-01-10T00:31:46+08:00" content="2016-01-10">
+            2016-01-10
           </time>
         </span>
 
@@ -613,8 +619,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列18---有状态的状态模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="commentsCount"></span>
+              <a href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/10/源码探索系列19---加载布局的LayoutInflater/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -629,19 +635,21 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/53715814201004022126431684313353485_004.jpg" alt="enter image description here"></p>
-<p> 今天我们来聊聊个红绿灯，我们知道有个口诀叫：</p>
-<blockquote>
-<p>红灯停<br>绿灯行<br>黄灯亮了等一等</p>
-</blockquote>
-<p> 但这不是我们关注的重点，我们关注的点是我们红绿灯的状态！</p>
-<p>一般是 <strong>绿灯 -&gt;  黄灯-&gt; 红灯</strong> 的顺序。</p>
-<blockquote>
-<p>绿灯能且只能跑到黄灯<br>黄灯能且只能跑到红灯<br>红灯能且只能跑到绿灯</p>
-</blockquote>
-<p>不过曾经深圳尝试改革，直接从<code>绿灯</code>跳成了<code>红灯</code>，消失一出，当时一片哗然，在试行了一段时间后，发现不妥就又恢复了。</p>
+          <p>对于这个layoutInflater我们肯定不陌生，每次写各种Adatper都遇到他，基本就像下面这样的套路。</p>
+<pre><code>@Override
+public View getView(int i, View view, ViewGroup viewGroup) {
+    SimpleViewHolder viewHolder;
+    if (view == null) {
+        view = LayoutInflater.from(mContext).inflate(R.layout.listitem_demo, null);
+        viewHolder = new SimpleViewHolder();
+        viewHolder.bindView(view);
+        view.setTag(viewHolder);
+    } else {
+        viewHolder = (SimpleViewHolder) view.getTag();
+    }
+</code></pre><p>那么问题来了，这个家伙是怎么加载到他的呢？<br>我们今天去看下。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列18---有状态的状态模式/#more" rel="contents">
+            <a class="btn" href="/2016/01/10/源码探索系列19---加载布局的LayoutInflater/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -667,7 +675,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/9/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/11/">&raquo;</a>
   </nav>
 
  </div>
@@ -701,21 +709,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

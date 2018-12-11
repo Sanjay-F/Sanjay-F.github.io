@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/05/05/源码探索系列35---关于Context/" itemprop="url">
-                源码探索系列35---关于Context
+              <a class="post-title-link" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="url">
+                源码探索系列40---关于Dalvik的内存分配过程
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-05-05T17:13:46+08:00" content="2016-05-05">
-            2016-05-05
+          <time itemprop="dateCreated" datetime="2016-06-19T12:55:46+08:00" content="2016-06-19">
+            2016-06-19
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/05/05/源码探索系列35---关于Context/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/05/源码探索系列35---关于Context/" itemprop="commentsCount"></span>
+              <a href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,9 +256,12 @@
 
       
         
-          <p>对于Context，我们应该算挺“熟悉”的，很多时候都需要用到它。<br>那么这个context到底实际是什么，为何可以做那么多的功能，又是在哪里创建的呢?<br><code>Context</code>、<code>Activity</code> 和 <code>Application</code>这三个又是怎么个关系，为何有些时候都可以替着用？<br>带着这些问题，我们来探索下，看下背后的实现是怎样的。</p>
+          <p>我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？<br>我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。</p>
+<p>那么实际是这样吗？真的是这样吗？</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png" alt="enter image description here"></p>
+<p>我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个问题。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/05/源码探索系列35---关于Context/#more" rel="contents">
+            <a class="btn" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -291,8 +294,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/" itemprop="url">
-                源码探索系列34---Android Garbage Collection/dalvik GC
+              <a class="post-title-link" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="url">
+                源码探索系列39---关于电量统计BatteryStatsHelper
               </a>
             
           
@@ -302,8 +305,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-25T15:54:46+08:00" content="2016-04-25">
-            2016-04-25
+          <time itemprop="dateCreated" datetime="2016-06-14T12:55:46+08:00" content="2016-06-14">
+            2016-06-14
           </time>
         </span>
 
@@ -328,8 +331,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/25/源码探索系列34---Android Garbage Collection-GC/" itemprop="commentsCount"></span>
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -344,9 +347,10 @@
 
       
         
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/34-4519811.jpg" alt="enter image description here"><br>when we saw the startup process of Zygote last time , we have come across a familiar words—<strong>GC</strong><br>The Android Garbage Collection is quite strange to me,so i decided to record down something about it.<br>this is the reason why i write this page.<br>
+          <p>关于APP的优化，有一点就是关于电量的内容。<br>关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！<br>不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流量，相应的手机电量估计也不弱。</p>
+<p>说了那么多，我们先来看下到底系统是怎么多电量的统计的，知道他是怎么算的，我们才能更好的对症下药。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/25/源码探索系列34---Android Garbage Collection-GC/#more" rel="contents">
+            <a class="btn" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -379,8 +383,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" itemprop="url">
-                源码探索系列33---安卓系统的结合子Zygote
+              <a class="post-title-link" href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="url">
+                源码探索系列38---关于dalvik虚拟机
               </a>
             
           
@@ -390,8 +394,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-22T19:56:46+08:00" content="2016-04-22">
-            2016-04-22
+          <time itemprop="dateCreated" datetime="2016-06-12T00:35:00+08:00" content="2016-06-12">
+            2016-06-12
           </time>
         </span>
 
@@ -416,8 +420,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/22/源码探索系列33---安卓系统的结合子Zygote/" itemprop="commentsCount"></span>
+              <a href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -432,11 +436,14 @@
 
       
         
-          <p>Last time，we hava talk about <code>SystemServer</code>,which is fork by <code>zygote</code>.<br>Today, we will do some research on  <code>Zygote</code>.The reason why Google use the name “Zygote” to name it Maybe it’s because of the job Zygote handled. All the Application Process &amp; the most important class <code>SystemServer</code> are all fork by him.This paper will introduction the hole startUp process of zygote.class</p>
-<p>Title: StartUp Zygote </p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/33_%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20160423004450.jpg" alt="startUp Zygote "></p>
+          <p>虚拟机是一个很大的话题，很多内容可以写，本篇先从类的加载到函数运行做一个简单的记录。关于这整个流程，一般的逻辑可能这样</p>
+<ol>
+<li>我们的DVM（Dalvik Virtual Machine）是怎么启动的</li>
+<li>启动后，JAVA类是怎样的加载和初始化</li>
+<li>初始后，我们的函数Method是怎么执行的</li>
+</ol>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/22/源码探索系列33---安卓系统的结合子Zygote/#more" rel="contents">
+            <a class="btn" href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -469,8 +476,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/21/源码探索系列32---万物初生/" itemprop="url">
-                源码探索系列32---万物初生System Servers
+              <a class="post-title-link" href="/2016/05/28/安卓性能系列2---优化内存/" itemprop="url">
+                安卓性能系列2---优化内存
               </a>
             
           
@@ -480,8 +487,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-21T00:54:46+08:00" content="2016-04-21">
-            2016-04-21
+          <time itemprop="dateCreated" datetime="2016-05-28T22:45:46+08:00" content="2016-05-28">
+            2016-05-28
           </time>
         </span>
 
@@ -506,8 +513,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/21/源码探索系列32---万物初生/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/21/源码探索系列32---万物初生/" itemprop="commentsCount"></span>
+              <a href="/2016/05/28/安卓性能系列2---优化内存/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/28/安卓性能系列2---优化内存/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -522,9 +529,10 @@
 
       
         
-          <p>不知你是否也和我一样，会好奇整个系统给的启动过程是怎样的？<br>今天我们先来看下整个过程重要的一个环节SystemServer的内容<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/32_android_boot.png" alt="enter image description here"></p>
+          <p>针对内存优化，打算开两篇，一篇为介绍工具篇，利用现有的工具，来帮助我们更好的解决问题。<br>在有一定的实践经验后，再另外写一篇，介绍些原理，了解内存模型等内容，这有助于我们写出更好的程序。<br>先使用，再说原理，我认为这样的安排，才是符合人类认知的，我们总是先接触，对事物有个大概的认知，然后深入了解后，才会做出总结和归纳演绎等，把内容抽象化，得出些结论性的内容。再利用理论来更好的指导我们工作。</p>
+<p>本次涉及到的工具有Android Studio自带的Memory Monitor，然后是些adb命令。<br>最后来看下Deep Memory Profile。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/21/源码探索系列32---万物初生/#more" rel="contents">
+            <a class="btn" href="/2016/05/28/安卓性能系列2---优化内存/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -557,8 +565,8 @@
           
           
             
-              <a class="post-title-link" href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/" itemprop="url">
-                源码探索系列31---插件化基础之Service组件管理
+              <a class="post-title-link" href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/" itemprop="url">
+                安卓性能系列1---用TraceView找耗时操作
               </a>
             
           
@@ -568,8 +576,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2016-04-17T17:27:46+08:00" content="2016-04-17">
-            2016-04-17
+          <time itemprop="dateCreated" datetime="2016-05-26T00:45:46+08:00" content="2016-05-26">
+            2016-05-26
           </time>
         </span>
 
@@ -594,8 +602,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/17/源码探索系列31---插件化基础之Service组件管理/" itemprop="commentsCount"></span>
+              <a href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/26/安卓性能系列1---用TraceView找耗时操作/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -610,10 +618,10 @@
 
       
         
-          <p>今天我们来看下四大金刚之一的另外一个Sevice。<br>他和Activity一样，也需要提前占坑，然后HOOK才可以使用。<br>就让我们来看性下整个过程会涉及到的过程，顺便温习下Service的启动流程吧。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/service.png" alt="enter image description here"></p>
+          <p>软件性能优化是一个很大的概念，这里从自带的一些工具开始，利用工具来协助我们对性能做优化。<br>当然据闻牛逼的人纯看代码直接看出来问题，哈。</p>
+<p>解决系统性能问题的几个主要步骤是：<strong>找-&gt;定-&gt;调</strong></p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/04/17/源码探索系列31---插件化基础之Service组件管理/#more" rel="contents">
+            <a class="btn" href="/2016/05/26/安卓性能系列1---用TraceView找耗时操作/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -639,7 +647,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/6/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/4/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/6/">&raquo;</a>
   </nav>
 
  </div>
@@ -673,21 +681,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

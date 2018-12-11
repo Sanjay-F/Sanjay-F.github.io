@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="url">
-                源码探索系列10---替代Listview的RecycleView
+              <a class="post-title-link" href="/2015/12/29/设计模式系列1---独当一面的单例/" itemprop="url">
+                设计模式系列1---独当一面的单例
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-23T01:22:00+08:00" content="2015-12-23">
-            2015-12-23
+          <time itemprop="dateCreated" datetime="2015-12-29T21:55:46+08:00" content="2015-12-29">
+            2015-12-29
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/23/源码探索系列10---替代Listview的RecycleView/" itemprop="commentsCount"></span>
+              <a href="/2015/12/29/设计模式系列1---独当一面的单例/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/设计模式系列1---独当一面的单例/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,14 +256,213 @@
 
       
         
-          <p> 自从有了Recycleview，很多原本是我们的Listview业务都被替代了，关于两者的简单比较，<a href="http://blog.csdn.net/sanjay_f/article/details/48830311" target="_blank" rel="noopener">可以看这篇文章</a>。我们今天就去看看他背后故事，下次再写Listview，这名征战多年的老将。</p>
-<p>一些不要搞懂的问题</p>
+          <p>在开始写之前我想吐槽下CSDN！ 在上面写的源码探索系列6和14居然不见了，上次找版主去找回一次别的文章！ 这次居然跑了两篇，服务器要高可用啊！</p>
+<p>现在还记得14写的内容是HandleThread，但第六篇那么久那里还记得写的是哪篇，想补都补不回来了！<br>（更新：12/30， 记起来了，那个第六篇是四大金刚之一的广播，唉，那篇写了好久才整理出来的，跪了！）</p>
+<p>为了写这篇文章，内心压制了好久，那些文章都是我每天下完班辛辛苦苦熬到凌晨一两点才写完的！ 翻看了那么多代码，熬了这么久！真的内心难以忍受这样的错误！</p>
+<p>一个可以让人舒服写字的地方真不容易找！</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/29/设计模式系列1---独当一面的单例/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/29/设计模式系列0---写在这系列前的话/" itemprop="url">
+                设计模式系列0---写在这系列前的话
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-29T01:55:46+08:00" content="2015-12-29">
+            2015-12-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/29/设计模式系列0---写在这系列前的话/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/设计模式系列0---写在这系列前的话/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <span itemprop="articleBody"><h1 id="前记"><a href="#前记" class="headerlink" title="前记"></a>前记</h1><p>熬了那么多个晚上，整个源码探索系列也算写了点内容了。<br>虽然很多是代码，不过整个过程要看的内容也真的还不少。<br>是时候换点内容，刺激下大脑了，下次时机合适时再补充对整个安卓FrameWork的探索文章。<br>在写这第一系列的源码探索过程遇到了不少设计模式，如：<code>桥接</code>，<code>组合</code>，<code>单例</code>，<code>静态代理</code>，<code>工场</code>，<code>策略</code>等等，因此产生了写设计模式系列的文章念头。<br>当然，整个过程也和不少的数据结构打了下交道，<br>嗯，如果有时间，也就顺便把一些数据结构的内容记录下。</p>
+<p>那么问题来了，作为一名初出茅庐的小菜鸟，<br>对这些设计模式的理解也不是多么说出神入化，<br>关于设计模式的内容的书与文章也已满天飞了，现在我出来写设计模式的文章，又写得不怎么样，这世界还需要多我这么个关于设计模式的吗？</p>
+<p><strong>我的思考</strong></p>
 <ol>
-<li>为何谷歌推荐用这个，背后的效率是高在哪里？</li>
-<li>LayoutManager是怎么去弄不同布局的</li>
+<li><strong>温习</strong><br>看过不少本讨论设计模式的书和文章，在实际的开发中也有不少的应用，现在写出来，也算是对自己的一次总结吧。</li>
+<li><strong>知新</strong><br>所谓温故而知新，可以为师矣。我就厚着脸皮，再重新思考下这个设计模式，寻找一些新的灵光的地方，看能不能有什么变化。</li>
+<li><strong>没有的有</strong><br>因为这是我的文章啊，哈哈，就是以前没写过，所以要写。不为任何人，只为自己写的文章。就这样。哈哈！</li>
 </ol>
+<p>自己写，或多或少可以有多一些的思考，就像看别人写的代码一样，觉浅需行。<br>书上看的时候觉得行，懂了。但想彻底掌握还是需要自己亲行力践</p>
+<h1 id="参考书籍"><a href="#参考书籍" class="headerlink" title="参考书籍"></a>参考书籍</h1><p>这里列下看过的设计模式的书，文章的就太难以罗列了，就不写在这了,<br>那篇文章写的时候有参考就再额外补充吧。</p>
+<ol>
+<li>《Design Pattern in java》— Steven Metsker; William C. Wake，教科书一本。</li>
+<li>《设计模式》—Head First系列，非常轻松幽默，图文并茂。</li>
+<li>《设计模式之禅》—秦小波，如果你看过原稿，你会觉内容有些内涵啊。 </li>
+<li>《Android 源码设计模式解析与实战》—何红辉，关爱民，深度与广度兼有，不过排版特差！ </li>
+<li>《设计模式：可复用面向对象软件的基础》—GOF，这本没得说，经典</li>
+</ol>
+</span>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/" itemprop="url">
+                源码探索系列15---那个AsyncTask里面的FutureTask
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-29T01:46:00+08:00" content="2015-12-29">
+            2015-12-29
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>很久前在写<a href="http://blog.csdn.net/sanjay_f/article/details/50237729" target="_blank" rel="noopener">源码探索系类2–AsyncTask</a>时候有提及到这个类，现在在这里把<code>FutureTask</code>，<code>Future</code>和<code>Callback</code>，这三个火枪手的关系温习下 </p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>就让我们进入主题，开始说说这个<strong>FutureTask</strong>吧。</p>
+<p>在安装开发过程中，系统限制我们对于耗时的任务是不能执行在主线程的，必须单独开一个线程去做。<br>所以我们在开发过程的一种写法是下面这样</p>
+<h2 id="1-用Runnable"><a href="#1-用Runnable" class="headerlink" title="1. 用Runnable"></a>1. <strong>用Runnable</strong></h2><pre><code>new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+         //do something
+         ...
+
+         myHandler.sendMessage(msg);   
+        }
+}).run();
+</code></pre><p>但有时候我们需要这个线程的运算结果，可我们没办法直接获取，因此安卓配套了一个Handler给我们用，利用他发送消息会我们的主线程，执行一些更新任务等。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/23/源码探索系列10---替代Listview的RecycleView/#more" rel="contents">
+            <a class="btn" href="/2015/12/29/源码探索系列15---那个AsyncTask里面的FutureTask/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -296,8 +495,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="url">
-                源码探索系列9---四大金刚之ContentProvider
+              <a class="post-title-link" href="/2015/12/28/源码探索系列14---那个HandleThread/" itemprop="url">
+                源码探索系列14---那个HandleThread
               </a>
             
           
@@ -307,8 +506,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-19T02:42:00+08:00" content="2015-12-19">
-            2015-12-19
+          <time itemprop="dateCreated" datetime="2015-12-28T22:05:00+08:00" content="2015-12-28">
+            2015-12-28
           </time>
         </span>
 
@@ -333,8 +532,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/19/源码探索系列9---四大金刚之ContentProvider/" itemprop="commentsCount"></span>
+              <a href="/2015/12/28/源码探索系列14---那个HandleThread/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列14---那个HandleThread/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -349,18 +548,11 @@
 
       
         
-          <p>好了，终于到了最后一个啦，写到这里，真的觉得不容意啊，以前看这些组件也就那样了，现在还要记录下来，重点是这东西都被分析烂了，我们这些后人屌丝还在写，没点突破的。真没意思呢！就当写作业咯。啦啦啦啦，不管如何，让我们开始看下吧</p>
-<h1 id="起航-—-ContentResolver"><a href="#起航-—-ContentResolver" class="headerlink" title="起航 — ContentResolver"></a>起航 — ContentResolver</h1><p>API： 23</p>
-<p>说真的，这个组件我还真的相对于Activity和Service用起来真的好少啊！<br>现在都不能记起来用他来干嘛了，虽然知道他能用来做跨进程通讯用，不过对于一般的app。<br>这玩意还真的用的次数少啊! 现在能想起来的一次使用这个就是要获取图片的时候。<br>以前开发的时候遇到的恶心的是，有些Rom把相册给阉割了，搞了个别的来代替，导致调不了图库！<br>所以搞到需要自己开发一个，真的很无语！ </p>
-<pre><code>ContentResolver mContentResolver = this.getContentResolver();
-Cursor mCursor = mContentResolver.query(mImageUri, null,
-            MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot;
-                    + MediaStore.Images.Media.MIME_TYPE + &quot;=? or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot; + &quot; or &quot; + MediaStore.Images.Media.MIME_TYPE + &quot;=?&quot;,
-            new String[]{&quot;image/jpeg&quot;, &quot;image/png&quot;, &quot;image/jpg&quot;, &quot;image/jpe&quot;},
-            MediaStore.Images.Media.DATA);
-</code></pre><p>从这里我们开始看起吧</p>
+          <p>这篇文章被CSDN搞丢了，好在通过使用谷歌搜索，<br>看到历史的记录版本，现在再根据记忆，补充下内容。<br>算是恢复了这篇文章的大概的模样。虽然对于CSDN的来说这文章没什么，但对于我来说就是自己花的时间和精力。   </p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>这次我们来说说HandleThread，听名字好像就是Handler+Thread的感觉啊。<br>他和Handler的关系就像Service和IntentService一样，一个不支持耗时的任务，一个可以。<br>不过两者还是有点区别，一些是运行在主线程的，一个不在主线程跑。<br>很好理解，要是在主线程跑也能搞耗时任务，那不就逆天了？？<br>对于他的使用，我们就不介绍了，让我们看下他实际做些什么吧。</p>
+<p>就从我们的HandleThread的声明开始说起吧<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/19/源码探索系列9---四大金刚之ContentProvider/#more" rel="contents">
+            <a class="btn" href="/2015/12/28/源码探索系列14---那个HandleThread/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -393,8 +585,8 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
           
           
             
-              <a class="post-title-link" href="/2015/12/18/源码探索系列8---IntentService/" itemprop="url">
-                源码探索系列8---IntentService
+              <a class="post-title-link" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="url">
+                源码探索系列13---Window的PhoneWindow与WindowManager
               </a>
             
           
@@ -404,8 +596,8 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-18T14:57:00+08:00" content="2015-12-18">
-            2015-12-18
+          <time itemprop="dateCreated" datetime="2015-12-28T17:36:00+08:00" content="2015-12-28">
+            2015-12-28
           </time>
         </span>
 
@@ -430,8 +622,8 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/18/源码探索系列8---IntentService/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/18/源码探索系列8---IntentService/" itemprop="commentsCount"></span>
+              <a href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -446,217 +638,15 @@ Cursor mCursor = mContentResolver.query(mImageUri, null,
 
       
         
-          <p>我们知道，我们的<code>Service</code>如果要执行一些耗时的操作，需要开单独的线程去干活，而<code>IntentService</code>却不用，<br>在他的<code>onHandleIntent</code>函数里面我们可以执行耗时操作，啊，到底神奇在哪里了呢？<br>让我们去看看他的源码，背后到底做了什么好事情！</p>
-<h1 id="起航-—-IntentService"><a href="#起航-—-IntentService" class="headerlink" title="起航 — IntentService"></a>起航 — IntentService</h1><p>API：23</p>
-<pre><code>public abstract class IntentService extends Service 
-</code></pre><p>我们的<code>IntentService</code>是一个继承<code>Service</code>的抽象类，那关于他的启动，停止等就和Service一样，前一篇就解释过了，我们现在就不说了。整个类也就164行，不大，还不够AMS里面一个函数的一半长度，哈，我们从他的<code>OnCreate</code>函数开始吧</p>
-<pre><code>@Override
-public void onCreate() {
-    // TODO: It would be nice to have an option to hold a partial wakelock
-    // during processing, and to have a static startService(Context, Intent)
-    // method that would launch the service &amp; hand off a wakelock.
-
-    super.onCreate();
-    HandlerThread thread = new HandlerThread(&quot;IntentService[&quot; + mName + &quot;]&quot;);
-    thread.start();
-
-    mServiceLooper = thread.getLooper();
-    mServiceHandler = new ServiceHandler(mServiceLooper);
-}
-</code></pre><p>我们看到他开了一个子线程和Handler。这里我们可以猜测了，之所以在我们的<code>onHandleIntent</code>很可能是因为他们两个！<br>
+          <p>关于Window，PhoneWindow和WindowManager三者的关系是：</p>
+<blockquote>
+<p>Window是一个抽象类，他的具体实现是PhoneWindow<br>我们通过WindowManager来管理Window。</p>
+</blockquote>
+<p>我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。</p>
+<p>很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑出来一个小悬浮窗来提示用户。现在看得多的就是各种管家关于内存的提示！这真的很让人纠结的安卓机啊！特别是某米的手机，当年发现他不支持这个功能！搞到得单独为他开发一个别的方式….</p>
+<p>好了，说这么多，我们该从哪里开始说起呢？</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/18/源码探索系列8---IntentService/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/18/源码探索系列7---四大金刚之Service/" itemprop="url">
-                源码探索系列7---四大金刚之Service
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-18T12:57:00+08:00" content="2015-12-18">
-            2015-12-18
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/18/源码探索系列7---四大金刚之Service/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/18/源码探索系列7---四大金刚之Service/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>今天我们来看下这安卓的四大组件的另外一个Service，<br>按套路应该先列点我们在探索过程需要注意的问题，不过现在一时没想到有什么，<br>让我们边看说解释，看下有什么需要注意的</p>
-<h1 id="起航—-开启服务"><a href="#起航—-开启服务" class="headerlink" title="起航—-开启服务"></a>起航—-开启服务</h1><p>API ： 23</p>
-<p>我们启动服务一般有两种调用<code>StartService</code>和<code>BindService</code>,这里我们先从StartService开始。<br>首先去到ContextWrapper里面的startService函数</p>
-<pre><code>@Override
-public ComponentName startService(Intent service) {
-    return mBase.startService(service);
-}
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/18/源码探索系列7---四大金刚之Service/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/" itemprop="url">
-                源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-17T01:24:00+08:00" content="2015-12-17">
-            2015-12-17
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>这篇文章将会对这三者做简单的综合性的比较，同时对LocalBroadCast深入到源码进行一个探索。看这个类为何相对BroadCast高效！</p>
-<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><h1 id="1-比较"><a href="#1-比较" class="headerlink" title="1. 比较"></a>1. 比较</h1><ul>
-<li><p><strong>性能 对比 ：  EventBus不差 </strong> </p>
-<pre><code>EventBus ~ LocalBroadCast  &gt; Bradocast 
-</code></pre></li>
-<li><p><strong>运行的线程环境：    EventBus完胜！</strong></p>
-<p> LocalBroadcastManager 所有调用都是在主线程，<br> EventBus 可以定义在调用线程、主线程、后台线程、异步。</p>
-</li>
-<li><p><strong>代码量比较：  EventBus完胜！</strong></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/#more" rel="contents">
+            <a class="btn" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -682,7 +672,7 @@ public ComponentName startService(Intent service) {
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/15/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/17/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/15/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/17/">&raquo;</a>
   </nav>
 
  </div>
@@ -716,21 +706,21 @@ public ComponentName startService(Intent service) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

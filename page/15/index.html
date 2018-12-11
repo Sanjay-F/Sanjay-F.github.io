@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/28/源码探索系列14---那个HandleThread/" itemprop="url">
-                源码探索系列14---那个HandleThread
+              <a class="post-title-link" href="/2015/12/31/设计模式系列5---多变灵活的桥接/" itemprop="url">
+                设计模式系列5---多变灵活的桥接
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-28T22:05:00+08:00" content="2015-12-28">
-            2015-12-28
+          <time itemprop="dateCreated" datetime="2015-12-31T23:26:00+08:00" content="2015-12-31">
+            2015-12-31
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/28/源码探索系列14---那个HandleThread/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列14---那个HandleThread/" itemprop="commentsCount"></span>
+              <a href="/2015/12/31/设计模式系列5---多变灵活的桥接/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/31/设计模式系列5---多变灵活的桥接/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,11 +256,35 @@
 
       
         
-          <p>这篇文章被CSDN搞丢了，好在通过使用谷歌搜索，<br>看到历史的记录版本，现在再根据记忆，补充下内容。<br>算是恢复了这篇文章的大概的模样。虽然对于CSDN的来说这文章没什么，但对于我来说就是自己花的时间和精力。   </p>
-<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>这次我们来说说HandleThread，听名字好像就是Handler+Thread的感觉啊。<br>他和Handler的关系就像Service和IntentService一样，一个不支持耗时的任务，一个可以。<br>不过两者还是有点区别，一些是运行在主线程的，一个不在主线程跑。<br>很好理解，要是在主线程跑也能搞耗时任务，那不就逆天了？？<br>对于他的使用，我们就不介绍了，让我们看下他实际做些什么吧。</p>
-<p>就从我们的HandleThread的声明开始说起吧<br>
+          <table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>《桥接》 —  SanjayF</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">小时候，梦想是当一名宇航员，驾驭飞船，太空探索。</td>
+</tr>
+<tr>
+<td style="text-align:center">长大后，梦想是当一名渔船夫，划着扁舟，荡漾湖面。</td>
+</tr>
+<tr>
+<td style="text-align:center">后来啊，梦想是当一名大土豪，开着汽车，周游列国。</td>
+</tr>
+<tr>
+<td style="text-align:center">而现在，梦想是当一名好码农，敲着代码，写完桥接。</td>
+</tr>
+<tr>
+<td style="text-align:center"><img src="http://7xl9zd.com1.z0.glb.clouddn.com/19304468_19304468_1364439264237_mthumb.jpg" alt="enter image description here"></td>
+</tr>
+<tr>
+<td style="text-align:center">图： 周庄的桥</td>
+</tr>
+</tbody>
+</table>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/28/源码探索系列14---那个HandleThread/#more" rel="contents">
+            <a class="btn" href="/2015/12/31/设计模式系列5---多变灵活的桥接/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -293,8 +317,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="url">
-                源码探索系列13---Window的PhoneWindow与WindowManager
+              <a class="post-title-link" href="/2015/12/31/设计模式系列4---对外包办的门面模型/" itemprop="url">
+                设计模式系列4---对外包办的门面模型
               </a>
             
           
@@ -304,8 +328,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-28T17:36:00+08:00" content="2015-12-28">
-            2015-12-28
+          <time itemprop="dateCreated" datetime="2015-12-31T16:26:00+08:00" content="2015-12-31">
+            2015-12-31
           </time>
         </span>
 
@@ -330,8 +354,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/" itemprop="commentsCount"></span>
+              <a href="/2015/12/31/设计模式系列4---对外包办的门面模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/31/设计模式系列4---对外包办的门面模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -346,15 +370,14 @@
 
       
         
-          <p>关于Window，PhoneWindow和WindowManager三者的关系是：</p>
-<blockquote>
-<p>Window是一个抽象类，他的具体实现是PhoneWindow<br>我们通过WindowManager来管理Window。</p>
-</blockquote>
-<p>我们的所有的界面，例如Activity，Toast，Dialog等都是靠Window来呈现，因此他是View的管理者咯。</p>
-<p>很久前用过他的一个功能就是拿来做消息提醒，当有用户发来特定消息时候，就跑出来一个小悬浮窗来提示用户。现在看得多的就是各种管家关于内存的提示！这真的很让人纠结的安卓机啊！特别是某米的手机，当年发现他不支持这个功能！搞到得单独为他开发一个别的方式….</p>
-<p>好了，说这么多，我们该从哪里开始说起呢？</p>
+          <p>说到门面这个词， 在我国的文化就很有内涵啦！<br>不过<code>Facade</code> 这个词有时候翻译为外观。<br>到底该怎么理解这个门面模型呢？</p>
+<p>我们可以看一个公司的架构 </p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/20120725112047797.jpg" alt="enter image description here"></p>
+<p><strong>董事长</strong>同他的<strong>总经理</strong>说他要把今年的销售额翻<code>30</code>倍吧。总经理听了脸都青了，但没办法，还是得干活，说行，然后就把指标发下去了，让下面的干活去。即把实际做的事情分割给不同部门，然后自己又在办公室继续玩电脑了。</p>
+<p>这样对于发号施令的董事长，不需要知道具体的细节，只需要记得找总经理负责这事就好了。<br>就是苦了这个总经理，需要了解所有的部门情况，分割不同的事情给下面的人干活去。</p>
+<p>所以我们可以简化这个流程成这样的，老板说要去赚钱，总经理找了技术部开发了个杀手级应用，然后销售部门就负责去卖，从而达到赚钱的效果。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/28/源码探索系列13---Window的PhoneWindow与WindowManager/#more" rel="contents">
+            <a class="btn" href="/2015/12/31/设计模式系列4---对外包办的门面模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -387,8 +410,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="url">
-                源码探索系列12---关于事件分发机制
+              <a class="post-title-link" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="url">
+                设计模式系列3---搞转换的适配器模型
               </a>
             
           
@@ -398,8 +421,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-27T21:36:00+08:00" content="2015-12-27">
-            2015-12-27
+          <time itemprop="dateCreated" datetime="2015-12-30T21:26:00+08:00" content="2015-12-30">
+            2015-12-30
           </time>
         </span>
 
@@ -424,8 +447,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="commentsCount"></span>
+              <a href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/设计模式系列3---搞转换的适配器模型/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -440,21 +463,13 @@
 
       
         
-          <p>关于View的事件分发，实质就是关于MotionEvent时间的分发<br>再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。</p>
-<ul>
-<li><p><strong>三巨头</strong><br>分发过程中有主要涉及到三个人：<br><code>dispatchTouchEvent()</code>,<code>onInterceptTouchEvent()</code>,<code>onTouchEvent()</code><br>这三者的关系如下</p>
-<pre><code> public boolean dispatchTouchEvent(MotionEvent ev) {
-      boolean belongToMe=false;
-      if(onInterceptTouchEvent(ev)){
-           belongToMe=onTouchEvent(ev);
-      }else{
-          belongToMe=child.dispatchTouchEvent(ev);
-      }
-      return belongToMe;
-}        
-</code></pre>
+          <p>用过苹果手机的人对这两样东西应该很熟悉</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/adapter.jpg" alt="enter image description here">  <img src="http://7xl9zd.com1.z0.glb.clouddn.com/charge_apple.jpg" alt="enter image description here"></p>
+<p>我们常常需要买多左边那个适配器来用，要不然以苹果这插头，没几个排插能插上的。<br>但有了这转换器的话，只要满足两端标准，就可以<strong>循环利用</strong>，很”环保”.</p>
+<p>例如这样： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203716.jpg" alt="enter image description here">    —   或者这个： <img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E5%82%B2%E6%B8%B8%E6%88%AA%E5%9B%BE20151230203809.jpg" alt="enter image description here"></p>
+<p>想当年的巴别塔，如果有这样的做语言转换的翻译人，估计也建好了把。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/27/源码探索系列12---关于事件分发机制/#more" rel="contents">
+            <a class="btn" href="/2015/12/30/设计模式系列3---搞转换的适配器模型/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -487,8 +502,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/27/源码探索系列11---关于View的绘制/" itemprop="url">
-                源码探索系列11---关于View的绘制
+              <a class="post-title-link" href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/" itemprop="url">
+                设计模式系列2---幕后黑手的代理模式
               </a>
             
           
@@ -498,8 +513,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-27T02:36:00+08:00" content="2015-12-27">
-            2015-12-27
+          <time itemprop="dateCreated" datetime="2015-12-30T17:21:27+08:00" content="2015-12-30">
+            2015-12-30
           </time>
         </span>
 
@@ -524,8 +539,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/27/源码探索系列11---关于View的绘制/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列11---关于View的绘制/" itemprop="commentsCount"></span>
+              <a href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/设计模式系列2---幕后黑手的代理模式/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -540,9 +555,10 @@
 
       
         
-          <p>我们开发过程，基本需要自定义View，画一些自己的小插件出来<br>这需要我们掌握整个View的绘画过程和一些别的小技巧。<br>这里总结下整个View的源码中涉及到的一些绘制过程的核心部分，<br>之后再来看下整体的内容，毕竟整个源码有近2W1行，不是随便一时半会能搞定的，还是得下不少功夫。</p>
+          <p> 今天我们来说说那个代理模式，他的一大功效就是成了挡子弹的人，代替幕后黑手出来干活。<br> 为何这么说呢？<br> 因为人如其名，代理，就是中间人代理商这样的，<br> 我们不用过问到底背后怎么做，只需要找到这个代理人，他可以帮我们搞定所有。</p>
+<p>假设有这么一个人，他可以制造茶叶蛋，炸弹，手枪，火箭，电脑病毒等等。嗯，是个人才。<br>现在他突然手头紧了，想找个朋友帮他看有没什么门路，卖点东西出去，但为了给自己留点后路，他就同他朋友说他会做<code>茶叶蛋</code>，是个十分正经的守法好人民，同时希望帮他卖一点，虽然这朋友并不知道他如意算盘背后是给他背后做的事业提供资金来源。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/27/源码探索系列11---关于View的绘制/#more" rel="contents">
+            <a class="btn" href="/2015/12/30/设计模式系列2---幕后黑手的代理模式/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -575,8 +591,8 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/25/开源系列1---造个图片选择器/" itemprop="url">
-                开源系列1---造个图片选择器
+              <a class="post-title-link" href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/" itemprop="url">
+                源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview
               </a>
             
           
@@ -586,8 +602,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2015-12-25T11:41:00+08:00" content="2015-12-25">
-            2015-12-25
+          <time itemprop="dateCreated" datetime="2015-12-30T00:27:46+08:00" content="2015-12-30">
+            2015-12-30
           </time>
         </span>
 
@@ -612,8 +628,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2015/12/25/开源系列1---造个图片选择器/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/25/开源系列1---造个图片选择器/" itemprop="commentsCount"></span>
+              <a href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -628,14 +644,13 @@
 
       
         
-          <p>打算开个开源系列，用来分享在项目过程中些的一些小轮子。<br>在这年的末尾，挤下时间，看能改几个还勉强过得去的出来分享给大家。<br>能力有些，实现得也不算很优雅。<br>还望各大神指点。</p>
-<h1 id="我要造轮子"><a href="#我要造轮子" class="headerlink" title="我要造轮子"></a>我要造轮子</h1><p>作为一名爱折腾人员，重复造轮子这种事还是常做的。<br>没办法啊，做的过程才能发现问题嘛！最少我在做的过程就遇到啦！<br>例如阴影效果，图片如何压缩显示的问题（蹩脚的写了一个ImageLoader实在不怎样，改用Fresco!），排列等等问题</p>
-<p> <a href="https://github.com/Sanjay-F/PhotoSelector" target="_blank" rel="noopener">项目的下载地址请点击这里</a></p>
-<p>我们直接上效果图，这个是完成后的样子，目前改得勉强像一回事了。<br>就先粘贴上来，有需要的就拿去再根据自己需要改一个。</p>
-<p> <img src="http://img.blog.csdn.net/20151224225205588" alt="这里写图片描述">     —  <img src="http://img.blog.csdn.net/20151224225846858" alt="这里写图片描述"></p>
-<p><img src="http://img.blog.csdn.net/20151224233556670" alt="这里写图片描述"></p>
+          <p>作为这源码探索系列的初篇的终结，选择Listview来做最后一个探索的对象好像也挺好的。<br>所以我们就来简单的看下我们曾经最熟悉的Listview是怎么去绘制我们的各个View，如何复用的View。</p>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>API：23</p>
+<p>我们的<code>Listview</code>是继承于<code>AbsListView</code> 的</p>
+<pre><code>public class ListView extends AbsListView 
+</code></pre><p>而这个AbsListView里面帮我们做了大量的工作，包括与我们的adapter相关的工作，对View的复用等。<br>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/25/开源系列1---造个图片选择器/#more" rel="contents">
+            <a class="btn" href="/2015/12/30/源码探索系列16---初篇结尾---那个被RecyclerView替代的Listview/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -661,7 +676,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/16/">&raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/14/">&laquo;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/16/">&raquo;</a>
   </nav>
 
  </div>
@@ -695,21 +710,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

@@ -30,7 +30,7 @@
 
 
 
-  <meta name="keywords" content="android,dvm,Dalvik," />
+  <meta name="keywords" content="android,Dalvik,dvm," />
 
 
 
@@ -40,7 +40,7 @@
 
 
 <meta name="description" content="我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。 那么实际是这样吗？真的是这样吗？  我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个">
-<meta name="keywords" content="android,dvm,Dalvik">
+<meta name="keywords" content="android,Dalvik,dvm">
 <meta property="og:type" content="article">
 <meta property="og:title" content="源码探索系列40---关于Dalvik的内存分配过程">
 <meta property="og:url" content="http://yoursite.com/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/index.html">
@@ -877,9 +877,9 @@ void dvmDoTrackAllocation(ClassObject* clazz, size_t size)
           
             <a href="/tags/android/" rel="tag">#android</a>
           
-            <a href="/tags/dvm/" rel="tag">#dvm</a>
-          
             <a href="/tags/Dalvik/" rel="tag">#Dalvik</a>
+          
+            <a href="/tags/dvm/" rel="tag">#dvm</a>
           
         </div>
       
@@ -983,21 +983,21 @@ void dvmDoTrackAllocation(ClassObject* clazz, size_t size)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">110</span>
+              <span class="site-state-item-count">118</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">6</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">categories</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>
