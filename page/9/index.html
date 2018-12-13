@@ -203,6 +203,190 @@
           
           
             
+              <a class="post-title-link" href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/" itemprop="url">
+                源码探索系列28---插件化基础之代理Hook
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-28T18:41:46+08:00" content="2016-03-28">
+            2016-03-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/源码探索系列28---插件化基础之代理Hook/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20160328184052.png" alt="enter image description here"></p>
+<p>代理有两种，一种是常见的静态代理模型，这个在<a href="http://sanjay-f.github.io/2015/12/30/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%B3%BB%E5%88%972---%E5%B9%95%E5%90%8E%E9%BB%91%E6%89%8B%E7%9A%84%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/" target="_blank" rel="noopener">设计模式系列2—幕后黑手的代理模式</a>就有写过，他可以让我们在调用实际的api时做一些别的工作，从而达到某种程度的AOP效果。<br>但当时并没有提到动态代理的概念，因为目前自己的开发需要用到的场景偏少。不过在DroidPlugin里面就很多，因为他需要hook很多的内容。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/03/28/源码探索系列28---插件化基础之代理Hook/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="url">
+                源码探索系列27---插件化基础之类加载器DexClassLoader
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-03-16T20:50:46+08:00" content="2016-03-16">
+            2016-03-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg" alt="enter image description here"></p>
+<p>Java有个概念叫做<code>类加载器</code>（ClassLoader），它的作用就是<code>动态的装载Class文件</code>。借助<code>ClassLoader</code>这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。</p>
+<p>像下面这样：</p>
+<pre><code>Class.forName(&quot;OurClassName&quot;);
+</code></pre><p>啊！这是反射，嗯！应该是下面这样</p>
+<pre><code>ClassLoader.loadClass(&quot;OurClassName&quot;)
+</code></pre><p>等等！<br>这Java不是可以import就可以了吗，为何还要这个类加载器？<br>因为用import的话得类文件必须在本地且编译的时候必须有这个类文件，否则报错。若想让程序在运行的时候<strong>动态调用</strong>怎么办呢？显然import不合要求，他已经写死的了，所以我们需要ClassLoader来做这件事。<br>利用它来加载Class文件到JVM，以供程序使用。<br>这也是我们能够通过加载补丁包来修复紧急的bug的一个基础</p>
+<p>反射和这个类加载有什么关系嘛？后面再讲<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" itemprop="url">
                 源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层
               </a>
@@ -463,186 +647,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="url">
-                源码探索系列24---那把黄油刀ButterKnife
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-03-03T17:45:00+08:00" content="2016-03-03">
-            2016-03-03
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/03/源码探索系列24---那把黄油刀ButterKnife/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="https://github.com/JakeWharton/butterknife/raw/master/website/static/logo.png" alt="enter image description here"></p>
-<p>相信做安卓开发的人，一定对写一堆 findViewById（）很有印象。特别是当界面多的时候，那简直是觉得为何没有什么简单易行的办法来拯救我们与危难之间呢？</p>
-<p>既然我诚心诚意的问了，那就得写下答案，如何解决这个重复累赘问题.</p>
-<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/03/源码探索系列24---那把黄油刀ButterKnife/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/02/22/写在自己的第一本译本前/" itemprop="url">
-                写在自己的第一本译本前
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-02-22T23:40:00+08:00" content="2016-02-22">
-            2016-02-22
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/编程人生/" itemprop="url" rel="index">
-                  <span itemprop="name">编程人生</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/02/22/写在自己的第一本译本前/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/写在自己的第一本译本前/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_51oZlMkZlaL.jpg" alt="enter image description here"></p>
-<p>最近重新看了一遍<a href="http://www.amazon.com/True-Believer-Movements-Perennial-Paperback/dp/0060505915/ref=sr_1_1?ie=UTF8&amp;qid=1456151315&amp;sr=8-1&amp;keywords=The%20True%20Believer" target="_blank" rel="noopener">《The True Believer —Thoughts on the Nature of Mass Movements》</a>，现在是第三遍了，每次都可以得到一些宁静。大概可能是因为在这里面可以找到一个解释，来安慰自己无知的内心吧。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/22/写在自己的第一本译本前/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -681,7 +685,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">121</span>
+              <span class="site-state-item-count">123</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

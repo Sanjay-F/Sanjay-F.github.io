@@ -203,6 +203,195 @@
           
           
             
+              <a class="post-title-link" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="url">
+                设计模式系列20---聊聊IoC与中介者
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-05T15:46:00+08:00" content="2016-01-05">
+            2016-01-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>有一个叫<code>控制反转</code>(Inversion of Control，缩写IoC ) 的东西 ，这个对于计算机的人应该是不陌生的概念，就算你不知道那个<code>Bob大叔</code>。</p>
+<p>这个概念简单说的是下面这样的事情</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%B9%B1%E9%BA%BB_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB.JPG" alt="enter image description here"></p>
+<p>原本各个类之间的关系乱七八糟的，看起来头都晕了。<br>他们就像齿轮一样，相互咬合依赖。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB_full.jpg" alt="enter image description here"><br>如果有一个出问题，那可能整个就崩溃了。</p>
+<p>但是，如果有一个人出来承担大事，负责协调各个类的话！<br>那么，他们的关系就可以是像下面图片这样的，<br>各个对象之间可以不感受到对方的“存在”，但整体又运作良好。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%A7%A3%E8%80%A6%E5%90%88_full.jpg" alt="enter image description here"></p>
+<p> 举个可能不恰当的例子：</p>
+<p> 企业<code>ObjectA</code>要招人，可能要去学校<code>ObjectB</code>开宣讲会，去别的企业<code>ObjectC</code>挖人等等。<br> 有些人看到了其中的机会，专门负责为企业输送人才，我们称这类人叫猎头<code>Ioc</code>（也有人才中心等，这里为描述方便，不细究），他负责帮助企业去找到需要的人，我们的HR就可以在公司呆着，看着猎头源源不断发来简历就好了！<br> 再也不用去和学校，别的企业打交道了。是的，从此HR与这两者解耦合,过上了幸福美好的生活!!</p>
+<p>那么问题来了，如何用中介者模式来模拟这个招聘流程？</p>
+<p>今天我们要聊的这个就中介者就是类似的情况，我们来看下实际的代码情况。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="url">
+                设计模式系列19---可复原的备忘模式
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-05T12:06:00+08:00" content="2016-01-05">
+            2016-01-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/05/设计模式系列19---可复原的备忘模式/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列19---可复原的备忘模式/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p> <img src="http://7xl9zd.com1.z0.glb.clouddn.com/4a36acaf2edda3ccc6d433be01e93901213f9278.jpg" alt="enter image description here"></p>
+<p>玩游戏我们都知道有个东西叫<code>自动存档</code>，在我们遇到大Boss要打的时候，更是如此，一定要存档！<br>如果没有存档，死了就要你重新开始，如果是些大型游戏，已经花费了你很多时间，遇到大Boss，然后你被打死了，又没有存档，估计你就想直接把这个游戏卸载了。</p>
+<p>有时偷懒，还去下载别人的通关档案回来覆盖本地的。<br>哈，我就曾经做过！还有一些已经刷满无限金币等的存档！<br>曾经还遇到过必须被大Boss打死才能继续的剧情，但因为外挂太牛逼，活生生把大Boss给打死了！搞到后面都没法继续，只能自己手动滚回某个档案，装怂，去被boss虐下。</p>
+<p>所以很好理解，这个自动存档会保存我们当前的角色的状态，然后如果被大Boss打死了，就自动恢复到这个存档点状态，我们还可以继续去打大Boss，直到我们过关为止。</p>
+<p>那么问题来了，我们该怎么用代码实现呢？<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/05/设计模式系列19---可复原的备忘模式/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/01/04/设计模式系列18---有状态的状态模式/" itemprop="url">
                 设计模式系列18---有状态的状态模式
               </a>
@@ -480,189 +669,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="url">
-                设计模式系列15---构表分离的建造者模型
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T14:26:00+08:00" content="2016-01-04">
-            2016-01-04
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列15---构表分离的建造者模型/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/1110012133dbbfcc54o.jpg" alt="enter image description here"></p>
-<p> 现在来讲一件很有意思的故事，上面的画很纯洁，只有一种蓝色。但不得不说这图片还是有色差，不能很好的还原实际的色彩，如果有你机会，可以去看下他的<code>IKB</code>色彩是多么的蓝。<br>这种蓝被叫做<code>国际克莱因蓝</code>（international klein blue，缩写IKB）,以<code>伊夫·克莱因</code>（Yves Klein）的名字来命名的。</p>
-<p>这一种独特的天青石蓝色是在他的化学家友人<code>EdouardAdam</code>的帮助下合成的。<br>克莱因相信，只有最<strong>单纯的色彩</strong>才能唤起最强烈的心灵感受力。</p>
-<p>一些艺术家使用各种色彩以求获得艺术生命力，而克莱因宁愿回归单纯。<br>“克莱因蓝”的 RGB 比值是0:47:147，但是明确的数据并不能减少人们面对它时那种震惊——蓝色本身象征着天空和海洋，象征着没有界限，又因为“克莱因蓝”太过纯净，以至于很难找到可与之搭配的色彩进入人们的视野，因此，它的冲击力格外强烈。<br>这种蓝被誉为一种理想之蓝、绝对之蓝，其明净空旷往往使人迷失其中。<br>克莱因曾说：“表达这种感觉，不用解释，也无需语言，就能让心灵感知——我相信，这就是引导我画单色画的感觉。”</p>
-<p>当然啦，现在他的画那是厉害啊，例如他的《IKB 92》卖了一个多亿。也像这个一样，纯蓝色！！！</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列15---构表分离的建造者模型/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="url">
-                设计模式系列14---管流程不管细节的模板方法模式
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-04T00:52:00+08:00" content="2016-01-04">
-            2016-01-04
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 写了这么久，花的时间最多的是在选故事，找图上，写一篇能看的文章真的不容易啊。</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/201206251132405977.jpg" alt="enter image description here"><br>今天来介绍一款“高端智能”的机器人—炒菜机器侠。<br>一个可以会帮我们炒菜的机器人，懒人必备，价格不要你的2999，不要1999，只要899！<br>心动了嘛？赶紧拿起手头的手机，扫码购买吧！</p>
-<p>我们的炒菜机器人，只要你给他材料，就可以煮出你想要的菜。</p>
-<p>什么扬州炒饭，潮州炒饭都不是问题!</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/04/设计模式系列14---管流程不管细节的模板方法模式/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -701,7 +707,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">121</span>
+              <span class="site-state-item-count">123</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

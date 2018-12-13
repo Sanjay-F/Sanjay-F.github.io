@@ -203,6 +203,186 @@
           
           
             
+              <a class="post-title-link" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="url">
+                源码探索系列40---关于Dalvik的内存分配过程
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-19T12:55:46+08:00" content="2016-06-19">
+            2016-06-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>我们新建一个对象后，到底我们的虚拟机是怎么分配空间的呢？<br>我们以前都听说是一些基本数据类型会被放到栈。如果是对象的话，会放到堆里面去，对这个对象的引用是放到栈里面去的。类似下面这张图一样，我们的data这个变量是放在左边的栈，然后实际的内存空间即data引用的这部分，是放在右边的堆里面的。</p>
+<p>那么实际是这样吗？真的是这样吗？</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/dalvik_%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%A0%86%E4%B8%8E%E6%A0%88%20%281%29.png" alt="enter image description here"></p>
+<p>我们带着疑问，来看下dalvik为对象分配内存过程是怎样的，最后来回复这个问题。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/06/19/源码探索系列40---关于Dalvik的内存分配过程/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="url">
+                源码探索系列39---关于电量统计BatteryStatsHelper
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-14T12:55:46+08:00" content="2016-06-14">
+            2016-06-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>关于APP的优化，有一点就是关于电量的内容。<br>关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！<br>不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流量，相应的手机电量估计也不弱。</p>
+<p>说了那么多，我们先来看下到底系统是怎么多电量的统计的，知道他是怎么算的，我们才能更好的对症下药。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/06/12/源码探索系列38---关于dalvik虚拟机/" itemprop="url">
                 源码探索系列38---关于dalvik虚拟机
               </a>
@@ -463,185 +643,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/05/23/源码探索系列37---Android的属性动画/" itemprop="url">
-                源码探索系列37---Android的属性动画
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-05-23T22:45:46+08:00" content="2016-05-23">
-            2016-05-23
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/05/23/源码探索系列37---Android的属性动画/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/23/源码探索系列37---Android的属性动画/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>The Android framework provides two animation systems: <code>property animation</code> and <code>view animation.</code> Both animation systems are viable options, but the property animation system, in general, is the preferred method to use, because it is <code>more flexible</code> and offers <code>more features.</code> In addition to these two systems, you can utilize <code>Drawable animation,</code> which allows you to load drawable resources and display them one frame after another.</p>
-<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/37_anim_valueanimator.png" alt="enter image description here"><br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/23/源码探索系列37---Android的属性动画/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2016/05/18/源码探索系列36---安卓的安全机制permission/" itemprop="url">
-                源码探索系列36---安卓的安全机制permission
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-05-18T22:28:46+08:00" content="2016-05-18">
-            2016-05-18
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/05/18/源码探索系列36---安卓的安全机制permission/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/18/源码探索系列36---安卓的安全机制permission/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>本文尝试从源码的角度来对permission等机制做一个了解。<br>另外从安装一个apk的整个流程来看与permission相关的内容。</p>
-<p>Android 是一个<strong>权限分离</strong>的系统。利用 Linux 已有的权限管理机制，通过为每一个APP分配不同的<code>uid</code>和<code>gid</code>，从而使得不同的 App之间的私有数据和访问(native 以及 java 层通过这种 sandbox 机制，都可以)达到隔离的目的。</p>
-<p>与此同时，安卓在此基础上还进行了扩展，提供了<code>permission机制</code>，它主要是用来对<code>App</code>可以执行的某些具体操作进行权限细分和访问控制，同时提供了<code>per-URI permission 机制</code>，用来提供对某些特定的数据块进行 ad-hoc 方式的访问。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/18/源码探索系列36---安卓的安全机制permission/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -680,7 +681,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">121</span>
+              <span class="site-state-item-count">123</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
