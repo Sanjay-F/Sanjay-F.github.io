@@ -203,147 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/09/源码探索系列2---深入解析AsyncTask/" itemprop="url">
-                源码探索系列2---深入解析AsyncTask
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-09T02:04:00+08:00" content="2015-12-09">
-            2015-12-09
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/09/源码探索系列2---深入解析AsyncTask/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/09/源码探索系列2---深入解析AsyncTask/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>在解析前，我们先来看下一般我们使用的情况是怎样的<br>下面写了一个简单的demo，用来做个简单的任务，从1数到100，同时调用<code>publishProgress(i);</code>来更新下进度。<br>我想用过的人自己直接阅读下面代码没有任何问题。</p>
-<pre><code>class MyDemoAsyncTask extends AsyncTask&lt;Integer, Integer, String&gt; {
-
-        private TextView textView;
-        private ProgressBar progressBar;
-
-        public MyDemoAsyncTask(TextView textView, ProgressBar progressBar) {
-            super();
-            this.textView = textView;
-            this.progressBar = progressBar;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            textView.setText(&quot;开始执行异步线程&quot;);
-        }
-
-        @Override
-        protected String doInBackground(Integer... params) {
-            for (int i = 1; i &lt;= 100; i += 1) {
-                publishProgress(i);         
-               try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return &quot;resultString&quot;;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(values[0]);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            textView.setText(&quot;异步操作执行结束&quot; + result);
-        }
-    }
-</code></pre><h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>好了，这样一个demo，有几点需要解决的问题。</p>
-<ol>
-<li><p>为何他只能执行一次，再调用execute()就会出错</p>
-</li>
-<li><p>doInBackground()是怎么做到在后台执行的</p>
-</li>
-<li><p>为何 onPreExecute()，onProgressUpdate(）和onPostExecute(）能运行在主线程</p>
-</li>
-<li><p>为何Task的实例必须在UI thread中创建,execute方法必须在UI thread中调用；</p>
-</li>
-<li><p>为何不能手动的调用onPreExecute()，onPostExecute()，doInBackground(),，onProgressUpdate()这几个方法；</p>
-</li>
-</ol>
-<p>带着这么几个问题，我们开始深入的看下AsyncTask的源代码。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/09/源码探索系列2---深入解析AsyncTask/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="url">
                 源码探索系列1---Handler与HandlerLeak的那些事
               </a>
@@ -697,6 +556,97 @@ assertEquals(&quot;张三&quot;, user.getName(3));
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/03/Android测试教程10--monkey Test/" itemprop="url">
+                Android测试教程10--monkey Test
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-03T23:48:00+08:00" content="2015-12-03">
+            2015-12-03
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/03/Android测试教程10--monkey Test/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/03/Android测试教程10--monkey Test/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>#1，Monkey Test简介</p>
+<p>什么是monkey test？<br>如其名，像猴子一样，虽然不懂什么，但是可以乱点一通。<br>是的，他的一大特色就是可以乱点一通！！！！！！！<br>就在规定的次数范围内做任何随机的操作，随机操作包括点击、滑动、Application切换、横竖屏、应用关闭等等，用户能做的操作统统可以模拟；！！<br>所以简单说就是 <strong>“压力测试”</strong></p>
+<p><a href="http://developer.android.com/tools/help/monkey.html" target="_blank" rel="noopener">官方介绍文档地址，点这里</a></p>
+<p>那要准备点什么吗？</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/03/Android测试教程10--monkey Test/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -735,7 +685,7 @@ assertEquals(&quot;张三&quot;, user.getName(3));
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

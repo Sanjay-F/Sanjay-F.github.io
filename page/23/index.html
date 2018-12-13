@@ -203,94 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2015/11/18/Android测试教程1--跑起来/" itemprop="url">
-                Android测试教程1--跑起来
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-11-18T23:11:00+08:00" content="2015-11-18">
-            2015-11-18
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/11/18/Android测试教程1--跑起来/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/18/Android测试教程1--跑起来/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <h1 id="1-选择Android-Instrument-Tests"><a href="#1-选择Android-Instrument-Tests" class="headerlink" title="1 选择Android Instrument Tests"></a>1 选择Android Instrument Tests</h1><p>确认你选中的Test Artifact 是Android Instrument Tests；<br><img src="http://img.blog.csdn.net/20151118174128573" alt="这里写图片描述"><br>就在AS的左下角，自己看吧。有些人选择的是Junit，导致这个类的前面都是红色小标记，没办法运行。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/18/Android测试教程1--跑起来/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2015/10/07/给你的redis加上一把锁/" itemprop="url">
                 给你的redis加上一把锁
               </a>
@@ -587,6 +499,105 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/10/05/MySql实现主从热备和读写分离/" itemprop="url">
+                MySql实现主从热备和读写分离
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-10-05T11:33:02+08:00" content="2015-10-05">
+            2015-10-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/MySql/" itemprop="url" rel="index">
+                  <span itemprop="name">MySql</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/05/MySql实现主从热备和读写分离/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/05/MySql实现主从热备和读写分离/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <h2 id="MySql-主从热备份工作原理"><a href="#MySql-主从热备份工作原理" class="headerlink" title="MySql 主从热备份工作原理"></a>MySql 主从热备份工作原理</h2><p>  <strong>简单的说</strong>：就是主服务器上执行过的操作会被保存在binLog日志里面，从服务器把他同步过来，然后重复执行一遍，那么它们就能一直同步啦。</p>
+<p>我们进一步详细介绍原理的细节， 这有一张图：</p>
+<p><img src="http://hi.csdn.net/attachment/201202/28/0_1330439010P7lI.gif" alt=""></p>
+<p>以上是一个主-从复制（热备)的例子。 </p>
+<p>整体上来说，复制有<code>3</code>个步骤：</p>
+<ol>
+<li>作为主服务器的Master，会把自己的每一次改动（每条sql语句）都记录到二进制日志Binarylog中。</li>
+<li>作为从服务器Slave， 会用master上的账号登陆到 master上，读取master的Binarylog,写入到自己的中继日志 Relaylog。</li>
+<li>然后从服务器自己的sql线程会负责读取这个中继日志，并执行一遍。</li>
+</ol>
+<p>到这里主服务器上的更改就同步到从服务器上了，这种复制和重复都是mysql自动实现的，我们只需要配置即可。<br>整个过程，MySQL使用3个线程来执行复制同步功能，其中两个线程(Sql线程和IO线程)在从服务器，另外一个线程(IO线程)在主服务器。</p>
+<p><code>主-主</code>互相复制实际只是把上面的例子反过来再做一遍。<br>所以我们以这个例子介绍原理。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/10/05/MySql实现主从热备和读写分离/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -625,7 +636,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

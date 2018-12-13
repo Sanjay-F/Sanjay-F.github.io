@@ -1,0 +1,1102 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+  <link href='//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="SanjayF's  github  blog" />
+
+
+
+  <meta name="keywords" content="android,Flutter,BLoC," />
+
+
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。 因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊 目前我们工程有尝试用到了BLoC这个东西，在这里做简单介绍下 BLoC的全称是 业务逻辑组件（Business Logic Component）。如果你对响应式编程熟悉的话，应该很好懂这">
+<meta name="keywords" content="android,Flutter,BLoC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter入门系列10---关于状态管理BLoC">
+<meta property="og:url" content="http://yoursite.com/2018/04/10/Flutter入门系列10---关于状态管理BLoC/index.html">
+<meta property="og:site_name" content="SanjayF&#39;s blog">
+<meta property="og:description" content="做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。 因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊 目前我们工程有尝试用到了BLoC这个东西，在这里做简单介绍下 BLoC的全称是 业务逻辑组件（Business Logic Component）。如果你对响应式编程熟悉的话，应该很好懂这">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.imgur.com/xt3xilA.png">
+<meta property="og:updated_time" content="2018-12-13T06:32:37.581Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flutter入门系列10---关于状态管理BLoC">
+<meta name="twitter:description" content="做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。 因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊 目前我们工程有尝试用到了BLoC这个东西，在这里做简单介绍下 BLoC的全称是 业务逻辑组件（Business Logic Component）。如果你对响应式编程熟悉的话，应该很好懂这">
+<meta name="twitter:image" content="https://i.imgur.com/xt3xilA.png">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Flutter入门系列10---关于状态管理BLoC | SanjayF's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?18f6d52faaf2600c05e8045494b5935e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+
+      <span class="site-title">SanjayF's blog</span>
+        <h6 id="subtitle-wrap">
+           <span class="site-nav">生命不息，装逼不止</span>    
+        </h6>
+       
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu menu-left">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <form class="site-search-form">
+    <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+  </form>
+
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'qy4B6rmn6sA3Kyx-8Ysw','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Flutter入门系列10---关于状态管理BLoC
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-04-10T23:14:46+08:00" content="2018-04-10">
+            2018-04-10
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/04/10/Flutter入门系列10---关于状态管理BLoC/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/10/Flutter入门系列10---关于状态管理BLoC/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。</p>
+<p>因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊</p>
+<p>目前我们工程有尝试用到了<a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">BLoC</a>这个东西，在这里做简单介绍下</p>
+<p>BLoC的全称是 业务逻辑组件（Business Logic Component）。<br>如果你对响应式编程熟悉的话，应该很好懂这个到底是什么</p>
+<p>就是用reactive programming方式构建应用，一个由流构成的完全异步的世界。从而达到界面与业务分离的逻辑.</p>
+<p>或者简单粗暴的理解为，这个就是类似安卓的RX事件总线。</p>
+<a id="more"></a>
+<h1 id="起航"><a href="#起航" class="headerlink" title="起航"></a>起航</h1><p>便于说明，我们先写个简单的demo，介绍如何基于由Stream提供的数据构建Widget</p>
+<pre><code>import &apos;dart:async&apos;;
+import &apos;package:flutter/material.dart&apos;;
+
+class CounterPage extends StatefulWidget {
+  @override
+  _CounterPageState createState() =&gt; _CounterPageState();
+}
+
+class _CounterPageState extends State&lt;CounterPage&gt; {
+  int _counter = 0;
+  final StreamController&lt;int&gt; _streamController = StreamController&lt;int&gt;();
+
+  @override
+  void dispose(){
+    _streamController.close();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(&apos;Stream version of the Counter App&apos;)),
+      body: Center(
+        child: StreamBuilder&lt;int&gt;(
+          //当有新的数据，会刷新页面
+          stream: _streamController.stream,
+          initialData: _counter,
+          builder: (BuildContext context, AsyncSnapshot&lt;int&gt; snapshot){
+            return Text(&apos;You hit me: ${snapshot.data} times&apos;);
+          }
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: (){
+            //点击时候，我们往Stream扔数据
+          _streamController.sink.add(++_counter);
+        },
+      ),
+    );
+  }
+}
+</code></pre><p>上面利用stream的方式，更改了我们之前需要用setState去刷新的逻辑。<br>即 StreamBuilder监听Stream，每当某些数据输出Stream时，它会自动重建，调用其builder回调。</p>
+<pre><code>StreamBuilder&lt;T&gt;(
+    key: ...optional, the unique ID of this Widget...
+    stream: ...the stream to listen to...
+    initialData: ...any initial data, in case the stream would initially be empty...
+    builder: (BuildContext context, AsyncSnapshot&lt;T&gt; snapshot){
+        if (snapshot.hasData){
+            return ...the Widget to be built based on snapshot.data
+        }
+        return ...the Widget to be built if no data is available
+    },
+)
+</code></pre><p>通过以上的方式，不同的组件widget也可以去做只关心数据的展示和处理逻辑。</p>
+<p>看到这里，你是否也有当年一开始用EventBus那样的恐惧，一开始开心，后面事件满天飞，开始害怕了？</p>
+<h1 id="BLoc"><a href="#BLoc" class="headerlink" title="BLoc"></a>BLoc</h1><p>接下来正式介绍BLoC</p>
+<p><img src="https://i.imgur.com/xt3xilA.png" alt=""></p>
+<p>BLoC模式由来自Google的Paolo Soares和Cong Hui设计，并在2018年DartConf期间（2018年1月23日至24日）首次展示。 在YouTube上观看此视频。</p>
+<p>简而言之，业务逻辑（Business Logic ）需要：</p>
+<ul>
+<li>转移到一个或几个BLoC，</li>
+<li>尽可能从表现层中删除。 换句话说，UI组件应该只关心UI事物而不关心业务，</li>
+<li>依赖Streams独家使用输入（Sink）和输出（流），</li>
+<li>保持平台独立，</li>
+<li>保持环境独立。</li>
+</ul>
+<p>事实上，BLoC模式最初被设想为允许独立于平台重用相同的代码：Web应用程序，移动应用程序，后端。</p>
+<p>我们看回上面的图，就是像事件总线一样来做解耦工作</p>
+<ol>
+<li>Widgets通过Sinks向BLoC发送事件，</li>
+<li>BLoC通过Stream通知Widgets，</li>
+<li>由BLoC实现的业务逻辑不是他们关注的问题。</li>
+</ol>
+<p>从上面来看，我们可以直接看到使用BLoC的一个巨大的好处。<br>业务逻辑与UI的分离：</p>
+<ul>
+<li>我们可以随时更改业务逻辑，对应用程序的影响最小，</li>
+<li>我们可能会更改UI而不会对业务逻辑产生任何影响，</li>
+<li>现在，测试业务逻辑变得更加容易。</li>
+</ul>
+<p>现在我们来现在，基于BLoC来改造前面的点击按钮事件</p>
+<pre><code>void main() =&gt; runApp(new MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+        title: &apos;Streams Demo&apos;,
+        theme: new ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: BlocProvider&lt;IncrementBloc&gt;(
+          bloc: IncrementBloc(),
+          child: CounterPage(),
+        ),
+    );
+  }
+}
+
+class CounterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    //职责分析
+    final IncrementBloc bloc = BlocProvider.of&lt;IncrementBloc&gt;(context);
+
+    return Scaffold(
+      appBar: AppBar(title: Text(&apos;Stream version of the Counter App&apos;)),
+      body: Center(
+        child: StreamBuilder&lt;int&gt;(
+          stream: bloc.outCounter,
+          initialData: 0,
+          builder: (BuildContext context, AsyncSnapshot&lt;int&gt; snapshot){
+            return Text(&apos;You hit me: ${snapshot.data} times&apos;);
+          }
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: (){
+          bloc.incrementCounter.add(null);
+        },
+      ),
+    );
+  }
+}
+
+class IncrementBloc implements BlocBase {
+  int _counter;
+
+  //
+  // Stream to handle the counter
+  //
+  StreamController&lt;int&gt; _counterController = StreamController&lt;int&gt;();
+  StreamSink&lt;int&gt; get _inAdd =&gt; _counterController.sink;
+  Stream&lt;int&gt; get outCounter =&gt; _counterController.stream;
+
+  //
+  // Stream to handle the action on the counter
+  //
+  StreamController _actionController = StreamController();
+  StreamSink get incrementCounter =&gt; _actionController.sink;
+
+  //
+  // Constructor
+  //
+  IncrementBloc(){
+    _counter = 0;
+    _actionController.stream
+                     .listen(_handleLogic);
+  }
+
+  void dispose(){
+    _actionController.close();
+    _counterController.close();
+  }
+
+  void _handleLogic(data){
+    _counter = _counter + 1;
+    _inAdd.add(_counter);
+  }
+}
+</code></pre><p>看我这部分demo你可能第一反应是，至于吗，怎么导致代码变庞大了。我也是这么一个第一感受的，不过就像ＲｘＪａｖａ一样，其本身不是来做缩短代码的，而是框架性的去做解耦功能的。</p>
+<p>做技术选型时候，我们会去做很累是否有必要引入这么强大的功能库，类似ｗｅｂ去加入<code>React+Redux</code>功能一样，对于小型简单几个页面的，这样反而适得其反，但对于中大型的app来说，是有必要的。</p>
+<p>如果我说，上面代码还不是全部。。的话</p>
+<p>但还是得说有必要的，我们来分析看下代码：</p>
+<p>回去看CounterPage里面的内容</p>
+<ol>
+<li><p>责任分离 。<br>你会发现Build其中绝对没有任何业务逻辑。此页面现在仅负责：</p>
+<ul>
+<li>显示计数器，现在只在必要时刷新（即使页面不必知道）</li>
+<li>提供按钮，当按钮按下时，将会在counter面板上请求一个动作</li>
+<li>此外，整个业务逻辑集中在一个单独的类“IncrementBloc”中。<br>现在如果你需要更改业务逻辑，您只需更新方法<strong>_handleLogic</strong>。 也许新的业务逻辑会要求做非常复杂的事情但CounterPage永远不会知道它，这非常好！</li>
+</ul>
+</li>
+<li><p>自由组织布局:<br>由于使用了Streams，你现在可以独立于业务逻辑组织布局。<br>可以从应用程序中的任何位置启动任何操作：只需调用.incrementCounter sink即可。<br>您可以在任何页面的任何位置显示counter，只需听取.outCounter stream。 </p>
+</li>
+<li><p>减少“build”的数量<br>不使用setState()而是使用StreamBuilder大大减少了“build”的数量。<br>从性能角度来看，这是一个巨大的进步。</p>
+</li>
+</ol>
+<h2 id="BLoc-的传递"><a href="#BLoc-的传递" class="headerlink" title="BLoc 的传递"></a>BLoc 的传递</h2><p>当然也不能说它完美无瑕，现在就有一个基础问题，跨不同组件等，需要拿到这个controller，好塞数据，监听。<br>有几种方法可以访问它：</p>
+<ol>
+<li>通过全局单例<br>这种方式可以实现，但不是真的推荐。 此外，由于Dart中没有类析构函数，因此你永远无法正确释放资源。</li>
+<li>作为局部变量<br>你可以实例化BLoC的局部实例。 在某些情况下，此解决方案完全符合某些需求。 在这种情况下，你应该始终考虑在StatefulWidget中初始化，以便您<br>可以利用dispose()方法来释放相关资源。</li>
+<li>由父级提供<br>使其可访问的最常见方式是通过父级Widget访问，通过StatefulWidget实现。</li>
+</ol>
+<p>现在我们手把手的来看下demo，通过<strong>BlocProvider</strong>的方式来做。这个也是开头demo的案例使用的方式</p>
+<pre><code>// Generic Interface for all BLoCs
+abstract class BlocBase {
+  void dispose();
+}
+
+// Generic BLoC provider
+class BlocProvider&lt;T extends BlocBase&gt; extends StatefulWidget {
+  BlocProvider({
+    Key key,
+    @required this.child,
+    @required this.bloc,
+  }): super(key: key);
+
+  final T bloc;
+  final Widget child;
+
+  @override
+  _BlocProviderState&lt;T&gt; createState() =&gt; _BlocProviderState&lt;T&gt;();
+
+  static T of&lt;T extends BlocBase&gt;(BuildContext context){
+    final type = _typeOf&lt;BlocProvider&lt;T&gt;&gt;();
+    BlocProvider&lt;T&gt; provider = context.ancestorWidgetOfExactType(type);
+    return provider.bloc;
+  }
+
+  static Type _typeOf&lt;T&gt;() =&gt; T;
+}
+
+class _BlocProviderState&lt;T&gt; extends State&lt;BlocProvider&lt;BlocBase&gt;&gt;{
+  @override
+  void dispose(){
+    widget.bloc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return widget.child;
+  }
+}
+</code></pre><p>以上的代码写好后，我们通过这样的方式来调用</p>
+<pre><code>home: BlocProvider&lt;IncrementBloc&gt;(
+         bloc: IncrementBloc(),
+         child: CounterPage(),
+       ),
+</code></pre><p>通过这些代码，我们只需实例化一个新的BlocProvider，它将处理一个IncrementBloc，并将CounterPage作为子项呈现。</p>
+<p>这样从BlocProvider开始的子树的任何Widget都将能够通过以代码访问IncrementBloc：</p>
+<pre><code>IncrementBloc bloc = BlocProvider.of&lt;IncrementBloc&gt;(context);
+</code></pre><h2 id="可以使用多个BLoC吗？"><a href="#可以使用多个BLoC吗？" class="headerlink" title="可以使用多个BLoC吗？"></a>可以使用多个BLoC吗？</h2><p>当然，这是非常可取的。建议如下：</p>
+<ul>
+<li>（如果有任何业务逻辑）每个页面的顶部有一个BLoC，我认为这个就像每个具体业务逻辑有一个Context一样</li>
+<li>为什么不是ApplicationBloc来处理应用程序状态？</li>
+<li>每个“足够复杂的组件”都有相应的BLoC。</li>
+</ul>
+<p>  以下示例代码在整个应用程序的顶部显示ApplicationBloc，然后在CounterPage顶部显示IncrementBloc。<br>该示例还显示了如何检索两个bloc。</p>
+<pre><code>void main() =&gt; runApp(
+  BlocProvider&lt;ApplicationBloc&gt;(
+    bloc: ApplicationBloc(), //注意这里加入了一个新的app级别
+    child: MyApp(),
+  )
+);
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context){
+    return MaterialApp(
+      title: &apos;Streams Demo&apos;,
+      home: BlocProvider&lt;IncrementBloc&gt;( // widget级别
+        bloc: IncrementBloc(),
+        child: CounterPage(),
+      ),
+    );
+  }
+}
+
+class CounterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context){
+    //检索两个bloc
+    final IncrementBloc counterBloc = BlocProvider.of&lt;IncrementBloc&gt;(context);
+    final ApplicationBloc appBloc = BlocProvider.of&lt;ApplicationBloc&gt;(context);
+
+    ...
+  }
+}
+</code></pre><h1 id="实战使用建议"><a href="#实战使用建议" class="headerlink" title="实战使用建议"></a>实战使用建议</h1><h2 id="为什么不使用InheritedWidget？"><a href="#为什么不使用InheritedWidget？" class="headerlink" title="为什么不使用InheritedWidget？"></a>为什么不使用InheritedWidget？</h2><p>在与BLoC相关的大多数文章中，你会看到通过InheritedWidget实现Provider。<br>当然，没有什么能阻止这种类型的实现。 然而，</p>
+<ul>
+<li><p>dispose<br>一个InheritedWidget没有提供任何dispose方法，请记住，在不再需要资源时总是释放资源是一种很好的做法。</p>
+</li>
+<li><p>当然，没有什么能阻止你将InheritedWidget包装在另一个StatefulWidget中，但是，使用InheritedWidget增加了什么呢？</p>
+</li>
+<li>最后，如果不受控制，使用InheritedWidget经常会导致副作用（请参阅下面的InheritedWidget上的Reminder）。</li>
+</ul>
+<p>这三点解释了我为什么选择通过StatefulWidget实现BlocProvider，这样做可以让我在Widget dispose时释放相关资源。</p>
+<h2 id="Flutter无法实例化泛型类型"><a href="#Flutter无法实例化泛型类型" class="headerlink" title="Flutter无法实例化泛型类型"></a>Flutter无法实例化泛型类型</h2><p>不幸的是，Flutter无法实例化泛型类型，我们必须将BLoC的实例传递给BlocProvider。 为了在每个BLoC中强制执行dispose()方法，所有BLoC都必<br>须实现BlocBase接口。</p>
+<h2 id="这个不是为Flutter而生的库，技术选型要谨慎"><a href="#这个不是为Flutter而生的库，技术选型要谨慎" class="headerlink" title="这个不是为Flutter而生的库，技术选型要谨慎"></a>这个不是为Flutter而生的库，技术选型要谨慎</h2><blockquote>
+<p>At first, the BLoC pattern was conceived to share the very same code across platforms (AngularDart, …) and, in this perspective, that statement makes full sense.</p>
+<p>However, if you only intend to develop a Flutter application, this is, based on my humble experience, a little bit overkill.</p>
+<p>If we stick to the statement, no getter or setter are possible, only sinks and streams. The drawback is “all this is asynchronous”.</p>
+</blockquote>
+<p>作者认为，如果你只是拿这个来纯粹做个flutter，有点杀猪用牛刀的意味，大材小用了。。</p>
+<p>提供了两个缺点的地方：</p>
+<ol>
+<li>你需要从BLoC中检索一些数据，以便使用这些数据作为应该立即显示这些参数的页面的输入（例如，想一个参数页面），如果我们不得不依赖Streams，这会使构建异步页面（很复杂）。通过Streams使其工作的示例代码可能如下所示……丑陋不是它。</li>
+</ol>
+<pre><code>class FiltersPage extends StatefulWidget {
+  @override
+  FiltersPageState createState() =&gt; FiltersPageState();
+}
+
+class FiltersPageState extends State&lt;FiltersPage&gt; {
+  MovieCatalogBloc _movieBloc;
+  double _minReleaseDate;
+  double _maxReleaseDate;
+  MovieGenre _movieGenre;
+  bool _isInit = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // As the context of not yet available at initState() level,
+    // if not yet initialized, we get the list of the 
+    // filter parameters
+    if (_isInit == false){
+      _movieBloc = BlocProvider.of&lt;MovieCatalogBloc&gt;(context);
+      _getFilterParameters();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _isInit == false
+      ? Container()
+      : Scaffold(
+    ...
+    );
+  }
+
+  ///
+  /// Very tricky.
+  /// 
+  /// As we want to be 100% BLoC compliant, we need to retrieve
+  /// everything from the BLoCs, using Streams...
+  /// 
+  /// This is ugly but to be considered as a study case.
+  ///
+  void _getFilterParameters() {
+    StreamSubscription subscriptionFilters;
+
+    subscriptionFilters = _movieBloc.outFilters.listen((MovieFilters filters) {
+        _minReleaseDate = filters.minReleaseDate.toDouble();
+        _maxReleaseDate = filters.maxReleaseDate.toDouble();
+
+        // Simply to make sure the subscriptions are released
+        subscriptionFilters.cancel();
+
+        // Now that we have all parameters, we may build the actual page
+        if (mounted){
+          setState((){
+            _isInit = true;
+          });
+        }
+      });
+    });
+  }
+}
+</code></pre><ol start="2">
+<li>在BLoC级别，您还需要转换某些数据的“假”注入，以触发提供您希望通过流接收的数据。使这项工作的示例代码可以是：</li>
+</ol>
+<pre><code>class ApplicationBloc implements BlocBase {
+  ///
+  /// Synchronous Stream to handle the provision of the movie genres
+  ///
+  StreamController&lt;List&lt;MovieGenre&gt;&gt; _syncController = StreamController&lt;List&lt;MovieGenre&gt;&gt;.broadcast();
+  Stream&lt;List&lt;MovieGenre&gt;&gt; get outMovieGenres =&gt; _syncController.stream;
+
+  ///
+  /// Stream to handle a fake command to trigger the provision of the list of MovieGenres via a Stream
+  ///
+  StreamController&lt;List&lt;MovieGenre&gt;&gt; _cmdController = StreamController&lt;List&lt;MovieGenre&gt;&gt;.broadcast();
+  StreamSink get getMovieGenres =&gt; _cmdController.sink;
+
+  ApplicationBloc() {
+    //
+    // If we receive any data via this sink, we simply provide the list of MovieGenre to the output stream
+    //
+    _cmdController.stream.listen((_){
+      _syncController.sink.add(UnmodifiableListView&lt;MovieGenre&gt;(_genresList.genres));
+    });
+  }
+
+  void dispose(){
+    _syncController.close();
+    _cmdController.close();
+  }
+
+  MovieGenresList _genresList;
+}
+
+// Example of external call
+BlocProvider.of&lt;ApplicationBloc&gt;(context).getMovieGenres.add(null);
+</code></pre><p>就原文作者而言，如果我没有任何与<strong>代码移植/共享相关</strong>的限制，他发现这太笨重了，他宁愿在需要时使用常规的getter / setter并使用Streams / Sinks来保持分离责任并在需要的地方广播信息，这比搞BLoC棒多了。</p>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>项目的<a href="https://github.com/boeledi/Streams-Block-Reactive-Programming-in-Flutter" target="_blank" rel="noopener">代码地址</a>在这里。<br>这篇文章是基于<a href="https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/?spm=a2c4e.11153940.blogcont640862.7.35fa2130JgD9aY" target="_blank" rel="noopener">这篇</a>基础上改出来的。</p>
+<p>#ref </p>
+<ul>
+<li><p><a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372</a></p>
+</li>
+<li><p><a href="https://cloud.tencent.com/developer/article/1345645" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1345645</a></p>
+</li>
+<li><p><a href="https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/?spm=a2c4e.11153940.blogcont640862.7.35fa2130JgD9aY" target="_blank" rel="noopener">https://www.didierboelens.com/2018/08/reactive-programming---streams---bloc/?spm=a2c4e.11153940.blogcont640862.7.35fa2130JgD9aY</a></p>
+</li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/android/" rel="tag">#android</a>
+          
+            <a href="/tags/Flutter/" rel="tag">#Flutter</a>
+          
+            <a href="/tags/BLoC/" rel="tag">#BLoC</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/28/Flutter入门系列11---关于状态state本身/" rel="prev">Flutter入门系列11---关于状态state本身</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/28/Flutter入门系列9---网络请求http/" rel="next">Flutter入门系列9---网络请求http</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2018/04/10/Flutter入门系列10---关于状态管理BLoC/"
+     data-title="Flutter入门系列10---关于状态管理BLoC"
+     data-content=""
+     data-url="http://yoursite.com/2018/04/10/Flutter入门系列10---关于状态管理BLoC/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+            <!-- 多说热评文章-->
+            <p>热评文章</p>
+            <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2018/04/10/Flutter入门系列10---关于状态管理BLoC/"
+                   data-title="Flutter入门系列10---关于状态管理BLoC" data-url="http://yoursite.com/2018/04/10/Flutter入门系列10---关于状态管理BLoC/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/myAvatar.jpg" alt="SanjayF" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">SanjayF</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">SanjayF's  github  blog</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">129</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起航"><span class="nav-number">1.</span> <span class="nav-text">起航</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BLoc"><span class="nav-number">2.</span> <span class="nav-text">BLoc</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BLoc-的传递"><span class="nav-number">2.1.</span> <span class="nav-text">BLoc 的传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可以使用多个BLoC吗？"><span class="nav-number">2.2.</span> <span class="nav-text">可以使用多个BLoC吗？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实战使用建议"><span class="nav-number">3.</span> <span class="nav-text">实战使用建议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么不使用InheritedWidget？"><span class="nav-number">3.1.</span> <span class="nav-text">为什么不使用InheritedWidget？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Flutter无法实例化泛型类型"><span class="nav-number">3.2.</span> <span class="nav-text">Flutter无法实例化泛型类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#这个不是为Flutter而生的库，技术选型要谨慎"><span class="nav-number">3.3.</span> <span class="nav-text">这个不是为Flutter而生的库，技术选型要谨慎</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最后"><span class="nav-number">4.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SanjayF</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"sanjayf"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+  	<script src="/js/ua-parser.min.js"></script>
+  	<script src="/js/hook-duoshuo.js"></script>
+  
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

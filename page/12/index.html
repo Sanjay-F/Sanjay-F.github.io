@@ -203,98 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="url">
-                源码探索系列18---关于资源的加载与匹配的资源机制
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-08T23:41:46+08:00" content="2016-01-08">
-            2016-01-08
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg" alt="enter image description here"></p>
-<p>今天我们来聊聊那个我们加载系统资源的问题。</p>
-<p>说的就是我们放在<code>res</code>目录下的内容，系统是如何获取的。</p>
-<pre><code>getResources().getString(R.string.app_name);
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2016/01/07/源码探索系列17---LRU与LruCache/" itemprop="url">
                 源码探索系列17---LRU与LruCache
               </a>
@@ -650,6 +558,103 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="url">
+                设计模式系列20---聊聊IoC与中介者
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-05T15:46:00+08:00" content="2016-01-05">
+            2016-01-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/05/设计模式系列20---聊聊IoC与中介者/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>有一个叫<code>控制反转</code>(Inversion of Control，缩写IoC ) 的东西 ，这个对于计算机的人应该是不陌生的概念，就算你不知道那个<code>Bob大叔</code>。</p>
+<p>这个概念简单说的是下面这样的事情</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E4%B9%B1%E9%BA%BB_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB.JPG" alt="enter image description here"></p>
+<p>原本各个类之间的关系乱七八糟的，看起来头都晕了。<br>他们就像齿轮一样，相互咬合依赖。</p>
+<p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%80%A6%E5%90%88%E5%85%B3%E7%B3%BB_full.jpg" alt="enter image description here"><br>如果有一个出问题，那可能整个就崩溃了。</p>
+<p>但是，如果有一个人出来承担大事，负责协调各个类的话！<br>那么，他们的关系就可以是像下面图片这样的，<br>各个对象之间可以不感受到对方的“存在”，但整体又运作良好。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/%E9%BD%BF%E8%BD%AE_%E8%A7%A3%E8%80%A6%E5%90%88_full.jpg" alt="enter image description here"></p>
+<p> 举个可能不恰当的例子：</p>
+<p> 企业<code>ObjectA</code>要招人，可能要去学校<code>ObjectB</code>开宣讲会，去别的企业<code>ObjectC</code>挖人等等。<br> 有些人看到了其中的机会，专门负责为企业输送人才，我们称这类人叫猎头<code>Ioc</code>（也有人才中心等，这里为描述方便，不细究），他负责帮助企业去找到需要的人，我们的HR就可以在公司呆着，看着猎头源源不断发来简历就好了！<br> 再也不用去和学校，别的企业打交道了。是的，从此HR与这两者解耦合,过上了幸福美好的生活!!</p>
+<p>那么问题来了，如何用中介者模式来模拟这个招聘流程？</p>
+<p>今天我们要聊的这个就中介者就是类似的情况，我们来看下实际的代码情况。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/05/设计模式系列20---聊聊IoC与中介者/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -688,7 +693,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

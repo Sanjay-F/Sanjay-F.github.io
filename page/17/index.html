@@ -203,97 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/29/设计模式系列1---独当一面的单例/" itemprop="url">
-                设计模式系列1---独当一面的单例
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-29T21:55:46+08:00" content="2015-12-29">
-            2015-12-29
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/29/设计模式系列1---独当一面的单例/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/29/设计模式系列1---独当一面的单例/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>在开始写之前我想吐槽下CSDN！ 在上面写的源码探索系列6和14居然不见了，上次找版主去找回一次别的文章！ 这次居然跑了两篇，服务器要高可用啊！</p>
-<p>现在还记得14写的内容是HandleThread，但第六篇那么久那里还记得写的是哪篇，想补都补不回来了！<br>（更新：12/30， 记起来了，那个第六篇是四大金刚之一的广播，唉，那篇写了好久才整理出来的，跪了！）</p>
-<p>为了写这篇文章，内心压制了好久，那些文章都是我每天下完班辛辛苦苦熬到凌晨一两点才写完的！ 翻看了那么多代码，熬了这么久！真的内心难以忍受这样的错误！</p>
-<p>一个可以让人舒服写字的地方真不容易找！</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/29/设计模式系列1---独当一面的单例/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2015/12/29/设计模式系列0---写在这系列前的话/" itemprop="url">
                 设计模式系列0---写在这系列前的话
               </a>
@@ -668,6 +577,106 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="url">
+                源码探索系列12---关于事件分发机制
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-27T21:36:00+08:00" content="2015-12-27">
+            2015-12-27
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/27/源码探索系列12---关于事件分发机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/27/源码探索系列12---关于事件分发机制/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>关于View的事件分发，实质就是关于MotionEvent时间的分发<br>再简单点说就是通过一堆判断，最后决定这个MotionEvent给谁用的问题。</p>
+<ul>
+<li><p><strong>三巨头</strong><br>分发过程中有主要涉及到三个人：<br><code>dispatchTouchEvent()</code>,<code>onInterceptTouchEvent()</code>,<code>onTouchEvent()</code><br>这三者的关系如下</p>
+<pre><code> public boolean dispatchTouchEvent(MotionEvent ev) {
+      boolean belongToMe=false;
+      if(onInterceptTouchEvent(ev)){
+           belongToMe=onTouchEvent(ev);
+      }else{
+          belongToMe=child.dispatchTouchEvent(ev);
+      }
+      return belongToMe;
+}        
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/27/源码探索系列12---关于事件分发机制/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -706,7 +715,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

@@ -399,201 +399,6 @@
           
           
             
-              <a class="post-title-link" href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/" itemprop="url">
-                Flutter入门系列10---关于状态管理BLoC
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-04-28T23:14:46+08:00" content="2018-04-28">
-            2018-04-28
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/28/Flutter入门系列10---关于状态管理BLoC/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。</p>
-<p>因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊</p>
-<p>目前我们工程有尝试用到了<a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">BLoC</a>这个东西，在这里做简单介绍下</p>
-<p>BLoC的全称是 业务逻辑组件（Business Logic Component）。<br>如果你对响应式编程熟悉的话，应该很好懂这个到底是什么</p>
-<p>就是用reactive programming方式构建应用，一个由流构成的完全异步的世界。从而达到界面与业务分离的逻辑.</p>
-<p>或者简单粗暴的理解为，这个就是类似安卓的RX事件总线。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/04/28/Flutter入门系列10---关于状态管理BLoC/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/04/28/Flutter入门系列12---基础控件Flex/" itemprop="url">
-                Flutter入门系列10---关于状态管理BLoC
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-04-28T23:14:46+08:00" content="2018-04-28">
-            2018-04-28
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/04/28/Flutter入门系列12---基础控件Flex/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/28/Flutter入门系列12---基础控件Flex/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。</p>
-<p>因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊</p>
-<p>目前我们工程有尝试用到了<a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">BLoC</a>这个东西，在这里做简单介绍下</p>
-<p>BLoC的全称是 业务逻辑组件（Business Logic Component）。<br>如果你对响应式编程熟悉的话，应该很好懂这个到底是什么</p>
-<p><img src="https://i.imgur.com/xt3xilA.png" alt=""></p>
-<p>BLoC模式由来自Google的Paolo Soares和Cong Hui设计，并在2018年DartConf期间（2018年1月23日至24日）首次展示。 在YouTube上观看此视频。</p>
-<p>简而言之，业务逻辑（Business Logic ）需要：</p>
-<ul>
-<li>转移到一个或几个BLoC，</li>
-<li>尽可能从表现层中删除。 换句话说，UI组件应该只关心UI事物而不关心业务，</li>
-<li>依赖Streams独家使用输入（Sink）和输出（流），</li>
-<li>保持平台独立，</li>
-<li>保持环境独立。</li>
-</ul>
-<p>事实上，BLoC模式最初被设想为允许独立于平台重用相同的代码：Web应用程序，移动应用程序，后端。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/04/28/Flutter入门系列12---基础控件Flex/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2018/04/28/Flutter入门系列11---关于状态state本身/" itemprop="url">
                 Flutter入门系列11---关于状态state本身
               </a>
@@ -673,6 +478,187 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/04/10/Flutter入门系列10---关于状态管理BLoC/" itemprop="url">
+                Flutter入门系列10---关于状态管理BLoC
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-04-10T23:14:46+08:00" content="2018-04-10">
+            2018-04-10
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/04/10/Flutter入门系列10---关于状态管理BLoC/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/10/Flutter入门系列10---关于状态管理BLoC/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>做过web的同学应该速度React+Redux这个东西，到了Flutter，我们也需要有个东西来做不同页面的跳转逻辑，数据的分发管理等问题。</p>
+<p>因为一个程序大了，界面很多的，逻辑很复杂，这时候需要有个东西来做管理啊</p>
+<p>目前我们工程有尝试用到了<a href="https://hk.saowen.com/a/fbb6e484de022173fe85248875286060ce40d069c97420bc0be49d838e19e372" target="_blank" rel="noopener">BLoC</a>这个东西，在这里做简单介绍下</p>
+<p>BLoC的全称是 业务逻辑组件（Business Logic Component）。<br>如果你对响应式编程熟悉的话，应该很好懂这个到底是什么</p>
+<p>就是用reactive programming方式构建应用，一个由流构成的完全异步的世界。从而达到界面与业务分离的逻辑.</p>
+<p>或者简单粗暴的理解为，这个就是类似安卓的RX事件总线。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/04/10/Flutter入门系列10---关于状态管理BLoC/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/03/28/Flutter入门系列9---网络请求http/" itemprop="url">
+                Flutter入门系列9---网络请求http
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-03-28T23:14:46+08:00" content="2018-03-28">
+            2018-03-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/03/28/Flutter入门系列9---网络请求http/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/28/Flutter入门系列9---网络请求http/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>这次我们来做个简单的demo，去执行网络请求，加载回来数据后，在listView去显示。由于没有什么现成的api可以调用，这次只能借鉴了别人的demo来说了。。<br>效果类似这样的：<br><img src="https://i.imgur.com/JGF7W7c.png" alt=""><br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/03/28/Flutter入门系列9---网络请求http/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -711,7 +697,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>

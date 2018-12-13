@@ -203,101 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2016/01/17/关于BaseActivity的最佳实践/" itemprop="url">
-                关于BaseActivity的最佳实践
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-01-17T22:21:00+08:00" content="2016-01-17">
-            2016-01-17
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/01/17/关于BaseActivity的最佳实践/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/17/关于BaseActivity的最佳实践/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/P60117-133225.jpg" alt="与友人共躺琶洲塔江堤边畅谈人生"></p>
-<p>最近公司开新项目，一直加班，任务量很满，基本都排到过年后回来的二月底了。。。所以最近没什么时间写文章。<br>今天周日，终于有点时间缓冲，现在写点项目中遇到的内容，做点分享。</p>
-<p>今天说的是关于<code>BaseActivity</code>和<code>ActionBar</code>个人觉得的最佳实践。</p>
-<p>相信这个类名字对于很多人来说应该再熟悉不过了，毕竟开发就避免不了这两者，每个Activity顶部基本都会有一条<code>ActionBar</code>，当然我指的不是这个类本身，而是指代那个标题栏。<br><img src="http://7xl9zd.com1.z0.glb.clouddn.com/131734139647542.jpg" alt="enter image description here"></p>
-<p>我相信我们基本每个界面都有这个东西存在，而且有时候看到一些项目的这标题栏用的不是系统的<strong>Actionbar</strong>，</p>
-<p>而在<code>theme</code>里面写的是<code>noActionbar</code>的主题，<br>接着自己多写一个定制的bar的样式的<code>xml</code>文件，<br>最后再用<code>include</code>之类的来做。</p>
-<p>可能因为有时候那个<code>PM</code>的需求太不按常规Android风格出牌了，只能自己做一个，不知你们有没遇到过，但我是遇到不少了，例如要求title是居中,<strong>加粗</strong>的。<br>后来谷歌出了个<code>ToolBar</code>的东西，他确实带来了不少惊喜，让我们可以有更高的定制程度，毕竟人家就是一个viewGroup类来的，但即使有了一个ToolBar，有一样东西是少不了的，那就是</p>
-<p><strong>我们每个界面都需要单独的去添加这个view，同时各种的设置，那么问题来了，我们能否简化这部分工作呢？</strong></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/01/17/关于BaseActivity的最佳实践/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/" itemprop="url">
                 源码探索系列22---顺滑滚动的Scroller
               </a>
@@ -671,6 +576,98 @@ public View getView(int i, View view, ViewGroup viewGroup) {
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="url">
+                源码探索系列18---关于资源的加载与匹配的资源机制
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-08T23:41:46+08:00" content="2016-01-08">
+            2016-01-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/6598091212959279517.jpg" alt="enter image description here"></p>
+<p>今天我们来聊聊那个我们加载系统资源的问题。</p>
+<p>说的就是我们放在<code>res</code>目录下的内容，系统是如何获取的。</p>
+<pre><code>getResources().getString(R.string.app_name);
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/08/源码探索系列18---关于资源的加载与匹配的资源机制/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -709,7 +706,7 @@ public View getView(int i, View view, ViewGroup viewGroup) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-count">122</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
