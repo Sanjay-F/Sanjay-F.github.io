@@ -30,7 +30,7 @@
 
 
 
-  <meta name="keywords" content="android,Flutter," />
+  <meta name="keywords" content="android,socket," />
 
 
 
@@ -39,20 +39,18 @@
   <link rel="shorticon icon" type="image/x-icon" href="/fav.ico?v=0.4.5.1" />
 
 
-<meta name="description" content="在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观  传送门 ： https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts">
-<meta name="keywords" content="android,Flutter">
+<meta name="description" content="在完成组件化方案的整理，落地实践后。按照之前的设想，现在开始对插件化，热补丁技术做新的探索工作。 就目前的插件化方案，个人认为较好的方向是基于Gradle的方式做。这种编译时的对代码做”手术”方案，兼容侵入性更优。 道高一尺，魔高一丈感觉就像基因编辑手术的事情一样。从细胞层面根本的解决问题，打造刀枪不入之躯。但生物作为会进化的东西，道高一尺魔高一丈，感觉这也会不断的加速病毒的进化正如超级细菌的出现">
+<meta name="keywords" content="android,socket">
 <meta property="og:type" content="article">
-<meta property="og:title" content="关于我们团队在掘金发的Flutter内容，欢迎围观">
-<meta property="og:url" content="http://yoursite.com/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/index.html">
+<meta property="og:title" content="插件化到底路往何处？">
+<meta property="og:url" content="http://yoursite.com/2018/09/12/对插件化的重新思考/index.html">
 <meta property="og:site_name" content="SanjayF&#39;s blog">
-<meta property="og:description" content="在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观  传送门 ： https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts">
+<meta property="og:description" content="在完成组件化方案的整理，落地实践后。按照之前的设想，现在开始对插件化，热补丁技术做新的探索工作。 就目前的插件化方案，个人认为较好的方向是基于Gradle的方式做。这种编译时的对代码做”手术”方案，兼容侵入性更优。 道高一尺，魔高一丈感觉就像基因编辑手术的事情一样。从细胞层面根本的解决问题，打造刀枪不入之躯。但生物作为会进化的东西，道高一尺魔高一丈，感觉这也会不断的加速病毒的进化正如超级细菌的出现">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://i.imgur.com/Cf9u8Uc.png">
-<meta property="og:updated_time" content="2018-12-11T06:23:42.766Z">
+<meta property="og:updated_time" content="2018-12-15T05:21:05.010Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="关于我们团队在掘金发的Flutter内容，欢迎围观">
-<meta name="twitter:description" content="在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观  传送门 ： https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts">
-<meta name="twitter:image" content="https://i.imgur.com/Cf9u8Uc.png">
+<meta name="twitter:title" content="插件化到底路往何处？">
+<meta name="twitter:description" content="在完成组件化方案的整理，落地实践后。按照之前的设想，现在开始对插件化，热补丁技术做新的探索工作。 就目前的插件化方案，个人认为较好的方向是基于Gradle的方式做。这种编译时的对代码做”手术”方案，兼容侵入性更优。 道高一尺，魔高一丈感觉就像基因编辑手术的事情一样。从细胞层面根本的解决问题，打造刀枪不入之躯。但生物作为会进化的东西，道高一尺魔高一丈，感觉这也会不断的加速病毒的进化正如超级细菌的出现">
 
 
 <script type="text/javascript" id="hexo.configuration">
@@ -62,7 +60,7 @@
   };
 </script>
 
-  <title> 关于我们团队在掘金发的Flutter内容，欢迎围观 | SanjayF's blog </title>
+  <title> 插件化到底路往何处？ | SanjayF's blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
@@ -205,7 +203,7 @@
           
           
             
-              关于我们团队在掘金发的Flutter内容，欢迎围观
+              插件化到底路往何处？
             
           
         </h1>
@@ -214,8 +212,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2018-09-10T23:14:46+08:00" content="2018-09-10">
-            2018-09-10
+          <time itemprop="dateCreated" datetime="2018-09-12T22:25:00+08:00" content="2018-09-12">
+            2018-09-12
           </time>
         </span>
 
@@ -224,8 +222,8 @@
             &nbsp; | &nbsp; In
             
               <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
                 </a>
               </span>
 
@@ -240,8 +238,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" itemprop="commentsCount"></span>
+              <a href="/2018/09/12/对插件化的重新思考/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/12/对插件化的重新思考/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -255,9 +253,21 @@
       
 
       
-        <span itemprop="articleBody"><p>在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观</p>
-<p><img src="https://i.imgur.com/Cf9u8Uc.png" alt=""></p>
-<p><a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">传送门</a> ： <a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts</a></p>
+        <span itemprop="articleBody"><p>在完成组件化方案的整理，落地实践后。<br>按照之前的设想，现在开始对插件化，热补丁技术做新的探索工作。</p>
+<p>就目前的插件化方案，个人认为较好的方向是基于Gradle的方式做。<br>这种编译时的对代码做”手术”方案，兼容侵入性更优。</p>
+<h1 id="道高一尺，魔高一丈"><a href="#道高一尺，魔高一丈" class="headerlink" title="道高一尺，魔高一丈"></a>道高一尺，魔高一丈</h1><p>感觉就像基因编辑手术的事情一样。<br>从细胞层面根本的解决问题，打造刀枪不入之躯。<br>但生物作为会进化的东西，道高一尺魔高一丈，感觉这也会不断的加速病毒的进化<br>正如超级细菌的出现，不断的用抗生素筛选除了最强细菌。</p>
+<p>而目前的插件化框架，整体思路都是一致的，都是对系统服务做HOOK处理，做到欺上瞒下的能力。</p>
+<h1 id="无限的兼容黑洞"><a href="#无限的兼容黑洞" class="headerlink" title="无限的兼容黑洞"></a>无限的兼容黑洞</h1><p><strong>到了后面的安卓P系统之后，你需要不断的做兼容适配，这样就很累。</strong></p>
+<p>就像当初看DroidPlugin那样，会有大佬的适配逻辑，手Q插件框架内部也有类似这样的大量逻辑。</p>
+<p>我们希望可以做<strong>更低的侵入性</strong>，不对系统框架实现依赖做处理的<strong>黑魔法事情</strong>。</p>
+<p>回归主题，接下来，想重新整理下<code>Small</code>和<code>VirtualAPK</code>这种基于Gradle插件的方案。<br>基于自己业务本身场景的需要，探索我们还可以做出怎样的优化？</p>
+<p>为督促自己，在繁忙的工作时间之余抽出时间来做这块事情，<br>先弄个大概的时间进度</p>
+<ol>
+<li>1日—15日 看small库源码，输出文章</li>
+<li>16日–31日 看VirtualApk源码，输出文章</li>
+</ol>
+<p>看了下日历，4个工作周，5个周末时间10天时间。<br>除去一些个人事情和要在12.20前赶出来的新上线flutter项目。<br>感觉真正的时间并不算很多，只能说加油吧!</p>
+<h1 id="The-End"><a href="#The-End" class="headerlink" title="The End"></a>The End</h1><p>加油！小伙子.s<br>作为年轻人，还是要对技术有追求。</p>
 </span>
       
     </div>
@@ -268,7 +278,7 @@
           
             <a href="/tags/android/" rel="tag">#android</a>
           
-            <a href="/tags/Flutter/" rel="tag">#Flutter</a>
+            <a href="/tags/socket/" rel="tag">#socket</a>
           
         </div>
       
@@ -277,13 +287,13 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/09/12/对插件化的重新思考/" rel="prev">插件化到底路往何处？</a>
+              <a href="/2018/09/13/在离开两年后的归来/" rel="prev">离开两年后的归来</a>
             
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/05/JetPack源码探索系列4---WorkManager/" rel="next">JetPack源码探索系列4---WorkManager</a>
+              <a href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" rel="next">关于我们团队在掘金发的Flutter内容，欢迎围观</a>
             
           </div>
         </div>
@@ -298,10 +308,10 @@
 
     <div class="post-spread">
       
-        <div class="ds-share flat" data-thread-key="2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/"
-     data-title="关于我们团队在掘金发的Flutter内容，欢迎围观"
+        <div class="ds-share flat" data-thread-key="2018/09/12/对插件化的重新思考/"
+     data-title="插件化到底路往何处？"
      data-content=""
-     data-url="http://yoursite.com/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/">
+     data-url="http://yoursite.com/2018/09/12/对插件化的重新思考/">
   <div class="ds-share-inline">
     <ul  class="ds-share-icons-16">
 
@@ -331,8 +341,8 @@
         
           <div class="comments" id="comments">
             
-              <div class="ds-thread" data-thread-key="2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/"
-                   data-title="关于我们团队在掘金发的Flutter内容，欢迎围观" data-url="http://yoursite.com/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/">
+              <div class="ds-thread" data-thread-key="2018/09/12/对插件化的重新思考/"
+                   data-title="插件化到底路往何处？" data-url="http://yoursite.com/2018/09/12/对插件化的重新思考/">
               </div>
             
           </div>
@@ -414,7 +424,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">This post does not have a Table Of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#道高一尺，魔高一丈"><span class="nav-number">1.</span> <span class="nav-text">道高一尺，魔高一丈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#无限的兼容黑洞"><span class="nav-number">2.</span> <span class="nav-text">无限的兼容黑洞</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#The-End"><span class="nav-number">3.</span> <span class="nav-text">The End</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
