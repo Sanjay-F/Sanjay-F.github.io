@@ -203,8 +203,8 @@
           
           
             
-              <a class="post-title-link" href="/2018/09/12/对插件化的重新思考/" itemprop="url">
-                插件化到底路往何处？
+              <a class="post-title-link" href="/2019/02/22/关于当前组件化和插件库存在的问题和解决方案分享/" itemprop="url">
+                关于当前公开的组件化方案存在的问题与解决方案探索
               </a>
             
           
@@ -214,8 +214,8 @@
       <div class="post-meta">
         <span class="post-time">
           Posted on
-          <time itemprop="dateCreated" datetime="2018-09-12T22:25:00+08:00" content="2018-09-12">
-            2018-09-12
+          <time itemprop="dateCreated" datetime="2019-02-22T23:14:46+08:00" content="2019-02-22">
+            2019-02-22
           </time>
         </span>
 
@@ -240,8 +240,8 @@
           
             <span class="post-comments-count">
               &nbsp; | &nbsp;
-              <a href="/2018/09/12/对插件化的重新思考/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/12/对插件化的重新思考/" itemprop="commentsCount"></span>
+              <a href="/2019/02/22/关于当前组件化和插件库存在的问题和解决方案分享/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2019/02/22/关于当前组件化和插件库存在的问题和解决方案分享/" itemprop="commentsCount"></span>
               </a>
             </span>
           
@@ -256,108 +256,27 @@
 
       
         
-          <span itemprop="articleBody"><p>在完成组件化方案的整理，落地实践后。<br>按照之前的设想，现在开始对插件化，热补丁技术做新的探索工作。</p>
-<p>就目前的插件化方案，个人认为较好的方向是基于Gradle的方式做。<br>这种编译时的对代码做”手术”方案，兼容侵入性更优。</p>
-<h1 id="道高一尺，魔高一丈"><a href="#道高一尺，魔高一丈" class="headerlink" title="道高一尺，魔高一丈"></a>道高一尺，魔高一丈</h1><p>感觉就像基因编辑手术的事情一样。<br>从细胞层面根本的解决问题，打造刀枪不入之躯。<br>但生物作为会进化的东西，道高一尺魔高一丈，感觉这也会不断的加速病毒的进化<br>正如超级细菌的出现，不断的用抗生素筛选除了最强细菌。</p>
-<p>而目前的插件化框架，主流的整体思路是一致的，<br>对系统服务做HOOK处理，从而做到欺上瞒下的能力。</p>
-<p>从而允许我们去对四大组件做新增。</p>
-<h1 id="无限的兼容黑洞"><a href="#无限的兼容黑洞" class="headerlink" title="无限的兼容黑洞"></a>无限的兼容黑洞</h1><p>早期像DroidPlugin框架，会有大配的适配逻辑，<br>手Q插件框架内部也有类似这样的大量兼容不同ROOM的逻辑。<br><strong>特别到了安卓P系统之后，你现在还得去做反射的绕过问题。不断的兼容适配，这样很累。</strong></p>
-<p>我们希望可以做<strong>更低的侵入性</strong>，不对系统框架实现依赖做处理的<strong>黑魔法事情</strong>。</p>
-<p>回归主题，接下来，想重新整理下<code>Small</code>和<code>VirtualAPK</code>这种基于Gradle插件的方案。<br>基于自己业务本身场景的需要，探索我们还可以做出怎样的优化？</p>
-<p>为督促自己，在繁忙的工作时间之余抽出时间来做这块事情，<br>先弄个大概的时间进度</p>
-<ol>
-<li>1日—15日 看small库源码，输出文章</li>
-<li>16日–31日 看VirtualApk源码，输出文章</li>
-</ol>
-<p>看了下日历，4个工作周，5个周末时间10天时间。<br>除去一些个人事情和要在12.20前赶出来的新上线flutter项目。<br>感觉真正的时间并不算很多，只能说加油吧!</p>
-<h1 id="The-End"><a href="#The-End" class="headerlink" title="The End"></a>The End</h1><p>加油！小伙子.s<br>作为年轻人，还是要对技术有追求。</p>
-</span>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" itemprop="url">
-                关于我们团队在掘金发的Flutter内容，欢迎围观
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-09-10T23:14:46+08:00" content="2018-09-10">
-            2018-09-10
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/flutter/" itemprop="url" rel="index">
-                  <span itemprop="name">flutter</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/09/10/关于我们团队在掘金发的Flutter内容，欢迎围观/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <span itemprop="articleBody"><p>在掘金这边，有同事发了部分的关于我们在flutter上的探索内容，欢迎围观</p>
-<p><img src="https://i.imgur.com/Cf9u8Uc.png" alt=""></p>
-<p><a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">传送门</a> ： <a href="https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts" target="_blank" rel="noopener">https://juejin.im/user/5b4ee1cfe51d45191b61307d/posts</a></p>
-</span>
+          <p>经过长时间的摸索，目前打造出了全新的组件化方案，可以说已经有点摆脱组件化本身，而是做了较高的层次提升，做了大量的自动化工作。</p>
+<p>具体是：</p>
+<blockquote>
+<p>目前设计的整套方案，支持一键生成壳app，下一秒就做业务开发的境界。</p>
+<p>同时自动支持组件化和插件化，并集成各种规范和检查。</p>
+<p>让任何新手都可以像工作多年的架构师一般工作，不再因业务膨胀而让app出现各种可怕的耦合。</p>
+<p>开发人员只需要去完成业务代码，不再关心任何开发的细节。</p>
+<p>同时打通业务后台，监控，报表，git等，</p>
+<p>让整个开发变得简洁而优雅。</p>
+</blockquote>
+<p>基于对组件化和插件化于自己的工程做了实践和一些列的改进后。</p>
+<p>想写点系列文章，记录下就目前公开的 组件化方案 和 插件库 存在的问</p>
+<p>题， 和这些方案就组件化过程没提到的一些实际问题，</p>
+<p>结合自己在项目做出的改进方案做些记录，分享。</p>
+<p>这个估计会是一个相对比较长的系列，打算先各写4篇。</p>
+<p>先从组件化开始，毕竟先对来说，插件化深度更高，<br>从浅到深，符合认知，也方便我自己耐心的写下去。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2019/02/22/关于当前组件化和插件库存在的问题和解决方案分享/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -667,6 +586,100 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="url">
+                JetPack源码探索系列1---Lifecycle
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-08-23T22:45:46+08:00" content="2018-08-23">
+            2018-08-23
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。</p>
+<p>这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。</p>
+<p><img src="https://i.imgur.com/aTR60lI.png" alt=""></p>
+<p>这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。</p>
+<p>系列文章基本按照这个列表的内容来做，对于基础包就不做过度描述，Appcompat最近运用于做一些转场动画，不过这个只针对5.0的贡献元素等的一次封装，没太大意义，就不管了，KTX是对kotlin的扩展使用，也不深入去说，Multidex这个都知道，只是挪过来放一起，就不去看了。</p>
+<p>所以这次的探索系列文章，主要针对<strong>架构</strong>这一列.先做记录，然后对UI，行为这块做些记录。像TV,Wear OS 这些选择看了即可，需要时候再看。<br>同时作为踩过dataBind的问题的人，现在对他是完全的嫌弃的，他带来太多的问题了。</p>
+<p>现在就开始从Lifecycles开始写起.点击more查看更多哦！</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -719,7 +732,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">129</span>
+              <span class="site-state-item-count">131</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>
@@ -753,7 +766,7 @@
       <div class="footer-inner"> <div class="copyright" >
   
   &copy; &nbsp;  2015 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="icon-next-heart"></i>
   </span>

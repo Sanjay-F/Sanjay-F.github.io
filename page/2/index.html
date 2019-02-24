@@ -203,100 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="url">
-                JetPack源码探索系列1---Lifecycle
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2018-08-23T22:45:46+08:00" content="2018-08-23">
-            2018-08-23
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2018/08/23/JetPack源码探索系列1---Lifecycle/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>安卓提供了新的JetPack工具包，把原本我们早期开发安卓所遇到的一些基础问题，重新做了封装，便于我们使用。</p>
-<p>这些组件可帮助我们摆脱编写样板代码的工作并简化复杂任务，以便您可以专注于您关心的代码。</p>
-<p><img src="https://i.imgur.com/aTR60lI.png" alt=""></p>
-<p>这次的源码探索系列，就针对这块来做新的探索，虽然Flutter已经逐渐的成熟，大有逐渐替代之势，不过还是继续看下这块的源码，对其思路做了解，以方便以后的框架设计，提供新的思路来做。</p>
-<p>系列文章基本按照这个列表的内容来做，对于基础包就不做过度描述，Appcompat最近运用于做一些转场动画，不过这个只针对5.0的贡献元素等的一次封装，没太大意义，就不管了，KTX是对kotlin的扩展使用，也不深入去说，Multidex这个都知道，只是挪过来放一起，就不去看了。</p>
-<p>所以这次的探索系列文章，主要针对<strong>架构</strong>这一列.先做记录，然后对UI，行为这块做些记录。像TV,Wear OS 这些选择看了即可，需要时候再看。<br>同时作为踩过dataBind的问题的人，现在对他是完全的嫌弃的，他带来太多的问题了。</p>
-<p>现在就开始从Lifecycles开始写起.点击more查看更多哦！</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/08/23/JetPack源码探索系列1---Lifecycle/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2018/04/28/Flutter入门系列11---关于状态state本身/" itemprop="url">
                 Flutter入门系列11---关于状态state本身
               </a>
@@ -645,6 +551,101 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="url">
+                Flutter系列7---基础控件Image
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2018-03-15T23:14:46+08:00" content="2018-03-15">
+            2018-03-15
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/flutter/" itemprop="url" rel="index">
+                  <span itemprop="name">flutter</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2018/03/15/Flutter入门系列7---基础控件Image/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/15/Flutter入门系列7---基础控件Image/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>显示图片当然是最基础和重要的轮子，我们来看下Flutter的Image对应于安卓的Imageview是有多么的好用，封装的多实在的库。。</p>
+<p>– <strong>Image：</strong>通过ImageProvider来加载图片</p>
+<p>– <strong>Image.asset：</strong>用来加载本地资源图片</p>
+<p>– <strong>Image.file：</strong>用来加载本地（File文件）图片</p>
+<p>– <strong>Image.network：</strong>用来加载网络图片</p>
+<p>– <strong>Image.memory：</strong>用来加载Uint8List资源（byte数组）图片 </p>
+<p>相比安卓早期需要自己弄一个库去加载，实在厚道，自动封装了对应的加载方法了。怎么使用我们看下下面代码案例</p>
+<p>图片格式上支持： JPEG , PNG ,GIF , 动态 GIF , WebP , 动态WebP , BMP WBMP .</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/03/15/Flutter入门系列7---基础控件Image/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -697,7 +698,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">129</span>
+              <span class="site-state-item-count">131</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>
@@ -731,7 +732,7 @@
       <div class="footer-inner"> <div class="copyright" >
   
   &copy; &nbsp;  2015 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="icon-next-heart"></i>
   </span>
