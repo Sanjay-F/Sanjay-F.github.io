@@ -203,101 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="url">
-                源码探索系列27---插件化基础之类加载器DexClassLoader
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-03-16T20:50:46+08:00" content="2016-03-16">
-            2016-03-16
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/slide_4.jpg" alt="enter image description here"></p>
-<p>Java有个概念叫做<code>类加载器</code>（ClassLoader），它的作用就是<code>动态的装载Class文件</code>。借助<code>ClassLoader</code>这个类我们可以装载任何我们想要的Class文件，只需提供路径即可。</p>
-<p>像下面这样：</p>
-<pre><code>Class.forName(&quot;OurClassName&quot;);
-</code></pre><p>啊！这是反射，嗯！应该是下面这样</p>
-<pre><code>ClassLoader.loadClass(&quot;OurClassName&quot;)
-</code></pre><p>等等！<br>这Java不是可以import就可以了吗，为何还要这个类加载器？<br>因为用import的话得类文件必须在本地且编译的时候必须有这个类文件，否则报错。若想让程序在运行的时候<strong>动态调用</strong>怎么办呢？显然import不合要求，他已经写死的了，所以我们需要ClassLoader来做这件事。<br>利用它来加载Class文件到JVM，以供程序使用。<br>这也是我们能够通过加载补丁包来修复紧急的bug的一个基础</p>
-<p>反射和这个类加载有什么关系嘛？后面再讲<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/03/16/源码探索系列27---插件化基础之类加载器DexClassLoader/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2016/03/09/源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层/" itemprop="url">
                 源码探索系列26---那个搭桥牵线的月老Binder(中)之Java层
               </a>
@@ -649,6 +554,95 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/02/22/写在自己的第一本译本前/" itemprop="url">
+                写在自己的第一本译本前
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-02-22T23:40:00+08:00" content="2016-02-22">
+            2016-02-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/编程人生/" itemprop="url" rel="index">
+                  <span itemprop="name">编程人生</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/02/22/写在自己的第一本译本前/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/写在自己的第一本译本前/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_51oZlMkZlaL.jpg" alt="enter image description here"></p>
+<p>最近重新看了一遍<a href="http://www.amazon.com/True-Believer-Movements-Perennial-Paperback/dp/0060505915/ref=sr_1_1?ie=UTF8&amp;qid=1456151315&amp;sr=8-1&amp;keywords=The%20True%20Believer" target="_blank" rel="noopener">《The True Believer —Thoughts on the Nature of Mass Movements》</a>，现在是第三遍了，每次都可以得到一些宁静。大概可能是因为在这里面可以找到一个解释，来安慰自己无知的内心吧。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/02/22/写在自己的第一本译本前/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -687,7 +681,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -701,7 +695,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">131</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

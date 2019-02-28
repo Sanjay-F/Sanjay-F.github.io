@@ -203,81 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2015/10/07/给你的redis加上一把锁/" itemprop="url">
-                给你的redis加上一把锁
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-10-07T17:55:46+08:00" content="2015-10-07">
-            2015-10-07
-          </time>
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/10/07/给你的redis加上一把锁/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/07/给你的redis加上一把锁/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p> 一个段子<br> 曾经有个实习生，对redis没有加密，<br> 被一名黑客知道了地址，一条命令<code>FLUSHALL</code>，清掉了缓存。<br> 瞬间数据库被压崩，导致整个业务崩溃。</p>
-<p> <img src="http://img.blog.csdn.net/20151007171421076" alt="这里写图片描述"></p>
-<p> 那么，我们该如何保护我们的redis呢？</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/10/07/给你的redis加上一把锁/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2015/10/06/nginx的配置文件详解/" itemprop="url">
                 nginx的配置文件详解
               </a>
@@ -598,6 +523,87 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/10/01/基于Codis的Redis集群方案/" itemprop="url">
+                基于Codis的Redis集群方案
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-10-01T17:55:46+08:00" content="2015-10-01">
+            2015-10-01
+          </time>
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/01/基于Codis的Redis集群方案/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/01/基于Codis的Redis集群方案/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <h2 id="安装go"><a href="#安装go" class="headerlink" title="安装go"></a>安装go</h2><p>首先按照golang，下载地址： <a href="https://golang.org/dl/，最新的1.4.2版本。" target="_blank" rel="noopener">https://golang.org/dl/，最新的1.4.2版本。</a><br>如果被墙使用golang中国下载： <a href="http://golangtc.com/download。" target="_blank" rel="noopener">http://golangtc.com/download。</a><br>有mac版的apk，直接安装完事。 </p>
+<h2 id="设置环境变量"><a href="#设置环境变量" class="headerlink" title="设置环境变量"></a>设置环境变量</h2><p>打开终端，输入<code>sudo su</code> ,化身炒鸡管理员，输入下面命令。</p>
+<pre><code>export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=/usr/local/codis 
+</code></pre><p>然后再输入下<code>go env</code> .查看下打印的内容里面的GOPATH对不对。    </p>
+<h2 id="下载codis-安装codis"><a href="#下载codis-安装codis" class="headerlink" title="下载codis,安装codis"></a>下载codis,安装codis</h2><figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="meta-keyword">/usr/</span>local</span><br><span class="line">go get -u -d github.com<span class="meta-keyword">/wandoulabs/</span>codis</span><br><span class="line"></span><br><span class="line">cp -R <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>pkg/ <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>cmd/ <span class="meta-keyword">/usr/</span>local<span class="meta-keyword">/codis/</span>src/github.com<span class="meta-keyword">/wandoulabs/</span>codis </span><br><span class="line"></span><br><span class="line">cd $GOPATH<span class="meta-keyword">/src/</span>github.com<span class="meta-keyword">/wandoulabs/</span>codis</span><br><span class="line"> </span><br><span class="line">sh bootstrap.sh </span><br><span class="line"><span class="meta">#然后顺着安装完的提示，运行下测试</span></span><br><span class="line">make gotest</span><br></pre></td></tr></table></figure>
+<p>建议只通过go get命令来下载codis，除非你非常熟悉go语言的目录引用形式从而不会导致代码放错地方。该命令会下载master分支的最新版，我们会确保master分支的稳定。<br>当然你也可以去下载Release版本的，然后解压到<code>$GOPATH/src/github.com/wandoulabs/codis</code></p>
+<p>安装codis，需要下载依赖包。比较慢 然后就等一下，安装过程还是挺久了，大概有十多分钟,不要以为死机，然后取消。。。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/10/01/基于Codis的Redis集群方案/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -636,7 +642,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -650,7 +656,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">131</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

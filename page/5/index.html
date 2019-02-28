@@ -203,108 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="url">
-                源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-09-09T13:11:00+08:00" content="2016-09-09">
-            2016-09-09
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>对于这两个adapter的区别，我们在对代码做一次遍历后给出</p>
-<p>为了便于沟通，我们把前者缩写成<code>FPA</code>,后者缩写成<code>FSPA</code></p>
-<p>现在我们先来看下简单的使用情况</p>
-<pre><code>public abstract class FragmentPagerAdapter extends PagerAdapter 
-public abstract class FragmentStatePagerAdapter extends PagerAdapter 
-</code></pre><p>通过这两个类的声明，我们知道他们都是继承与PagerAdapter的抽象类，需要实现两个接口</p>
-<pre><code>public abstract Fragment getItem(int position);
-//返回对应的position要展示的Fragment
-
-public abstract int getCount();
-//返回要展示的总fragment数目
-</code></pre><p>我想应该你有写过类似的代码，直接自己继承与PagerAdapter，然后重写多下面两个函数来创建/销毁界面</p>
-<pre><code>public Object instantiateItem(ViewGroup container, int position)
-public void destroyItem(ViewGroup container, int position, Object object)
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/09/源码探索系列43---关于FragmentStatePagerAdapter和FragmentPagerAdapter/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2016/08/29/源码探索系列42---关于ViewPager/" itemprop="url">
                 源码探索系列42---关于ViewPager
               </a>
@@ -661,6 +559,95 @@ public void destroyItem(ViewGroup container, int position, Object object)
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="url">
+                源码探索系列39---关于电量统计BatteryStatsHelper
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-06-14T12:55:46+08:00" content="2016-06-14">
+            2016-06-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>关于APP的优化，有一点就是关于电量的内容。<br>关于我们的app耗电，在前几年，各类的XXX管家等软件都充斥各种耗电排行榜和各种所谓的节能省电设置。PM看了说我们得优化啊，让开发不得不花点心事在这事情上。那时觉得，因为你用户用得多，耗费的电自然多啊，排在前面很正常啊，应该开心才对啊！！<br>不过到好，前段时间看到一份“互联网女皇”玛丽·米克尔发布的最新版《全球互联网趋势报告》，BAT的统治了71%的互联网流量，相应的手机电量估计也不弱。</p>
+<p>说了那么多，我们先来看下到底系统是怎么多电量的统计的，知道他是怎么算的，我们才能更好的对症下药。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/06/14/源码探索系列39---关于电量统计BatteryStatsHelper/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -699,7 +686,7 @@ public void destroyItem(ViewGroup container, int position, Object object)
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -713,7 +700,7 @@ public void destroyItem(ViewGroup container, int position, Object object)
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">131</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

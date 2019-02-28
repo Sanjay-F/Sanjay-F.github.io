@@ -203,95 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2016/02/22/写在自己的第一本译本前/" itemprop="url">
-                写在自己的第一本译本前
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2016-02-22T23:40:00+08:00" content="2016-02-22">
-            2016-02-22
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/编程人生/" itemprop="url" rel="index">
-                  <span itemprop="name">编程人生</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2016/02/22/写在自己的第一本译本前/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/22/写在自己的第一本译本前/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p><img src="http://7xl9zd.com1.z0.glb.clouddn.com/blog_51oZlMkZlaL.jpg" alt="enter image description here"></p>
-<p>最近重新看了一遍<a href="http://www.amazon.com/True-Believer-Movements-Perennial-Paperback/dp/0060505915/ref=sr_1_1?ie=UTF8&amp;qid=1456151315&amp;sr=8-1&amp;keywords=The%20True%20Believer" target="_blank" rel="noopener">《The True Believer —Thoughts on the Nature of Mass Movements》</a>，现在是第三遍了，每次都可以得到一些宁静。大概可能是因为在这里面可以找到一个解释，来安慰自己无知的内心吧。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/22/写在自己的第一本译本前/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2016/02/18/源码探索系列23---那个做布局性能优化的ViewStub/" itemprop="url">
                 源码探索系列23---那个做布局性能优化的ViewStub
               </a>
@@ -662,6 +573,111 @@
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/" itemprop="url">
+                源码探索系列22---顺滑滚动的Scroller
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2016-01-12T01:05:46+08:00" content="2016-01-12">
+            2016-01-12
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/01/12/源码探索系列22---顺滑滚动的Scroller/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>我们自定义View的时候难免会需要到滚动的状态，而Scroller可以帮助我们做到顺滑的滚动。<br>使用的基本套路是下面这样的，然后我们需要滚的的时候调用下smoothScrollTo函数就可以了。</p>
+<pre><code>Scroller mScroller = new Scroller(context);
+
+private void smoothScrollTo(int destX, int destY) {
+    int scrollX = getScrollX();
+    int delta = destX - scrollX;
+    mScroller.startScroll(scrollX, 0, delta, 0, 1000);
+}
+
+@Override
+public void computeScroll() {
+    if (mScroller.computeScrollOffset()) {
+        scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+        postInvalidate();
+    } 
+}
+</code></pre><p>我们知道这个Scroller本身是不能移动我们View的，最终还是要靠本身的scrollTo函数。通过我们希望的滑动距离和时间，然后计算出每次滚动的具体，一直就那样一点点的滚动，从而实现弹性滑动的效果。</p>
+<p>现在我们就去看下他背后是做了什么。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/12/源码探索系列22---顺滑滚动的Scroller/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -700,7 +716,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -714,7 +730,7 @@
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">131</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>

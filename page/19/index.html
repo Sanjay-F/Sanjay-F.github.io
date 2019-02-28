@@ -203,101 +203,6 @@
           
           
             
-              <a class="post-title-link" href="/2015/12/18/源码探索系列7---四大金刚之Service/" itemprop="url">
-                源码探索系列7---四大金刚之Service
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on
-          <time itemprop="dateCreated" datetime="2015-12-18T12:57:00+08:00" content="2015-12-18">
-            2015-12-18
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; In
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/android/" itemprop="url" rel="index">
-                  <span itemprop="name">android</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/12/18/源码探索系列7---四大金刚之Service/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/18/源码探索系列7---四大金刚之Service/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>今天我们来看下这安卓的四大组件的另外一个Service，<br>按套路应该先列点我们在探索过程需要注意的问题，不过现在一时没想到有什么，<br>让我们边看说解释，看下有什么需要注意的</p>
-<h1 id="起航—-开启服务"><a href="#起航—-开启服务" class="headerlink" title="起航—-开启服务"></a>起航—-开启服务</h1><p>API ： 23</p>
-<p>我们启动服务一般有两种调用<code>StartService</code>和<code>BindService</code>,这里我们先从StartService开始。<br>首先去到ContextWrapper里面的startService函数</p>
-<pre><code>@Override
-public ComponentName startService(Intent service) {
-    return mBase.startService(service);
-}
-</code></pre>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/18/源码探索系列7---四大金刚之Service/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
               <a class="post-title-link" href="/2015/12/17/源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析/" itemprop="url">
                 源码探索系列5---关于Broadcast、LocalBroadcastManager 、EventBus的比较和源码解析
               </a>
@@ -735,6 +640,95 @@ public ComponentName startService(Intent service) {
 
 
     
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              <a class="post-title-link" href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="url">
+                源码探索系列1---Handler与HandlerLeak的那些事
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on
+          <time itemprop="dateCreated" datetime="2015-12-08T23:55:00+08:00" content="2015-12-08">
+            2015-12-08
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; In
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/android/" itemprop="url" rel="index">
+                  <span itemprop="name">android</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>开始学安卓的时候，我对一些异步操作都是用Handler和AsyncTask的。</p>
+<p>现在那个Handler被挂上了泄漏的名字！<br>最近在设计一个功能的时候，像借鉴于handler的设计模式，所以顺便顺便写篇文章记录下。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/08/源码探索系列1---Handler与HandlerLeak的那些事/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -773,7 +767,7 @@ public ComponentName startService(Intent service) {
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">122</span>
+              <span class="site-state-item-count">121</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -787,7 +781,7 @@ public ComponentName startService(Intent service) {
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">131</span>
+              <span class="site-state-item-count">129</span>
               <span class="site-state-item-name">tags</span>
               </a>
           </div>
